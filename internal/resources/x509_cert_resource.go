@@ -18,37 +18,43 @@ import (
 )
 
 var (
-	_ resource.Resource                = &secretResource{}
-	_ resource.ResourceWithConfigure   = &secretResource{}
-	_ resource.ResourceWithImportState = &secretResource{}
+	_ resource.Resource                = &x509_certResource{}
+	_ resource.ResourceWithConfigure   = &x509_certResource{}
+	_ resource.ResourceWithImportState = &x509_certResource{}
 )
 
-func NewSecretResource() resource.Resource {
-	return &secretResource{}
+func NewX509CertResource() resource.Resource {
+	return &x509_certResource{}
 }
 
-type secretResource struct {
+type x509_certResource struct {
 	client *client.Client
 }
 
-type secretModel struct {
+type x509_certModel struct {
 	ID                    types.String `tfsdk:"id"`
 	Handle                types.String `tfsdk:"handle"`
+	Cert                  types.String `tfsdk:"cert"`
 	Name                  types.String `tfsdk:"name"`
-	Value                 types.String `tfsdk:"value"`
 	Maxversions           types.Int64  `tfsdk:"maxversions"`
+	Algorithm             types.String `tfsdk:"algorithm"`
 	Billable              types.Bool   `tfsdk:"billable"`
+	Currentversion        types.Int64  `tfsdk:"currentversion"`
+	Fingerprint           types.String `tfsdk:"fingerprint"`
+	Issuer                types.String `tfsdk:"issuer"`
 	Managedbyresourceid   types.String `tfsdk:"managedbyresourceid"`
 	Managedbyresourcetype types.String `tfsdk:"managedbyresourcetype"`
+	Organisation          types.String `tfsdk:"organisation"`
+	Subject               types.String `tfsdk:"subject"`
 }
 
-func (r *secretResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_secret"
+func (r *x509_certResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_x509_cert"
 }
 
-func (r *secretResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *x509_certResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description: "Manages a Bahriya secret.",
+		Description: "Manages a Bahriya x509_cert.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed: true,
@@ -57,17 +63,18 @@ func (r *secretResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				},
 			},
 			"handle": schema.StringAttribute{
-				Required: true,
+				Required:    true,
+				Description: "DNS-1123 compliant: lowercase alphanumeric and hyphens only.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
+			"cert": schema.StringAttribute{
+				Required:    true,
+				Description: "PEM-encoded x509 certificate.",
+			},
 			"name": schema.StringAttribute{
 				Required: true,
-			},
-			"value": schema.StringAttribute{
-				Required:  true,
-				Sensitive: true,
 			},
 			"maxversions": schema.Int64Attribute{
 				Optional: true,
@@ -76,8 +83,32 @@ func (r *secretResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
+			"algorithm": schema.StringAttribute{
+				Computed: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"billable": schema.BoolAttribute{
 				Computed: true,
+			},
+			"currentversion": schema.Int64Attribute{
+				Computed: true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"fingerprint": schema.StringAttribute{
+				Computed: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"issuer": schema.StringAttribute{
+				Computed: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"managedbyresourceid": schema.StringAttribute{
 				Computed: true,
@@ -91,11 +122,23 @@ func (r *secretResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"organisation": schema.StringAttribute{
+				Computed: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"subject": schema.StringAttribute{
+				Computed: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
 		},
 	}
 }
 
-func (r *secretResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *x509_certResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -110,15 +153,15 @@ func (r *secretResource) Configure(_ context.Context, req resource.ConfigureRequ
 	r.client = client
 }
 
-func (r *secretResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan secretModel
+func (r *x509_certResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan x509_certModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	handle := plan.Handle.ValueString()
-	exists, err := r.client.HandleExists(ctx, "secret", handle)
+	exists, err := r.client.HandleExists(ctx, "x509_cert", handle)
 	if err != nil {
 		resp.Diagnostics.AddError("Handle existence check failed", err.Error())
 		return
@@ -126,19 +169,19 @@ func (r *secretResource) Create(ctx context.Context, req resource.CreateRequest,
 	if exists {
 		resp.Diagnostics.AddError(
 			"Handle already in use",
-			fmt.Sprintf("A secret with handle %q already exists in this organisation. Handles cannot be reused.", handle),
+			fmt.Sprintf("A x509_cert with handle %q already exists in this organisation. Handles cannot be reused.", handle),
 		)
 		return
 	}
 
-	body, diags := planToSecretPayload(ctx, &plan)
+	body, diags := planToX509CertPayload(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	body["organisation"] = r.client.OrganisationID()
 
-	data, status, err := r.client.Do(ctx, http.MethodPost, fmt.Sprintf("/organisations/%s/secrets", r.client.OrganisationID()), body)
+	data, status, err := r.client.Do(ctx, http.MethodPost, fmt.Sprintf("/organisations/%s/x509_certs", r.client.OrganisationID()), body)
 	if err != nil {
 		resp.Diagnostics.AddError("Create failed", err.Error())
 		return
@@ -159,13 +202,12 @@ func (r *secretResource) Create(ctx context.Context, req resource.CreateRequest,
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	state.Value = plan.Value
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
 
-func (r *secretResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state secretModel
+func (r *x509_certResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state x509_certModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -180,32 +222,31 @@ func (r *secretResource) Read(ctx context.Context, req resource.ReadRequest, res
 		resp.Diagnostics.Append(diags...)
 		return
 	}
-	fresh.Value = state.Value
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, fresh)...)
 }
 
-func (r *secretResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state secretModel
+func (r *x509_certResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state x509_certModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	if secretModelsEqual(plan, state) {
+	if x509_certModelsEqual(plan, state) {
 		resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 		return
 	}
 
-	body, diags := planToSecretPayload(ctx, &plan)
+	body, diags := planToX509CertPayload(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	body["organisation"] = r.client.OrganisationID()
 
-	_, status, err := r.client.Do(ctx, http.MethodPut, fmt.Sprintf("/organisations/%s/secrets/%s", r.client.OrganisationID(), state.ID.ValueString()), body)
+	_, status, err := r.client.Do(ctx, http.MethodPut, fmt.Sprintf("/organisations/%s/x509_certs/%s", r.client.OrganisationID(), state.ID.ValueString()), body)
 	if err != nil {
 		resp.Diagnostics.AddError("Update failed", err.Error())
 		return
@@ -220,58 +261,57 @@ func (r *secretResource) Update(ctx context.Context, req resource.UpdateRequest,
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	fresh.Value = plan.Value
 	resp.Diagnostics.Append(resp.State.Set(ctx, fresh)...)
 }
 
-func (r *secretResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state secretModel
+func (r *x509_certResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state x509_certModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	_, status, err := r.client.Do(ctx, http.MethodDelete, fmt.Sprintf("/organisations/%s/secrets/%s", r.client.OrganisationID(), state.ID.ValueString()), nil)
+	_, status, err := r.client.Do(ctx, http.MethodDelete, fmt.Sprintf("/organisations/%s/x509_certs/%s", r.client.OrganisationID(), state.ID.ValueString()), nil)
 	if err != nil && status != http.StatusNotFound {
 		resp.Diagnostics.AddError("Delete failed", err.Error())
 		return
 	}
 }
 
-func (r *secretResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *x509_certResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, schemaPath("id"), req.ID)...)
 }
 
-func (r *secretResource) fetch(ctx context.Context, id string) (secretModel, diagnostics) {
+func (r *x509_certResource) fetch(ctx context.Context, id string) (x509_certModel, diagnostics) {
 	var diags diagnostics
-	data, status, err := r.client.Do(ctx, http.MethodGet, fmt.Sprintf("/organisations/%s/secrets/%s", r.client.OrganisationID(), id), nil)
+	data, status, err := r.client.Do(ctx, http.MethodGet, fmt.Sprintf("/organisations/%s/x509_certs/%s", r.client.OrganisationID(), id), nil)
 	if err != nil {
 		if status == http.StatusNotFound {
 			diags.AddError("not_found", "resource was deleted out-of-band")
-			return secretModel{}, diags
+			return x509_certModel{}, diags
 		}
 		diags.AddError("Fetch failed", err.Error())
-		return secretModel{}, diags
+		return x509_certModel{}, diags
 	}
 	var raw map[string]any
 	if err := json.Unmarshal(data, &raw); err != nil {
 		diags.AddError("Decode fetch response failed", err.Error())
-		return secretModel{}, diags
+		return x509_certModel{}, diags
 	}
-	return apiToSecretModel(raw), diags
+	return apiToX509CertModel(raw), diags
 }
 
-func planToSecretPayload(ctx context.Context, m *secretModel) (map[string]any, diagnostics) {
+func planToX509CertPayload(ctx context.Context, m *x509_certModel) (map[string]any, diagnostics) {
 	var diags diagnostics
 	out := map[string]any{}
 	if !m.Handle.IsNull() && !m.Handle.IsUnknown() {
 		out["handle"] = m.Handle.ValueString()
 	}
+	if !m.Cert.IsNull() && !m.Cert.IsUnknown() {
+		out["cert"] = m.Cert.ValueString()
+	}
 	if !m.Name.IsNull() && !m.Name.IsUnknown() {
 		out["name"] = m.Name.ValueString()
-	}
-	if !m.Value.IsNull() && !m.Value.IsUnknown() {
-		out["value"] = m.Value.ValueString()
 	}
 	if !m.Maxversions.IsNull() && !m.Maxversions.IsUnknown() {
 		out["maxversions"] = m.Maxversions.ValueInt64()
@@ -279,8 +319,8 @@ func planToSecretPayload(ctx context.Context, m *secretModel) (map[string]any, d
 	return out, diags
 }
 
-func apiToSecretModel(raw map[string]any) secretModel {
-	m := secretModel{}
+func apiToX509CertModel(raw map[string]any) x509_certModel {
+	m := x509_certModel{}
 	if v, ok := raw["id"].(string); ok {
 		m.ID = types.StringValue(v)
 	} else {
@@ -291,25 +331,45 @@ func apiToSecretModel(raw map[string]any) secretModel {
 	} else {
 		m.Handle = types.StringNull()
 	}
+	if v, ok := raw["cert"].(string); ok {
+		m.Cert = types.StringValue(v)
+	} else {
+		m.Cert = types.StringNull()
+	}
 	if v, ok := raw["name"].(string); ok {
 		m.Name = types.StringValue(v)
 	} else {
 		m.Name = types.StringNull()
-	}
-	if v, ok := raw["value"].(string); ok {
-		m.Value = types.StringValue(v)
-	} else {
-		m.Value = types.StringNull()
 	}
 	if v, ok := raw["maxversions"].(float64); ok {
 		m.Maxversions = types.Int64Value(int64(v))
 	} else {
 		m.Maxversions = types.Int64Null()
 	}
+	if v, ok := raw["algorithm"].(string); ok {
+		m.Algorithm = types.StringValue(v)
+	} else {
+		m.Algorithm = types.StringNull()
+	}
 	if v, ok := raw["billable"].(bool); ok {
 		m.Billable = types.BoolValue(v)
 	} else {
 		m.Billable = types.BoolNull()
+	}
+	if v, ok := raw["currentversion"].(float64); ok {
+		m.Currentversion = types.Int64Value(int64(v))
+	} else {
+		m.Currentversion = types.Int64Null()
+	}
+	if v, ok := raw["fingerprint"].(string); ok {
+		m.Fingerprint = types.StringValue(v)
+	} else {
+		m.Fingerprint = types.StringNull()
+	}
+	if v, ok := raw["issuer"].(string); ok {
+		m.Issuer = types.StringValue(v)
+	} else {
+		m.Issuer = types.StringNull()
 	}
 	if v, ok := raw["managedbyresourceid"].(string); ok {
 		m.Managedbyresourceid = types.StringValue(v)
@@ -321,17 +381,27 @@ func apiToSecretModel(raw map[string]any) secretModel {
 	} else {
 		m.Managedbyresourcetype = types.StringNull()
 	}
+	if v, ok := raw["organisation"].(string); ok {
+		m.Organisation = types.StringValue(v)
+	} else {
+		m.Organisation = types.StringNull()
+	}
+	if v, ok := raw["subject"].(string); ok {
+		m.Subject = types.StringValue(v)
+	} else {
+		m.Subject = types.StringNull()
+	}
 	return m
 }
 
-func secretModelsEqual(a, b secretModel) bool {
+func x509_certModelsEqual(a, b x509_certModel) bool {
 	if !a.Handle.Equal(b.Handle) {
 		return false
 	}
-	if !a.Name.Equal(b.Name) {
+	if !a.Cert.Equal(b.Cert) {
 		return false
 	}
-	if !a.Value.Equal(b.Value) {
+	if !a.Name.Equal(b.Name) {
 		return false
 	}
 	if !a.Maxversions.Equal(b.Maxversions) {

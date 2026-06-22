@@ -143,13 +143,24 @@ export BAHRIYA_ORGANISATION_ID="65cc42f1-..."
 
 ## Resources
 
-| Resource             | Description                                                               | E2E Verified |
-| -------------------- | ------------------------------------------------------------------------- | ------------ |
-| `bahriya_project`    | Logical grouping of containers, secrets, registries; carries quota.       | Yes          |
-| `bahriya_container`  | A workload: HTTP server, worker, or cronjob. Multi-region by default.     | Yes          |
-| `bahriya_registry`   | Private container registry credentials, scoped to an org.                 | Yes          |
-| `bahriya_secret`     | Encrypted secret value, mountable as env var in a container.              | Yes          |
-| `bahriya_memcached`  | Managed Memcached instance, attachable to containers as a cache backend.  | Yes          |
+| Resource                  | Description                                                               | E2E Verified |
+| ------------------------- | ------------------------------------------------------------------------- | ------------ |
+| `bahriya_project`         | Logical grouping of containers, secrets, registries; carries quota.       | Yes          |
+| `bahriya_container`       | A workload: HTTP server, worker, or cronjob. Multi-region by default.     | Yes          |
+| `bahriya_registry`        | Private container registry credentials, scoped to an org.                 | Yes          |
+| `bahriya_secret`          | Encrypted secret value, mountable as env var in a container.              | Yes          |
+| `bahriya_memcached`       | Managed Memcached instance, attachable to containers as a cache backend.  | Yes          |
+| `bahriya_tls_bundle`      | TLS bundle (CA + cert + key), versioned with rotation history.            | Yes          |
+| `bahriya_x509_cert`       | Standalone X.509 certificate (no key), versioned.                         | Yes          |
+| `bahriya_gpg_keypair`     | GPG public + private keypair (OpenPGP armor), versioned.                  | Yes          |
+| `bahriya_ssh_keypair`     | SSH public + private keypair, versioned.                                  | Yes          |
+| `bahriya_encryption_key`  | Symmetric encryption key (AES, ChaCha20, etc.), versioned.                | Yes          |
+| `bahriya_env_file`        | `KEY=VALUE` env file. Injected into containers via `envFrom`.             | Yes          |
+| `bahriya_yaml_config`     | YAML config file, mounted into containers as a file.                      | Yes          |
+| `bahriya_json_config`     | JSON config file, mounted into containers as a file.                      | Yes          |
+| `bahriya_plain_config`    | Arbitrary text config file, mounted into containers as a file.            | Yes          |
+
+Each vault/config item also has a corresponding `bahriya_project_<type>_attachment` resource that binds an item to a project. Once attached, the item can be referenced from a `bahriya_container` block to mount it inside the container.
 
 All resource schemas are **code-generated** from the OpenAPI specs at `packages/bahriya-openapi/specs/v1/`.
 
@@ -212,6 +223,40 @@ Same as HTTP except `containerport` and `healthcheckpath` are not required (work
 | `name`   | string | `"DB Password"`   |                                |
 | `value`  | string | (sensitive)       |                                |
 
+#### Vault items
+
+All vault types require `handle` and `name` plus the content fields below. Handles are immutable. Items are soft-deleted (handle burned).
+
+| Resource                 | Required content fields              | Notes                                                                 |
+| ------------------------ | ------------------------------------ | --------------------------------------------------------------------- |
+| `bahriya_tls_bundle`     | `ca`, `cert`, `key`                  | PEM-encoded. `key` is sensitive.                                      |
+| `bahriya_x509_cert`      | `cert`                               | PEM-encoded standalone cert (no key).                                 |
+| `bahriya_gpg_keypair`    | `public_key`, `private_key`          | OpenPGP armored. Both fields marked sensitive by the spec.            |
+| `bahriya_ssh_keypair`    | `public_key`, `private_key`          | OpenSSH format. Both fields marked sensitive by the spec.             |
+| `bahriya_encryption_key` | `algorithm`, `format`, `key`         | `format` ∈ `base64`, `hex`, `raw`. `key` is sensitive.                |
+
+The API parses content on create / rotate — invalid material is rejected.
+
+#### Config items
+
+| Resource              | Required content fields | Notes                                                          |
+| --------------------- | ----------------------- | -------------------------------------------------------------- |
+| `bahriya_env_file`    | `content`               | `KEY=VALUE` lines. Injected via `envFrom`.                     |
+| `bahriya_yaml_config` | `content`               | Valid YAML.                                                    |
+| `bahriya_json_config` | `content`               | Valid JSON.                                                    |
+| `bahriya_plain_config`| `content`               | Arbitrary text. Mounted as a file.                             |
+
+#### Project attachments
+
+Each vault/config type has a corresponding attachment resource (`bahriya_project_tls_bundle_attachment`, etc.). All take exactly two required fields:
+
+| Field        | Type   | Description                                  |
+| ------------ | ------ | -------------------------------------------- |
+| `project_id` | string | UUID of the project (`bahriya_project.x.id`). |
+| `handle`     | string | Handle of the item to attach.                |
+
+Both attributes force replacement on change. Attachment is also blocked at the API if a container in the project still references the item.
+
 ## Data sources
 
 | Data source              | Description                                                          |
@@ -248,6 +293,30 @@ terraform import bahriya_container.api 065df92e-4e46-436a-a0a0-aaaaaaaaaaaa
 ### Sensitive fields
 
 Registry `password` and secret `value` are marked sensitive. The API returns masked sentinels on read; the provider preserves the real value from your Terraform state.
+
+Vault item content fields (`bahriya_tls_bundle.key`, `bahriya_gpg_keypair.private_key` / `.public_key`, `bahriya_ssh_keypair.private_key` / `.public_key`, `bahriya_encryption_key.key`) are also sensitive and follow the same masking pattern.
+
+### Removing a nested attachment block must be explicit
+
+Container nested-list attributes (`tls_bundles`, `x509_certs`, `gpg_keypairs`, `ssh_keypairs`, `encryption_keys`, `env_files`, `yaml_configs`, `json_configs`, `plain_configs`, `persistentvolumes`, `hostnames`, `initjobs`, `secretsenvvar`, `newenvvar`) are `Optional+Computed` with the `UseStateForUnknown` plan modifier — needed for stable plans against the API's PUT-replace semantics. As a consequence, **omitting a block in your `.tf` does NOT remove the attachment**; the prior state value is re-injected silently.
+
+To remove a vault/config attachment from a container, set the block to an explicit empty list:
+
+```hcl
+resource "bahriya_container" "api" {
+  # ...
+  json_configs = []   # explicit removal — works
+  # plain_configs    # omitting — does NOT remove; prior list is preserved
+}
+```
+
+### Detach guard
+
+Attempting to detach a vault/config item from a project while a container in that project still references it returns `409 CONFLICT` with the offending container's handle. Update the container to remove the reference first.
+
+### Container Update waits for status
+
+After a `terraform apply` that modifies a container, the provider waits for the container to reach `running` (or terminal `error`) before completing the apply. This avoids "inconsistent result after apply" errors when the post-PUT fetch would otherwise race the helm rollout.
 
 ### Common pitfalls
 

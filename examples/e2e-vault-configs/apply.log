@@ -1,0 +1,601 @@
+
+Warning: Provider development overrides are in effect
+
+The following provider development overrides are set in the CLI
+configuration:
+ - bahriya-cloud/bahriya in /Users/meezaan/code/bahriya/bahriya-platform/terraform-provider-bahriya/bin
+
+The behavior may therefore not match any released version of the provider and
+applying changes may cause the state to become incompatible with published
+releases.
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # bahriya_container.e2e will be created
+  + resource "bahriya_container" "e2e" {
+      + activedeadlineseconds           = (known after apply)
+      + activeregions                   = [
+          + "helsinki-1",
+        ]
+      + args                            = (known after apply)
+      + autoscalingenabled              = (known after apply)
+      + autoscalingmaxreplicas          = (known after apply)
+      + autoscalingminreplicas          = "1"
+      + autoscalingtargetcpu            = (known after apply)
+      + autoscalingtargetmemory         = (known after apply)
+      + backofflimit                    = (known after apply)
+      + basicauthcredentials            = (known after apply)
+      + basicauthenabled                = (known after apply)
+      + bootstraptime                   = (known after apply)
+      + command                         = (known after apply)
+      + concurrencypolicy               = (known after apply)
+      + containerport                   = "80"
+      + customdnsmode                   = (known after apply)
+      + defaulthostname                 = (known after apply)
+      + dnsfailoverenabled              = (known after apply)
+      + dnsttl                          = (known after apply)
+      + encryption_keys                 = [
+          + {
+              + handle    = "enc-82415c4b"
+              + mountpath = "/etc/bahriya/enc"
+            },
+        ]
+      + env_files                       = [
+          + {
+              + handle          = "env-82415c4b"
+              + injectionmethod = "envFrom"
+            },
+        ]
+      + ephemeralstoragegb              = (known after apply)
+      + externalnetworkingenabled       = (known after apply)
+      + failedjobshistorylimit          = (known after apply)
+      + gpg_keypairs                    = [
+          + {
+              + handle    = "gpg-82415c4b"
+              + mountpath = "/etc/bahriya/gpg"
+            },
+        ]
+      + handle                          = "ctr2-82415c4b"
+      + healthcheckpath                 = "/"
+      + hostnames                       = (known after apply)
+      + id                              = (known after apply)
+      + image                           = "nginx:alpine"
+      + initjobs                        = (known after apply)
+      + ipblacklist                     = (known after apply)
+      + ipblacklistenabled              = (known after apply)
+      + ipwhitelist                     = (known after apply)
+      + ipwhitelistenabled              = (known after apply)
+      + json_configs                    = [
+          + {
+              + handle    = "json-82415c4b"
+              + mountpath = "/etc/bahriya/cfg/json"
+            },
+        ]
+      + maxcpu                          = (known after apply)
+      + maxmemory                       = (known after apply)
+      + mincpu                          = "100"
+      + minmemory                       = "128"
+      + name                            = "TF E2E Container 82415c4b"
+      + newenvvar                       = (known after apply)
+      + organisation                    = (known after apply)
+      + persistentvolumes               = [
+          + {
+              + handle    = "data"
+              + mountpath = "/var/lib/data"
+              + sizegb    = 1
+            },
+        ]
+      + plain_configs                   = [
+          + {
+              + handle    = "plain-82415c4b"
+              + mountpath = "/etc/bahriya/cfg/plain"
+            },
+        ]
+      + project                         = (known after apply)
+      + projectname                     = (known after apply)
+      + prometheuspath                  = (known after apply)
+      + prometheusport                  = (known after apply)
+      + proxycacheallowforcecacheheader = (known after apply)
+      + proxycachecontenttypes          = (known after apply)
+      + proxycacheenabled               = (known after apply)
+      + proxycachehonorcachecontrol     = (known after apply)
+      + proxycachemaxitemsizemb         = (known after apply)
+      + proxycachememcached             = (known after apply)
+      + proxycacherequestmethods        = (known after apply)
+      + proxycacheresponsecodes         = (known after apply)
+      + proxycachesizemb                = (known after apply)
+      + proxycachestoragettl            = (known after apply)
+      + proxycachettl                   = (known after apply)
+      + proxycachevariant               = (known after apply)
+      + proxycachevarybodyjsonfields    = (known after apply)
+      + proxycachevaryheaders           = (known after apply)
+      + proxycachevaryqueryparams       = (known after apply)
+      + ratelimitingenabled             = (known after apply)
+      + ratelimitingrequestsperhour     = (known after apply)
+      + ratelimitingrequestsperminute   = (known after apply)
+      + ratelimitingrequestspersecond   = (known after apply)
+      + registry                        = (known after apply)
+      + schedule                        = (known after apply)
+      + secretsenvvar                   = (known after apply)
+      + ssh_keypairs                    = [
+          + {
+              + handle    = "ssh-82415c4b"
+              + mountpath = "/etc/bahriya/ssh"
+            },
+        ]
+      + startingdeadlineseconds         = (known after apply)
+      + status                          = (known after apply)
+      + successfuljobshistorylimit      = (known after apply)
+      + suspended                       = (known after apply)
+      + timezone                        = (known after apply)
+      + tls_bundles                     = [
+          + {
+              + handle    = "tls-82415c4b"
+              + mountpath = "/etc/bahriya/tls"
+            },
+        ]
+      + ttlsecondsafterfinished         = (known after apply)
+      + type                            = (known after apply)
+      + vanityhostname                  = (known after apply)
+      + x509_certs                      = [
+          + {
+              + handle    = "x509-82415c4b"
+              + mountpath = "/etc/bahriya/x509"
+            },
+        ]
+      + yaml_configs                    = [
+          + {
+              + handle    = "yaml-82415c4b"
+              + mountpath = "/etc/bahriya/cfg/yaml"
+            },
+        ]
+    }
+
+  # bahriya_encryption_key.main will be created
+  + resource "bahriya_encryption_key" "main" {
+      + algorithm             = "AES-256"
+      + billable              = (known after apply)
+      + currentversion        = (known after apply)
+      + format                = "base64"
+      + handle                = "enc-82415c4b"
+      + id                    = (known after apply)
+      + key                   = (sensitive value)
+      + key_bits              = (known after apply)
+      + managedbyresourceid   = (known after apply)
+      + managedbyresourcetype = (known after apply)
+      + maxversions           = (known after apply)
+      + name                  = "TF E2E Encryption Key 82415c4b"
+      + organisation          = (known after apply)
+    }
+
+  # bahriya_env_file.main will be created
+  + resource "bahriya_env_file" "main" {
+      + billable              = (known after apply)
+      + content               = <<-EOT
+            # E2E env file
+            APP_MODE=production
+            LOG_LEVEL=info
+            FEATURE_X_ENABLED=true
+        EOT
+      + currentversion        = (known after apply)
+      + entry_count           = (known after apply)
+      + handle                = "env-82415c4b"
+      + id                    = (known after apply)
+      + managedbyresourceid   = (known after apply)
+      + managedbyresourcetype = (known after apply)
+      + maxversions           = (known after apply)
+      + name                  = "TF E2E Env File 82415c4b"
+      + organisation          = (known after apply)
+    }
+
+  # bahriya_gpg_keypair.main will be created
+  + resource "bahriya_gpg_keypair" "main" {
+      + algorithm             = (known after apply)
+      + billable              = (known after apply)
+      + currentversion        = (known after apply)
+      + handle                = "gpg-82415c4b"
+      + id                    = (known after apply)
+      + key_bits              = (known after apply)
+      + key_id                = (known after apply)
+      + managedbyresourceid   = (known after apply)
+      + managedbyresourcetype = (known after apply)
+      + maxversions           = (known after apply)
+      + name                  = "TF E2E GPG Keypair 82415c4b"
+      + organisation          = (known after apply)
+      + private_key           = (sensitive value)
+      + public_key            = (sensitive value)
+      + uid                   = (known after apply)
+    }
+
+  # bahriya_json_config.main will be created
+  + resource "bahriya_json_config" "main" {
+      + billable              = (known after apply)
+      + content               = jsonencode(
+            {
+              + features = [
+                  + "alpha",
+                  + "beta",
+                ]
+              + replicas = 1
+              + service  = "e2e-82415c4b"
+            }
+        )
+      + currentversion        = (known after apply)
+      + handle                = "json-82415c4b"
+      + id                    = (known after apply)
+      + managedbyresourceid   = (known after apply)
+      + managedbyresourcetype = (known after apply)
+      + maxversions           = (known after apply)
+      + name                  = "TF E2E JSON Config 82415c4b"
+      + organisation          = (known after apply)
+    }
+
+  # bahriya_plain_config.main will be created
+  + resource "bahriya_plain_config" "main" {
+      + billable              = (known after apply)
+      + content               = <<-EOT
+            # Plain text config for e2e-82415c4b
+            key1=value1
+            key2=value2
+        EOT
+      + contentlength         = (known after apply)
+      + currentversion        = (known after apply)
+      + handle                = "plain-82415c4b"
+      + id                    = (known after apply)
+      + managedbyresourceid   = (known after apply)
+      + managedbyresourcetype = (known after apply)
+      + maxversions           = (known after apply)
+      + name                  = "TF E2E Plain Config 82415c4b"
+      + organisation          = (known after apply)
+    }
+
+  # bahriya_project.e2e will be created
+  + resource "bahriya_project" "e2e" {
+      + handle             = "tfe2e-82415c4b"
+      + id                 = (known after apply)
+      + name               = "TF E2E Vault Configs 82415c4b"
+      + organisation       = (known after apply)
+      + quotalimitcpu      = (known after apply)
+      + quotalimitmemory   = (known after apply)
+      + quotarequestcpu    = (known after apply)
+      + quotarequestmemory = (known after apply)
+      + regions            = [
+          + "helsinki-1",
+        ]
+      + users              = (known after apply)
+    }
+
+  # bahriya_project_encryption_key_attachment.main will be created
+  + resource "bahriya_project_encryption_key_attachment" "main" {
+      + handle     = "enc-82415c4b"
+      + id         = (known after apply)
+      + join_id    = (known after apply)
+      + project_id = (known after apply)
+    }
+
+  # bahriya_project_env_file_attachment.main will be created
+  + resource "bahriya_project_env_file_attachment" "main" {
+      + handle     = "env-82415c4b"
+      + id         = (known after apply)
+      + join_id    = (known after apply)
+      + project_id = (known after apply)
+    }
+
+  # bahriya_project_gpg_keypair_attachment.main will be created
+  + resource "bahriya_project_gpg_keypair_attachment" "main" {
+      + handle     = "gpg-82415c4b"
+      + id         = (known after apply)
+      + join_id    = (known after apply)
+      + project_id = (known after apply)
+    }
+
+  # bahriya_project_json_config_attachment.main will be created
+  + resource "bahriya_project_json_config_attachment" "main" {
+      + handle     = "json-82415c4b"
+      + id         = (known after apply)
+      + join_id    = (known after apply)
+      + project_id = (known after apply)
+    }
+
+  # bahriya_project_plain_config_attachment.main will be created
+  + resource "bahriya_project_plain_config_attachment" "main" {
+      + handle     = "plain-82415c4b"
+      + id         = (known after apply)
+      + join_id    = (known after apply)
+      + project_id = (known after apply)
+    }
+
+  # bahriya_project_ssh_keypair_attachment.main will be created
+  + resource "bahriya_project_ssh_keypair_attachment" "main" {
+      + handle     = "ssh-82415c4b"
+      + id         = (known after apply)
+      + join_id    = (known after apply)
+      + project_id = (known after apply)
+    }
+
+  # bahriya_project_tls_bundle_attachment.main will be created
+  + resource "bahriya_project_tls_bundle_attachment" "main" {
+      + handle     = "tls-82415c4b"
+      + id         = (known after apply)
+      + join_id    = (known after apply)
+      + project_id = (known after apply)
+    }
+
+  # bahriya_project_x509_cert_attachment.main will be created
+  + resource "bahriya_project_x509_cert_attachment" "main" {
+      + handle     = "x509-82415c4b"
+      + id         = (known after apply)
+      + join_id    = (known after apply)
+      + project_id = (known after apply)
+    }
+
+  # bahriya_project_yaml_config_attachment.main will be created
+  + resource "bahriya_project_yaml_config_attachment" "main" {
+      + handle     = "yaml-82415c4b"
+      + id         = (known after apply)
+      + join_id    = (known after apply)
+      + project_id = (known after apply)
+    }
+
+  # bahriya_ssh_keypair.main will be created
+  + resource "bahriya_ssh_keypair" "main" {
+      + algorithm             = (known after apply)
+      + billable              = (known after apply)
+      + comment               = (known after apply)
+      + currentversion        = (known after apply)
+      + handle                = "ssh-82415c4b"
+      + id                    = (known after apply)
+      + key_bits              = (known after apply)
+      + key_id                = (known after apply)
+      + managedbyresourceid   = (known after apply)
+      + managedbyresourcetype = (known after apply)
+      + maxversions           = (known after apply)
+      + name                  = "TF E2E SSH Keypair 82415c4b"
+      + organisation          = (known after apply)
+      + private_key           = (sensitive value)
+      + public_key            = (sensitive value)
+    }
+
+  # bahriya_tls_bundle.main will be created
+  + resource "bahriya_tls_bundle" "main" {
+      + algorithm             = (known after apply)
+      + billable              = (known after apply)
+      + ca                    = <<-EOT
+            -----BEGIN CERTIFICATE-----
+            MIIDQTCCAimgAwIBAgIUbPwf+XBHI81ntQLROHFKuqLircwwDQYJKoZIhvcNAQEL
+            BQAwMDEYMBYGA1UEAwwPQmFocml5YSBUZXN0IENBMRQwEgYDVQQKDAtCYWhyaXlh
+            IEUyRTAeFw0yNjA2MjIxMTI5NDBaFw0yNzA2MjIxMTI5NDBaMDAxGDAWBgNVBAMM
+            D0JhaHJpeWEgVGVzdCBDQTEUMBIGA1UECgwLQmFocml5YSBFMkUwggEiMA0GCSqG
+            SIb3DQEBAQUAA4IBDwAwggEKAoIBAQDEON2E0uj1NffeLyiyvZiTFJ0ECL2DWt1M
+            We6D2eUWul+yKuHnX6fmmtSYFTqaKf8nmmPjBd3ZyUXZoLgW8lTZJ7j2hvN4EEd8
+            xcJVraxmUU/xilviMk+t/gruNdf1StoyK+ogwYOpeBIQHwbtSSQfEn5E80Uw/TJA
+            ydWHcZW3A51gvVey3Uq9ssuZM3+rAX+xuJsnnDIZtc3DlihguJS/WM+sE7FMgSDT
+            1RKnTGyWInaS1+RPe5qVAXj6MqXnu5imetXVnIDIFahGuEMCUlhrf+nZKHRTaGnb
+            KleAa310m0W5ZdAj5g64T4Ru0DHh9xw9LG0YIc0+BIfAveGYV5+HAgMBAAGjUzBR
+            MB0GA1UdDgQWBBRr1JXuBXMNs9o7IqKxygY2+EYoITAfBgNVHSMEGDAWgBRr1JXu
+            BXMNs9o7IqKxygY2+EYoITAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUA
+            A4IBAQAm/8qSJYzJDqdL4Q9uYeRu3OkLLK+CkK59r6VBfEv5aOSJLTSssnFIz4E2
+            91uNW1kLs8CG8EugRodYvjfPS0eClxoBY4ip5/KaXL9krjIAhH+hKDwo4qRwywZa
+            nL1kSk50ucFAxk7HD82emIk+X83an0wQkQhJItOV+g/NfP17Q0FZXN1vG7hTVxUq
+            Tp1nDtVtaBnVLsyeyp4HF7xyz0auMTW5j6HDp1zIRTjTmFcGK7FyolYFyZ+KvmKm
+            Vxlif/1kQxHSxsNtu0s0fFznGzIn1/YcDXd+JHWUQUMyzS8i2OghvS6BFTlTZFzO
+            Ez5ezaS+5I5THbNdc76OtpXVq7Dq
+            -----END CERTIFICATE-----
+        EOT
+      + cert                  = <<-EOT
+            -----BEGIN CERTIFICATE-----
+            MIIDOjCCAiKgAwIBAgIUKIfoaJ6djjjWigKuoOrog4NOMfMwDQYJKoZIhvcNAQEL
+            BQAwMDEYMBYGA1UEAwwPQmFocml5YSBUZXN0IENBMRQwEgYDVQQKDAtCYWhyaXlh
+            IEUyRTAeFw0yNjA2MjIxMTI5NDBaFw0yNzA2MjIxMTI5NDBaMDoxIjAgBgNVBAMM
+            GWUyZS04MjQxNWM0Yi5iYWhyaXlhLnRlc3QxFDASBgNVBAoMC0JhaHJpeWEgRTJF
+            MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxduorpK4ZN1i/ax38tuY
+            mvwRFDaUuuRSE2okVy3N31uUTwMoXF3AVHeyWmKKDq/1L+7xx/RjIB5KScOxbMfQ
+            XQwYY2gb1boABaGdw/BqES7y+UCqcT4SvuVUWfbWfAM5PD2K3HGJzvy0a+La01nr
+            dRfvh5qdhBDozRJgm18nXglA2Vt6ejiuokO6cZ8KrOWFZ1Zbkvg9S5IAnzTZKzrK
+            uBXEwjmCfBgjSLXx3WVRkNRxKHeKzeZ/qAqBBxAC5hnt9MkTz8uVQ81AMEXGMS5B
+            fb9WMkdrzXH0o2/0wPqGFPfMLxiiGRKubysMjStLbL6/69Ji43txTzLXuvd82bNK
+            WwIDAQABo0IwQDAdBgNVHQ4EFgQUBOdmaA0FbUGJ+wrISBVKa8zLP2EwHwYDVR0j
+            BBgwFoAUa9SV7gVzDbPaOyKiscoGNvhGKCEwDQYJKoZIhvcNAQELBQADggEBABW2
+            QlF+x7ZybDGrAiNxG+uj/XzZk0BDXfcWEWplAGwfhuoEnkVm36XS3Ty7bSnokx1n
+            VlubUpFNMeAVbidMOpLe1KL30RhDi7M1UpRzr3Rcsr18ltyoID6v3Y6H2KrlUH/3
+            yl8z2OBDjb8v8jlhuVI3S4D7HcDHOvMh42yzm3Nms07D740TGnpEXklTVf92MS4N
+            MH7+K7glXJ3lB9oNzRwM+5X/WDKjyac/qRUUtua7/+TZv7e5cwAJfC20/+EomFHM
+            1gIUBPCAvTCfR7A4L4usc1w6j43nM8K+2dEH/z+ZmZx/LELuLji8mSEqlvQPX9tA
+            UKbNVZP6BEtkRFcgStg=
+            -----END CERTIFICATE-----
+        EOT
+      + currentversion        = (known after apply)
+      + fingerprint           = (known after apply)
+      + handle                = "tls-82415c4b"
+      + id                    = (known after apply)
+      + issuer                = (known after apply)
+      + key                   = (sensitive value)
+      + keybits               = (known after apply)
+      + managedbyresourceid   = (known after apply)
+      + managedbyresourcetype = (known after apply)
+      + maxversions           = (known after apply)
+      + name                  = "TF E2E TLS Bundle 82415c4b"
+      + organisation          = (known after apply)
+      + subject               = (known after apply)
+    }
+
+  # bahriya_x509_cert.main will be created
+  + resource "bahriya_x509_cert" "main" {
+      + algorithm             = (known after apply)
+      + billable              = (known after apply)
+      + cert                  = <<-EOT
+            -----BEGIN CERTIFICATE-----
+            MIIDXzCCAkegAwIBAgIUSB2qz1pm+SSdyw93/yexsTuPVuowDQYJKoZIhvcNAQEL
+            BQAwPzEnMCUGA1UEAwweZTJlLXg1MDktODI0MTVjNGIuYmFocml5YS50ZXN0MRQw
+            EgYDVQQKDAtCYWhyaXlhIEUyRTAeFw0yNjA2MjIxMTI5NDBaFw0yNzA2MjIxMTI5
+            NDBaMD8xJzAlBgNVBAMMHmUyZS14NTA5LTgyNDE1YzRiLmJhaHJpeWEudGVzdDEU
+            MBIGA1UECgwLQmFocml5YSBFMkUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEK
+            AoIBAQCqzNis1Yv6bIKmBg0+72UIxOP7beHSt9yBErWZLPVbK5a2wg7cSOz2UfUv
+            dH7CfcTESeIg0dKO6VxlSWEoahFZgEnxhr869q2xOZDEG5R8SCfQGwPTWnjxpBuj
+            NXyw/8DUikDF1MgwR7a1Bwvro+T2Yn/CMAhmxlTi3uPLUWOnlHlaxxj4qZa9eVEW
+            LS/7eMBTfUsjIMH1cXMC0R5z1IX2C2leI2UNnqhiDmAPFQJ7QhtuLKjO95hyc/3Y
+            tr3YGLf6PXjwJygx8wGrv03ckUXNDI0dBitBuQpYIDBkGFnJsNgOiFFvQJwYQeKj
+            wmZ1gU5LW0bbONQrTdZXF7X3zmPBAgMBAAGjUzBRMB0GA1UdDgQWBBSrE6MBy+3t
+            OiduDQjaIrCxkSbzyTAfBgNVHSMEGDAWgBSrE6MBy+3tOiduDQjaIrCxkSbzyTAP
+            BgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQBG8okQ+fyeYlfD4pYU
+            QSS9ACUwwUXDFQldGWEYEoNAkInvJyYne7nA2DlLP7FMDHKBwIlgn5c+sT00Le0g
+            laK6vkxUQEedXg6qeX2HNKVPIjwY/fLzLV1rvsowJAu+i5pUlKLT2cBYf56KchrU
+            9b5crWri3uIvjuPGa0xkotYA32F+OwfeqmX7MI/a2YyU79bxMwqn7pWIQ9I4xqKS
+            Gz66dVJO8racSNDUkj0+DaaoQ7ErerkP86tYijxk6YirvTKUgeoUbtgf0MJygmfX
+            P12hrnalFy6gjpqvvIS8W6dS3FYBpLKlRqc3uz8hSK4AYcyCA2iaik112NQGhBpV
+            LsBJ
+            -----END CERTIFICATE-----
+        EOT
+      + currentversion        = (known after apply)
+      + fingerprint           = (known after apply)
+      + handle                = "x509-82415c4b"
+      + id                    = (known after apply)
+      + issuer                = (known after apply)
+      + managedbyresourceid   = (known after apply)
+      + managedbyresourcetype = (known after apply)
+      + maxversions           = (known after apply)
+      + name                  = "TF E2E X509 Cert 82415c4b"
+      + organisation          = (known after apply)
+      + subject               = (known after apply)
+    }
+
+  # bahriya_yaml_config.main will be created
+  + resource "bahriya_yaml_config" "main" {
+      + billable              = (known after apply)
+      + content               = <<-EOT
+            service:
+              name: e2e-82415c4b
+              replicas: 1
+              features:
+                - alpha
+                - beta
+        EOT
+      + currentversion        = (known after apply)
+      + handle                = "yaml-82415c4b"
+      + id                    = (known after apply)
+      + managedbyresourceid   = (known after apply)
+      + managedbyresourcetype = (known after apply)
+      + maxversions           = (known after apply)
+      + name                  = "TF E2E YAML Config 82415c4b"
+      + organisation          = (known after apply)
+    }
+
+Plan: 20 to add, 0 to change, 0 to destroy.
+
+Changes to Outputs:
+  + container_id     = (known after apply)
+  + container_status = (known after apply)
+  + project_id       = (known after apply)
+  + suffix           = "82415c4b"
+bahriya_encryption_key.main: Creating...
+bahriya_yaml_config.main: Creating...
+bahriya_json_config.main: Creating...
+bahriya_x509_cert.main: Creating...
+bahriya_project.e2e: Creating...
+bahriya_plain_config.main: Creating...
+bahriya_env_file.main: Creating...
+bahriya_ssh_keypair.main: Creating...
+bahriya_gpg_keypair.main: Creating...
+bahriya_tls_bundle.main: Creating...
+bahriya_project.e2e: Creation complete after 2s [id=2be273dc-cb77-48a3-9d2d-6a056030b6a3]
+bahriya_json_config.main: Creation complete after 2s [id=2342edef-a836-4fec-bb12-5df685e0c0cc]
+bahriya_project_json_config_attachment.main: Creating...
+bahriya_ssh_keypair.main: Creation complete after 2s [id=7f7754d2-3f9f-400a-b104-e0cedc9f2175]
+bahriya_project_ssh_keypair_attachment.main: Creating...
+bahriya_gpg_keypair.main: Creation complete after 2s [id=05003f57-e31a-4830-bfdf-7f9c86bc84dc]
+bahriya_project_gpg_keypair_attachment.main: Creating...
+bahriya_env_file.main: Creation complete after 2s [id=f90c5b3b-d9a0-4010-b356-0e479116244a]
+bahriya_project_env_file_attachment.main: Creating...
+bahriya_tls_bundle.main: Creation complete after 2s [id=98018057-695b-44cc-861c-ed90e54963a1]
+bahriya_encryption_key.main: Creation complete after 2s [id=69b2c785-0b93-4fd6-a41b-4336c77211fd]
+bahriya_project_tls_bundle_attachment.main: Creating...
+bahriya_project_encryption_key_attachment.main: Creating...
+bahriya_project_json_config_attachment.main: Creation complete after 0s [id=2be273dc-cb77-48a3-9d2d-6a056030b6a3:json-82415c4b]
+bahriya_x509_cert.main: Creation complete after 2s [id=b647f77e-69b5-4944-919a-d29fae2c58bf]
+bahriya_project_x509_cert_attachment.main: Creating...
+bahriya_plain_config.main: Creation complete after 2s [id=e3d888e9-d0fb-468b-b543-1078cc50b229]
+bahriya_project_plain_config_attachment.main: Creating...
+bahriya_project_gpg_keypair_attachment.main: Creation complete after 0s [id=2be273dc-cb77-48a3-9d2d-6a056030b6a3:gpg-82415c4b]
+bahriya_yaml_config.main: Creation complete after 2s [id=d799f4d0-582e-4112-9ab2-b7f5716aa4ca]
+bahriya_project_yaml_config_attachment.main: Creating...
+bahriya_project_tls_bundle_attachment.main: Creation complete after 0s [id=2be273dc-cb77-48a3-9d2d-6a056030b6a3:tls-82415c4b]
+bahriya_project_x509_cert_attachment.main: Creation complete after 0s [id=2be273dc-cb77-48a3-9d2d-6a056030b6a3:x509-82415c4b]
+bahriya_project_ssh_keypair_attachment.main: Creation complete after 1s [id=2be273dc-cb77-48a3-9d2d-6a056030b6a3:ssh-82415c4b]
+bahriya_project_yaml_config_attachment.main: Creation complete after 1s [id=2be273dc-cb77-48a3-9d2d-6a056030b6a3:yaml-82415c4b]
+bahriya_project_env_file_attachment.main: Creation complete after 1s [id=2be273dc-cb77-48a3-9d2d-6a056030b6a3:env-82415c4b]
+bahriya_project_encryption_key_attachment.main: Creation complete after 1s [id=2be273dc-cb77-48a3-9d2d-6a056030b6a3:enc-82415c4b]
+bahriya_project_plain_config_attachment.main: Creation complete after 1s [id=2be273dc-cb77-48a3-9d2d-6a056030b6a3:plain-82415c4b]
+bahriya_container.e2e: Creating...
+bahriya_container.e2e: Still creating... [00m10s elapsed]
+bahriya_container.e2e: Still creating... [00m20s elapsed]
+bahriya_container.e2e: Still creating... [00m30s elapsed]
+bahriya_container.e2e: Still creating... [00m40s elapsed]
+bahriya_container.e2e: Still creating... [00m50s elapsed]
+bahriya_container.e2e: Still creating... [01m00s elapsed]
+bahriya_container.e2e: Still creating... [01m10s elapsed]
+bahriya_container.e2e: Still creating... [01m20s elapsed]
+bahriya_container.e2e: Still creating... [01m30s elapsed]
+bahriya_container.e2e: Still creating... [01m40s elapsed]
+bahriya_container.e2e: Still creating... [01m50s elapsed]
+bahriya_container.e2e: Still creating... [02m00s elapsed]
+bahriya_container.e2e: Still creating... [02m10s elapsed]
+bahriya_container.e2e: Still creating... [02m20s elapsed]
+bahriya_container.e2e: Still creating... [02m30s elapsed]
+bahriya_container.e2e: Still creating... [02m40s elapsed]
+bahriya_container.e2e: Still creating... [02m50s elapsed]
+bahriya_container.e2e: Still creating... [03m00s elapsed]
+bahriya_container.e2e: Still creating... [03m10s elapsed]
+bahriya_container.e2e: Still creating... [03m20s elapsed]
+bahriya_container.e2e: Still creating... [03m30s elapsed]
+bahriya_container.e2e: Still creating... [03m40s elapsed]
+bahriya_container.e2e: Still creating... [03m50s elapsed]
+bahriya_container.e2e: Still creating... [04m00s elapsed]
+bahriya_container.e2e: Still creating... [04m10s elapsed]
+bahriya_container.e2e: Still creating... [04m20s elapsed]
+bahriya_container.e2e: Still creating... [04m30s elapsed]
+bahriya_container.e2e: Still creating... [04m40s elapsed]
+bahriya_container.e2e: Still creating... [04m50s elapsed]
+bahriya_container.e2e: Still creating... [05m00s elapsed]
+bahriya_container.e2e: Still creating... [05m10s elapsed]
+bahriya_container.e2e: Still creating... [05m20s elapsed]
+bahriya_container.e2e: Still creating... [05m30s elapsed]
+bahriya_container.e2e: Still creating... [05m40s elapsed]
+bahriya_container.e2e: Still creating... [05m50s elapsed]
+bahriya_container.e2e: Still creating... [06m00s elapsed]
+bahriya_container.e2e: Still creating... [06m10s elapsed]
+bahriya_container.e2e: Still creating... [06m20s elapsed]
+bahriya_container.e2e: Still creating... [06m30s elapsed]
+bahriya_container.e2e: Still creating... [06m40s elapsed]
+bahriya_container.e2e: Still creating... [06m50s elapsed]
+bahriya_container.e2e: Still creating... [07m00s elapsed]
+bahriya_container.e2e: Still creating... [07m10s elapsed]
+bahriya_container.e2e: Still creating... [07m20s elapsed]
+bahriya_container.e2e: Still creating... [07m30s elapsed]
+bahriya_container.e2e: Still creating... [07m40s elapsed]
+bahriya_container.e2e: Still creating... [07m50s elapsed]
+bahriya_container.e2e: Still creating... [08m00s elapsed]
+bahriya_container.e2e: Still creating... [08m10s elapsed]
+bahriya_container.e2e: Still creating... [08m20s elapsed]
+bahriya_container.e2e: Still creating... [08m30s elapsed]
+bahriya_container.e2e: Still creating... [08m40s elapsed]
+bahriya_container.e2e: Still creating... [08m50s elapsed]
+bahriya_container.e2e: Still creating... [09m00s elapsed]
+bahriya_container.e2e: Still creating... [09m10s elapsed]
+bahriya_container.e2e: Still creating... [09m20s elapsed]
+bahriya_container.e2e: Still creating... [09m30s elapsed]
+bahriya_container.e2e: Still creating... [09m40s elapsed]
+bahriya_container.e2e: Still creating... [09m50s elapsed]
+bahriya_container.e2e: Still creating... [10m00s elapsed]
+bahriya_container.e2e: Still creating... [10m10s elapsed]
+
+Error: Resource did not reach ready status
+
+  with bahriya_container.e2e,
+  on main.tf line 148, in resource "bahriya_container" "e2e":
+ 148: resource "bahriya_container" "e2e" {
+
+timed out after 10m0s waiting for status "running" (last seen "provisioning")

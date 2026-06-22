@@ -1,5 +1,14 @@
 package main
 
+// AttachmentResource is the template data for per-type project attachment
+// resources (bahriya_project_<type>_attachment). These are deliberately thin —
+// project_id + handle inputs, computed join_id, no Update.
+type AttachmentResource struct {
+	Name    string // e.g. "tls_bundle" — used in the terraform resource type suffix
+	GoName  string // e.g. "TLSBundle" — used in Go identifiers
+	APIType string // e.g. "tls_bundles" — URL path segment and listing key
+}
+
 type Resource struct {
 	Name             string
 	GoName           string

@@ -1,0 +1,18 @@
+
+Warning: Provider development overrides are in effect
+
+The following provider development overrides are set in the CLI
+configuration:
+ - bahriya-cloud/bahriya in /Users/meezaan/code/bahriya/bahriya-platform/terraform-provider-bahriya/bin
+
+The behavior may therefore not match any released version of the provider and
+applying changes may cause the state to become incompatible with published
+releases.
+
+Error: Reference to undeclared resource
+
+  on main.tf line 239, in resource "bahriya_container" "e2e":
+ 239:     bahriya_project_yaml_config_attachment.main,
+
+A managed resource "bahriya_project_yaml_config_attachment" "main" has not
+been declared in the root module.

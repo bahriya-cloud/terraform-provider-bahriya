@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -31,13 +32,17 @@ type registryResource struct {
 }
 
 type registryModel struct {
-	ID           types.String `tfsdk:"id"`
-	Handle       types.String `tfsdk:"handle"`
-	Name         types.String `tfsdk:"name"`
-	Password     types.String `tfsdk:"password"`
-	Server       types.String `tfsdk:"server"`
-	Username     types.String `tfsdk:"username"`
-	Organisation types.String `tfsdk:"organisation"`
+	ID                    types.String `tfsdk:"id"`
+	Handle                types.String `tfsdk:"handle"`
+	Name                  types.String `tfsdk:"name"`
+	Password              types.String `tfsdk:"password"`
+	Server                types.String `tfsdk:"server"`
+	Username              types.String `tfsdk:"username"`
+	Maxversions           types.Int64  `tfsdk:"maxversions"`
+	Billable              types.Bool   `tfsdk:"billable"`
+	Currentversionid      types.String `tfsdk:"currentversionid"`
+	Managedbyresourceid   types.String `tfsdk:"managedbyresourceid"`
+	Managedbyresourcetype types.String `tfsdk:"managedbyresourcetype"`
 }
 
 func (r *registryResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -73,7 +78,29 @@ func (r *registryResource) Schema(_ context.Context, _ resource.SchemaRequest, r
 			"username": schema.StringAttribute{
 				Required: true,
 			},
-			"organisation": schema.StringAttribute{
+			"maxversions": schema.Int64Attribute{
+				Optional: true,
+				Computed: true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"billable": schema.BoolAttribute{
+				Computed: true,
+			},
+			"currentversionid": schema.StringAttribute{
+				Computed: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"managedbyresourceid": schema.StringAttribute{
+				Computed: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"managedbyresourcetype": schema.StringAttribute{
 				Computed: true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
@@ -267,6 +294,9 @@ func planToRegistryPayload(ctx context.Context, m *registryModel) (map[string]an
 	if !m.Username.IsNull() && !m.Username.IsUnknown() {
 		out["username"] = m.Username.ValueString()
 	}
+	if !m.Maxversions.IsNull() && !m.Maxversions.IsUnknown() {
+		out["maxversions"] = m.Maxversions.ValueInt64()
+	}
 	return out, diags
 }
 
@@ -302,10 +332,30 @@ func apiToRegistryModel(raw map[string]any) registryModel {
 	} else {
 		m.Username = types.StringNull()
 	}
-	if v, ok := raw["organisation"].(string); ok {
-		m.Organisation = types.StringValue(v)
+	if v, ok := raw["maxversions"].(float64); ok {
+		m.Maxversions = types.Int64Value(int64(v))
 	} else {
-		m.Organisation = types.StringNull()
+		m.Maxversions = types.Int64Null()
+	}
+	if v, ok := raw["billable"].(bool); ok {
+		m.Billable = types.BoolValue(v)
+	} else {
+		m.Billable = types.BoolNull()
+	}
+	if v, ok := raw["currentversionid"].(string); ok {
+		m.Currentversionid = types.StringValue(v)
+	} else {
+		m.Currentversionid = types.StringNull()
+	}
+	if v, ok := raw["managedbyresourceid"].(string); ok {
+		m.Managedbyresourceid = types.StringValue(v)
+	} else {
+		m.Managedbyresourceid = types.StringNull()
+	}
+	if v, ok := raw["managedbyresourcetype"].(string); ok {
+		m.Managedbyresourcetype = types.StringValue(v)
+	} else {
+		m.Managedbyresourcetype = types.StringNull()
 	}
 	return m
 }
@@ -324,6 +374,9 @@ func registryModelsEqual(a, b registryModel) bool {
 		return false
 	}
 	if !a.Username.Equal(b.Username) {
+		return false
+	}
+	if !a.Maxversions.Equal(b.Maxversions) {
 		return false
 	}
 	return true

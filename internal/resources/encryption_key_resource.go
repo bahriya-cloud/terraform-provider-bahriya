@@ -18,37 +18,42 @@ import (
 )
 
 var (
-	_ resource.Resource                = &secretResource{}
-	_ resource.ResourceWithConfigure   = &secretResource{}
-	_ resource.ResourceWithImportState = &secretResource{}
+	_ resource.Resource                = &encryption_keyResource{}
+	_ resource.ResourceWithConfigure   = &encryption_keyResource{}
+	_ resource.ResourceWithImportState = &encryption_keyResource{}
 )
 
-func NewSecretResource() resource.Resource {
-	return &secretResource{}
+func NewEncryptionKeyResource() resource.Resource {
+	return &encryption_keyResource{}
 }
 
-type secretResource struct {
+type encryption_keyResource struct {
 	client *client.Client
 }
 
-type secretModel struct {
+type encryption_keyModel struct {
 	ID                    types.String `tfsdk:"id"`
 	Handle                types.String `tfsdk:"handle"`
+	Algorithm             types.String `tfsdk:"algorithm"`
+	Format                types.String `tfsdk:"format"`
+	Key                   types.String `tfsdk:"key"`
 	Name                  types.String `tfsdk:"name"`
-	Value                 types.String `tfsdk:"value"`
 	Maxversions           types.Int64  `tfsdk:"maxversions"`
 	Billable              types.Bool   `tfsdk:"billable"`
+	Currentversion        types.Int64  `tfsdk:"currentversion"`
+	KeyBits               types.Int64  `tfsdk:"key_bits"`
 	Managedbyresourceid   types.String `tfsdk:"managedbyresourceid"`
 	Managedbyresourcetype types.String `tfsdk:"managedbyresourcetype"`
+	Organisation          types.String `tfsdk:"organisation"`
 }
 
-func (r *secretResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_secret"
+func (r *encryption_keyResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_encryption_key"
 }
 
-func (r *secretResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *encryption_keyResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description: "Manages a Bahriya secret.",
+		Description: "Manages a Bahriya encryption_key.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed: true,
@@ -57,17 +62,27 @@ func (r *secretResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				},
 			},
 			"handle": schema.StringAttribute{
-				Required: true,
+				Required:    true,
+				Description: "DNS-1123 compliant: lowercase alphanumeric and hyphens only.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
+			"algorithm": schema.StringAttribute{
+				Required:    true,
+				Description: "Algorithm name (AES-128, AES-256, ChaCha20, etc.)",
+			},
+			"format": schema.StringAttribute{
+				Required:    true,
+				Description: "Key encoding format: base64, hex, or raw.",
+			},
+			"key": schema.StringAttribute{
+				Required:    true,
+				Sensitive:   true,
+				Description: "The raw encryption key (base64 or hex encoded). Never returned on read.",
+			},
 			"name": schema.StringAttribute{
 				Required: true,
-			},
-			"value": schema.StringAttribute{
-				Required:  true,
-				Sensitive: true,
 			},
 			"maxversions": schema.Int64Attribute{
 				Optional: true,
@@ -78,6 +93,18 @@ func (r *secretResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 			},
 			"billable": schema.BoolAttribute{
 				Computed: true,
+			},
+			"currentversion": schema.Int64Attribute{
+				Computed: true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"key_bits": schema.Int64Attribute{
+				Computed: true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"managedbyresourceid": schema.StringAttribute{
 				Computed: true,
@@ -91,11 +118,17 @@ func (r *secretResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"organisation": schema.StringAttribute{
+				Computed: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
 		},
 	}
 }
 
-func (r *secretResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *encryption_keyResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -110,15 +143,15 @@ func (r *secretResource) Configure(_ context.Context, req resource.ConfigureRequ
 	r.client = client
 }
 
-func (r *secretResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan secretModel
+func (r *encryption_keyResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan encryption_keyModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	handle := plan.Handle.ValueString()
-	exists, err := r.client.HandleExists(ctx, "secret", handle)
+	exists, err := r.client.HandleExists(ctx, "encryption_key", handle)
 	if err != nil {
 		resp.Diagnostics.AddError("Handle existence check failed", err.Error())
 		return
@@ -126,19 +159,19 @@ func (r *secretResource) Create(ctx context.Context, req resource.CreateRequest,
 	if exists {
 		resp.Diagnostics.AddError(
 			"Handle already in use",
-			fmt.Sprintf("A secret with handle %q already exists in this organisation. Handles cannot be reused.", handle),
+			fmt.Sprintf("A encryption_key with handle %q already exists in this organisation. Handles cannot be reused.", handle),
 		)
 		return
 	}
 
-	body, diags := planToSecretPayload(ctx, &plan)
+	body, diags := planToEncryptionKeyPayload(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	body["organisation"] = r.client.OrganisationID()
 
-	data, status, err := r.client.Do(ctx, http.MethodPost, fmt.Sprintf("/organisations/%s/secrets", r.client.OrganisationID()), body)
+	data, status, err := r.client.Do(ctx, http.MethodPost, fmt.Sprintf("/organisations/%s/encryption_keys", r.client.OrganisationID()), body)
 	if err != nil {
 		resp.Diagnostics.AddError("Create failed", err.Error())
 		return
@@ -159,13 +192,13 @@ func (r *secretResource) Create(ctx context.Context, req resource.CreateRequest,
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	state.Value = plan.Value
+	state.Key = plan.Key
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
 
-func (r *secretResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state secretModel
+func (r *encryption_keyResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state encryption_keyModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -180,32 +213,32 @@ func (r *secretResource) Read(ctx context.Context, req resource.ReadRequest, res
 		resp.Diagnostics.Append(diags...)
 		return
 	}
-	fresh.Value = state.Value
+	fresh.Key = state.Key
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, fresh)...)
 }
 
-func (r *secretResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state secretModel
+func (r *encryption_keyResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state encryption_keyModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	if secretModelsEqual(plan, state) {
+	if encryption_keyModelsEqual(plan, state) {
 		resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 		return
 	}
 
-	body, diags := planToSecretPayload(ctx, &plan)
+	body, diags := planToEncryptionKeyPayload(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	body["organisation"] = r.client.OrganisationID()
 
-	_, status, err := r.client.Do(ctx, http.MethodPut, fmt.Sprintf("/organisations/%s/secrets/%s", r.client.OrganisationID(), state.ID.ValueString()), body)
+	_, status, err := r.client.Do(ctx, http.MethodPut, fmt.Sprintf("/organisations/%s/encryption_keys/%s", r.client.OrganisationID(), state.ID.ValueString()), body)
 	if err != nil {
 		resp.Diagnostics.AddError("Update failed", err.Error())
 		return
@@ -220,58 +253,64 @@ func (r *secretResource) Update(ctx context.Context, req resource.UpdateRequest,
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	fresh.Value = plan.Value
+	fresh.Key = plan.Key
 	resp.Diagnostics.Append(resp.State.Set(ctx, fresh)...)
 }
 
-func (r *secretResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state secretModel
+func (r *encryption_keyResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state encryption_keyModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	_, status, err := r.client.Do(ctx, http.MethodDelete, fmt.Sprintf("/organisations/%s/secrets/%s", r.client.OrganisationID(), state.ID.ValueString()), nil)
+	_, status, err := r.client.Do(ctx, http.MethodDelete, fmt.Sprintf("/organisations/%s/encryption_keys/%s", r.client.OrganisationID(), state.ID.ValueString()), nil)
 	if err != nil && status != http.StatusNotFound {
 		resp.Diagnostics.AddError("Delete failed", err.Error())
 		return
 	}
 }
 
-func (r *secretResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *encryption_keyResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, schemaPath("id"), req.ID)...)
 }
 
-func (r *secretResource) fetch(ctx context.Context, id string) (secretModel, diagnostics) {
+func (r *encryption_keyResource) fetch(ctx context.Context, id string) (encryption_keyModel, diagnostics) {
 	var diags diagnostics
-	data, status, err := r.client.Do(ctx, http.MethodGet, fmt.Sprintf("/organisations/%s/secrets/%s", r.client.OrganisationID(), id), nil)
+	data, status, err := r.client.Do(ctx, http.MethodGet, fmt.Sprintf("/organisations/%s/encryption_keys/%s", r.client.OrganisationID(), id), nil)
 	if err != nil {
 		if status == http.StatusNotFound {
 			diags.AddError("not_found", "resource was deleted out-of-band")
-			return secretModel{}, diags
+			return encryption_keyModel{}, diags
 		}
 		diags.AddError("Fetch failed", err.Error())
-		return secretModel{}, diags
+		return encryption_keyModel{}, diags
 	}
 	var raw map[string]any
 	if err := json.Unmarshal(data, &raw); err != nil {
 		diags.AddError("Decode fetch response failed", err.Error())
-		return secretModel{}, diags
+		return encryption_keyModel{}, diags
 	}
-	return apiToSecretModel(raw), diags
+	return apiToEncryptionKeyModel(raw), diags
 }
 
-func planToSecretPayload(ctx context.Context, m *secretModel) (map[string]any, diagnostics) {
+func planToEncryptionKeyPayload(ctx context.Context, m *encryption_keyModel) (map[string]any, diagnostics) {
 	var diags diagnostics
 	out := map[string]any{}
 	if !m.Handle.IsNull() && !m.Handle.IsUnknown() {
 		out["handle"] = m.Handle.ValueString()
 	}
+	if !m.Algorithm.IsNull() && !m.Algorithm.IsUnknown() {
+		out["algorithm"] = m.Algorithm.ValueString()
+	}
+	if !m.Format.IsNull() && !m.Format.IsUnknown() {
+		out["format"] = m.Format.ValueString()
+	}
+	if !m.Key.IsNull() && !m.Key.IsUnknown() {
+		out["key"] = m.Key.ValueString()
+	}
 	if !m.Name.IsNull() && !m.Name.IsUnknown() {
 		out["name"] = m.Name.ValueString()
-	}
-	if !m.Value.IsNull() && !m.Value.IsUnknown() {
-		out["value"] = m.Value.ValueString()
 	}
 	if !m.Maxversions.IsNull() && !m.Maxversions.IsUnknown() {
 		out["maxversions"] = m.Maxversions.ValueInt64()
@@ -279,8 +318,8 @@ func planToSecretPayload(ctx context.Context, m *secretModel) (map[string]any, d
 	return out, diags
 }
 
-func apiToSecretModel(raw map[string]any) secretModel {
-	m := secretModel{}
+func apiToEncryptionKeyModel(raw map[string]any) encryption_keyModel {
+	m := encryption_keyModel{}
 	if v, ok := raw["id"].(string); ok {
 		m.ID = types.StringValue(v)
 	} else {
@@ -291,15 +330,25 @@ func apiToSecretModel(raw map[string]any) secretModel {
 	} else {
 		m.Handle = types.StringNull()
 	}
+	if v, ok := raw["algorithm"].(string); ok {
+		m.Algorithm = types.StringValue(v)
+	} else {
+		m.Algorithm = types.StringNull()
+	}
+	if v, ok := raw["format"].(string); ok {
+		m.Format = types.StringValue(v)
+	} else {
+		m.Format = types.StringNull()
+	}
+	if v, ok := raw["key"].(string); ok {
+		m.Key = types.StringValue(v)
+	} else {
+		m.Key = types.StringNull()
+	}
 	if v, ok := raw["name"].(string); ok {
 		m.Name = types.StringValue(v)
 	} else {
 		m.Name = types.StringNull()
-	}
-	if v, ok := raw["value"].(string); ok {
-		m.Value = types.StringValue(v)
-	} else {
-		m.Value = types.StringNull()
 	}
 	if v, ok := raw["maxversions"].(float64); ok {
 		m.Maxversions = types.Int64Value(int64(v))
@@ -311,6 +360,16 @@ func apiToSecretModel(raw map[string]any) secretModel {
 	} else {
 		m.Billable = types.BoolNull()
 	}
+	if v, ok := raw["currentversion"].(float64); ok {
+		m.Currentversion = types.Int64Value(int64(v))
+	} else {
+		m.Currentversion = types.Int64Null()
+	}
+	if v, ok := raw["key_bits"].(float64); ok {
+		m.KeyBits = types.Int64Value(int64(v))
+	} else {
+		m.KeyBits = types.Int64Null()
+	}
 	if v, ok := raw["managedbyresourceid"].(string); ok {
 		m.Managedbyresourceid = types.StringValue(v)
 	} else {
@@ -321,17 +380,28 @@ func apiToSecretModel(raw map[string]any) secretModel {
 	} else {
 		m.Managedbyresourcetype = types.StringNull()
 	}
+	if v, ok := raw["organisation"].(string); ok {
+		m.Organisation = types.StringValue(v)
+	} else {
+		m.Organisation = types.StringNull()
+	}
 	return m
 }
 
-func secretModelsEqual(a, b secretModel) bool {
+func encryption_keyModelsEqual(a, b encryption_keyModel) bool {
 	if !a.Handle.Equal(b.Handle) {
 		return false
 	}
-	if !a.Name.Equal(b.Name) {
+	if !a.Algorithm.Equal(b.Algorithm) {
 		return false
 	}
-	if !a.Value.Equal(b.Value) {
+	if !a.Format.Equal(b.Format) {
+		return false
+	}
+	if !a.Key.Equal(b.Key) {
+		return false
+	}
+	if !a.Name.Equal(b.Name) {
 		return false
 	}
 	if !a.Maxversions.Equal(b.Maxversions) {

@@ -44,3 +44,32 @@ func render(res *Resource, outputDir string) error {
 	}
 	return nil
 }
+
+// renderAttachment writes a per-type project attachment resource file.
+func renderAttachment(att AttachmentResource, outputDir string) error {
+	tmpl, err := template.ParseFS(templateFS, "templates/attachment.go.tmpl")
+	if err != nil {
+		return fmt.Errorf("parse attachment template: %w", err)
+	}
+
+	var buf bytes.Buffer
+	if err := tmpl.Execute(&buf, att); err != nil {
+		return fmt.Errorf("execute attachment template for %s: %w", att.Name, err)
+	}
+
+	formatted, fmtErr := format.Source(buf.Bytes())
+	if fmtErr != nil {
+		raw := filepath.Join(outputDir, "project_"+att.Name+"_attachment_resource.go.raw")
+		_ = os.WriteFile(raw, buf.Bytes(), 0o644)
+		return fmt.Errorf("gofmt failed for project_%s_attachment (raw written to %s): %w", att.Name, raw, fmtErr)
+	}
+
+	if err := os.MkdirAll(outputDir, 0o755); err != nil {
+		return fmt.Errorf("mkdir %s: %w", outputDir, err)
+	}
+	dst := filepath.Join(outputDir, "project_"+att.Name+"_attachment_resource.go")
+	if err := os.WriteFile(dst, formatted, 0o644); err != nil {
+		return fmt.Errorf("write %s: %w", dst, err)
+	}
+	return nil
+}

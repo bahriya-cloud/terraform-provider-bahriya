@@ -223,6 +223,12 @@ func (r *memcachedResource) Create(ctx context.Context, req resource.CreateReque
 		Timeout:  createTimeout,
 	})
 	if werr != nil {
+		// Persist whatever state we can read so `terraform destroy` can clean
+		// the partially-created resource. Without this the ID is lost on
+		// Create failure and the resource leaks.
+		if partial, d := r.fetch(ctx, id); !d.HasError() {
+			resp.Diagnostics.Append(resp.State.Set(ctx, partial)...)
+		}
 		resp.Diagnostics.AddError("Resource did not reach ready status", werr.Error())
 		return
 	}
@@ -283,6 +289,27 @@ func (r *memcachedResource) Update(ctx context.Context, req resource.UpdateReque
 	}
 	if status != http.StatusOK {
 		resp.Diagnostics.AddError("Unexpected status from Update", fmt.Sprintf("HTTP %d", status))
+		return
+	}
+
+	// After a PUT, status-bearing resources transition through a transient
+	// "provisioning" state while the backend rolls out the change. Waiting
+	// for a stable status here avoids "inconsistent result after apply" when
+	// the post-PUT fetch races the rollout.
+	updateTimeout := 10 * time.Minute
+	_, werr := lifecycle.WaitForStatus(ctx, func(ctx context.Context) (string, error) {
+		fresh, d := r.fetch(ctx, state.ID.ValueString())
+		if d.HasError() {
+			return "", fmt.Errorf("fetch error during wait")
+		}
+		return fresh.Status.ValueString(), nil
+	}, lifecycle.WaitOptions{
+		Target:   "running",
+		Terminal: []string{"error"},
+		Timeout:  updateTimeout,
+	})
+	if werr != nil {
+		resp.Diagnostics.AddError("Resource did not settle after Update", werr.Error())
 		return
 	}
 

@@ -1,0 +1,250 @@
+
+Warning: Provider development overrides are in effect
+
+The following provider development overrides are set in the CLI
+configuration:
+ - bahriya-cloud/bahriya in /Users/meezaan/code/bahriya/bahriya-platform/terraform-provider-bahriya/bin
+
+The behavior may therefore not match any released version of the provider and
+applying changes may cause the state to become incompatible with published
+releases.
+bahriya_encryption_key.main: Refreshing state... [id=69b2c785-0b93-4fd6-a41b-4336c77211fd]
+bahriya_json_config.main: Refreshing state... [id=2342edef-a836-4fec-bb12-5df685e0c0cc]
+bahriya_project.e2e: Refreshing state... [id=2be273dc-cb77-48a3-9d2d-6a056030b6a3]
+bahriya_env_file.main: Refreshing state... [id=f90c5b3b-d9a0-4010-b356-0e479116244a]
+bahriya_plain_config.main: Refreshing state... [id=e3d888e9-d0fb-468b-b543-1078cc50b229]
+bahriya_gpg_keypair.main: Refreshing state... [id=05003f57-e31a-4830-bfdf-7f9c86bc84dc]
+bahriya_yaml_config.main: Refreshing state... [id=d799f4d0-582e-4112-9ab2-b7f5716aa4ca]
+bahriya_x509_cert.main: Refreshing state... [id=b647f77e-69b5-4944-919a-d29fae2c58bf]
+bahriya_ssh_keypair.main: Refreshing state... [id=7f7754d2-3f9f-400a-b104-e0cedc9f2175]
+bahriya_tls_bundle.main: Refreshing state... [id=98018057-695b-44cc-861c-ed90e54963a1]
+bahriya_project_gpg_keypair_attachment.main: Refreshing state... [id=2be273dc-cb77-48a3-9d2d-6a056030b6a3:gpg-82415c4b]
+bahriya_project_json_config_attachment.main: Refreshing state... [id=2be273dc-cb77-48a3-9d2d-6a056030b6a3:json-82415c4b]
+bahriya_project_tls_bundle_attachment.main: Refreshing state... [id=2be273dc-cb77-48a3-9d2d-6a056030b6a3:tls-82415c4b]
+bahriya_project_plain_config_attachment.main: Refreshing state... [id=2be273dc-cb77-48a3-9d2d-6a056030b6a3:plain-82415c4b]
+bahriya_project_env_file_attachment.main: Refreshing state... [id=2be273dc-cb77-48a3-9d2d-6a056030b6a3:env-82415c4b]
+bahriya_project_yaml_config_attachment.main: Refreshing state... [id=2be273dc-cb77-48a3-9d2d-6a056030b6a3:yaml-82415c4b]
+bahriya_project_x509_cert_attachment.main: Refreshing state... [id=2be273dc-cb77-48a3-9d2d-6a056030b6a3:x509-82415c4b]
+bahriya_project_encryption_key_attachment.main: Refreshing state... [id=2be273dc-cb77-48a3-9d2d-6a056030b6a3:enc-82415c4b]
+bahriya_project_ssh_keypair_attachment.main: Refreshing state... [id=2be273dc-cb77-48a3-9d2d-6a056030b6a3:ssh-82415c4b]
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # bahriya_container.e2e will be created
+  + resource "bahriya_container" "e2e" {
+      + activedeadlineseconds           = (known after apply)
+      + activeregions                   = [
+          + "helsinki-1",
+        ]
+      + args                            = (known after apply)
+      + autoscalingenabled              = (known after apply)
+      + autoscalingmaxreplicas          = (known after apply)
+      + autoscalingminreplicas          = "1"
+      + autoscalingtargetcpu            = (known after apply)
+      + autoscalingtargetmemory         = (known after apply)
+      + backofflimit                    = (known after apply)
+      + basicauthcredentials            = (known after apply)
+      + basicauthenabled                = (known after apply)
+      + bootstraptime                   = (known after apply)
+      + command                         = (known after apply)
+      + concurrencypolicy               = (known after apply)
+      + containerport                   = "80"
+      + customdnsmode                   = (known after apply)
+      + defaulthostname                 = (known after apply)
+      + dnsfailoverenabled              = (known after apply)
+      + dnsttl                          = (known after apply)
+      + encryption_keys                 = [
+          + {
+              + handle    = "enc-82415c4b"
+              + mountpath = "/etc/bahriya/enc"
+            },
+        ]
+      + env_files                       = [
+          + {
+              + handle          = "env-82415c4b"
+              + injectionmethod = "envFrom"
+            },
+        ]
+      + ephemeralstoragegb              = (known after apply)
+      + externalnetworkingenabled       = (known after apply)
+      + failedjobshistorylimit          = (known after apply)
+      + gpg_keypairs                    = [
+          + {
+              + handle    = "gpg-82415c4b"
+              + mountpath = "/etc/bahriya/gpg"
+            },
+        ]
+      + handle                          = "ctr3-82415c4b"
+      + healthcheckpath                 = "/"
+      + hostnames                       = (known after apply)
+      + id                              = (known after apply)
+      + image                           = "nginx:alpine"
+      + initjobs                        = (known after apply)
+      + ipblacklist                     = (known after apply)
+      + ipblacklistenabled              = (known after apply)
+      + ipwhitelist                     = (known after apply)
+      + ipwhitelistenabled              = (known after apply)
+      + json_configs                    = [
+          + {
+              + handle    = "json-82415c4b"
+              + mountpath = "/etc/bahriya/cfg/json"
+            },
+        ]
+      + maxcpu                          = (known after apply)
+      + maxmemory                       = (known after apply)
+      + mincpu                          = "100"
+      + minmemory                       = "128"
+      + name                            = "TF E2E Container 82415c4b"
+      + newenvvar                       = (known after apply)
+      + organisation                    = (known after apply)
+      + persistentvolumes               = [
+          + {
+              + handle    = "data"
+              + mountpath = "/var/lib/data"
+              + sizegb    = 1
+            },
+        ]
+      + plain_configs                   = [
+          + {
+              + handle    = "plain-82415c4b"
+              + mountpath = "/etc/bahriya/cfg/plain"
+            },
+        ]
+      + project                         = "2be273dc-cb77-48a3-9d2d-6a056030b6a3"
+      + projectname                     = (known after apply)
+      + prometheuspath                  = (known after apply)
+      + prometheusport                  = (known after apply)
+      + proxycacheallowforcecacheheader = (known after apply)
+      + proxycachecontenttypes          = (known after apply)
+      + proxycacheenabled               = (known after apply)
+      + proxycachehonorcachecontrol     = (known after apply)
+      + proxycachemaxitemsizemb         = (known after apply)
+      + proxycachememcached             = (known after apply)
+      + proxycacherequestmethods        = (known after apply)
+      + proxycacheresponsecodes         = (known after apply)
+      + proxycachesizemb                = (known after apply)
+      + proxycachestoragettl            = (known after apply)
+      + proxycachettl                   = (known after apply)
+      + proxycachevariant               = (known after apply)
+      + proxycachevarybodyjsonfields    = (known after apply)
+      + proxycachevaryheaders           = (known after apply)
+      + proxycachevaryqueryparams       = (known after apply)
+      + ratelimitingenabled             = (known after apply)
+      + ratelimitingrequestsperhour     = (known after apply)
+      + ratelimitingrequestsperminute   = (known after apply)
+      + ratelimitingrequestspersecond   = (known after apply)
+      + registry                        = (known after apply)
+      + schedule                        = (known after apply)
+      + secretsenvvar                   = (known after apply)
+      + ssh_keypairs                    = [
+          + {
+              + handle    = "ssh-82415c4b"
+              + mountpath = "/etc/bahriya/ssh"
+            },
+        ]
+      + startingdeadlineseconds         = (known after apply)
+      + status                          = (known after apply)
+      + successfuljobshistorylimit      = (known after apply)
+      + suspended                       = (known after apply)
+      + timezone                        = (known after apply)
+      + tls_bundles                     = [
+          + {
+              + handle    = "tls-82415c4b"
+              + mountpath = "/etc/bahriya/tls"
+            },
+        ]
+      + ttlsecondsafterfinished         = (known after apply)
+      + type                            = (known after apply)
+      + vanityhostname                  = (known after apply)
+      + x509_certs                      = [
+          + {
+              + handle    = "x509-82415c4b"
+              + mountpath = "/etc/bahriya/x509"
+            },
+        ]
+      + yaml_configs                    = [
+          + {
+              + handle    = "yaml-82415c4b"
+              + mountpath = "/etc/bahriya/cfg/yaml"
+            },
+        ]
+    }
+
+Plan: 1 to add, 0 to change, 0 to destroy.
+
+Changes to Outputs:
+  + container_id     = (known after apply)
+  + container_status = (known after apply)
+bahriya_container.e2e: Creating...
+bahriya_container.e2e: Still creating... [00m10s elapsed]
+bahriya_container.e2e: Still creating... [00m20s elapsed]
+bahriya_container.e2e: Still creating... [00m30s elapsed]
+bahriya_container.e2e: Still creating... [00m40s elapsed]
+bahriya_container.e2e: Still creating... [00m50s elapsed]
+bahriya_container.e2e: Still creating... [01m00s elapsed]
+bahriya_container.e2e: Still creating... [01m10s elapsed]
+bahriya_container.e2e: Still creating... [01m20s elapsed]
+bahriya_container.e2e: Still creating... [01m30s elapsed]
+bahriya_container.e2e: Still creating... [01m40s elapsed]
+bahriya_container.e2e: Still creating... [01m50s elapsed]
+bahriya_container.e2e: Still creating... [02m00s elapsed]
+bahriya_container.e2e: Still creating... [02m10s elapsed]
+bahriya_container.e2e: Still creating... [02m20s elapsed]
+bahriya_container.e2e: Still creating... [02m30s elapsed]
+bahriya_container.e2e: Still creating... [02m40s elapsed]
+bahriya_container.e2e: Still creating... [02m50s elapsed]
+bahriya_container.e2e: Still creating... [03m00s elapsed]
+bahriya_container.e2e: Still creating... [03m10s elapsed]
+bahriya_container.e2e: Still creating... [03m20s elapsed]
+bahriya_container.e2e: Still creating... [03m30s elapsed]
+bahriya_container.e2e: Still creating... [03m40s elapsed]
+bahriya_container.e2e: Still creating... [03m50s elapsed]
+bahriya_container.e2e: Still creating... [04m00s elapsed]
+bahriya_container.e2e: Still creating... [04m10s elapsed]
+bahriya_container.e2e: Still creating... [04m20s elapsed]
+bahriya_container.e2e: Still creating... [04m30s elapsed]
+bahriya_container.e2e: Still creating... [04m40s elapsed]
+bahriya_container.e2e: Still creating... [04m50s elapsed]
+bahriya_container.e2e: Still creating... [05m00s elapsed]
+bahriya_container.e2e: Still creating... [05m10s elapsed]
+bahriya_container.e2e: Still creating... [05m20s elapsed]
+bahriya_container.e2e: Still creating... [05m30s elapsed]
+bahriya_container.e2e: Still creating... [05m40s elapsed]
+bahriya_container.e2e: Still creating... [05m50s elapsed]
+bahriya_container.e2e: Still creating... [06m00s elapsed]
+bahriya_container.e2e: Still creating... [06m10s elapsed]
+bahriya_container.e2e: Still creating... [06m20s elapsed]
+bahriya_container.e2e: Still creating... [06m30s elapsed]
+bahriya_container.e2e: Still creating... [06m40s elapsed]
+bahriya_container.e2e: Still creating... [06m50s elapsed]
+bahriya_container.e2e: Still creating... [07m00s elapsed]
+bahriya_container.e2e: Still creating... [07m10s elapsed]
+bahriya_container.e2e: Still creating... [07m20s elapsed]
+bahriya_container.e2e: Still creating... [07m30s elapsed]
+bahriya_container.e2e: Still creating... [07m40s elapsed]
+bahriya_container.e2e: Still creating... [07m50s elapsed]
+bahriya_container.e2e: Still creating... [08m00s elapsed]
+bahriya_container.e2e: Still creating... [08m10s elapsed]
+bahriya_container.e2e: Still creating... [08m20s elapsed]
+bahriya_container.e2e: Still creating... [08m30s elapsed]
+bahriya_container.e2e: Still creating... [08m40s elapsed]
+bahriya_container.e2e: Still creating... [08m50s elapsed]
+bahriya_container.e2e: Still creating... [09m00s elapsed]
+bahriya_container.e2e: Still creating... [09m10s elapsed]
+bahriya_container.e2e: Still creating... [09m20s elapsed]
+bahriya_container.e2e: Still creating... [09m30s elapsed]
+bahriya_container.e2e: Still creating... [09m40s elapsed]
+bahriya_container.e2e: Still creating... [09m50s elapsed]
+bahriya_container.e2e: Still creating... [10m00s elapsed]
+
+Error: Resource did not reach ready status
+
+  with bahriya_container.e2e,
+  on main.tf line 148, in resource "bahriya_container" "e2e":
+ 148: resource "bahriya_container" "e2e" {
+
+timed out after 10m0s waiting for status "running" (last seen "terminating")

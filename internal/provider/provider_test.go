@@ -46,8 +46,8 @@ func TestProvider_Resources_NotEmpty(t *testing.T) {
 	if len(resources) == 0 {
 		t.Fatal("expected at least one resource")
 	}
-	if len(resources) != 5 {
-		t.Fatalf("expected 5 resources, got %d", len(resources))
+	if len(resources) != 25 {
+		t.Fatalf("expected 25 resources, got %d", len(resources))
 	}
 }
 

@@ -37,8 +37,6 @@ type projectModel struct {
 	Handle             types.String `tfsdk:"handle"`
 	Name               types.String `tfsdk:"name"`
 	Regions            types.List   `tfsdk:"regions"`
-	Registries         types.List   `tfsdk:"registries"`
-	Secrets            types.List   `tfsdk:"secrets"`
 	Users              types.List   `tfsdk:"users"`
 	Organisation       types.String `tfsdk:"organisation"`
 	Quotalimitcpu      types.String `tfsdk:"quotalimitcpu"`
@@ -73,22 +71,6 @@ func (r *projectResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 			"regions": schema.ListAttribute{
 				ElementType: types.StringType,
 				Required:    true,
-			},
-			"registries": schema.ListAttribute{
-				ElementType: types.StringType,
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.List{
-					listplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"secrets": schema.ListAttribute{
-				ElementType: types.StringType,
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.List{
-					listplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"users": schema.ListAttribute{
 				ElementType: types.StringType,
@@ -324,20 +306,6 @@ func planToProjectPayload(ctx context.Context, m *projectModel) (map[string]any,
 		diags.Append(m.Regions.ElementsAs(ctx, &items, false)...)
 		out["regions"] = items
 	}
-	if !m.Registries.IsNull() && !m.Registries.IsUnknown() {
-		var items []string
-		diags.Append(m.Registries.ElementsAs(ctx, &items, false)...)
-		out["registries"] = items
-	} else {
-		out["registries"] = []string{}
-	}
-	if !m.Secrets.IsNull() && !m.Secrets.IsUnknown() {
-		var items []string
-		diags.Append(m.Secrets.ElementsAs(ctx, &items, false)...)
-		out["secrets"] = items
-	} else {
-		out["secrets"] = []string{}
-	}
 	if !m.Users.IsNull() && !m.Users.IsUnknown() {
 		var items []string
 		diags.Append(m.Users.ElementsAs(ctx, &items, false)...)
@@ -376,30 +344,6 @@ func apiToProjectModel(raw map[string]any) projectModel {
 		m.Regions = listVal
 	} else {
 		m.Regions = types.ListNull(types.StringType)
-	}
-	if items, ok := raw["registries"].([]any); ok {
-		elements := make([]attr.Value, 0, len(items))
-		for _, it := range items {
-			if s, ok := it.(string); ok {
-				elements = append(elements, types.StringValue(s))
-			}
-		}
-		listVal, _ := types.ListValue(types.StringType, elements)
-		m.Registries = listVal
-	} else {
-		m.Registries = types.ListNull(types.StringType)
-	}
-	if items, ok := raw["secrets"].([]any); ok {
-		elements := make([]attr.Value, 0, len(items))
-		for _, it := range items {
-			if s, ok := it.(string); ok {
-				elements = append(elements, types.StringValue(s))
-			}
-		}
-		listVal, _ := types.ListValue(types.StringType, elements)
-		m.Secrets = listVal
-	} else {
-		m.Secrets = types.ListNull(types.StringType)
 	}
 	if items, ok := raw["users"].([]any); ok {
 		elements := make([]attr.Value, 0, len(items))
@@ -449,12 +393,6 @@ func projectModelsEqual(a, b projectModel) bool {
 		return false
 	}
 	if !a.Regions.Equal(b.Regions) {
-		return false
-	}
-	if !a.Registries.Equal(b.Registries) {
-		return false
-	}
-	if !a.Secrets.Equal(b.Secrets) {
 		return false
 	}
 	if !a.Users.Equal(b.Users) {

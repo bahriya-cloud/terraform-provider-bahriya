@@ -61,9 +61,12 @@ type containerModel struct {
 	Defaulthostname                 types.String `tfsdk:"defaulthostname"`
 	Dnsfailoverenabled              types.Bool   `tfsdk:"dnsfailoverenabled"`
 	Dnsttl                          types.Int64  `tfsdk:"dnsttl"`
+	EncryptionKeys                  types.List   `tfsdk:"encryption_keys"`
+	EnvFiles                        types.List   `tfsdk:"env_files"`
 	Ephemeralstoragegb              types.Int64  `tfsdk:"ephemeralstoragegb"`
 	Externalnetworkingenabled       types.Bool   `tfsdk:"externalnetworkingenabled"`
 	Failedjobshistorylimit          types.Int64  `tfsdk:"failedjobshistorylimit"`
+	GpgKeypairs                     types.List   `tfsdk:"gpg_keypairs"`
 	Healthcheckpath                 types.String `tfsdk:"healthcheckpath"`
 	Hostnames                       types.List   `tfsdk:"hostnames"`
 	Initjobs                        types.List   `tfsdk:"initjobs"`
@@ -71,10 +74,12 @@ type containerModel struct {
 	Ipblacklistenabled              types.Bool   `tfsdk:"ipblacklistenabled"`
 	Ipwhitelist                     types.List   `tfsdk:"ipwhitelist"`
 	Ipwhitelistenabled              types.Bool   `tfsdk:"ipwhitelistenabled"`
+	JSONConfigs                     types.List   `tfsdk:"json_configs"`
 	Maxcpu                          types.String `tfsdk:"maxcpu"`
 	Maxmemory                       types.String `tfsdk:"maxmemory"`
 	Newenvvar                       types.List   `tfsdk:"newenvvar"`
 	Persistentvolumes               types.List   `tfsdk:"persistentvolumes"`
+	PlainConfigs                    types.List   `tfsdk:"plain_configs"`
 	Project                         types.String `tfsdk:"project"`
 	Projectname                     types.String `tfsdk:"projectname"`
 	Prometheuspath                  types.String `tfsdk:"prometheuspath"`
@@ -100,13 +105,17 @@ type containerModel struct {
 	Registry                        types.String `tfsdk:"registry"`
 	Schedule                        types.String `tfsdk:"schedule"`
 	Secretsenvvar                   types.List   `tfsdk:"secretsenvvar"`
+	SSHKeypairs                     types.List   `tfsdk:"ssh_keypairs"`
 	Startingdeadlineseconds         types.Int64  `tfsdk:"startingdeadlineseconds"`
 	Successfuljobshistorylimit      types.Int64  `tfsdk:"successfuljobshistorylimit"`
 	Suspended                       types.Bool   `tfsdk:"suspended"`
 	Timezone                        types.String `tfsdk:"timezone"`
+	TLSBundles                      types.List   `tfsdk:"tls_bundles"`
 	Ttlsecondsafterfinished         types.Int64  `tfsdk:"ttlsecondsafterfinished"`
 	Type                            types.String `tfsdk:"type"`
 	Vanityhostname                  types.String `tfsdk:"vanityhostname"`
+	X509Certs                       types.List   `tfsdk:"x509_certs"`
+	YAMLConfigs                     types.List   `tfsdk:"yaml_configs"`
 	Organisation                    types.String `tfsdk:"organisation"`
 	Proxycachememcached             types.String `tfsdk:"proxycachememcached"`
 	Status                          types.String `tfsdk:"status"`
@@ -115,6 +124,21 @@ type containerModel struct {
 type containerBasicauthcredentialsModel struct {
 	Password types.String `tfsdk:"password"`
 	Username types.String `tfsdk:"username"`
+}
+
+type containerEncryptionKeysModel struct {
+	Handle    types.String `tfsdk:"handle"`
+	Mountpath types.String `tfsdk:"mountpath"`
+}
+
+type containerEnvFilesModel struct {
+	Handle          types.String `tfsdk:"handle"`
+	Injectionmethod types.String `tfsdk:"injectionmethod"`
+}
+
+type containerGpgKeypairsModel struct {
+	Handle    types.String `tfsdk:"handle"`
+	Mountpath types.String `tfsdk:"mountpath"`
 }
 
 type containerHostnamesModel struct {
@@ -132,6 +156,11 @@ type containerInitjobsModel struct {
 	Registry  types.String `tfsdk:"registry"`
 }
 
+type containerJSONConfigsModel struct {
+	Handle    types.String `tfsdk:"handle"`
+	Mountpath types.String `tfsdk:"mountpath"`
+}
+
 type containerNewenvvarModel struct {
 	Key   types.String `tfsdk:"key"`
 	Value types.String `tfsdk:"value"`
@@ -143,9 +172,34 @@ type containerPersistentvolumesModel struct {
 	Sizegb    types.Int64  `tfsdk:"sizegb"`
 }
 
+type containerPlainConfigsModel struct {
+	Handle    types.String `tfsdk:"handle"`
+	Mountpath types.String `tfsdk:"mountpath"`
+}
+
 type containerSecretsenvvarModel struct {
 	Name   types.String `tfsdk:"name"`
 	Secret types.String `tfsdk:"secret"`
+}
+
+type containerSSHKeypairsModel struct {
+	Handle    types.String `tfsdk:"handle"`
+	Mountpath types.String `tfsdk:"mountpath"`
+}
+
+type containerTLSBundlesModel struct {
+	Handle    types.String `tfsdk:"handle"`
+	Mountpath types.String `tfsdk:"mountpath"`
+}
+
+type containerX509CertsModel struct {
+	Handle    types.String `tfsdk:"handle"`
+	Mountpath types.String `tfsdk:"mountpath"`
+}
+
+type containerYAMLConfigsModel struct {
+	Handle    types.String `tfsdk:"handle"`
+	Mountpath types.String `tfsdk:"mountpath"`
 }
 
 func (r *containerResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -301,6 +355,42 @@ func (r *containerResource) Schema(_ context.Context, _ resource.SchemaRequest, 
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
+			"encryption_keys": schema.ListNestedAttribute{
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"handle": schema.StringAttribute{
+							Required: true,
+						},
+						"mountpath": schema.StringAttribute{
+							Required: true,
+						},
+					},
+				},
+				Optional:    true,
+				Computed:    true,
+				Description: "Encryption keys attached to this container, mounted as files. Env-var injection is not supported for encryption keys.",
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"env_files": schema.ListNestedAttribute{
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"handle": schema.StringAttribute{
+							Required: true,
+						},
+						"injectionmethod": schema.StringAttribute{
+							Optional: true,
+						},
+					},
+				},
+				Optional:    true,
+				Computed:    true,
+				Description: "Env-files attached to this container. Entries are injected as environment variables via envFrom.",
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"ephemeralstoragegb": schema.Int64Attribute{
 				Optional:    true,
 				Computed:    true,
@@ -320,6 +410,24 @@ func (r *containerResource) Schema(_ context.Context, _ resource.SchemaRequest, 
 				Description: "How many failed run records the cluster keeps. Older runs are pruned automatically.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"gpg_keypairs": schema.ListNestedAttribute{
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"handle": schema.StringAttribute{
+							Required: true,
+						},
+						"mountpath": schema.StringAttribute{
+							Required: true,
+						},
+					},
+				},
+				Optional:    true,
+				Computed:    true,
+				Description: "GPG keypairs attached to this container, mounted as files.",
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"healthcheckpath": schema.StringAttribute{
@@ -375,7 +483,7 @@ func (r *containerResource) Schema(_ context.Context, _ resource.SchemaRequest, 
 				},
 				Optional:    true,
 				Computed:    true,
-				Description: "Init jobs that run to completion before the main container starts. HTTP containers only. Up to a configurable maximum (default 3). Init job compute meters under the main CPU + memory SKUs at per-minute resolution.",
+				Description: "Init jobs that run to completion before the main container starts. HTTP containers only. Up to a configurable maximum (default 3). Init jobs run within the main container's reserved CPU and memory and are not billed separately.",
 				PlanModifiers: []planmodifier.List{
 					listplanmodifier.UseStateForUnknown(),
 				},
@@ -405,6 +513,24 @@ func (r *containerResource) Schema(_ context.Context, _ resource.SchemaRequest, 
 				Optional:    true,
 				Computed:    true,
 				Description: "Enable IP allow-list. Only IPs in the list can access the container.",
+			},
+			"json_configs": schema.ListNestedAttribute{
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"handle": schema.StringAttribute{
+							Required: true,
+						},
+						"mountpath": schema.StringAttribute{
+							Required: true,
+						},
+					},
+				},
+				Optional:    true,
+				Computed:    true,
+				Description: "JSON configs attached to this container, mounted as files via a ConfigMap volume.",
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"maxcpu": schema.StringAttribute{
 				Optional:    true,
@@ -450,6 +576,24 @@ func (r *containerResource) Schema(_ context.Context, _ resource.SchemaRequest, 
 				Optional:    true,
 				Computed:    true,
 				Description: "Persistent volumes attached to the container. Each replica gets its own copy of every volume. Containers with persistent volumes cannot use autoscaling.",
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"plain_configs": schema.ListNestedAttribute{
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"handle": schema.StringAttribute{
+							Required: true,
+						},
+						"mountpath": schema.StringAttribute{
+							Required: true,
+						},
+					},
+				},
+				Optional:    true,
+				Computed:    true,
+				Description: "Plain-text configs attached to this container, mounted as files via a ConfigMap volume.",
 				PlanModifiers: []planmodifier.List{
 					listplanmodifier.UseStateForUnknown(),
 				},
@@ -636,6 +780,24 @@ func (r *containerResource) Schema(_ context.Context, _ resource.SchemaRequest, 
 					listplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"ssh_keypairs": schema.ListNestedAttribute{
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"handle": schema.StringAttribute{
+							Required: true,
+						},
+						"mountpath": schema.StringAttribute{
+							Required: true,
+						},
+					},
+				},
+				Optional:    true,
+				Computed:    true,
+				Description: "SSH keypairs attached to this container, mounted as files.",
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"startingdeadlineseconds": schema.Int64Attribute{
 				Optional:    true,
 				Computed:    true,
@@ -662,6 +824,24 @@ func (r *containerResource) Schema(_ context.Context, _ resource.SchemaRequest, 
 				Computed:    true,
 				Description: "IANA timezone the schedule fires in. Defaults to UTC. Rendered into Kubernetes CronJob spec.timeZone so the schedule fires in this timezone regardless of which region the cron job runs in.",
 			},
+			"tls_bundles": schema.ListNestedAttribute{
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"handle": schema.StringAttribute{
+							Required: true,
+						},
+						"mountpath": schema.StringAttribute{
+							Required: true,
+						},
+					},
+				},
+				Optional:    true,
+				Computed:    true,
+				Description: "TLS bundles attached to this container. Each entry references a project-attached tls_bundle by handle and specifies the mount path. Rendered as a Kubernetes Secret volume mount.",
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"ttlsecondsafterfinished": schema.Int64Attribute{
 				Optional:    true,
 				Computed:    true,
@@ -678,6 +858,42 @@ func (r *containerResource) Schema(_ context.Context, _ resource.SchemaRequest, 
 			"vanityhostname": schema.StringAttribute{
 				Optional: true,
 				Computed: true,
+			},
+			"x509_certs": schema.ListNestedAttribute{
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"handle": schema.StringAttribute{
+							Required: true,
+						},
+						"mountpath": schema.StringAttribute{
+							Required: true,
+						},
+					},
+				},
+				Optional:    true,
+				Computed:    true,
+				Description: "x509 certificates attached to this container, mounted as files.",
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"yaml_configs": schema.ListNestedAttribute{
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"handle": schema.StringAttribute{
+							Required: true,
+						},
+						"mountpath": schema.StringAttribute{
+							Required: true,
+						},
+					},
+				},
+				Optional:    true,
+				Computed:    true,
+				Description: "YAML configs attached to this container, mounted as files via a ConfigMap volume.",
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"organisation": schema.StringAttribute{
 				Computed: true,
@@ -774,6 +990,12 @@ func (r *containerResource) Create(ctx context.Context, req resource.CreateReque
 		Timeout:  createTimeout,
 	})
 	if werr != nil {
+		// Persist whatever state we can read so `terraform destroy` can clean
+		// the partially-created resource. Without this the ID is lost on
+		// Create failure and the resource leaks.
+		if partial, d := r.fetch(ctx, id); !d.HasError() {
+			resp.Diagnostics.Append(resp.State.Set(ctx, partial)...)
+		}
 		resp.Diagnostics.AddError("Resource did not reach ready status", werr.Error())
 		return
 	}
@@ -834,6 +1056,27 @@ func (r *containerResource) Update(ctx context.Context, req resource.UpdateReque
 	}
 	if status != http.StatusOK {
 		resp.Diagnostics.AddError("Unexpected status from Update", fmt.Sprintf("HTTP %d", status))
+		return
+	}
+
+	// After a PUT, status-bearing resources transition through a transient
+	// "provisioning" state while the backend rolls out the change. Waiting
+	// for a stable status here avoids "inconsistent result after apply" when
+	// the post-PUT fetch races the rollout.
+	updateTimeout := 10 * time.Minute
+	_, werr := lifecycle.WaitForStatus(ctx, func(ctx context.Context) (string, error) {
+		fresh, d := r.fetch(ctx, state.ID.ValueString())
+		if d.HasError() {
+			return "", fmt.Errorf("fetch error during wait")
+		}
+		return fresh.Status.ValueString(), nil
+	}, lifecycle.WaitOptions{
+		Target:   "running",
+		Terminal: []string{"error"},
+		Timeout:  updateTimeout,
+	})
+	if werr != nil {
+		resp.Diagnostics.AddError("Resource did not settle after Update", werr.Error())
 		return
 	}
 
@@ -1019,6 +1262,42 @@ func planToContainerPayload(ctx context.Context, m *containerModel) (map[string]
 	if !m.Dnsttl.IsNull() && !m.Dnsttl.IsUnknown() {
 		out["dnsttl"] = m.Dnsttl.ValueInt64()
 	}
+	if !m.EncryptionKeys.IsNull() && !m.EncryptionKeys.IsUnknown() {
+		var nested []containerEncryptionKeysModel
+		diags.Append(m.EncryptionKeys.ElementsAs(ctx, &nested, false)...)
+		items := make([]map[string]any, 0, len(nested))
+		for _, n := range nested {
+			item := map[string]any{}
+			if !n.Handle.IsNull() && !n.Handle.IsUnknown() {
+				item["handle"] = n.Handle.ValueString()
+			}
+			if !n.Mountpath.IsNull() && !n.Mountpath.IsUnknown() {
+				item["mountpath"] = n.Mountpath.ValueString()
+			}
+			items = append(items, item)
+		}
+		out["encryption_keys"] = items
+	} else {
+		out["encryption_keys"] = []map[string]any{}
+	}
+	if !m.EnvFiles.IsNull() && !m.EnvFiles.IsUnknown() {
+		var nested []containerEnvFilesModel
+		diags.Append(m.EnvFiles.ElementsAs(ctx, &nested, false)...)
+		items := make([]map[string]any, 0, len(nested))
+		for _, n := range nested {
+			item := map[string]any{}
+			if !n.Handle.IsNull() && !n.Handle.IsUnknown() {
+				item["handle"] = n.Handle.ValueString()
+			}
+			if !n.Injectionmethod.IsNull() && !n.Injectionmethod.IsUnknown() {
+				item["injectionmethod"] = n.Injectionmethod.ValueString()
+			}
+			items = append(items, item)
+		}
+		out["env_files"] = items
+	} else {
+		out["env_files"] = []map[string]any{}
+	}
 	if !m.Ephemeralstoragegb.IsNull() && !m.Ephemeralstoragegb.IsUnknown() {
 		out["ephemeralstoragegb"] = m.Ephemeralstoragegb.ValueInt64()
 	}
@@ -1029,6 +1308,24 @@ func planToContainerPayload(ctx context.Context, m *containerModel) (map[string]
 	}
 	if !m.Failedjobshistorylimit.IsNull() && !m.Failedjobshistorylimit.IsUnknown() {
 		out["failedjobshistorylimit"] = m.Failedjobshistorylimit.ValueInt64()
+	}
+	if !m.GpgKeypairs.IsNull() && !m.GpgKeypairs.IsUnknown() {
+		var nested []containerGpgKeypairsModel
+		diags.Append(m.GpgKeypairs.ElementsAs(ctx, &nested, false)...)
+		items := make([]map[string]any, 0, len(nested))
+		for _, n := range nested {
+			item := map[string]any{}
+			if !n.Handle.IsNull() && !n.Handle.IsUnknown() {
+				item["handle"] = n.Handle.ValueString()
+			}
+			if !n.Mountpath.IsNull() && !n.Mountpath.IsUnknown() {
+				item["mountpath"] = n.Mountpath.ValueString()
+			}
+			items = append(items, item)
+		}
+		out["gpg_keypairs"] = items
+	} else {
+		out["gpg_keypairs"] = []map[string]any{}
 	}
 	if !m.Healthcheckpath.IsNull() && !m.Healthcheckpath.IsUnknown() {
 		out["healthcheckpath"] = m.Healthcheckpath.ValueString()
@@ -1112,6 +1409,24 @@ func planToContainerPayload(ctx context.Context, m *containerModel) (map[string]
 	} else {
 		out["ipwhitelistenabled"] = false
 	}
+	if !m.JSONConfigs.IsNull() && !m.JSONConfigs.IsUnknown() {
+		var nested []containerJSONConfigsModel
+		diags.Append(m.JSONConfigs.ElementsAs(ctx, &nested, false)...)
+		items := make([]map[string]any, 0, len(nested))
+		for _, n := range nested {
+			item := map[string]any{}
+			if !n.Handle.IsNull() && !n.Handle.IsUnknown() {
+				item["handle"] = n.Handle.ValueString()
+			}
+			if !n.Mountpath.IsNull() && !n.Mountpath.IsUnknown() {
+				item["mountpath"] = n.Mountpath.ValueString()
+			}
+			items = append(items, item)
+		}
+		out["json_configs"] = items
+	} else {
+		out["json_configs"] = []map[string]any{}
+	}
 	if !m.Maxcpu.IsNull() && !m.Maxcpu.IsUnknown() {
 		out["maxcpu"] = m.Maxcpu.ValueString()
 	}
@@ -1156,6 +1471,24 @@ func planToContainerPayload(ctx context.Context, m *containerModel) (map[string]
 		out["persistentvolumes"] = items
 	} else {
 		out["persistentvolumes"] = []map[string]any{}
+	}
+	if !m.PlainConfigs.IsNull() && !m.PlainConfigs.IsUnknown() {
+		var nested []containerPlainConfigsModel
+		diags.Append(m.PlainConfigs.ElementsAs(ctx, &nested, false)...)
+		items := make([]map[string]any, 0, len(nested))
+		for _, n := range nested {
+			item := map[string]any{}
+			if !n.Handle.IsNull() && !n.Handle.IsUnknown() {
+				item["handle"] = n.Handle.ValueString()
+			}
+			if !n.Mountpath.IsNull() && !n.Mountpath.IsUnknown() {
+				item["mountpath"] = n.Mountpath.ValueString()
+			}
+			items = append(items, item)
+		}
+		out["plain_configs"] = items
+	} else {
+		out["plain_configs"] = []map[string]any{}
 	}
 	if !m.Project.IsNull() && !m.Project.IsUnknown() {
 		out["project"] = m.Project.ValueString()
@@ -1279,6 +1612,24 @@ func planToContainerPayload(ctx context.Context, m *containerModel) (map[string]
 	} else {
 		out["secretsenvvar"] = []map[string]any{}
 	}
+	if !m.SSHKeypairs.IsNull() && !m.SSHKeypairs.IsUnknown() {
+		var nested []containerSSHKeypairsModel
+		diags.Append(m.SSHKeypairs.ElementsAs(ctx, &nested, false)...)
+		items := make([]map[string]any, 0, len(nested))
+		for _, n := range nested {
+			item := map[string]any{}
+			if !n.Handle.IsNull() && !n.Handle.IsUnknown() {
+				item["handle"] = n.Handle.ValueString()
+			}
+			if !n.Mountpath.IsNull() && !n.Mountpath.IsUnknown() {
+				item["mountpath"] = n.Mountpath.ValueString()
+			}
+			items = append(items, item)
+		}
+		out["ssh_keypairs"] = items
+	} else {
+		out["ssh_keypairs"] = []map[string]any{}
+	}
 	if !m.Startingdeadlineseconds.IsNull() && !m.Startingdeadlineseconds.IsUnknown() {
 		out["startingdeadlineseconds"] = m.Startingdeadlineseconds.ValueInt64()
 	}
@@ -1293,6 +1644,24 @@ func planToContainerPayload(ctx context.Context, m *containerModel) (map[string]
 	if !m.Timezone.IsNull() && !m.Timezone.IsUnknown() {
 		out["timezone"] = m.Timezone.ValueString()
 	}
+	if !m.TLSBundles.IsNull() && !m.TLSBundles.IsUnknown() {
+		var nested []containerTLSBundlesModel
+		diags.Append(m.TLSBundles.ElementsAs(ctx, &nested, false)...)
+		items := make([]map[string]any, 0, len(nested))
+		for _, n := range nested {
+			item := map[string]any{}
+			if !n.Handle.IsNull() && !n.Handle.IsUnknown() {
+				item["handle"] = n.Handle.ValueString()
+			}
+			if !n.Mountpath.IsNull() && !n.Mountpath.IsUnknown() {
+				item["mountpath"] = n.Mountpath.ValueString()
+			}
+			items = append(items, item)
+		}
+		out["tls_bundles"] = items
+	} else {
+		out["tls_bundles"] = []map[string]any{}
+	}
 	if !m.Ttlsecondsafterfinished.IsNull() && !m.Ttlsecondsafterfinished.IsUnknown() {
 		out["ttlsecondsafterfinished"] = m.Ttlsecondsafterfinished.ValueInt64()
 	}
@@ -1301,6 +1670,42 @@ func planToContainerPayload(ctx context.Context, m *containerModel) (map[string]
 	}
 	if !m.Vanityhostname.IsNull() && !m.Vanityhostname.IsUnknown() {
 		out["vanityhostname"] = m.Vanityhostname.ValueString()
+	}
+	if !m.X509Certs.IsNull() && !m.X509Certs.IsUnknown() {
+		var nested []containerX509CertsModel
+		diags.Append(m.X509Certs.ElementsAs(ctx, &nested, false)...)
+		items := make([]map[string]any, 0, len(nested))
+		for _, n := range nested {
+			item := map[string]any{}
+			if !n.Handle.IsNull() && !n.Handle.IsUnknown() {
+				item["handle"] = n.Handle.ValueString()
+			}
+			if !n.Mountpath.IsNull() && !n.Mountpath.IsUnknown() {
+				item["mountpath"] = n.Mountpath.ValueString()
+			}
+			items = append(items, item)
+		}
+		out["x509_certs"] = items
+	} else {
+		out["x509_certs"] = []map[string]any{}
+	}
+	if !m.YAMLConfigs.IsNull() && !m.YAMLConfigs.IsUnknown() {
+		var nested []containerYAMLConfigsModel
+		diags.Append(m.YAMLConfigs.ElementsAs(ctx, &nested, false)...)
+		items := make([]map[string]any, 0, len(nested))
+		for _, n := range nested {
+			item := map[string]any{}
+			if !n.Handle.IsNull() && !n.Handle.IsUnknown() {
+				item["handle"] = n.Handle.ValueString()
+			}
+			if !n.Mountpath.IsNull() && !n.Mountpath.IsUnknown() {
+				item["mountpath"] = n.Mountpath.ValueString()
+			}
+			items = append(items, item)
+		}
+		out["yaml_configs"] = items
+	} else {
+		out["yaml_configs"] = []map[string]any{}
 	}
 	return out, diags
 }
@@ -1472,6 +1877,54 @@ func apiToContainerModel(raw map[string]any) containerModel {
 	} else {
 		m.Dnsttl = types.Int64Null()
 	}
+	if items, ok := raw["encryption_keys"].([]any); ok {
+		elements := make([]attr.Value, 0, len(items))
+		for _, it := range items {
+			if obj, ok := it.(map[string]any); ok {
+				attrVals := map[string]attr.Value{}
+				if v, ok := obj["handle"].(string); ok {
+					attrVals["handle"] = types.StringValue(v)
+				} else {
+					attrVals["handle"] = types.StringNull()
+				}
+				if v, ok := obj["mountpath"].(string); ok {
+					attrVals["mountpath"] = types.StringValue(v)
+				} else {
+					attrVals["mountpath"] = types.StringNull()
+				}
+				objVal, _ := types.ObjectValue(containerEncryptionKeysAttrTypes(), attrVals)
+				elements = append(elements, objVal)
+			}
+		}
+		listVal, _ := types.ListValue(containerEncryptionKeysObjectType(), elements)
+		m.EncryptionKeys = listVal
+	} else {
+		m.EncryptionKeys = types.ListNull(containerEncryptionKeysObjectType())
+	}
+	if items, ok := raw["env_files"].([]any); ok {
+		elements := make([]attr.Value, 0, len(items))
+		for _, it := range items {
+			if obj, ok := it.(map[string]any); ok {
+				attrVals := map[string]attr.Value{}
+				if v, ok := obj["handle"].(string); ok {
+					attrVals["handle"] = types.StringValue(v)
+				} else {
+					attrVals["handle"] = types.StringNull()
+				}
+				if v, ok := obj["injectionmethod"].(string); ok {
+					attrVals["injectionmethod"] = types.StringValue(v)
+				} else {
+					attrVals["injectionmethod"] = types.StringNull()
+				}
+				objVal, _ := types.ObjectValue(containerEnvFilesAttrTypes(), attrVals)
+				elements = append(elements, objVal)
+			}
+		}
+		listVal, _ := types.ListValue(containerEnvFilesObjectType(), elements)
+		m.EnvFiles = listVal
+	} else {
+		m.EnvFiles = types.ListNull(containerEnvFilesObjectType())
+	}
 	if v, ok := raw["ephemeralstoragegb"].(float64); ok {
 		m.Ephemeralstoragegb = types.Int64Value(int64(v))
 	} else {
@@ -1486,6 +1939,30 @@ func apiToContainerModel(raw map[string]any) containerModel {
 		m.Failedjobshistorylimit = types.Int64Value(int64(v))
 	} else {
 		m.Failedjobshistorylimit = types.Int64Null()
+	}
+	if items, ok := raw["gpg_keypairs"].([]any); ok {
+		elements := make([]attr.Value, 0, len(items))
+		for _, it := range items {
+			if obj, ok := it.(map[string]any); ok {
+				attrVals := map[string]attr.Value{}
+				if v, ok := obj["handle"].(string); ok {
+					attrVals["handle"] = types.StringValue(v)
+				} else {
+					attrVals["handle"] = types.StringNull()
+				}
+				if v, ok := obj["mountpath"].(string); ok {
+					attrVals["mountpath"] = types.StringValue(v)
+				} else {
+					attrVals["mountpath"] = types.StringNull()
+				}
+				objVal, _ := types.ObjectValue(containerGpgKeypairsAttrTypes(), attrVals)
+				elements = append(elements, objVal)
+			}
+		}
+		listVal, _ := types.ListValue(containerGpgKeypairsObjectType(), elements)
+		m.GpgKeypairs = listVal
+	} else {
+		m.GpgKeypairs = types.ListNull(containerGpgKeypairsObjectType())
 	}
 	if v, ok := raw["healthcheckpath"].(string); ok {
 		m.Healthcheckpath = types.StringValue(v)
@@ -1613,6 +2090,30 @@ func apiToContainerModel(raw map[string]any) containerModel {
 	} else {
 		m.Ipwhitelistenabled = types.BoolNull()
 	}
+	if items, ok := raw["json_configs"].([]any); ok {
+		elements := make([]attr.Value, 0, len(items))
+		for _, it := range items {
+			if obj, ok := it.(map[string]any); ok {
+				attrVals := map[string]attr.Value{}
+				if v, ok := obj["handle"].(string); ok {
+					attrVals["handle"] = types.StringValue(v)
+				} else {
+					attrVals["handle"] = types.StringNull()
+				}
+				if v, ok := obj["mountpath"].(string); ok {
+					attrVals["mountpath"] = types.StringValue(v)
+				} else {
+					attrVals["mountpath"] = types.StringNull()
+				}
+				objVal, _ := types.ObjectValue(containerJSONConfigsAttrTypes(), attrVals)
+				elements = append(elements, objVal)
+			}
+		}
+		listVal, _ := types.ListValue(containerJSONConfigsObjectType(), elements)
+		m.JSONConfigs = listVal
+	} else {
+		m.JSONConfigs = types.ListNull(containerJSONConfigsObjectType())
+	}
 	if v, ok := raw["maxcpu"].(string); ok {
 		m.Maxcpu = types.StringValue(v)
 	} else {
@@ -1675,6 +2176,30 @@ func apiToContainerModel(raw map[string]any) containerModel {
 		m.Persistentvolumes = listVal
 	} else {
 		m.Persistentvolumes = types.ListNull(containerPersistentvolumesObjectType())
+	}
+	if items, ok := raw["plain_configs"].([]any); ok {
+		elements := make([]attr.Value, 0, len(items))
+		for _, it := range items {
+			if obj, ok := it.(map[string]any); ok {
+				attrVals := map[string]attr.Value{}
+				if v, ok := obj["handle"].(string); ok {
+					attrVals["handle"] = types.StringValue(v)
+				} else {
+					attrVals["handle"] = types.StringNull()
+				}
+				if v, ok := obj["mountpath"].(string); ok {
+					attrVals["mountpath"] = types.StringValue(v)
+				} else {
+					attrVals["mountpath"] = types.StringNull()
+				}
+				objVal, _ := types.ObjectValue(containerPlainConfigsAttrTypes(), attrVals)
+				elements = append(elements, objVal)
+			}
+		}
+		listVal, _ := types.ListValue(containerPlainConfigsObjectType(), elements)
+		m.PlainConfigs = listVal
+	} else {
+		m.PlainConfigs = types.ListNull(containerPlainConfigsObjectType())
 	}
 	if v, ok := raw["project"].(string); ok {
 		m.Project = types.StringValue(v)
@@ -1862,6 +2387,30 @@ func apiToContainerModel(raw map[string]any) containerModel {
 	} else {
 		m.Secretsenvvar = types.ListNull(containerSecretsenvvarObjectType())
 	}
+	if items, ok := raw["ssh_keypairs"].([]any); ok {
+		elements := make([]attr.Value, 0, len(items))
+		for _, it := range items {
+			if obj, ok := it.(map[string]any); ok {
+				attrVals := map[string]attr.Value{}
+				if v, ok := obj["handle"].(string); ok {
+					attrVals["handle"] = types.StringValue(v)
+				} else {
+					attrVals["handle"] = types.StringNull()
+				}
+				if v, ok := obj["mountpath"].(string); ok {
+					attrVals["mountpath"] = types.StringValue(v)
+				} else {
+					attrVals["mountpath"] = types.StringNull()
+				}
+				objVal, _ := types.ObjectValue(containerSSHKeypairsAttrTypes(), attrVals)
+				elements = append(elements, objVal)
+			}
+		}
+		listVal, _ := types.ListValue(containerSSHKeypairsObjectType(), elements)
+		m.SSHKeypairs = listVal
+	} else {
+		m.SSHKeypairs = types.ListNull(containerSSHKeypairsObjectType())
+	}
 	if v, ok := raw["startingdeadlineseconds"].(float64); ok {
 		m.Startingdeadlineseconds = types.Int64Value(int64(v))
 	} else {
@@ -1882,6 +2431,30 @@ func apiToContainerModel(raw map[string]any) containerModel {
 	} else {
 		m.Timezone = types.StringNull()
 	}
+	if items, ok := raw["tls_bundles"].([]any); ok {
+		elements := make([]attr.Value, 0, len(items))
+		for _, it := range items {
+			if obj, ok := it.(map[string]any); ok {
+				attrVals := map[string]attr.Value{}
+				if v, ok := obj["handle"].(string); ok {
+					attrVals["handle"] = types.StringValue(v)
+				} else {
+					attrVals["handle"] = types.StringNull()
+				}
+				if v, ok := obj["mountpath"].(string); ok {
+					attrVals["mountpath"] = types.StringValue(v)
+				} else {
+					attrVals["mountpath"] = types.StringNull()
+				}
+				objVal, _ := types.ObjectValue(containerTLSBundlesAttrTypes(), attrVals)
+				elements = append(elements, objVal)
+			}
+		}
+		listVal, _ := types.ListValue(containerTLSBundlesObjectType(), elements)
+		m.TLSBundles = listVal
+	} else {
+		m.TLSBundles = types.ListNull(containerTLSBundlesObjectType())
+	}
 	if v, ok := raw["ttlsecondsafterfinished"].(float64); ok {
 		m.Ttlsecondsafterfinished = types.Int64Value(int64(v))
 	} else {
@@ -1896,6 +2469,54 @@ func apiToContainerModel(raw map[string]any) containerModel {
 		m.Vanityhostname = types.StringValue(v)
 	} else {
 		m.Vanityhostname = types.StringNull()
+	}
+	if items, ok := raw["x509_certs"].([]any); ok {
+		elements := make([]attr.Value, 0, len(items))
+		for _, it := range items {
+			if obj, ok := it.(map[string]any); ok {
+				attrVals := map[string]attr.Value{}
+				if v, ok := obj["handle"].(string); ok {
+					attrVals["handle"] = types.StringValue(v)
+				} else {
+					attrVals["handle"] = types.StringNull()
+				}
+				if v, ok := obj["mountpath"].(string); ok {
+					attrVals["mountpath"] = types.StringValue(v)
+				} else {
+					attrVals["mountpath"] = types.StringNull()
+				}
+				objVal, _ := types.ObjectValue(containerX509CertsAttrTypes(), attrVals)
+				elements = append(elements, objVal)
+			}
+		}
+		listVal, _ := types.ListValue(containerX509CertsObjectType(), elements)
+		m.X509Certs = listVal
+	} else {
+		m.X509Certs = types.ListNull(containerX509CertsObjectType())
+	}
+	if items, ok := raw["yaml_configs"].([]any); ok {
+		elements := make([]attr.Value, 0, len(items))
+		for _, it := range items {
+			if obj, ok := it.(map[string]any); ok {
+				attrVals := map[string]attr.Value{}
+				if v, ok := obj["handle"].(string); ok {
+					attrVals["handle"] = types.StringValue(v)
+				} else {
+					attrVals["handle"] = types.StringNull()
+				}
+				if v, ok := obj["mountpath"].(string); ok {
+					attrVals["mountpath"] = types.StringValue(v)
+				} else {
+					attrVals["mountpath"] = types.StringNull()
+				}
+				objVal, _ := types.ObjectValue(containerYAMLConfigsAttrTypes(), attrVals)
+				elements = append(elements, objVal)
+			}
+		}
+		listVal, _ := types.ListValue(containerYAMLConfigsObjectType(), elements)
+		m.YAMLConfigs = listVal
+	} else {
+		m.YAMLConfigs = types.ListNull(containerYAMLConfigsObjectType())
 	}
 	if v, ok := raw["organisation"].(string); ok {
 		m.Organisation = types.StringValue(v)
@@ -1926,6 +2547,39 @@ func containerBasicauthcredentialsObjectType() types.ObjectType {
 	return types.ObjectType{AttrTypes: containerBasicauthcredentialsAttrTypes()}
 }
 
+func containerEncryptionKeysAttrTypes() map[string]attr.Type {
+	return map[string]attr.Type{
+		"handle":    types.StringType,
+		"mountpath": types.StringType,
+	}
+}
+
+func containerEncryptionKeysObjectType() types.ObjectType {
+	return types.ObjectType{AttrTypes: containerEncryptionKeysAttrTypes()}
+}
+
+func containerEnvFilesAttrTypes() map[string]attr.Type {
+	return map[string]attr.Type{
+		"handle":          types.StringType,
+		"injectionmethod": types.StringType,
+	}
+}
+
+func containerEnvFilesObjectType() types.ObjectType {
+	return types.ObjectType{AttrTypes: containerEnvFilesAttrTypes()}
+}
+
+func containerGpgKeypairsAttrTypes() map[string]attr.Type {
+	return map[string]attr.Type{
+		"handle":    types.StringType,
+		"mountpath": types.StringType,
+	}
+}
+
+func containerGpgKeypairsObjectType() types.ObjectType {
+	return types.ObjectType{AttrTypes: containerGpgKeypairsAttrTypes()}
+}
+
 func containerHostnamesAttrTypes() map[string]attr.Type {
 	return map[string]attr.Type{
 		"hostname":    types.StringType,
@@ -1953,6 +2607,17 @@ func containerInitjobsObjectType() types.ObjectType {
 	return types.ObjectType{AttrTypes: containerInitjobsAttrTypes()}
 }
 
+func containerJSONConfigsAttrTypes() map[string]attr.Type {
+	return map[string]attr.Type{
+		"handle":    types.StringType,
+		"mountpath": types.StringType,
+	}
+}
+
+func containerJSONConfigsObjectType() types.ObjectType {
+	return types.ObjectType{AttrTypes: containerJSONConfigsAttrTypes()}
+}
+
 func containerNewenvvarAttrTypes() map[string]attr.Type {
 	return map[string]attr.Type{
 		"key":   types.StringType,
@@ -1976,6 +2641,17 @@ func containerPersistentvolumesObjectType() types.ObjectType {
 	return types.ObjectType{AttrTypes: containerPersistentvolumesAttrTypes()}
 }
 
+func containerPlainConfigsAttrTypes() map[string]attr.Type {
+	return map[string]attr.Type{
+		"handle":    types.StringType,
+		"mountpath": types.StringType,
+	}
+}
+
+func containerPlainConfigsObjectType() types.ObjectType {
+	return types.ObjectType{AttrTypes: containerPlainConfigsAttrTypes()}
+}
+
 func containerSecretsenvvarAttrTypes() map[string]attr.Type {
 	return map[string]attr.Type{
 		"name":   types.StringType,
@@ -1985,6 +2661,50 @@ func containerSecretsenvvarAttrTypes() map[string]attr.Type {
 
 func containerSecretsenvvarObjectType() types.ObjectType {
 	return types.ObjectType{AttrTypes: containerSecretsenvvarAttrTypes()}
+}
+
+func containerSSHKeypairsAttrTypes() map[string]attr.Type {
+	return map[string]attr.Type{
+		"handle":    types.StringType,
+		"mountpath": types.StringType,
+	}
+}
+
+func containerSSHKeypairsObjectType() types.ObjectType {
+	return types.ObjectType{AttrTypes: containerSSHKeypairsAttrTypes()}
+}
+
+func containerTLSBundlesAttrTypes() map[string]attr.Type {
+	return map[string]attr.Type{
+		"handle":    types.StringType,
+		"mountpath": types.StringType,
+	}
+}
+
+func containerTLSBundlesObjectType() types.ObjectType {
+	return types.ObjectType{AttrTypes: containerTLSBundlesAttrTypes()}
+}
+
+func containerX509CertsAttrTypes() map[string]attr.Type {
+	return map[string]attr.Type{
+		"handle":    types.StringType,
+		"mountpath": types.StringType,
+	}
+}
+
+func containerX509CertsObjectType() types.ObjectType {
+	return types.ObjectType{AttrTypes: containerX509CertsAttrTypes()}
+}
+
+func containerYAMLConfigsAttrTypes() map[string]attr.Type {
+	return map[string]attr.Type{
+		"handle":    types.StringType,
+		"mountpath": types.StringType,
+	}
+}
+
+func containerYAMLConfigsObjectType() types.ObjectType {
+	return types.ObjectType{AttrTypes: containerYAMLConfigsAttrTypes()}
 }
 
 func containerModelsEqual(a, b containerModel) bool {
@@ -2060,6 +2780,12 @@ func containerModelsEqual(a, b containerModel) bool {
 	if !a.Dnsttl.Equal(b.Dnsttl) {
 		return false
 	}
+	if !a.EncryptionKeys.Equal(b.EncryptionKeys) {
+		return false
+	}
+	if !a.EnvFiles.Equal(b.EnvFiles) {
+		return false
+	}
 	if !a.Ephemeralstoragegb.Equal(b.Ephemeralstoragegb) {
 		return false
 	}
@@ -2067,6 +2793,9 @@ func containerModelsEqual(a, b containerModel) bool {
 		return false
 	}
 	if !a.Failedjobshistorylimit.Equal(b.Failedjobshistorylimit) {
+		return false
+	}
+	if !a.GpgKeypairs.Equal(b.GpgKeypairs) {
 		return false
 	}
 	if !a.Healthcheckpath.Equal(b.Healthcheckpath) {
@@ -2090,6 +2819,9 @@ func containerModelsEqual(a, b containerModel) bool {
 	if !a.Ipwhitelistenabled.Equal(b.Ipwhitelistenabled) {
 		return false
 	}
+	if !a.JSONConfigs.Equal(b.JSONConfigs) {
+		return false
+	}
 	if !a.Maxcpu.Equal(b.Maxcpu) {
 		return false
 	}
@@ -2100,6 +2832,9 @@ func containerModelsEqual(a, b containerModel) bool {
 		return false
 	}
 	if !a.Persistentvolumes.Equal(b.Persistentvolumes) {
+		return false
+	}
+	if !a.PlainConfigs.Equal(b.PlainConfigs) {
 		return false
 	}
 	if !a.Project.Equal(b.Project) {
@@ -2177,6 +2912,9 @@ func containerModelsEqual(a, b containerModel) bool {
 	if !a.Secretsenvvar.Equal(b.Secretsenvvar) {
 		return false
 	}
+	if !a.SSHKeypairs.Equal(b.SSHKeypairs) {
+		return false
+	}
 	if !a.Startingdeadlineseconds.Equal(b.Startingdeadlineseconds) {
 		return false
 	}
@@ -2189,6 +2927,9 @@ func containerModelsEqual(a, b containerModel) bool {
 	if !a.Timezone.Equal(b.Timezone) {
 		return false
 	}
+	if !a.TLSBundles.Equal(b.TLSBundles) {
+		return false
+	}
 	if !a.Ttlsecondsafterfinished.Equal(b.Ttlsecondsafterfinished) {
 		return false
 	}
@@ -2196,6 +2937,12 @@ func containerModelsEqual(a, b containerModel) bool {
 		return false
 	}
 	if !a.Vanityhostname.Equal(b.Vanityhostname) {
+		return false
+	}
+	if !a.X509Certs.Equal(b.X509Certs) {
+		return false
+	}
+	if !a.YAMLConfigs.Equal(b.YAMLConfigs) {
 		return false
 	}
 	return true

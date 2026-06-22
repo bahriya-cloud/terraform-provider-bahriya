@@ -18,37 +18,39 @@ import (
 )
 
 var (
-	_ resource.Resource                = &secretResource{}
-	_ resource.ResourceWithConfigure   = &secretResource{}
-	_ resource.ResourceWithImportState = &secretResource{}
+	_ resource.Resource                = &yaml_configResource{}
+	_ resource.ResourceWithConfigure   = &yaml_configResource{}
+	_ resource.ResourceWithImportState = &yaml_configResource{}
 )
 
-func NewSecretResource() resource.Resource {
-	return &secretResource{}
+func NewYAMLConfigResource() resource.Resource {
+	return &yaml_configResource{}
 }
 
-type secretResource struct {
+type yaml_configResource struct {
 	client *client.Client
 }
 
-type secretModel struct {
+type yaml_configModel struct {
 	ID                    types.String `tfsdk:"id"`
 	Handle                types.String `tfsdk:"handle"`
+	Content               types.String `tfsdk:"content"`
 	Name                  types.String `tfsdk:"name"`
-	Value                 types.String `tfsdk:"value"`
 	Maxversions           types.Int64  `tfsdk:"maxversions"`
 	Billable              types.Bool   `tfsdk:"billable"`
+	Currentversion        types.Int64  `tfsdk:"currentversion"`
 	Managedbyresourceid   types.String `tfsdk:"managedbyresourceid"`
 	Managedbyresourcetype types.String `tfsdk:"managedbyresourcetype"`
+	Organisation          types.String `tfsdk:"organisation"`
 }
 
-func (r *secretResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_secret"
+func (r *yaml_configResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_yaml_config"
 }
 
-func (r *secretResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *yaml_configResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description: "Manages a Bahriya secret.",
+		Description: "Manages a Bahriya yaml_config.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed: true,
@@ -57,17 +59,18 @@ func (r *secretResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				},
 			},
 			"handle": schema.StringAttribute{
-				Required: true,
+				Required:    true,
+				Description: "DNS-1123 compliant: lowercase alphanumeric and hyphens only.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
+			"content": schema.StringAttribute{
+				Required:    true,
+				Description: "Valid YAML content.",
+			},
 			"name": schema.StringAttribute{
 				Required: true,
-			},
-			"value": schema.StringAttribute{
-				Required:  true,
-				Sensitive: true,
 			},
 			"maxversions": schema.Int64Attribute{
 				Optional: true,
@@ -78,6 +81,12 @@ func (r *secretResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 			},
 			"billable": schema.BoolAttribute{
 				Computed: true,
+			},
+			"currentversion": schema.Int64Attribute{
+				Computed: true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"managedbyresourceid": schema.StringAttribute{
 				Computed: true,
@@ -91,11 +100,17 @@ func (r *secretResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"organisation": schema.StringAttribute{
+				Computed: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
 		},
 	}
 }
 
-func (r *secretResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *yaml_configResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -110,15 +125,15 @@ func (r *secretResource) Configure(_ context.Context, req resource.ConfigureRequ
 	r.client = client
 }
 
-func (r *secretResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan secretModel
+func (r *yaml_configResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan yaml_configModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	handle := plan.Handle.ValueString()
-	exists, err := r.client.HandleExists(ctx, "secret", handle)
+	exists, err := r.client.HandleExists(ctx, "yaml_config", handle)
 	if err != nil {
 		resp.Diagnostics.AddError("Handle existence check failed", err.Error())
 		return
@@ -126,19 +141,19 @@ func (r *secretResource) Create(ctx context.Context, req resource.CreateRequest,
 	if exists {
 		resp.Diagnostics.AddError(
 			"Handle already in use",
-			fmt.Sprintf("A secret with handle %q already exists in this organisation. Handles cannot be reused.", handle),
+			fmt.Sprintf("A yaml_config with handle %q already exists in this organisation. Handles cannot be reused.", handle),
 		)
 		return
 	}
 
-	body, diags := planToSecretPayload(ctx, &plan)
+	body, diags := planToYAMLConfigPayload(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	body["organisation"] = r.client.OrganisationID()
 
-	data, status, err := r.client.Do(ctx, http.MethodPost, fmt.Sprintf("/organisations/%s/secrets", r.client.OrganisationID()), body)
+	data, status, err := r.client.Do(ctx, http.MethodPost, fmt.Sprintf("/organisations/%s/yaml_configs", r.client.OrganisationID()), body)
 	if err != nil {
 		resp.Diagnostics.AddError("Create failed", err.Error())
 		return
@@ -159,13 +174,12 @@ func (r *secretResource) Create(ctx context.Context, req resource.CreateRequest,
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	state.Value = plan.Value
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
 
-func (r *secretResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state secretModel
+func (r *yaml_configResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state yaml_configModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -180,32 +194,31 @@ func (r *secretResource) Read(ctx context.Context, req resource.ReadRequest, res
 		resp.Diagnostics.Append(diags...)
 		return
 	}
-	fresh.Value = state.Value
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, fresh)...)
 }
 
-func (r *secretResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state secretModel
+func (r *yaml_configResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state yaml_configModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	if secretModelsEqual(plan, state) {
+	if yaml_configModelsEqual(plan, state) {
 		resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 		return
 	}
 
-	body, diags := planToSecretPayload(ctx, &plan)
+	body, diags := planToYAMLConfigPayload(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	body["organisation"] = r.client.OrganisationID()
 
-	_, status, err := r.client.Do(ctx, http.MethodPut, fmt.Sprintf("/organisations/%s/secrets/%s", r.client.OrganisationID(), state.ID.ValueString()), body)
+	_, status, err := r.client.Do(ctx, http.MethodPut, fmt.Sprintf("/organisations/%s/yaml_configs/%s", r.client.OrganisationID(), state.ID.ValueString()), body)
 	if err != nil {
 		resp.Diagnostics.AddError("Update failed", err.Error())
 		return
@@ -220,58 +233,57 @@ func (r *secretResource) Update(ctx context.Context, req resource.UpdateRequest,
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	fresh.Value = plan.Value
 	resp.Diagnostics.Append(resp.State.Set(ctx, fresh)...)
 }
 
-func (r *secretResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state secretModel
+func (r *yaml_configResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state yaml_configModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	_, status, err := r.client.Do(ctx, http.MethodDelete, fmt.Sprintf("/organisations/%s/secrets/%s", r.client.OrganisationID(), state.ID.ValueString()), nil)
+	_, status, err := r.client.Do(ctx, http.MethodDelete, fmt.Sprintf("/organisations/%s/yaml_configs/%s", r.client.OrganisationID(), state.ID.ValueString()), nil)
 	if err != nil && status != http.StatusNotFound {
 		resp.Diagnostics.AddError("Delete failed", err.Error())
 		return
 	}
 }
 
-func (r *secretResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *yaml_configResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, schemaPath("id"), req.ID)...)
 }
 
-func (r *secretResource) fetch(ctx context.Context, id string) (secretModel, diagnostics) {
+func (r *yaml_configResource) fetch(ctx context.Context, id string) (yaml_configModel, diagnostics) {
 	var diags diagnostics
-	data, status, err := r.client.Do(ctx, http.MethodGet, fmt.Sprintf("/organisations/%s/secrets/%s", r.client.OrganisationID(), id), nil)
+	data, status, err := r.client.Do(ctx, http.MethodGet, fmt.Sprintf("/organisations/%s/yaml_configs/%s", r.client.OrganisationID(), id), nil)
 	if err != nil {
 		if status == http.StatusNotFound {
 			diags.AddError("not_found", "resource was deleted out-of-band")
-			return secretModel{}, diags
+			return yaml_configModel{}, diags
 		}
 		diags.AddError("Fetch failed", err.Error())
-		return secretModel{}, diags
+		return yaml_configModel{}, diags
 	}
 	var raw map[string]any
 	if err := json.Unmarshal(data, &raw); err != nil {
 		diags.AddError("Decode fetch response failed", err.Error())
-		return secretModel{}, diags
+		return yaml_configModel{}, diags
 	}
-	return apiToSecretModel(raw), diags
+	return apiToYAMLConfigModel(raw), diags
 }
 
-func planToSecretPayload(ctx context.Context, m *secretModel) (map[string]any, diagnostics) {
+func planToYAMLConfigPayload(ctx context.Context, m *yaml_configModel) (map[string]any, diagnostics) {
 	var diags diagnostics
 	out := map[string]any{}
 	if !m.Handle.IsNull() && !m.Handle.IsUnknown() {
 		out["handle"] = m.Handle.ValueString()
 	}
+	if !m.Content.IsNull() && !m.Content.IsUnknown() {
+		out["content"] = m.Content.ValueString()
+	}
 	if !m.Name.IsNull() && !m.Name.IsUnknown() {
 		out["name"] = m.Name.ValueString()
-	}
-	if !m.Value.IsNull() && !m.Value.IsUnknown() {
-		out["value"] = m.Value.ValueString()
 	}
 	if !m.Maxversions.IsNull() && !m.Maxversions.IsUnknown() {
 		out["maxversions"] = m.Maxversions.ValueInt64()
@@ -279,8 +291,8 @@ func planToSecretPayload(ctx context.Context, m *secretModel) (map[string]any, d
 	return out, diags
 }
 
-func apiToSecretModel(raw map[string]any) secretModel {
-	m := secretModel{}
+func apiToYAMLConfigModel(raw map[string]any) yaml_configModel {
+	m := yaml_configModel{}
 	if v, ok := raw["id"].(string); ok {
 		m.ID = types.StringValue(v)
 	} else {
@@ -291,15 +303,15 @@ func apiToSecretModel(raw map[string]any) secretModel {
 	} else {
 		m.Handle = types.StringNull()
 	}
+	if v, ok := raw["content"].(string); ok {
+		m.Content = types.StringValue(v)
+	} else {
+		m.Content = types.StringNull()
+	}
 	if v, ok := raw["name"].(string); ok {
 		m.Name = types.StringValue(v)
 	} else {
 		m.Name = types.StringNull()
-	}
-	if v, ok := raw["value"].(string); ok {
-		m.Value = types.StringValue(v)
-	} else {
-		m.Value = types.StringNull()
 	}
 	if v, ok := raw["maxversions"].(float64); ok {
 		m.Maxversions = types.Int64Value(int64(v))
@@ -311,6 +323,11 @@ func apiToSecretModel(raw map[string]any) secretModel {
 	} else {
 		m.Billable = types.BoolNull()
 	}
+	if v, ok := raw["currentversion"].(float64); ok {
+		m.Currentversion = types.Int64Value(int64(v))
+	} else {
+		m.Currentversion = types.Int64Null()
+	}
 	if v, ok := raw["managedbyresourceid"].(string); ok {
 		m.Managedbyresourceid = types.StringValue(v)
 	} else {
@@ -321,17 +338,22 @@ func apiToSecretModel(raw map[string]any) secretModel {
 	} else {
 		m.Managedbyresourcetype = types.StringNull()
 	}
+	if v, ok := raw["organisation"].(string); ok {
+		m.Organisation = types.StringValue(v)
+	} else {
+		m.Organisation = types.StringNull()
+	}
 	return m
 }
 
-func secretModelsEqual(a, b secretModel) bool {
+func yaml_configModelsEqual(a, b yaml_configModel) bool {
 	if !a.Handle.Equal(b.Handle) {
 		return false
 	}
-	if !a.Name.Equal(b.Name) {
+	if !a.Content.Equal(b.Content) {
 		return false
 	}
-	if !a.Value.Equal(b.Value) {
+	if !a.Name.Equal(b.Name) {
 		return false
 	}
 	if !a.Maxversions.Equal(b.Maxversions) {
