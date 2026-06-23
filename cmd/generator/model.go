@@ -23,7 +23,12 @@ type Resource struct {
 	DeleteMethod     string
 	DeleteURL        string
 	ConfirmDelete    bool
-	Attributes       []Attribute
+	// DeleteConflictHint, when non-empty, is appended to the Delete error
+	// when the API returns 409. Used to guide users on resources where a
+	// 409 has a non-obvious resolution (e.g. project delete blocked by
+	// child resources in non-terminated states).
+	DeleteConflictHint string
+	Attributes         []Attribute
 }
 
 func (r Resource) FlatResponse() bool { return r.CollectionKey == "" }

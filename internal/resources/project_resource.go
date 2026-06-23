@@ -254,6 +254,13 @@ func (r *projectResource) Delete(ctx context.Context, req resource.DeleteRequest
 	deleteBody := map[string]any{"confirmName": state.Name.ValueString()}
 	_, status, err := r.client.Do(ctx, http.MethodDelete, fmt.Sprintf("/organisations/%s/projects/%s", r.client.OrganisationID(), state.ID.ValueString()), deleteBody)
 	if err != nil && status != http.StatusNotFound {
+		if status == http.StatusConflict {
+			resp.Diagnostics.AddError(
+				"Delete blocked by active dependencies",
+				err.Error()+"\n\n"+"Hint: a project can only be deleted once every container, memcached, registry, and secret it owns is gone. For containers and memcached this means status 'terminated' — instances stuck in 'error', 'terminating', 'provisioning', 'running', or 'suspended' all count as active. Containers reach 'error' when the deploy rolled back and they do not self-recover; investigate via the admin console and explicitly terminate them. Registries and secrets must be detached from the project before delete.",
+			)
+			return
+		}
 		resp.Diagnostics.AddError("Delete failed", err.Error())
 		return
 	}

@@ -358,6 +358,15 @@ func (r *{{ .Name }}Resource) Delete(ctx context.Context, req resource.DeleteReq
 	_, status, err := r.client.Do(ctx, http.Method{{ .EffectiveDeleteMethod }}, fmt.Sprintf("{{ .EffectiveDeleteURL }}", r.client.OrganisationID(), state.ID.ValueString()), nil)
 {{- end }}
 	if err != nil && status != http.StatusNotFound {
+{{- if .DeleteConflictHint }}
+		if status == http.StatusConflict {
+			resp.Diagnostics.AddError(
+				"Delete blocked by active dependencies",
+				err.Error()+"\n\n"+{{ printf "%q" .DeleteConflictHint }},
+			)
+			return
+		}
+{{- end }}
 		resp.Diagnostics.AddError("Delete failed", err.Error())
 		return
 	}

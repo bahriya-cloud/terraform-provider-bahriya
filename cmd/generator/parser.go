@@ -158,10 +158,11 @@ func parseResource(specPath string, descriptor resourceDescriptor) (*Resource, e
 		HandleURL:        descriptor.HandleURL,
 		HandlePathName:   descriptor.HandlePathName,
 		CollectionKey:    descriptor.CollectionKey,
-		DeleteMethod:     descriptor.DeleteMethod,
-		DeleteURL:        descriptor.DeleteURL,
-		ConfirmDelete:    descriptor.ConfirmDelete,
-		Attributes:       attrs,
+		DeleteMethod:       descriptor.DeleteMethod,
+		DeleteURL:          descriptor.DeleteURL,
+		ConfirmDelete:      descriptor.ConfirmDelete,
+		DeleteConflictHint: descriptor.DeleteConflictHint,
+		Attributes:         attrs,
 	}, nil
 }
 
@@ -365,10 +366,11 @@ type resourceDescriptor struct {
 	HandleURL        string
 	HandlePathName   string
 	CollectionKey    string
-	DeleteMethod     string
-	DeleteURL        string
-	ConfirmDelete    bool
-	HasStatus        bool
+	DeleteMethod       string
+	DeleteURL          string
+	ConfirmDelete      bool
+	DeleteConflictHint string
+	HasStatus          bool
 	ReadyStatus      string
 	TerminatedStatus string
 	SensitiveFields  []string
@@ -386,6 +388,14 @@ var descriptors = map[string]resourceDescriptor{
 		HandlePathName: "project",
 		CollectionKey:  "projects",
 		ConfirmDelete:  true,
+		DeleteConflictHint: "" +
+			"Hint: a project can only be deleted once every container, memcached, registry, " +
+			"and secret it owns is gone. For containers and memcached this means status " +
+			"'terminated' — instances stuck in 'error', 'terminating', 'provisioning', " +
+			"'running', or 'suspended' all count as active. Containers reach 'error' when " +
+			"the deploy rolled back and they do not self-recover; investigate via the " +
+			"admin console and explicitly terminate them. Registries and secrets must be " +
+			"detached from the project before delete.",
 	},
 	"registry": {
 		Name:            "registry",
