@@ -35,14 +35,14 @@ type gpg_keypairModel struct {
 	ID                    types.String `tfsdk:"id"`
 	Handle                types.String `tfsdk:"handle"`
 	Name                  types.String `tfsdk:"name"`
+	Privatekey            types.String `tfsdk:"privatekey"`
+	Publickey             types.String `tfsdk:"publickey"`
 	Maxversions           types.Int64  `tfsdk:"maxversions"`
-	PrivateKey            types.String `tfsdk:"private_key"`
-	PublicKey             types.String `tfsdk:"public_key"`
 	Algorithm             types.String `tfsdk:"algorithm"`
 	Billable              types.Bool   `tfsdk:"billable"`
 	Currentversion        types.Int64  `tfsdk:"currentversion"`
-	KeyBits               types.Int64  `tfsdk:"key_bits"`
-	KeyID                 types.String `tfsdk:"key_id"`
+	Keybits               types.Int64  `tfsdk:"keybits"`
+	Keyid                 types.String `tfsdk:"keyid"`
 	Managedbyresourceid   types.String `tfsdk:"managedbyresourceid"`
 	Managedbyresourcetype types.String `tfsdk:"managedbyresourcetype"`
 	Organisation          types.String `tfsdk:"organisation"`
@@ -73,24 +73,20 @@ func (r *gpg_keypairResource) Schema(_ context.Context, _ resource.SchemaRequest
 			"name": schema.StringAttribute{
 				Required: true,
 			},
+			"privatekey": schema.StringAttribute{
+				Required:    true,
+				Description: "ASCII-armored PGP private key. Never returned on read.",
+			},
+			"publickey": schema.StringAttribute{
+				Required:    true,
+				Description: "ASCII-armored PGP public key.",
+			},
 			"maxversions": schema.Int64Attribute{
 				Optional: true,
 				Computed: true,
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
-			},
-			"private_key": schema.StringAttribute{
-				Optional:    true,
-				Computed:    true,
-				Sensitive:   true,
-				Description: "ASCII-armored PGP private key. Never returned on read.",
-			},
-			"public_key": schema.StringAttribute{
-				Optional:    true,
-				Computed:    true,
-				Sensitive:   true,
-				Description: "ASCII-armored PGP public key.",
 			},
 			"algorithm": schema.StringAttribute{
 				Computed: true,
@@ -107,13 +103,13 @@ func (r *gpg_keypairResource) Schema(_ context.Context, _ resource.SchemaRequest
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
-			"key_bits": schema.Int64Attribute{
+			"keybits": schema.Int64Attribute{
 				Computed: true,
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
-			"key_id": schema.StringAttribute{
+			"keyid": schema.StringAttribute{
 				Computed: true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
@@ -211,8 +207,6 @@ func (r *gpg_keypairResource) Create(ctx context.Context, req resource.CreateReq
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	state.PrivateKey = plan.PrivateKey
-	state.PublicKey = plan.PublicKey
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
@@ -233,8 +227,6 @@ func (r *gpg_keypairResource) Read(ctx context.Context, req resource.ReadRequest
 		resp.Diagnostics.Append(diags...)
 		return
 	}
-	fresh.PrivateKey = state.PrivateKey
-	fresh.PublicKey = state.PublicKey
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, fresh)...)
 }
@@ -274,8 +266,6 @@ func (r *gpg_keypairResource) Update(ctx context.Context, req resource.UpdateReq
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	fresh.PrivateKey = plan.PrivateKey
-	fresh.PublicKey = plan.PublicKey
 	resp.Diagnostics.Append(resp.State.Set(ctx, fresh)...)
 }
 
@@ -325,14 +315,14 @@ func planToGpgKeypairPayload(ctx context.Context, m *gpg_keypairModel) (map[stri
 	if !m.Name.IsNull() && !m.Name.IsUnknown() {
 		out["name"] = m.Name.ValueString()
 	}
+	if !m.Privatekey.IsNull() && !m.Privatekey.IsUnknown() {
+		out["privatekey"] = m.Privatekey.ValueString()
+	}
+	if !m.Publickey.IsNull() && !m.Publickey.IsUnknown() {
+		out["publickey"] = m.Publickey.ValueString()
+	}
 	if !m.Maxversions.IsNull() && !m.Maxversions.IsUnknown() {
 		out["maxversions"] = m.Maxversions.ValueInt64()
-	}
-	if !m.PrivateKey.IsNull() && !m.PrivateKey.IsUnknown() {
-		out["private_key"] = m.PrivateKey.ValueString()
-	}
-	if !m.PublicKey.IsNull() && !m.PublicKey.IsUnknown() {
-		out["public_key"] = m.PublicKey.ValueString()
 	}
 	return out, diags
 }
@@ -354,20 +344,20 @@ func apiToGpgKeypairModel(raw map[string]any) gpg_keypairModel {
 	} else {
 		m.Name = types.StringNull()
 	}
+	if v, ok := raw["privatekey"].(string); ok {
+		m.Privatekey = types.StringValue(v)
+	} else {
+		m.Privatekey = types.StringNull()
+	}
+	if v, ok := raw["publickey"].(string); ok {
+		m.Publickey = types.StringValue(v)
+	} else {
+		m.Publickey = types.StringNull()
+	}
 	if v, ok := raw["maxversions"].(float64); ok {
 		m.Maxversions = types.Int64Value(int64(v))
 	} else {
 		m.Maxversions = types.Int64Null()
-	}
-	if v, ok := raw["private_key"].(string); ok {
-		m.PrivateKey = types.StringValue(v)
-	} else {
-		m.PrivateKey = types.StringNull()
-	}
-	if v, ok := raw["public_key"].(string); ok {
-		m.PublicKey = types.StringValue(v)
-	} else {
-		m.PublicKey = types.StringNull()
 	}
 	if v, ok := raw["algorithm"].(string); ok {
 		m.Algorithm = types.StringValue(v)
@@ -384,15 +374,15 @@ func apiToGpgKeypairModel(raw map[string]any) gpg_keypairModel {
 	} else {
 		m.Currentversion = types.Int64Null()
 	}
-	if v, ok := raw["key_bits"].(float64); ok {
-		m.KeyBits = types.Int64Value(int64(v))
+	if v, ok := raw["keybits"].(float64); ok {
+		m.Keybits = types.Int64Value(int64(v))
 	} else {
-		m.KeyBits = types.Int64Null()
+		m.Keybits = types.Int64Null()
 	}
-	if v, ok := raw["key_id"].(string); ok {
-		m.KeyID = types.StringValue(v)
+	if v, ok := raw["keyid"].(string); ok {
+		m.Keyid = types.StringValue(v)
 	} else {
-		m.KeyID = types.StringNull()
+		m.Keyid = types.StringNull()
 	}
 	if v, ok := raw["managedbyresourceid"].(string); ok {
 		m.Managedbyresourceid = types.StringValue(v)
@@ -424,13 +414,13 @@ func gpg_keypairModelsEqual(a, b gpg_keypairModel) bool {
 	if !a.Name.Equal(b.Name) {
 		return false
 	}
+	if !a.Privatekey.Equal(b.Privatekey) {
+		return false
+	}
+	if !a.Publickey.Equal(b.Publickey) {
+		return false
+	}
 	if !a.Maxversions.Equal(b.Maxversions) {
-		return false
-	}
-	if !a.PrivateKey.Equal(b.PrivateKey) {
-		return false
-	}
-	if !a.PublicKey.Equal(b.PublicKey) {
 		return false
 	}
 	return true

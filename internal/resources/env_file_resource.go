@@ -39,7 +39,7 @@ type env_fileModel struct {
 	Maxversions           types.Int64  `tfsdk:"maxversions"`
 	Billable              types.Bool   `tfsdk:"billable"`
 	Currentversion        types.Int64  `tfsdk:"currentversion"`
-	EntryCount            types.Int64  `tfsdk:"entry_count"`
+	Entrycount            types.Int64  `tfsdk:"entrycount"`
 	Managedbyresourceid   types.String `tfsdk:"managedbyresourceid"`
 	Managedbyresourcetype types.String `tfsdk:"managedbyresourcetype"`
 	Organisation          types.String `tfsdk:"organisation"`
@@ -89,7 +89,7 @@ func (r *env_fileResource) Schema(_ context.Context, _ resource.SchemaRequest, r
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
-			"entry_count": schema.Int64Attribute{
+			"entrycount": schema.Int64Attribute{
 				Computed: true,
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
@@ -335,10 +335,10 @@ func apiToEnvFileModel(raw map[string]any) env_fileModel {
 	} else {
 		m.Currentversion = types.Int64Null()
 	}
-	if v, ok := raw["entry_count"].(float64); ok {
-		m.EntryCount = types.Int64Value(int64(v))
+	if v, ok := raw["entrycount"].(float64); ok {
+		m.Entrycount = types.Int64Value(int64(v))
 	} else {
-		m.EntryCount = types.Int64Null()
+		m.Entrycount = types.Int64Null()
 	}
 	if v, ok := raw["managedbyresourceid"].(string); ok {
 		m.Managedbyresourceid = types.StringValue(v)

@@ -428,7 +428,6 @@ var descriptors = map[string]resourceDescriptor{
 		HasStatus:        true,
 		ReadyStatus:      "running",
 		TerminatedStatus: "terminated",
-		SkipFields:       []string{"mode"},
 	},
 	"container": {
 		Name:             "container",

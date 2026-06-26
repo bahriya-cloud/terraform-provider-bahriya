@@ -41,7 +41,7 @@ type encryption_keyModel struct {
 	Maxversions           types.Int64  `tfsdk:"maxversions"`
 	Billable              types.Bool   `tfsdk:"billable"`
 	Currentversion        types.Int64  `tfsdk:"currentversion"`
-	KeyBits               types.Int64  `tfsdk:"key_bits"`
+	Keybits               types.Int64  `tfsdk:"keybits"`
 	Managedbyresourceid   types.String `tfsdk:"managedbyresourceid"`
 	Managedbyresourcetype types.String `tfsdk:"managedbyresourcetype"`
 	Organisation          types.String `tfsdk:"organisation"`
@@ -100,7 +100,7 @@ func (r *encryption_keyResource) Schema(_ context.Context, _ resource.SchemaRequ
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
-			"key_bits": schema.Int64Attribute{
+			"keybits": schema.Int64Attribute{
 				Computed: true,
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
@@ -365,10 +365,10 @@ func apiToEncryptionKeyModel(raw map[string]any) encryption_keyModel {
 	} else {
 		m.Currentversion = types.Int64Null()
 	}
-	if v, ok := raw["key_bits"].(float64); ok {
-		m.KeyBits = types.Int64Value(int64(v))
+	if v, ok := raw["keybits"].(float64); ok {
+		m.Keybits = types.Int64Value(int64(v))
 	} else {
-		m.KeyBits = types.Int64Null()
+		m.Keybits = types.Int64Null()
 	}
 	if v, ok := raw["managedbyresourceid"].(string); ok {
 		m.Managedbyresourceid = types.StringValue(v)
