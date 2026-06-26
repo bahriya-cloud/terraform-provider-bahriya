@@ -35,9 +35,9 @@ type ssh_keypairModel struct {
 	ID                    types.String `tfsdk:"id"`
 	Handle                types.String `tfsdk:"handle"`
 	Name                  types.String `tfsdk:"name"`
+	Maxversions           types.Int64  `tfsdk:"maxversions"`
 	PrivateKey            types.String `tfsdk:"private_key"`
 	PublicKey             types.String `tfsdk:"public_key"`
-	Maxversions           types.Int64  `tfsdk:"maxversions"`
 	Algorithm             types.String `tfsdk:"algorithm"`
 	Billable              types.Bool   `tfsdk:"billable"`
 	Comment               types.String `tfsdk:"comment"`
@@ -73,22 +73,24 @@ func (r *ssh_keypairResource) Schema(_ context.Context, _ resource.SchemaRequest
 			"name": schema.StringAttribute{
 				Required: true,
 			},
-			"private_key": schema.StringAttribute{
-				Required:    true,
-				Sensitive:   true,
-				Description: "PEM-encoded private key. Never returned on read.",
-			},
-			"public_key": schema.StringAttribute{
-				Required:    true,
-				Sensitive:   true,
-				Description: "SSH public key line (algorithm base64 comment).",
-			},
 			"maxversions": schema.Int64Attribute{
 				Optional: true,
 				Computed: true,
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
+			},
+			"private_key": schema.StringAttribute{
+				Optional:    true,
+				Computed:    true,
+				Sensitive:   true,
+				Description: "PEM-encoded private key. Never returned on read.",
+			},
+			"public_key": schema.StringAttribute{
+				Optional:    true,
+				Computed:    true,
+				Sensitive:   true,
+				Description: "SSH public key line (algorithm base64 comment).",
 			},
 			"algorithm": schema.StringAttribute{
 				Computed: true,
@@ -323,14 +325,14 @@ func planToSSHKeypairPayload(ctx context.Context, m *ssh_keypairModel) (map[stri
 	if !m.Name.IsNull() && !m.Name.IsUnknown() {
 		out["name"] = m.Name.ValueString()
 	}
+	if !m.Maxversions.IsNull() && !m.Maxversions.IsUnknown() {
+		out["maxversions"] = m.Maxversions.ValueInt64()
+	}
 	if !m.PrivateKey.IsNull() && !m.PrivateKey.IsUnknown() {
 		out["private_key"] = m.PrivateKey.ValueString()
 	}
 	if !m.PublicKey.IsNull() && !m.PublicKey.IsUnknown() {
 		out["public_key"] = m.PublicKey.ValueString()
-	}
-	if !m.Maxversions.IsNull() && !m.Maxversions.IsUnknown() {
-		out["maxversions"] = m.Maxversions.ValueInt64()
 	}
 	return out, diags
 }
@@ -352,6 +354,11 @@ func apiToSSHKeypairModel(raw map[string]any) ssh_keypairModel {
 	} else {
 		m.Name = types.StringNull()
 	}
+	if v, ok := raw["maxversions"].(float64); ok {
+		m.Maxversions = types.Int64Value(int64(v))
+	} else {
+		m.Maxversions = types.Int64Null()
+	}
 	if v, ok := raw["private_key"].(string); ok {
 		m.PrivateKey = types.StringValue(v)
 	} else {
@@ -361,11 +368,6 @@ func apiToSSHKeypairModel(raw map[string]any) ssh_keypairModel {
 		m.PublicKey = types.StringValue(v)
 	} else {
 		m.PublicKey = types.StringNull()
-	}
-	if v, ok := raw["maxversions"].(float64); ok {
-		m.Maxversions = types.Int64Value(int64(v))
-	} else {
-		m.Maxversions = types.Int64Null()
 	}
 	if v, ok := raw["algorithm"].(string); ok {
 		m.Algorithm = types.StringValue(v)
@@ -422,13 +424,13 @@ func ssh_keypairModelsEqual(a, b ssh_keypairModel) bool {
 	if !a.Name.Equal(b.Name) {
 		return false
 	}
+	if !a.Maxversions.Equal(b.Maxversions) {
+		return false
+	}
 	if !a.PrivateKey.Equal(b.PrivateKey) {
 		return false
 	}
 	if !a.PublicKey.Equal(b.PublicKey) {
-		return false
-	}
-	if !a.Maxversions.Equal(b.Maxversions) {
 		return false
 	}
 	return true

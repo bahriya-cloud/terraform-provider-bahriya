@@ -1,8 +1,8 @@
 # terraform-provider-bahriya
 
-The official Terraform provider for [Bahriya](https://bahriya.cloud) — manage containers, projects, registries, secrets, and memcached instances declaratively.
+The official Terraform provider for [Bahriya](https://bahriya.cloud) — manage every Bahriya resource declaratively.
 
-> **Status:** pre-release. All 5 resources and 3 data sources built and tested. Not yet published to the Terraform registry. Track progress on Nextcloud Deck card #928.
+> **Status:** pre-release. Not yet published to the Terraform registry. Track progress on Nextcloud Deck card #928.
 
 ---
 

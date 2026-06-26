@@ -25,7 +25,7 @@ resource "bahriya_memcached" "session" {
 }
 ```
 
-### Cluster with Tuning
+### Tuned Instance
 
 ```hcl
 resource "bahriya_memcached" "api_cache" {
@@ -33,7 +33,6 @@ resource "bahriya_memcached" "api_cache" {
   name           = "API Response Cache"
   memorymb       = 1024
   nodes          = 3
-  mode           = "cluster"
   maxconnections = 2048
   threads        = 8
   maxitemsizemb  = 5
@@ -55,7 +54,6 @@ resource "bahriya_memcached" "api_cache" {
 
 - `project` (String) - Project UUID. Changing this forces recreation.
 - `nodes` (Number) - Number of nodes, 1–9 (default 1).
-- `mode` (String) - `standalone` or `cluster` (default `cluster`).
 - `maxconnections` (Number) - Maximum concurrent connections per node (default 1024).
 - `threads` (Number) - Worker threads per node (default 4).
 - `maxitemsizemb` (Number) - Largest item the cache will accept in MB, max 128 (default 1).

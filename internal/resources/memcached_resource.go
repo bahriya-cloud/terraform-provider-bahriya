@@ -42,7 +42,6 @@ type memcachedModel struct {
 	Name               types.String `tfsdk:"name"`
 	Maxconnections     types.Int64  `tfsdk:"maxconnections"`
 	Maxitemsizemb      types.Int64  `tfsdk:"maxitemsizemb"`
-	Mode               types.String `tfsdk:"mode"`
 	Nodes              types.Int64  `tfsdk:"nodes"`
 	Project            types.String `tfsdk:"project"`
 	Threads            types.Int64  `tfsdk:"threads"`
@@ -96,10 +95,6 @@ func (r *memcachedResource) Schema(_ context.Context, _ resource.SchemaRequest, 
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
-			},
-			"mode": schema.StringAttribute{
-				Optional: true,
-				Computed: true,
 			},
 			"nodes": schema.Int64Attribute{
 				Optional: true,
@@ -412,9 +407,6 @@ func planToMemcachedPayload(ctx context.Context, m *memcachedModel) (map[string]
 	if !m.Maxitemsizemb.IsNull() && !m.Maxitemsizemb.IsUnknown() {
 		out["maxitemsizemb"] = m.Maxitemsizemb.ValueInt64()
 	}
-	if !m.Mode.IsNull() && !m.Mode.IsUnknown() {
-		out["mode"] = m.Mode.ValueString()
-	}
 	if !m.Nodes.IsNull() && !m.Nodes.IsUnknown() {
 		out["nodes"] = m.Nodes.ValueInt64()
 	}
@@ -471,11 +463,6 @@ func apiToMemcachedModel(raw map[string]any) memcachedModel {
 	} else {
 		m.Maxitemsizemb = types.Int64Null()
 	}
-	if v, ok := raw["mode"].(string); ok {
-		m.Mode = types.StringValue(v)
-	} else {
-		m.Mode = types.StringNull()
-	}
 	if v, ok := raw["nodes"].(float64); ok {
 		m.Nodes = types.Int64Value(int64(v))
 	} else {
@@ -531,9 +518,6 @@ func memcachedModelsEqual(a, b memcachedModel) bool {
 		return false
 	}
 	if !a.Maxitemsizemb.Equal(b.Maxitemsizemb) {
-		return false
-	}
-	if !a.Mode.Equal(b.Mode) {
 		return false
 	}
 	if !a.Nodes.Equal(b.Nodes) {

@@ -2,12 +2,12 @@
 page_title: "Provider: Bahriya"
 subcategory: ""
 description: |-
-  The Bahriya provider manages containers, projects, registries, secrets, and memcached instances on Bahriya Cloud.
+  The Bahriya provider manages every Bahriya Cloud resource.
 ---
 
 # Bahriya Provider
 
-The Bahriya provider lets you manage infrastructure on [Bahriya Cloud](https://bahriya.cloud) declaratively with Terraform. It supports the full lifecycle of projects, HTTP containers, workers, cron jobs, registries, secrets, and managed Memcached instances.
+The Bahriya provider lets you manage infrastructure on [Bahriya Cloud](https://bahriya.cloud) declaratively with Terraform. It supports every Bahriya resource.
 
 ## Authentication
 
