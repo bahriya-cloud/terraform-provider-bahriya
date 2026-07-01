@@ -402,7 +402,7 @@ func (r *containerResource) Schema(_ context.Context, _ resource.SchemaRequest, 
 			"externalnetworkingenabled": schema.BoolAttribute{
 				Optional:    true,
 				Computed:    true,
-				Description: "Expose this container externally via ingress. When false, the container is only reachable within the project namespace.",
+				Description: "Expose this container externally via ingress. When false, the container is only reachable within the project namespace. Console UI defaults this to true for HTTP containers (toggle starts ON, user can flip off); Reis CLI and Terraform default to false so an omitted-from-IaC field cannot silently provision external DNS.",
 			},
 			"failedjobshistorylimit": schema.Int64Attribute{
 				Optional:    true,

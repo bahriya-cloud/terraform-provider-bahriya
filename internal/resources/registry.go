@@ -33,5 +33,7 @@ func All() []func() resource.Resource {
 		NewProjectYAMLConfigAttachmentResource,
 		NewProjectJSONConfigAttachmentResource,
 		NewProjectPlainConfigAttachmentResource,
+		// Hand-written resources — preserved via handWrittenResources in cmd/generator/main.go.
+		NewPathRuleResource,
 	}
 }
