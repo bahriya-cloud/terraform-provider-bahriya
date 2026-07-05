@@ -22,7 +22,7 @@ func main() {
 	// Hand-written resources that the generator can't emit but still need to
 	// land in the All() registry. These are constructors implemented in their
 	// own *_resource.go file; we just inject the symbol name here.
-	handWrittenResources := []string{"NewPathRuleResource"}
+	handWrittenResources := []string{"NewPathRuleResource", "NewRoleResource", "NewResourceGrantResource"}
 
 	if err := run(*specDir, *outputDir, targets, attachmentTargets, handWrittenResources); err != nil {
 		log.Fatal(err)

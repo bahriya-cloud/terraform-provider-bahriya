@@ -35,5 +35,7 @@ func All() []func() resource.Resource {
 		NewProjectPlainConfigAttachmentResource,
 		// Hand-written resources — preserved via handWrittenResources in cmd/generator/main.go.
 		NewPathRuleResource,
+		NewRoleResource,
+		NewResourceGrantResource,
 	}
 }

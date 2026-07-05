@@ -27,14 +27,14 @@ type regionDataSource struct {
 }
 
 type regionModel struct {
-	ID          types.String `tfsdk:"id"`
-	Name        types.String `tfsdk:"name"`
-	Description types.String `tfsdk:"description"`
-	Class       types.String `tfsdk:"class"`
-	Status      types.String `tfsdk:"status"`
-	City        types.String `tfsdk:"city"`
-	State       types.String `tfsdk:"state"`
-	Country     types.String `tfsdk:"country"`
+	ID          types.String  `tfsdk:"id"`
+	Name        types.String  `tfsdk:"name"`
+	Description types.String  `tfsdk:"description"`
+	Class       types.String  `tfsdk:"class"`
+	Status      types.String  `tfsdk:"status"`
+	City        types.String  `tfsdk:"city"`
+	State       types.String  `tfsdk:"state"`
+	Country     types.String  `tfsdk:"country"`
 	Latitude    types.Float64 `tfsdk:"latitude"`
 	Longitude   types.Float64 `tfsdk:"longitude"`
 }

@@ -148,16 +148,16 @@ func parseResource(specPath string, descriptor resourceDescriptor) (*Resource, e
 	})
 
 	return &Resource{
-		Name:             descriptor.Name,
-		GoName:           descriptor.GoName,
-		HasStatus:        descriptor.HasStatus,
-		ReadyStatus:      descriptor.ReadyStatus,
-		TerminatedStatus: descriptor.TerminatedStatus,
-		URLBase:          descriptor.URLBase,
-		URLItem:          descriptor.URLItem,
-		HandleURL:        descriptor.HandleURL,
-		HandlePathName:   descriptor.HandlePathName,
-		CollectionKey:    descriptor.CollectionKey,
+		Name:               descriptor.Name,
+		GoName:             descriptor.GoName,
+		HasStatus:          descriptor.HasStatus,
+		ReadyStatus:        descriptor.ReadyStatus,
+		TerminatedStatus:   descriptor.TerminatedStatus,
+		URLBase:            descriptor.URLBase,
+		URLItem:            descriptor.URLItem,
+		HandleURL:          descriptor.HandleURL,
+		HandlePathName:     descriptor.HandlePathName,
+		CollectionKey:      descriptor.CollectionKey,
 		DeleteMethod:       descriptor.DeleteMethod,
 		DeleteURL:          descriptor.DeleteURL,
 		ConfirmDelete:      descriptor.ConfirmDelete,
@@ -358,23 +358,23 @@ var initialisms = map[string]string{
 }
 
 type resourceDescriptor struct {
-	Name             string
-	GoName           string
-	SchemaName       string
-	URLBase          string
-	URLItem          string
-	HandleURL        string
-	HandlePathName   string
-	CollectionKey    string
+	Name               string
+	GoName             string
+	SchemaName         string
+	URLBase            string
+	URLItem            string
+	HandleURL          string
+	HandlePathName     string
+	CollectionKey      string
 	DeleteMethod       string
 	DeleteURL          string
 	ConfirmDelete      bool
 	DeleteConflictHint string
 	HasStatus          bool
-	ReadyStatus      string
-	TerminatedStatus string
-	SensitiveFields  []string
-	SkipFields       []string
+	ReadyStatus        string
+	TerminatedStatus   string
+	SensitiveFields    []string
+	SkipFields         []string
 }
 
 var descriptors = map[string]resourceDescriptor{
