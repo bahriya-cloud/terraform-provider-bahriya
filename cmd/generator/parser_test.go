@@ -117,11 +117,29 @@ func TestPlural(t *testing.T) {
 		{"secret", "secrets"},
 		{"memcached", "memcached"},
 		{"container", "containers"},
+		{"network_policy", "networkpolicies"},
 	}
 	for _, tt := range tests {
 		got := plural(tt.in)
 		if got != tt.want {
 			t.Errorf("plural(%q) = %q, want %q", tt.in, got, tt.want)
+		}
+	}
+}
+
+func TestAPISlug(t *testing.T) {
+	tests := []struct {
+		in, want string
+	}{
+		{"registry", "registries"},
+		{"secret", "secrets"},
+		{"tls_bundle", "tls_bundles"},
+		{"network_policy", "network_policies"},
+	}
+	for _, tt := range tests {
+		got := apiSlug(tt.in)
+		if got != tt.want {
+			t.Errorf("apiSlug(%q) = %q, want %q", tt.in, got, tt.want)
 		}
 	}
 }

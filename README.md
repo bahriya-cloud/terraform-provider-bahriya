@@ -159,6 +159,7 @@ export BAHRIYA_ORGANISATION_ID="65cc42f1-..."
 | `bahriya_yaml_config`     | YAML config file, mounted into containers as a file.                      | Yes          |
 | `bahriya_json_config`     | JSON config file, mounted into containers as a file.                      | Yes          |
 | `bahriya_plain_config`    | Arbitrary text config file, mounted into containers as a file.            | Yes          |
+| `bahriya_network_policy`  | Ingress/egress network policy, attachable to projects and workloads.      | Yes          |
 
 Each vault/config item also has a corresponding `bahriya_project_<type>_attachment` resource that binds an item to a project. Once attached, the item can be referenced from a `bahriya_container` block to mount it inside the container.
 
@@ -245,6 +246,12 @@ The API parses content on create / rotate — invalid material is rejected.
 | `bahriya_yaml_config` | `content`               | Valid YAML.                                                    |
 | `bahriya_json_config` | `content`               | Valid JSON.                                                    |
 | `bahriya_plain_config`| `content`               | Arbitrary text. Mounted as a file.                             |
+
+#### Networking
+
+| Resource                | Notable fields                                        | Notes                                                                 |
+| ----------------------- | ----------------------------------------------------- | --------------------------------------------------------------------- |
+| `bahriya_network_policy`| `ingresspeers`, `egresscidrs`, `egressfqdns`, `ports` | All optional. Any `egresscidrs` flips the target to deny-by-default outbound. `egressfqdns` is stored/validated now, enforced later. `ports` is a nested list of `{ port, protocol }`. |
 
 #### Project attachments
 

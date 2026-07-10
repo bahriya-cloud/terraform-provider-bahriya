@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -42,6 +43,7 @@ type memcachedModel struct {
 	Name               types.String `tfsdk:"name"`
 	Maxconnections     types.Int64  `tfsdk:"maxconnections"`
 	Maxitemsizemb      types.Int64  `tfsdk:"maxitemsizemb"`
+	Networkpolicies    types.List   `tfsdk:"networkpolicies"`
 	Nodes              types.Int64  `tfsdk:"nodes"`
 	Project            types.String `tfsdk:"project"`
 	Threads            types.Int64  `tfsdk:"threads"`
@@ -94,6 +96,15 @@ func (r *memcachedResource) Schema(_ context.Context, _ resource.SchemaRequest, 
 				Description: "Maximum item size in MB (memcached -I flag)",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"networkpolicies": schema.ListAttribute{
+				ElementType: types.StringType,
+				Optional:    true,
+				Computed:    true,
+				Description: "Network policies narrowed to this memcached instance, referenced by handle.",
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"nodes": schema.Int64Attribute{
@@ -407,6 +418,13 @@ func planToMemcachedPayload(ctx context.Context, m *memcachedModel) (map[string]
 	if !m.Maxitemsizemb.IsNull() && !m.Maxitemsizemb.IsUnknown() {
 		out["maxitemsizemb"] = m.Maxitemsizemb.ValueInt64()
 	}
+	if !m.Networkpolicies.IsNull() && !m.Networkpolicies.IsUnknown() {
+		var items []string
+		diags.Append(m.Networkpolicies.ElementsAs(ctx, &items, false)...)
+		out["networkpolicies"] = items
+	} else {
+		out["networkpolicies"] = []string{}
+	}
 	if !m.Nodes.IsNull() && !m.Nodes.IsUnknown() {
 		out["nodes"] = m.Nodes.ValueInt64()
 	}
@@ -463,6 +481,18 @@ func apiToMemcachedModel(raw map[string]any) memcachedModel {
 	} else {
 		m.Maxitemsizemb = types.Int64Null()
 	}
+	if items, ok := raw["networkpolicies"].([]any); ok {
+		elements := make([]attr.Value, 0, len(items))
+		for _, it := range items {
+			if s, ok := it.(string); ok {
+				elements = append(elements, types.StringValue(s))
+			}
+		}
+		listVal, _ := types.ListValue(types.StringType, elements)
+		m.Networkpolicies = listVal
+	} else {
+		m.Networkpolicies = types.ListNull(types.StringType)
+	}
 	if v, ok := raw["nodes"].(float64); ok {
 		m.Nodes = types.Int64Value(int64(v))
 	} else {
@@ -518,6 +548,9 @@ func memcachedModelsEqual(a, b memcachedModel) bool {
 		return false
 	}
 	if !a.Maxitemsizemb.Equal(b.Maxitemsizemb) {
+		return false
+	}
+	if !a.Networkpolicies.Equal(b.Networkpolicies) {
 		return false
 	}
 	if !a.Nodes.Equal(b.Nodes) {

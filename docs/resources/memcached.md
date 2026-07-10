@@ -57,6 +57,7 @@ resource "bahriya_memcached" "api_cache" {
 - `maxconnections` (Number) - Maximum concurrent connections per node (default 1024).
 - `threads` (Number) - Worker threads per node (default 4).
 - `maxitemsizemb` (Number) - Largest item the cache will accept in MB, max 128 (default 1).
+- `networkpolicies` (List of String) - Network policies narrowed to this memcached instance, referenced by handle. Datastores are L3/L4 only — an L7 policy applied here enforces its L3/L4 rules; there is no sidecar.
 
 ### Read-Only
 

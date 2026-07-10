@@ -528,4 +528,13 @@ var descriptors = map[string]resourceDescriptor{
 		HandleURL:      "/organisations/%s/plain_config/%s",
 		HandlePathName: "plain_config",
 	},
+	"network_policy": {
+		Name:           "network_policy",
+		GoName:         "NetworkPolicy",
+		SchemaName:     "NetworkPolicy",
+		URLBase:        "/organisations/%s/network_policies",
+		URLItem:        "/organisations/%s/network_policies/%s",
+		HandleURL:      "/organisations/%s/network_policy/%s",
+		HandlePathName: "network_policy",
+	},
 }

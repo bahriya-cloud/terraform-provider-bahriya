@@ -38,19 +38,25 @@ resource "bahriya_container" "api" {
   project       = bahriya_project.web.id
   registry      = bahriya_registry.ghcr.handle
 
-  newenvvar {
-    key   = "NODE_ENV"
-    value = "production"
-  }
+  newenvvar = [
+    { key = "NODE_ENV", value = "production" },
+  ]
 
-  secretsenvvar {
-    secret = bahriya_secret.db_password.handle
-    name   = "DATABASE_PASSWORD"
-  }
+  secretsenvvar = [
+    { name = "DATABASE_PASSWORD", secret = bahriya_secret.db_password.handle },
+  ]
 
-  hostnames {
-    hostname = "api.example.com"
-  }
+  hostnames = [
+    { hostname = "api.example.com" },
+  ]
+
+  # Attach project-scoped vault/config items (mounted as files) and a
+  # container-scoped network policy (applies to this container's pods only).
+  tlsbundles = [
+    { handle = bahriya_tls_bundle.edge.handle, mountpath = "/etc/tls" },
+  ]
+
+  networkpolicies = [bahriya_network_policy.web_tier.handle]
 }
 ```
 
@@ -158,6 +164,21 @@ resource "bahriya_container" "api" {
 - `dnsfailoverenabled` (Boolean) - Enable DNS failover.
 - `dnsttl` (Number) - DNS TTL in seconds for vanity records.
 
+**Vault & config attachments:**
+
+Each entry references an item already attached to the container's project (by handle) and specifies where it is mounted. Assign with attribute syntax, e.g. `tlsbundles = [{ handle = "edge", mountpath = "/etc/tls" }]`.
+
+- `tlsbundles` (Attributes List) - TLS bundles mounted as a Kubernetes Secret volume. (see [below for nested schema](#nestedatt--tlsbundles))
+- `x509certs` (Attributes List) - x509 certificates mounted as files. (see [below for nested schema](#nestedatt--x509certs))
+- `gpgkeypairs` (Attributes List) - GPG keypairs mounted as files. (see [below for nested schema](#nestedatt--gpgkeypairs))
+- `sshkeypairs` (Attributes List) - SSH keypairs mounted as files. (see [below for nested schema](#nestedatt--sshkeypairs))
+- `encryptionkeys` (Attributes List) - Encryption keys mounted as files. Env-var injection is not supported for encryption keys. (see [below for nested schema](#nestedatt--encryptionkeys))
+- `jsonconfigs` (Attributes List) - JSON configs mounted as files via a ConfigMap volume. (see [below for nested schema](#nestedatt--jsonconfigs))
+- `yamlconfigs` (Attributes List) - YAML configs mounted as files via a ConfigMap volume. (see [below for nested schema](#nestedatt--yamlconfigs))
+- `plainconfigs` (Attributes List) - Plain-text configs mounted as files via a ConfigMap volume. (see [below for nested schema](#nestedatt--plainconfigs))
+- `envfiles` (Attributes List) - Env-files injected as environment variables via `envFrom`. (see [below for nested schema](#nestedatt--envfiles))
+- `networkpolicies` (List of String) - Network policies narrowed to this container, referenced by handle. When a policy is listed here it applies to only this container's pods instead of the whole project.
+
 **Observability (HTTP + worker):**
 
 - `prometheusport` (String) - Port exposing Prometheus metrics.
@@ -205,42 +226,44 @@ resource "bahriya_container" "api" {
 - `successfuljobshistorylimit` (Number) - How many successful run records to keep.
 - `failedjobshistorylimit` (Number) - How many failed run records to keep.
 
-### Blocks
+### Nested Schemas
 
-<a id="nestedblock--newenvvar"></a>
-#### `newenvvar` (Block List)
+All nested items are **attributes**, not blocks — assign them with `=` and a list of objects, e.g. `newenvvar = [{ key = "K", value = "V" }]`.
+
+<a id="nestedatt--newenvvar"></a>
+#### Nested Schema for `newenvvar` (Attributes List)
 
 Environment variable key-value pairs.
 
 - `key` (String, Required) - Variable name.
 - `value` (String, Required) - Variable value.
 
-<a id="nestedblock--secretsenvvar"></a>
-#### `secretsenvvar` (Block List)
+<a id="nestedatt--secretsenvvar"></a>
+#### Nested Schema for `secretsenvvar` (Attributes List)
 
 Inject a secret as an environment variable.
 
 - `name` (String, Required) - Environment variable name inside the container.
 - `secret` (String, Required) - Secret handle to inject.
 
-<a id="nestedblock--hostnames"></a>
-#### `hostnames` (Block List)
+<a id="nestedatt--hostnames"></a>
+#### Nested Schema for `hostnames` (Attributes List)
 
 Custom hostnames attached to this container.
 
 - `hostname` (String, Required) - The hostname (e.g. `api.example.com`).
 - `wwwredirect` (Boolean, Optional) - Redirect `www.` prefix to the bare domain.
 
-<a id="nestedblock--basicauthcredentials"></a>
-#### `basicauthcredentials` (Block List)
+<a id="nestedatt--basicauthcredentials"></a>
+#### Nested Schema for `basicauthcredentials` (Attributes List)
 
 Basic auth credentials (up to 10). HTTP containers only.
 
 - `username` (String, Required) - Username.
 - `password` (String, Required) - Password.
 
-<a id="nestedblock--initjobs"></a>
-#### `initjobs` (Block List)
+<a id="nestedatt--initjobs"></a>
+#### Nested Schema for `initjobs` (Attributes List)
 
 Init jobs that run to completion before the main container starts. HTTP containers only.
 
@@ -252,14 +275,70 @@ Init jobs that run to completion before the main container starts. HTTP containe
 - `minmemory` (String, Optional) - Memory in megabytes.
 - `registry` (String, Optional) - Registry handle for private images.
 
-<a id="nestedblock--persistentvolumes"></a>
-#### `persistentvolumes` (Block List)
+<a id="nestedatt--persistentvolumes"></a>
+#### Nested Schema for `persistentvolumes` (Attributes List)
 
 Persistent volumes. Each replica gets its own copy. Containers with persistent volumes cannot use autoscaling.
 
 - `handle` (String, Required) - Volume handle.
 - `mountpath` (String, Required) - Mount path inside the container.
 - `sizegb` (Number, Required) - Volume size in GB.
+
+The vault/config mounts below share the same shape: `handle` of a project-attached item plus the `mountpath` to render it at.
+
+<a id="nestedatt--tlsbundles"></a>
+#### Nested Schema for `tlsbundles` (Attributes List)
+
+- `handle` (String, Required) - Handle of a project-attached TLS bundle.
+- `mountpath` (String, Required) - Path to mount the bundle at inside the container.
+
+<a id="nestedatt--x509certs"></a>
+#### Nested Schema for `x509certs` (Attributes List)
+
+- `handle` (String, Required) - Handle of a project-attached x509 certificate.
+- `mountpath` (String, Required) - Path to mount the certificate at.
+
+<a id="nestedatt--gpgkeypairs"></a>
+#### Nested Schema for `gpgkeypairs` (Attributes List)
+
+- `handle` (String, Required) - Handle of a project-attached GPG keypair.
+- `mountpath` (String, Required) - Path to mount the keypair at.
+
+<a id="nestedatt--sshkeypairs"></a>
+#### Nested Schema for `sshkeypairs` (Attributes List)
+
+- `handle` (String, Required) - Handle of a project-attached SSH keypair.
+- `mountpath` (String, Required) - Path to mount the keypair at.
+
+<a id="nestedatt--encryptionkeys"></a>
+#### Nested Schema for `encryptionkeys` (Attributes List)
+
+- `handle` (String, Required) - Handle of a project-attached encryption key.
+- `mountpath` (String, Required) - Path to mount the key at.
+
+<a id="nestedatt--jsonconfigs"></a>
+#### Nested Schema for `jsonconfigs` (Attributes List)
+
+- `handle` (String, Required) - Handle of a project-attached JSON config.
+- `mountpath` (String, Required) - Path to mount the config at.
+
+<a id="nestedatt--yamlconfigs"></a>
+#### Nested Schema for `yamlconfigs` (Attributes List)
+
+- `handle` (String, Required) - Handle of a project-attached YAML config.
+- `mountpath` (String, Required) - Path to mount the config at.
+
+<a id="nestedatt--plainconfigs"></a>
+#### Nested Schema for `plainconfigs` (Attributes List)
+
+- `handle` (String, Required) - Handle of a project-attached plain-text config.
+- `mountpath` (String, Required) - Path to mount the config at.
+
+<a id="nestedatt--envfiles"></a>
+#### Nested Schema for `envfiles` (Attributes List)
+
+- `handle` (String, Required) - Handle of a project-attached env-file.
+- `injectionmethod` (String, Optional) - How the entries are injected (defaults to `envFrom`).
 
 ### Read-Only
 

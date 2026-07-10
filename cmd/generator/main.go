@@ -13,11 +13,11 @@ func main() {
 	outputDir := flag.String("out", "internal/resources", "directory to write generated resource files to")
 	flag.Parse()
 
-	targets := []string{"project", "registry", "secret", "memcached", "container", "tls_bundle", "x509_cert", "gpg_keypair", "ssh_keypair", "encryption_key", "env_file", "yaml_config", "json_config", "plain_config"}
+	targets := []string{"project", "registry", "secret", "memcached", "container", "tls_bundle", "x509_cert", "gpg_keypair", "ssh_keypair", "encryption_key", "env_file", "yaml_config", "json_config", "plain_config", "network_policy"}
 
 	// Per-type project attachment resources (bahriya_project_<type>_attachment).
 	// These are thin CRD-only resources hitting /projects/{pid}/attach/{type}/{handle}.
-	attachmentTargets := []string{"registry", "secret", "tls_bundle", "x509_cert", "gpg_keypair", "ssh_keypair", "encryption_key", "env_file", "yaml_config", "json_config", "plain_config"}
+	attachmentTargets := []string{"registry", "secret", "tls_bundle", "x509_cert", "gpg_keypair", "ssh_keypair", "encryption_key", "env_file", "yaml_config", "json_config", "plain_config", "network_policy"}
 
 	// Hand-written resources that the generator can't emit but still need to
 	// land in the All() registry. These are constructors implemented in their
@@ -98,6 +98,8 @@ func plural(s string) string {
 		return "jsonconfigs"
 	case "plain_config":
 		return "plainconfigs"
+	case "network_policy":
+		return "networkpolicies"
 	}
 	return s + "s"
 }
@@ -113,6 +115,8 @@ func apiSlug(s string) string {
 		return "registries"
 	case "secret":
 		return "secrets"
+	case "network_policy":
+		return "network_policies"
 	}
 	return s + "s"
 }

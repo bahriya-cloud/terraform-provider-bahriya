@@ -77,6 +77,7 @@ type containerModel struct {
 	Jsonconfigs                     types.List   `tfsdk:"jsonconfigs"`
 	Maxcpu                          types.String `tfsdk:"maxcpu"`
 	Maxmemory                       types.String `tfsdk:"maxmemory"`
+	Networkpolicies                 types.List   `tfsdk:"networkpolicies"`
 	Newenvvar                       types.List   `tfsdk:"newenvvar"`
 	Persistentvolumes               types.List   `tfsdk:"persistentvolumes"`
 	Plainconfigs                    types.List   `tfsdk:"plainconfigs"`
@@ -541,6 +542,15 @@ func (r *containerResource) Schema(_ context.Context, _ resource.SchemaRequest, 
 				Optional:    true,
 				Computed:    true,
 				Description: "Server-computed: request x limit_multiplier (config). Not accepted from clients.",
+			},
+			"networkpolicies": schema.ListAttribute{
+				ElementType: types.StringType,
+				Optional:    true,
+				Computed:    true,
+				Description: "Network policies narrowed to this container, referenced by handle. When a policy is listed here it applies to only this container's pods instead of the whole project.",
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"newenvvar": schema.ListNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -1433,6 +1443,13 @@ func planToContainerPayload(ctx context.Context, m *containerModel) (map[string]
 	if !m.Maxmemory.IsNull() && !m.Maxmemory.IsUnknown() {
 		out["maxmemory"] = m.Maxmemory.ValueString()
 	}
+	if !m.Networkpolicies.IsNull() && !m.Networkpolicies.IsUnknown() {
+		var items []string
+		diags.Append(m.Networkpolicies.ElementsAs(ctx, &items, false)...)
+		out["networkpolicies"] = items
+	} else {
+		out["networkpolicies"] = []string{}
+	}
 	if !m.Newenvvar.IsNull() && !m.Newenvvar.IsUnknown() {
 		var nested []containerNewenvvarModel
 		diags.Append(m.Newenvvar.ElementsAs(ctx, &nested, false)...)
@@ -2123,6 +2140,18 @@ func apiToContainerModel(raw map[string]any) containerModel {
 		m.Maxmemory = types.StringValue(v)
 	} else {
 		m.Maxmemory = types.StringNull()
+	}
+	if items, ok := raw["networkpolicies"].([]any); ok {
+		elements := make([]attr.Value, 0, len(items))
+		for _, it := range items {
+			if s, ok := it.(string); ok {
+				elements = append(elements, types.StringValue(s))
+			}
+		}
+		listVal, _ := types.ListValue(types.StringType, elements)
+		m.Networkpolicies = listVal
+	} else {
+		m.Networkpolicies = types.ListNull(types.StringType)
 	}
 	if items, ok := raw["newenvvar"].([]any); ok {
 		elements := make([]attr.Value, 0, len(items))
@@ -2826,6 +2855,9 @@ func containerModelsEqual(a, b containerModel) bool {
 		return false
 	}
 	if !a.Maxmemory.Equal(b.Maxmemory) {
+		return false
+	}
+	if !a.Networkpolicies.Equal(b.Networkpolicies) {
 		return false
 	}
 	if !a.Newenvvar.Equal(b.Newenvvar) {

@@ -32,15 +32,10 @@ resource "bahriya_container" "api" {
   image  = "myorg/api:1.0.0"
   # ...
 
-  secretsenvvar {
-    secret = bahriya_secret.db_password.handle
-    name   = "DATABASE_PASSWORD"
-  }
-
-  secretsenvvar {
-    secret = bahriya_secret.api_key.handle
-    name   = "API_KEY"
-  }
+  secretsenvvar = [
+    { name = "DATABASE_PASSWORD", secret = bahriya_secret.db_password.handle },
+    { name = "API_KEY", secret = bahriya_secret.api_key.handle },
+  ]
 }
 ```
 
