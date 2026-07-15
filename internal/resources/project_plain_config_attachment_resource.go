@@ -161,7 +161,7 @@ func (r *projectPlainConfigAttachmentResource) Read(ctx context.Context, req res
 		return
 	}
 
-	items, _ := envelope["plain_configs"].([]any)
+	items, _ := envelope["plainconfigs"].([]any)
 	for _, it := range items {
 		obj, ok := it.(map[string]any)
 		if !ok {

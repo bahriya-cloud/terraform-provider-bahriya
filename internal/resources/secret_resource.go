@@ -136,7 +136,6 @@ func (r *secretResource) Create(ctx context.Context, req resource.CreateRequest,
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	body["organisation"] = r.client.OrganisationID()
 
 	data, status, err := r.client.Do(ctx, http.MethodPost, fmt.Sprintf("/organisations/%s/secrets", r.client.OrganisationID()), body)
 	if err != nil {
@@ -203,7 +202,6 @@ func (r *secretResource) Update(ctx context.Context, req resource.UpdateRequest,
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	body["organisation"] = r.client.OrganisationID()
 
 	_, status, err := r.client.Do(ctx, http.MethodPut, fmt.Sprintf("/organisations/%s/secrets/%s", r.client.OrganisationID(), state.ID.ValueString()), body)
 	if err != nil {

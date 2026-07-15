@@ -161,7 +161,7 @@ func (r *projectYAMLConfigAttachmentResource) Read(ctx context.Context, req reso
 		return
 	}
 
-	items, _ := envelope["yaml_configs"].([]any)
+	items, _ := envelope["yamlconfigs"].([]any)
 	for _, it := range items {
 		obj, ok := it.(map[string]any)
 		if !ok {

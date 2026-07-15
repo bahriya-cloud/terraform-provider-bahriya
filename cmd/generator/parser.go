@@ -148,21 +148,23 @@ func parseResource(specPath string, descriptor resourceDescriptor) (*Resource, e
 	})
 
 	return &Resource{
-		Name:               descriptor.Name,
-		GoName:             descriptor.GoName,
-		HasStatus:          descriptor.HasStatus,
-		ReadyStatus:        descriptor.ReadyStatus,
-		TerminatedStatus:   descriptor.TerminatedStatus,
-		URLBase:            descriptor.URLBase,
-		URLItem:            descriptor.URLItem,
-		HandleURL:          descriptor.HandleURL,
-		HandlePathName:     descriptor.HandlePathName,
-		CollectionKey:      descriptor.CollectionKey,
-		DeleteMethod:       descriptor.DeleteMethod,
-		DeleteURL:          descriptor.DeleteURL,
-		ConfirmDelete:      descriptor.ConfirmDelete,
-		DeleteConflictHint: descriptor.DeleteConflictHint,
-		Attributes:         attrs,
+		Name:                   descriptor.Name,
+		GoName:                 descriptor.GoName,
+		HasStatus:              descriptor.HasStatus,
+		ReadyStatus:            descriptor.ReadyStatus,
+		TerminatingStatus:      descriptor.TerminatingStatus,
+		TerminatedStatus:       descriptor.TerminatedStatus,
+		URLBase:                descriptor.URLBase,
+		URLItem:                descriptor.URLItem,
+		HandleURL:              descriptor.HandleURL,
+		HandlePathName:         descriptor.HandlePathName,
+		CollectionKey:          descriptor.CollectionKey,
+		DeleteMethod:           descriptor.DeleteMethod,
+		DeleteURL:              descriptor.DeleteURL,
+		ConfirmDelete:          descriptor.ConfirmDelete,
+		DeleteConflictHint:     descriptor.DeleteConflictHint,
+		OmitOrganisationInBody: descriptor.OmitOrganisationInBody,
+		Attributes:             attrs,
 	}, nil
 }
 
@@ -358,23 +360,25 @@ var initialisms = map[string]string{
 }
 
 type resourceDescriptor struct {
-	Name               string
-	GoName             string
-	SchemaName         string
-	URLBase            string
-	URLItem            string
-	HandleURL          string
-	HandlePathName     string
-	CollectionKey      string
-	DeleteMethod       string
-	DeleteURL          string
-	ConfirmDelete      bool
-	DeleteConflictHint string
-	HasStatus          bool
-	ReadyStatus        string
-	TerminatedStatus   string
-	SensitiveFields    []string
-	SkipFields         []string
+	Name                   string
+	GoName                 string
+	SchemaName             string
+	URLBase                string
+	URLItem                string
+	HandleURL              string
+	HandlePathName         string
+	CollectionKey          string
+	DeleteMethod           string
+	DeleteURL              string
+	ConfirmDelete          bool
+	DeleteConflictHint     string
+	OmitOrganisationInBody bool
+	HasStatus              bool
+	ReadyStatus            string
+	TerminatingStatus      string
+	TerminatedStatus       string
+	SensitiveFields        []string
+	SkipFields             []string
 }
 
 var descriptors = map[string]resourceDescriptor{
@@ -398,50 +402,54 @@ var descriptors = map[string]resourceDescriptor{
 			"detached from the project before delete.",
 	},
 	"registry": {
-		Name:            "registry",
-		GoName:          "Registry",
-		SchemaName:      "Registry",
-		URLBase:         "/organisations/%s/registries",
-		URLItem:         "/organisations/%s/registries/%s",
-		HandleURL:       "/organisations/%s/registry/%s",
-		HandlePathName:  "registry",
-		SensitiveFields: []string{"password"},
+		Name:                   "registry",
+		GoName:                 "Registry",
+		SchemaName:             "Registry",
+		URLBase:                "/organisations/%s/registries",
+		URLItem:                "/organisations/%s/registries/%s",
+		HandleURL:              "/organisations/%s/registry/%s",
+		HandlePathName:         "registry",
+		OmitOrganisationInBody: true,
+		SensitiveFields:        []string{"password"},
 	},
 	"secret": {
-		Name:            "secret",
-		GoName:          "Secret",
-		SchemaName:      "Secret",
-		URLBase:         "/organisations/%s/secrets",
-		URLItem:         "/organisations/%s/secrets/%s",
-		HandleURL:       "/organisations/%s/secret/%s",
-		HandlePathName:  "secret",
-		SensitiveFields: []string{"value"},
+		Name:                   "secret",
+		GoName:                 "Secret",
+		SchemaName:             "Secret",
+		URLBase:                "/organisations/%s/secrets",
+		URLItem:                "/organisations/%s/secrets/%s",
+		HandleURL:              "/organisations/%s/secret/%s",
+		HandlePathName:         "secret",
+		OmitOrganisationInBody: true,
+		SensitiveFields:        []string{"value"},
 	},
 	"memcached": {
-		Name:             "memcached",
-		GoName:           "Memcached",
-		SchemaName:       "Memcached",
-		URLBase:          "/organisations/%s/memcached",
-		URLItem:          "/organisations/%s/memcached/%s",
-		HandleURL:        "/organisations/%s/memcache/%s",
-		HandlePathName:   "memcache",
-		HasStatus:        true,
-		ReadyStatus:      "running",
-		TerminatedStatus: "terminated",
+		Name:              "memcached",
+		GoName:            "Memcached",
+		SchemaName:        "Memcached",
+		URLBase:           "/organisations/%s/memcached",
+		URLItem:           "/organisations/%s/memcached/%s",
+		HandleURL:         "/organisations/%s/memcache/%s",
+		HandlePathName:    "memcache",
+		HasStatus:         true,
+		ReadyStatus:       "running",
+		TerminatingStatus: "terminating",
+		TerminatedStatus:  "terminated",
 	},
 	"container": {
-		Name:             "container",
-		GoName:           "Container",
-		SchemaName:       "Container",
-		URLBase:          "/organisations/%s/containers",
-		URLItem:          "/organisations/%s/containers/%s",
-		HandleURL:        "/organisations/%s/container/%s",
-		HandlePathName:   "container",
-		DeleteMethod:     "POST",
-		DeleteURL:        "/organisations/%s/containers/%s/terminate",
-		HasStatus:        true,
-		ReadyStatus:      "running",
-		TerminatedStatus: "terminated",
+		Name:              "container",
+		GoName:            "Container",
+		SchemaName:        "Container",
+		URLBase:           "/organisations/%s/containers",
+		URLItem:           "/organisations/%s/containers/%s",
+		HandleURL:         "/organisations/%s/container/%s",
+		HandlePathName:    "container",
+		DeleteMethod:      "POST",
+		DeleteURL:         "/organisations/%s/containers/%s/terminate",
+		HasStatus:         true,
+		ReadyStatus:       "running",
+		TerminatingStatus: "terminating",
+		TerminatedStatus:  "terminated",
 	},
 	"tls_bundle": {
 		Name:            "tls_bundle",
@@ -470,7 +478,7 @@ var descriptors = map[string]resourceDescriptor{
 		URLItem:         "/organisations/%s/gpg_keypairs/%s",
 		HandleURL:       "/organisations/%s/gpg_keypair/%s",
 		HandlePathName:  "gpg_keypair",
-		SensitiveFields: []string{"public_key", "private_key"},
+		SensitiveFields: []string{"publickey", "privatekey"},
 	},
 	"ssh_keypair": {
 		Name:            "ssh_keypair",
@@ -480,7 +488,7 @@ var descriptors = map[string]resourceDescriptor{
 		URLItem:         "/organisations/%s/ssh_keypairs/%s",
 		HandleURL:       "/organisations/%s/ssh_keypair/%s",
 		HandlePathName:  "ssh_keypair",
-		SensitiveFields: []string{"public_key", "private_key"},
+		SensitiveFields: []string{"publickey", "privatekey"},
 	},
 	"encryption_key": {
 		Name:            "encryption_key",

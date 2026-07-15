@@ -1,34 +1,52 @@
 package main
 
+import "strings"
+
 // AttachmentResource is the template data for per-type project attachment
 // resources (bahriya_project_<type>_attachment). These are deliberately thin —
 // project_id + handle inputs, computed join_id, no Update.
 type AttachmentResource struct {
 	Name    string // e.g. "tls_bundle" — used in the terraform resource type suffix
 	GoName  string // e.g. "TLSBundle" — used in Go identifiers
-	APIType string // e.g. "tls_bundles" — URL path segment and listing key
+	APIType string // e.g. "tls_bundles" — URL path segment (snake_case)
+}
+
+// ListingKey is the key under which this attachable appears in the
+// GET /organisations/{org}/projects/{pid}/attachments response. The response
+// groups attachables by SMUSHED key (tls_bundles → tlsbundles), matching the
+// Layer-3 wire convention — NOT the snake_case URL path segment. Using APIType
+// here would make the attachment Read never match, silently dropping the
+// resource from state and dead-locking terraform destroy.
+func (a AttachmentResource) ListingKey() string {
+	return strings.ReplaceAll(a.APIType, "_", "")
 }
 
 type Resource struct {
-	Name             string
-	GoName           string
-	HasStatus        bool
-	ReadyStatus      string
-	TerminatedStatus string
-	URLBase          string
-	URLItem          string
-	HandleURL        string
-	HandlePathName   string
-	CollectionKey    string
-	DeleteMethod     string
-	DeleteURL        string
-	ConfirmDelete    bool
+	Name              string
+	GoName            string
+	HasStatus         bool
+	ReadyStatus       string
+	TerminatingStatus string
+	TerminatedStatus  string
+	URLBase           string
+	URLItem           string
+	HandleURL         string
+	HandlePathName    string
+	CollectionKey     string
+	DeleteMethod      string
+	DeleteURL         string
+	ConfirmDelete     bool
 	// DeleteConflictHint, when non-empty, is appended to the Delete error
 	// when the API returns 409. Used to guide users on resources where a
 	// 409 has a non-obvious resolution (e.g. project delete blocked by
 	// child resources in non-terminated states).
 	DeleteConflictHint string
-	Attributes         []Attribute
+	// OmitOrganisationInBody suppresses the redundant `organisation` create/update
+	// body key. Org is always scoped by the URL path; most DTOs tolerate the extra
+	// key but the Registry and Secret DTOs reject it (400 "Unexpected key
+	// organisation"). Conversely Project *requires* it, so this is opt-in per type.
+	OmitOrganisationInBody bool
+	Attributes             []Attribute
 }
 
 func (r Resource) FlatResponse() bool { return r.CollectionKey == "" }

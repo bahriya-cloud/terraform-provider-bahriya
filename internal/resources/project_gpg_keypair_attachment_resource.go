@@ -161,7 +161,7 @@ func (r *projectGpgKeypairAttachmentResource) Read(ctx context.Context, req reso
 		return
 	}
 
-	items, _ := envelope["gpg_keypairs"].([]any)
+	items, _ := envelope["gpgkeypairs"].([]any)
 	for _, it := range items {
 		obj, ok := it.(map[string]any)
 		if !ok {

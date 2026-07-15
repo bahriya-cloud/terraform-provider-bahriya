@@ -161,7 +161,7 @@ func (r *project{{ .GoName }}AttachmentResource) Read(ctx context.Context, req r
 		return
 	}
 
-	items, _ := envelope["{{ .APIType }}"].([]any)
+	items, _ := envelope["{{ .ListingKey }}"].([]any)
 	for _, it := range items {
 		obj, ok := it.(map[string]any)
 		if !ok {

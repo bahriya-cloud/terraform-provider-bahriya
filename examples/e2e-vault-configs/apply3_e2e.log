@@ -1,0 +1,824 @@
+
+Warning: Provider development overrides are in effect
+
+The following provider development overrides are set in the CLI
+configuration:
+ - bahriya-cloud/bahriya in /var/folders/qh/wlb0zlhj18dbcy10nzhlh3j40000gn/T/tmp.fhLbXZ7U73
+
+The behavior may therefore not match any released version of the provider and
+applying changes may cause the state to become incompatible with published
+releases.
+data.bahriya_regions.active: Reading...
+bahriya_yaml_config.main: Refreshing state... [id=73cb3fbe-448e-4841-9c69-9f03d7840a39]
+bahriya_x509_cert.main: Refreshing state... [id=20598545-e012-408e-8713-2c105b1bde43]
+bahriya_tls_bundle.main: Refreshing state... [id=d071d8ea-bc6e-4c38-942d-afd91ab1bc41]
+bahriya_gpg_keypair.main: Refreshing state... [id=3a24c9fd-2573-4de8-9ebe-70b0fcaecc10]
+bahriya_registry.main: Refreshing state... [id=ba6828af-c8ff-40de-a0eb-6904963ff366]
+bahriya_ssh_keypair.main: Refreshing state... [id=9c184466-309c-4a9c-963a-9697918f2225]
+bahriya_plain_config.main: Refreshing state... [id=a15c1ada-46bb-425e-ad38-09d4209b29e8]
+bahriya_encryption_key.main: Refreshing state... [id=b41a0ada-723a-4768-8f66-b6141349d739]
+bahriya_json_config.main: Refreshing state... [id=12f8b71a-d9ab-4637-9343-79086c9ff6e7]
+data.bahriya_regions.active: Read complete after 1s
+bahriya_env_file.main: Refreshing state... [id=75d71391-41a9-43a1-aad5-bf97ce38ff3a]
+bahriya_secret.main: Refreshing state... [id=cc9886f3-1a23-4013-ad72-b911cd53510a]
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # bahriya_container.cron will be created
+  + resource "bahriya_container" "cron" {
+      + activedeadlineseconds           = (known after apply)
+      + activeregions                   = [
+          + "helsinki-1",
+        ]
+      + args                            = (known after apply)
+      + autoscalingenabled              = (known after apply)
+      + autoscalingmaxreplicas          = (known after apply)
+      + autoscalingminreplicas          = (known after apply)
+      + autoscalingtargetcpu            = (known after apply)
+      + autoscalingtargetmemory         = (known after apply)
+      + backofflimit                    = (known after apply)
+      + basicauthcredentials            = (known after apply)
+      + basicauthenabled                = (known after apply)
+      + bootstraptime                   = (known after apply)
+      + command                         = [
+          + "sh",
+          + "-c",
+          + "echo e2e-tick",
+        ]
+      + concurrencypolicy               = (known after apply)
+      + containerport                   = (known after apply)
+      + customdnsmode                   = (known after apply)
+      + defaulthostname                 = (known after apply)
+      + dnsfailoverenabled              = (known after apply)
+      + dnsttl                          = (known after apply)
+      + encryptionkeys                  = (known after apply)
+      + envfiles                        = (known after apply)
+      + ephemeralstoragegb              = (known after apply)
+      + externalnetworkingenabled       = (known after apply)
+      + failedjobshistorylimit          = (known after apply)
+      + gpgkeypairs                     = (known after apply)
+      + handle                          = "cron-f357f231"
+      + healthcheckpath                 = (known after apply)
+      + hostnames                       = (known after apply)
+      + id                              = (known after apply)
+      + image                           = "busybox:latest"
+      + initjobs                        = (known after apply)
+      + ipblacklist                     = (known after apply)
+      + ipblacklistenabled              = (known after apply)
+      + ipwhitelist                     = (known after apply)
+      + ipwhitelistenabled              = (known after apply)
+      + jsonconfigs                     = (known after apply)
+      + maxcpu                          = (known after apply)
+      + maxmemory                       = (known after apply)
+      + mincpu                          = "100"
+      + minmemory                       = "128"
+      + name                            = "TF E2E Cron f357f231"
+      + networkpolicies                 = (known after apply)
+      + newenvvar                       = (known after apply)
+      + organisation                    = (known after apply)
+      + persistentvolumes               = (known after apply)
+      + plainconfigs                    = (known after apply)
+      + project                         = (known after apply)
+      + projectname                     = (known after apply)
+      + prometheuspath                  = (known after apply)
+      + prometheusport                  = (known after apply)
+      + proxycacheallowforcecacheheader = (known after apply)
+      + proxycachecontenttypes          = (known after apply)
+      + proxycacheenabled               = (known after apply)
+      + proxycachehonorcachecontrol     = (known after apply)
+      + proxycachemaxitemsizemb         = (known after apply)
+      + proxycachememcached             = (known after apply)
+      + proxycacherequestmethods        = (known after apply)
+      + proxycacheresponsecodes         = (known after apply)
+      + proxycachesizemb                = (known after apply)
+      + proxycachestoragettl            = (known after apply)
+      + proxycachettl                   = (known after apply)
+      + proxycachevariant               = (known after apply)
+      + proxycachevarybodyjsonfields    = (known after apply)
+      + proxycachevaryheaders           = (known after apply)
+      + proxycachevaryqueryparams       = (known after apply)
+      + ratelimitingenabled             = (known after apply)
+      + ratelimitingrequestsperhour     = (known after apply)
+      + ratelimitingrequestsperminute   = (known after apply)
+      + ratelimitingrequestspersecond   = (known after apply)
+      + registry                        = (known after apply)
+      + schedule                        = "*/5 * * * *"
+      + secretsenvvar                   = (known after apply)
+      + sshkeypairs                     = (known after apply)
+      + startingdeadlineseconds         = (known after apply)
+      + status                          = (known after apply)
+      + successfuljobshistorylimit      = (known after apply)
+      + suspended                       = (known after apply)
+      + timezone                        = (known after apply)
+      + tlsbundles                      = (known after apply)
+      + ttlsecondsafterfinished         = (known after apply)
+      + type                            = "cronjob"
+      + vanityhostname                  = (known after apply)
+      + x509certs                       = (known after apply)
+      + yamlconfigs                     = (known after apply)
+    }
+
+  # bahriya_container.web will be created
+  + resource "bahriya_container" "web" {
+      + activedeadlineseconds           = (known after apply)
+      + activeregions                   = [
+          + "helsinki-1",
+        ]
+      + args                            = (known after apply)
+      + autoscalingenabled              = (known after apply)
+      + autoscalingmaxreplicas          = (known after apply)
+      + autoscalingminreplicas          = "1"
+      + autoscalingtargetcpu            = (known after apply)
+      + autoscalingtargetmemory         = (known after apply)
+      + backofflimit                    = (known after apply)
+      + basicauthcredentials            = (known after apply)
+      + basicauthenabled                = (known after apply)
+      + bootstraptime                   = (known after apply)
+      + command                         = (known after apply)
+      + concurrencypolicy               = (known after apply)
+      + containerport                   = "80"
+      + customdnsmode                   = (known after apply)
+      + defaulthostname                 = (known after apply)
+      + dnsfailoverenabled              = (known after apply)
+      + dnsttl                          = (known after apply)
+      + encryptionkeys                  = [
+          + {
+              + handle    = "enc-f357f231"
+              + mountpath = "/etc/bahriya/enc"
+            },
+        ]
+      + envfiles                        = [
+          + {
+              + handle          = "env-f357f231"
+              + injectionmethod = "envFrom"
+            },
+        ]
+      + ephemeralstoragegb              = (known after apply)
+      + externalnetworkingenabled       = (known after apply)
+      + failedjobshistorylimit          = (known after apply)
+      + gpgkeypairs                     = [
+          + {
+              + handle    = "gpg-f357f231"
+              + mountpath = "/etc/bahriya/gpg"
+            },
+        ]
+      + handle                          = "web-f357f231"
+      + healthcheckpath                 = "/"
+      + hostnames                       = [
+          + {
+              + hostname    = "web-f357f231.e2e.bahriya.test"
+              + wwwredirect = false
+            },
+        ]
+      + id                              = (known after apply)
+      + image                           = "nginx:alpine"
+      + initjobs                        = (known after apply)
+      + ipblacklist                     = (known after apply)
+      + ipblacklistenabled              = (known after apply)
+      + ipwhitelist                     = (known after apply)
+      + ipwhitelistenabled              = (known after apply)
+      + jsonconfigs                     = [
+          + {
+              + handle    = "json-f357f231"
+              + mountpath = "/etc/bahriya/cfg/json"
+            },
+        ]
+      + maxcpu                          = (known after apply)
+      + maxmemory                       = (known after apply)
+      + mincpu                          = "100"
+      + minmemory                       = "128"
+      + name                            = "TF E2E Web f357f231"
+      + networkpolicies                 = [
+          + "netpol-f357f231",
+        ]
+      + newenvvar                       = [
+          + {
+              + key   = "APP_MODE"
+              + value = "e2e"
+            },
+        ]
+      + organisation                    = (known after apply)
+      + persistentvolumes               = [
+          + {
+              + handle    = "data"
+              + mountpath = "/var/lib/data"
+              + sizegb    = 1
+            },
+        ]
+      + plainconfigs                    = [
+          + {
+              + handle    = "plain-f357f231"
+              + mountpath = "/etc/bahriya/cfg/plain"
+            },
+        ]
+      + project                         = (known after apply)
+      + projectname                     = (known after apply)
+      + prometheuspath                  = (known after apply)
+      + prometheusport                  = (known after apply)
+      + proxycacheallowforcecacheheader = (known after apply)
+      + proxycachecontenttypes          = (known after apply)
+      + proxycacheenabled               = (known after apply)
+      + proxycachehonorcachecontrol     = (known after apply)
+      + proxycachemaxitemsizemb         = (known after apply)
+      + proxycachememcached             = (known after apply)
+      + proxycacherequestmethods        = (known after apply)
+      + proxycacheresponsecodes         = (known after apply)
+      + proxycachesizemb                = (known after apply)
+      + proxycachestoragettl            = (known after apply)
+      + proxycachettl                   = (known after apply)
+      + proxycachevariant               = (known after apply)
+      + proxycachevarybodyjsonfields    = (known after apply)
+      + proxycachevaryheaders           = (known after apply)
+      + proxycachevaryqueryparams       = (known after apply)
+      + ratelimitingenabled             = (known after apply)
+      + ratelimitingrequestsperhour     = (known after apply)
+      + ratelimitingrequestsperminute   = (known after apply)
+      + ratelimitingrequestspersecond   = (known after apply)
+      + registry                        = (known after apply)
+      + schedule                        = (known after apply)
+      + secretsenvvar                   = [
+          + {
+              + name   = "APP_SECRET"
+              + secret = "sec-f357f231"
+            },
+        ]
+      + sshkeypairs                     = [
+          + {
+              + handle    = "ssh-f357f231"
+              + mountpath = "/etc/bahriya/ssh"
+            },
+        ]
+      + startingdeadlineseconds         = (known after apply)
+      + status                          = (known after apply)
+      + successfuljobshistorylimit      = (known after apply)
+      + suspended                       = (known after apply)
+      + timezone                        = (known after apply)
+      + tlsbundles                      = [
+          + {
+              + handle    = "tls-f357f231"
+              + mountpath = "/etc/bahriya/tls"
+            },
+        ]
+      + ttlsecondsafterfinished         = (known after apply)
+      + type                            = "http"
+      + vanityhostname                  = (known after apply)
+      + x509certs                       = [
+          + {
+              + handle    = "x509-f357f231"
+              + mountpath = "/etc/bahriya/x509"
+            },
+        ]
+      + yamlconfigs                     = [
+          + {
+              + handle    = "yaml-f357f231"
+              + mountpath = "/etc/bahriya/cfg/yaml"
+            },
+        ]
+    }
+
+  # bahriya_container.worker will be created
+  + resource "bahriya_container" "worker" {
+      + activedeadlineseconds           = (known after apply)
+      + activeregions                   = [
+          + "helsinki-1",
+        ]
+      + args                            = (known after apply)
+      + autoscalingenabled              = (known after apply)
+      + autoscalingmaxreplicas          = (known after apply)
+      + autoscalingminreplicas          = "1"
+      + autoscalingtargetcpu            = (known after apply)
+      + autoscalingtargetmemory         = (known after apply)
+      + backofflimit                    = (known after apply)
+      + basicauthcredentials            = (known after apply)
+      + basicauthenabled                = (known after apply)
+      + bootstraptime                   = (known after apply)
+      + command                         = (known after apply)
+      + concurrencypolicy               = (known after apply)
+      + containerport                   = (known after apply)
+      + customdnsmode                   = (known after apply)
+      + defaulthostname                 = (known after apply)
+      + dnsfailoverenabled              = (known after apply)
+      + dnsttl                          = (known after apply)
+      + encryptionkeys                  = (known after apply)
+      + envfiles                        = (known after apply)
+      + ephemeralstoragegb              = (known after apply)
+      + externalnetworkingenabled       = (known after apply)
+      + failedjobshistorylimit          = (known after apply)
+      + gpgkeypairs                     = (known after apply)
+      + handle                          = "worker-f357f231"
+      + healthcheckpath                 = (known after apply)
+      + hostnames                       = (known after apply)
+      + id                              = (known after apply)
+      + image                           = "nginx:alpine"
+      + initjobs                        = (known after apply)
+      + ipblacklist                     = (known after apply)
+      + ipblacklistenabled              = (known after apply)
+      + ipwhitelist                     = (known after apply)
+      + ipwhitelistenabled              = (known after apply)
+      + jsonconfigs                     = (known after apply)
+      + maxcpu                          = (known after apply)
+      + maxmemory                       = (known after apply)
+      + mincpu                          = "100"
+      + minmemory                       = "128"
+      + name                            = "TF E2E Worker f357f231"
+      + networkpolicies                 = (known after apply)
+      + newenvvar                       = (known after apply)
+      + organisation                    = (known after apply)
+      + persistentvolumes               = (known after apply)
+      + plainconfigs                    = (known after apply)
+      + project                         = (known after apply)
+      + projectname                     = (known after apply)
+      + prometheuspath                  = (known after apply)
+      + prometheusport                  = (known after apply)
+      + proxycacheallowforcecacheheader = (known after apply)
+      + proxycachecontenttypes          = (known after apply)
+      + proxycacheenabled               = (known after apply)
+      + proxycachehonorcachecontrol     = (known after apply)
+      + proxycachemaxitemsizemb         = (known after apply)
+      + proxycachememcached             = (known after apply)
+      + proxycacherequestmethods        = (known after apply)
+      + proxycacheresponsecodes         = (known after apply)
+      + proxycachesizemb                = (known after apply)
+      + proxycachestoragettl            = (known after apply)
+      + proxycachettl                   = (known after apply)
+      + proxycachevariant               = (known after apply)
+      + proxycachevarybodyjsonfields    = (known after apply)
+      + proxycachevaryheaders           = (known after apply)
+      + proxycachevaryqueryparams       = (known after apply)
+      + ratelimitingenabled             = (known after apply)
+      + ratelimitingrequestsperhour     = (known after apply)
+      + ratelimitingrequestsperminute   = (known after apply)
+      + ratelimitingrequestspersecond   = (known after apply)
+      + registry                        = (known after apply)
+      + schedule                        = (known after apply)
+      + secretsenvvar                   = [
+          + {
+              + name   = "WORKER_SECRET"
+              + secret = "sec-f357f231"
+            },
+        ]
+      + sshkeypairs                     = (known after apply)
+      + startingdeadlineseconds         = (known after apply)
+      + status                          = (known after apply)
+      + successfuljobshistorylimit      = (known after apply)
+      + suspended                       = (known after apply)
+      + timezone                        = (known after apply)
+      + tlsbundles                      = (known after apply)
+      + ttlsecondsafterfinished         = (known after apply)
+      + type                            = "worker"
+      + vanityhostname                  = (known after apply)
+      + x509certs                       = (known after apply)
+      + yamlconfigs                     = (known after apply)
+    }
+
+  # bahriya_memcached.cache will be created
+  + resource "bahriya_memcached" "cache" {
+      + activeregions      = [
+          + "helsinki-1",
+        ]
+      + handle             = "cache-f357f231"
+      + id                 = (known after apply)
+      + managedbycontainer = (known after apply)
+      + maxconnections     = (known after apply)
+      + maxitemsizemb      = (known after apply)
+      + memorymb           = 512
+      + name               = "TF E2E Cache f357f231"
+      + networkpolicies    = (known after apply)
+      + nodes              = (known after apply)
+      + organisation       = (known after apply)
+      + project            = (known after apply)
+      + projectname        = (known after apply)
+      + status             = (known after apply)
+      + threads            = (known after apply)
+    }
+
+  # bahriya_network_policy.main will be created
+  + resource "bahriya_network_policy" "main" {
+      + billable              = (known after apply)
+      + egresscidrs           = [
+          + "10.0.0.0/8",
+        ]
+      + egressfqdns           = (known after apply)
+      + handle                = "netpol-f357f231"
+      + id                    = (known after apply)
+      + ingresspeers          = [
+          + "tfe2epeer-f357f231",
+        ]
+      + l7enabled             = (known after apply)
+      + managedbyresourceid   = (known after apply)
+      + managedbyresourcetype = (known after apply)
+      + name                  = "TF E2E Network Policy f357f231"
+      + organisation          = (known after apply)
+      + ports                 = [
+          + {
+              + port     = 443
+              + protocol = "TCP"
+            },
+        ]
+    }
+
+  # bahriya_path_rule.admin will be created
+  + resource "bahriya_path_rule" "admin" {
+      + basicauthcredentials = [
+          + {
+              + password = (sensitive value)
+              + username = "alice"
+            },
+        ]
+      + basicauthenabled     = true
+      + container_id         = (known after apply)
+      + handle               = "admin-f357f231"
+      + id                   = (known after apply)
+      + ipblacklist          = (known after apply)
+      + ipblacklistenabled   = (known after apply)
+      + ipwhitelist          = [
+          + "10.0.0.0/8",
+        ]
+      + ipwhitelistenabled   = true
+      + path                 = "/admin"
+      + priority             = 100
+      + ratelimitingenabled  = (known after apply)
+    }
+
+  # bahriya_path_rule.webhook will be created
+  + resource "bahriya_path_rule" "webhook" {
+      + basicauthcredentials          = (known after apply)
+      + basicauthenabled              = (known after apply)
+      + container_id                  = (known after apply)
+      + handle                        = "webhook-f357f231"
+      + id                            = (known after apply)
+      + ipblacklist                   = (known after apply)
+      + ipblacklistenabled            = (known after apply)
+      + ipwhitelist                   = (known after apply)
+      + ipwhitelistenabled            = (known after apply)
+      + path                          = "/webhook"
+      + priority                      = (known after apply)
+      + ratelimitingenabled           = true
+      + ratelimitingrequestsperhour   = 1000
+      + ratelimitingrequestsperminute = 60
+    }
+
+  # bahriya_project.e2e will be created
+  + resource "bahriya_project" "e2e" {
+      + handle             = "tfe2e-f357f231"
+      + id                 = (known after apply)
+      + name               = "TF E2E Comprehensive f357f231"
+      + organisation       = (known after apply)
+      + quotalimitcpu      = (known after apply)
+      + quotalimitmemory   = (known after apply)
+      + quotarequestcpu    = (known after apply)
+      + quotarequestmemory = (known after apply)
+      + regions            = [
+          + "helsinki-1",
+        ]
+      + users              = (known after apply)
+    }
+
+  # bahriya_project.peer will be created
+  + resource "bahriya_project" "peer" {
+      + handle             = "tfe2epeer-f357f231"
+      + id                 = (known after apply)
+      + name               = "TF E2E Peer f357f231"
+      + organisation       = (known after apply)
+      + quotalimitcpu      = (known after apply)
+      + quotalimitmemory   = (known after apply)
+      + quotarequestcpu    = (known after apply)
+      + quotarequestmemory = (known after apply)
+      + regions            = [
+          + "helsinki-1",
+        ]
+      + users              = (known after apply)
+    }
+
+  # bahriya_project_encryption_key_attachment.main will be created
+  + resource "bahriya_project_encryption_key_attachment" "main" {
+      + handle     = "enc-f357f231"
+      + id         = (known after apply)
+      + join_id    = (known after apply)
+      + project_id = (known after apply)
+    }
+
+  # bahriya_project_env_file_attachment.main will be created
+  + resource "bahriya_project_env_file_attachment" "main" {
+      + handle     = "env-f357f231"
+      + id         = (known after apply)
+      + join_id    = (known after apply)
+      + project_id = (known after apply)
+    }
+
+  # bahriya_project_gpg_keypair_attachment.main will be created
+  + resource "bahriya_project_gpg_keypair_attachment" "main" {
+      + handle     = "gpg-f357f231"
+      + id         = (known after apply)
+      + join_id    = (known after apply)
+      + project_id = (known after apply)
+    }
+
+  # bahriya_project_json_config_attachment.main will be created
+  + resource "bahriya_project_json_config_attachment" "main" {
+      + handle     = "json-f357f231"
+      + id         = (known after apply)
+      + join_id    = (known after apply)
+      + project_id = (known after apply)
+    }
+
+  # bahriya_project_network_policy_attachment.main will be created
+  + resource "bahriya_project_network_policy_attachment" "main" {
+      + handle     = "netpol-f357f231"
+      + id         = (known after apply)
+      + join_id    = (known after apply)
+      + project_id = (known after apply)
+    }
+
+  # bahriya_project_plain_config_attachment.main will be created
+  + resource "bahriya_project_plain_config_attachment" "main" {
+      + handle     = "plain-f357f231"
+      + id         = (known after apply)
+      + join_id    = (known after apply)
+      + project_id = (known after apply)
+    }
+
+  # bahriya_project_registry_attachment.main will be created
+  + resource "bahriya_project_registry_attachment" "main" {
+      + handle     = "reg-f357f231"
+      + id         = (known after apply)
+      + join_id    = (known after apply)
+      + project_id = (known after apply)
+    }
+
+  # bahriya_project_secret_attachment.main will be created
+  + resource "bahriya_project_secret_attachment" "main" {
+      + handle     = "sec-f357f231"
+      + id         = (known after apply)
+      + join_id    = (known after apply)
+      + project_id = (known after apply)
+    }
+
+  # bahriya_project_ssh_keypair_attachment.main will be created
+  + resource "bahriya_project_ssh_keypair_attachment" "main" {
+      + handle     = "ssh-f357f231"
+      + id         = (known after apply)
+      + join_id    = (known after apply)
+      + project_id = (known after apply)
+    }
+
+  # bahriya_project_tls_bundle_attachment.main will be created
+  + resource "bahriya_project_tls_bundle_attachment" "main" {
+      + handle     = "tls-f357f231"
+      + id         = (known after apply)
+      + join_id    = (known after apply)
+      + project_id = (known after apply)
+    }
+
+  # bahriya_project_x509_cert_attachment.main will be created
+  + resource "bahriya_project_x509_cert_attachment" "main" {
+      + handle     = "x509-f357f231"
+      + id         = (known after apply)
+      + join_id    = (known after apply)
+      + project_id = (known after apply)
+    }
+
+  # bahriya_project_yaml_config_attachment.main will be created
+  + resource "bahriya_project_yaml_config_attachment" "main" {
+      + handle     = "yaml-f357f231"
+      + id         = (known after apply)
+      + join_id    = (known after apply)
+      + project_id = (known after apply)
+    }
+
+Plan: 21 to add, 0 to change, 0 to destroy.
+
+Changes to Outputs:
+  + cron_container_status   = (known after apply)
+  + memcached_id            = (known after apply)
+  + memcached_status        = (known after apply)
+  + network_policy_id       = (known after apply)
+  + project_id              = (known after apply)
+  + web_container_id        = (known after apply)
+  + web_container_status    = (known after apply)
+  + worker_container_status = (known after apply)
+bahriya_project.e2e: Creating...
+bahriya_project.peer: Creating...
+bahriya_project.e2e: Creation complete after 2s [id=b4288efc-ad04-4ae4-99ea-84961d20bb4b]
+bahriya_project_x509_cert_attachment.main: Creating...
+bahriya_project_ssh_keypair_attachment.main: Creating...
+bahriya_project_gpg_keypair_attachment.main: Creating...
+bahriya_project_json_config_attachment.main: Creating...
+bahriya_project_plain_config_attachment.main: Creating...
+bahriya_project_env_file_attachment.main: Creating...
+bahriya_project_secret_attachment.main: Creating...
+bahriya_project_registry_attachment.main: Creating...
+bahriya_project.peer: Creation complete after 2s [id=5d75f642-f29f-40c4-8ea0-4cfb32bd8469]
+bahriya_container.cron: Creating...
+bahriya_project_yaml_config_attachment.main: Creating...
+bahriya_project_gpg_keypair_attachment.main: Creation complete after 0s [id=b4288efc-ad04-4ae4-99ea-84961d20bb4b:gpg-f357f231]
+bahriya_project_plain_config_attachment.main: Creation complete after 0s [id=b4288efc-ad04-4ae4-99ea-84961d20bb4b:plain-f357f231]
+bahriya_project_encryption_key_attachment.main: Creating...
+bahriya_memcached.cache: Creating...
+bahriya_project_ssh_keypair_attachment.main: Creation complete after 0s [id=b4288efc-ad04-4ae4-99ea-84961d20bb4b:ssh-f357f231]
+bahriya_project_secret_attachment.main: Creation complete after 0s [id=b4288efc-ad04-4ae4-99ea-84961d20bb4b:sec-f357f231]
+bahriya_project_x509_cert_attachment.main: Creation complete after 0s [id=b4288efc-ad04-4ae4-99ea-84961d20bb4b:x509-f357f231]
+bahriya_project_tls_bundle_attachment.main: Creating...
+bahriya_project_env_file_attachment.main: Creation complete after 0s [id=b4288efc-ad04-4ae4-99ea-84961d20bb4b:env-f357f231]
+bahriya_network_policy.main: Creating...
+bahriya_container.worker: Creating...
+bahriya_project_yaml_config_attachment.main: Creation complete after 1s [id=b4288efc-ad04-4ae4-99ea-84961d20bb4b:yaml-f357f231]
+bahriya_project_registry_attachment.main: Creation complete after 1s [id=b4288efc-ad04-4ae4-99ea-84961d20bb4b:reg-f357f231]
+bahriya_project_encryption_key_attachment.main: Creation complete after 1s [id=b4288efc-ad04-4ae4-99ea-84961d20bb4b:enc-f357f231]
+bahriya_project_json_config_attachment.main: Creation complete after 1s [id=b4288efc-ad04-4ae4-99ea-84961d20bb4b:json-f357f231]
+bahriya_project_tls_bundle_attachment.main: Creation complete after 1s [id=b4288efc-ad04-4ae4-99ea-84961d20bb4b:tls-f357f231]
+bahriya_network_policy.main: Creation complete after 2s [id=d7d26e7c-0558-41fc-bf85-648f1c2c21ab]
+bahriya_project_network_policy_attachment.main: Creating...
+bahriya_project_network_policy_attachment.main: Creation complete after 1s [id=b4288efc-ad04-4ae4-99ea-84961d20bb4b:netpol-f357f231]
+bahriya_container.web: Creating...
+bahriya_container.cron: Still creating... [00m10s elapsed]
+bahriya_memcached.cache: Still creating... [00m10s elapsed]
+bahriya_container.worker: Still creating... [00m10s elapsed]
+bahriya_container.web: Still creating... [00m10s elapsed]
+bahriya_container.cron: Still creating... [00m20s elapsed]
+bahriya_memcached.cache: Still creating... [00m20s elapsed]
+bahriya_container.worker: Still creating... [00m20s elapsed]
+bahriya_container.web: Still creating... [00m20s elapsed]
+bahriya_container.cron: Still creating... [00m30s elapsed]
+bahriya_memcached.cache: Still creating... [00m30s elapsed]
+bahriya_container.worker: Still creating... [00m30s elapsed]
+bahriya_container.web: Still creating... [00m30s elapsed]
+bahriya_container.cron: Still creating... [00m40s elapsed]
+bahriya_memcached.cache: Still creating... [00m40s elapsed]
+bahriya_container.worker: Still creating... [00m40s elapsed]
+bahriya_container.web: Still creating... [00m40s elapsed]
+bahriya_container.cron: Still creating... [00m50s elapsed]
+bahriya_memcached.cache: Still creating... [00m50s elapsed]
+bahriya_container.worker: Still creating... [00m50s elapsed]
+bahriya_container.web: Still creating... [00m50s elapsed]
+bahriya_container.cron: Still creating... [01m00s elapsed]
+bahriya_memcached.cache: Still creating... [01m00s elapsed]
+bahriya_container.worker: Still creating... [01m00s elapsed]
+bahriya_container.web: Still creating... [01m00s elapsed]
+bahriya_container.cron: Still creating... [01m10s elapsed]
+bahriya_memcached.cache: Still creating... [01m10s elapsed]
+bahriya_container.worker: Still creating... [01m10s elapsed]
+bahriya_container.web: Still creating... [01m10s elapsed]
+bahriya_container.cron: Still creating... [01m20s elapsed]
+bahriya_memcached.cache: Still creating... [01m20s elapsed]
+bahriya_container.worker: Still creating... [01m20s elapsed]
+bahriya_container.web: Still creating... [01m20s elapsed]
+bahriya_container.cron: Still creating... [01m30s elapsed]
+bahriya_memcached.cache: Still creating... [01m30s elapsed]
+bahriya_container.worker: Still creating... [01m30s elapsed]
+bahriya_container.web: Still creating... [01m30s elapsed]
+bahriya_container.cron: Still creating... [01m40s elapsed]
+bahriya_memcached.cache: Still creating... [01m40s elapsed]
+bahriya_container.worker: Still creating... [01m40s elapsed]
+bahriya_container.web: Still creating... [01m40s elapsed]
+bahriya_container.cron: Still creating... [01m50s elapsed]
+bahriya_memcached.cache: Still creating... [01m50s elapsed]
+bahriya_container.worker: Still creating... [01m50s elapsed]
+bahriya_container.web: Still creating... [01m50s elapsed]
+bahriya_container.cron: Still creating... [02m00s elapsed]
+bahriya_memcached.cache: Still creating... [02m00s elapsed]
+bahriya_container.worker: Still creating... [02m00s elapsed]
+bahriya_container.web: Still creating... [02m00s elapsed]
+bahriya_container.cron: Still creating... [02m10s elapsed]
+bahriya_memcached.cache: Still creating... [02m10s elapsed]
+bahriya_container.worker: Still creating... [02m10s elapsed]
+bahriya_container.web: Still creating... [02m10s elapsed]
+bahriya_container.cron: Still creating... [02m20s elapsed]
+bahriya_memcached.cache: Still creating... [02m20s elapsed]
+bahriya_container.worker: Still creating... [02m20s elapsed]
+bahriya_container.web: Still creating... [02m20s elapsed]
+bahriya_container.cron: Still creating... [02m30s elapsed]
+bahriya_memcached.cache: Still creating... [02m30s elapsed]
+bahriya_container.worker: Still creating... [02m30s elapsed]
+bahriya_container.web: Still creating... [02m30s elapsed]
+bahriya_container.cron: Still creating... [02m40s elapsed]
+bahriya_memcached.cache: Still creating... [02m40s elapsed]
+bahriya_container.worker: Still creating... [02m40s elapsed]
+bahriya_container.web: Still creating... [02m40s elapsed]
+bahriya_container.cron: Still creating... [02m50s elapsed]
+bahriya_memcached.cache: Still creating... [02m50s elapsed]
+bahriya_container.worker: Still creating... [02m50s elapsed]
+bahriya_container.web: Still creating... [02m50s elapsed]
+bahriya_container.cron: Still creating... [03m00s elapsed]
+bahriya_memcached.cache: Still creating... [03m00s elapsed]
+bahriya_container.worker: Still creating... [03m00s elapsed]
+bahriya_container.web: Still creating... [03m00s elapsed]
+bahriya_container.cron: Still creating... [03m10s elapsed]
+bahriya_memcached.cache: Still creating... [03m10s elapsed]
+bahriya_container.worker: Still creating... [03m10s elapsed]
+bahriya_container.web: Still creating... [03m10s elapsed]
+bahriya_container.cron: Still creating... [03m20s elapsed]
+bahriya_memcached.cache: Still creating... [03m20s elapsed]
+bahriya_container.worker: Still creating... [03m21s elapsed]
+bahriya_container.web: Still creating... [03m20s elapsed]
+bahriya_container.cron: Still creating... [03m30s elapsed]
+bahriya_memcached.cache: Still creating... [03m30s elapsed]
+bahriya_container.worker: Still creating... [03m31s elapsed]
+bahriya_container.web: Still creating... [03m30s elapsed]
+bahriya_container.cron: Still creating... [03m40s elapsed]
+bahriya_memcached.cache: Still creating... [03m40s elapsed]
+bahriya_container.worker: Still creating... [03m41s elapsed]
+bahriya_container.web: Still creating... [03m40s elapsed]
+bahriya_container.cron: Still creating... [03m50s elapsed]
+bahriya_memcached.cache: Still creating... [03m50s elapsed]
+bahriya_container.worker: Still creating... [03m51s elapsed]
+bahriya_container.web: Still creating... [03m50s elapsed]
+bahriya_container.cron: Still creating... [04m00s elapsed]
+bahriya_memcached.cache: Still creating... [04m00s elapsed]
+bahriya_container.worker: Still creating... [04m01s elapsed]
+bahriya_container.web: Still creating... [04m00s elapsed]
+bahriya_container.cron: Still creating... [04m10s elapsed]
+bahriya_memcached.cache: Still creating... [04m10s elapsed]
+bahriya_container.worker: Still creating... [04m11s elapsed]
+bahriya_container.web: Still creating... [04m10s elapsed]
+bahriya_container.cron: Still creating... [04m20s elapsed]
+bahriya_memcached.cache: Still creating... [04m20s elapsed]
+bahriya_container.worker: Still creating... [04m21s elapsed]
+bahriya_container.web: Still creating... [04m20s elapsed]
+bahriya_container.cron: Still creating... [04m30s elapsed]
+bahriya_memcached.cache: Still creating... [04m30s elapsed]
+bahriya_container.worker: Still creating... [04m31s elapsed]
+bahriya_container.web: Still creating... [04m30s elapsed]
+bahriya_container.cron: Still creating... [04m40s elapsed]
+bahriya_memcached.cache: Still creating... [04m40s elapsed]
+bahriya_container.worker: Still creating... [04m41s elapsed]
+bahriya_container.web: Still creating... [04m40s elapsed]
+bahriya_container.cron: Still creating... [04m50s elapsed]
+bahriya_memcached.cache: Still creating... [04m50s elapsed]
+bahriya_container.worker: Still creating... [04m51s elapsed]
+bahriya_container.web: Still creating... [04m50s elapsed]
+bahriya_container.cron: Still creating... [05m00s elapsed]
+bahriya_memcached.cache: Still creating... [05m00s elapsed]
+bahriya_container.worker: Still creating... [05m01s elapsed]
+bahriya_container.web: Still creating... [05m00s elapsed]
+bahriya_container.cron: Still creating... [05m10s elapsed]
+bahriya_memcached.cache: Still creating... [05m10s elapsed]
+bahriya_container.worker: Still creating... [05m11s elapsed]
+bahriya_container.web: Still creating... [05m10s elapsed]
+bahriya_container.cron: Still creating... [05m20s elapsed]
+bahriya_memcached.cache: Still creating... [05m20s elapsed]
+bahriya_container.worker: Still creating... [05m21s elapsed]
+bahriya_container.web: Still creating... [05m20s elapsed]
+bahriya_container.cron: Still creating... [05m30s elapsed]
+bahriya_memcached.cache: Still creating... [05m30s elapsed]
+bahriya_container.worker: Still creating... [05m31s elapsed]
+bahriya_container.web: Still creating... [05m30s elapsed]
+bahriya_container.cron: Still creating... [05m40s elapsed]
+bahriya_memcached.cache: Still creating... [05m40s elapsed]
+bahriya_container.worker: Still creating... [05m41s elapsed]
+bahriya_container.web: Still creating... [05m40s elapsed]
+bahriya_container.cron: Still creating... [05m50s elapsed]
+bahriya_memcached.cache: Still creating... [05m50s elapsed]
+bahriya_container.worker: Still creating... [05m51s elapsed]
+bahriya_container.web: Still creating... [05m50s elapsed]
+bahriya_container.cron: Still creating... [06m00s elapsed]
+bahriya_memcached.cache: Still creating... [06m00s elapsed]
+bahriya_container.worker: Still creating... [06m01s elapsed]
+bahriya_container.web: Still creating... [06m00s elapsed]
+bahriya_container.cron: Still creating... [06m10s elapsed]
+bahriya_memcached.cache: Still creating... [06m10s elapsed]
+bahriya_container.worker: Still creating... [06m11s elapsed]
+bahriya_container.web: Still creating... [06m10s elapsed]
+bahriya_container.cron: Still creating... [06m20s elapsed]
+bahriya_memcached.cache: Still creating... [06m20s elapsed]
+bahriya_container.worker: Still creating... [06m21s elapsed]
+bahriya_container.web: Still creating... [06m20s elapsed]
+bahriya_container.cron: Still creating... [06m30s elapsed]
+bahriya_memcached.cache: Still creating... [06m30s elapsed]
+bahriya_container.worker: Still creating... [06m31s elapsed]
+bahriya_container.web: Still creating... [06m30s elapsed]
+bahriya_memcached.cache: Creation complete after 6m39s [id=95004d9e-27d4-4d2c-b259-98e625bc0b34]
+bahriya_container.cron: Still creating... [06m40s elapsed]
+bahriya_container.worker: Still creating... [06m41s elapsed]
+bahriya_container.web: Still creating... [06m40s elapsed]
+bahriya_container.cron: Creation complete after 6m50s [id=99060205-4516-4b15-b4b6-e65d56ddb032]
+bahriya_container.worker: Still creating... [06m51s elapsed]
+bahriya_container.web: Still creating... [06m50s elapsed]
+bahriya_container.worker: Still creating... [07m01s elapsed]
+bahriya_container.web: Still creating... [07m00s elapsed]
+bahriya_container.worker: Still creating... [07m11s elapsed]
+bahriya_container.web: Still creating... [07m10s elapsed]
+bahriya_container.worker: Still creating... [07m21s elapsed]
+bahriya_container.web: Still creating... [07m20s elapsed]
+bahriya_container.worker: Still creating... [07m31s elapsed]
+bahriya_container.web: Still creating... [07m30s elapsed]
+
+Error: Resource did not reach ready status
+
+  with bahriya_container.web,
+  on main.tf line 273, in resource "bahriya_container" "web":
+ 273: resource "bahriya_container" "web" {
+
+resource reached terminal status "error" (wanted "running")
+
+Error: Resource did not reach ready status
+
+  with bahriya_container.worker,
+  on main.tf line 404, in resource "bahriya_container" "worker":
+ 404: resource "bahriya_container" "worker" {
+
+resource reached terminal status "error" (wanted "running")

@@ -192,7 +192,9 @@ func (r *{{ .Name }}Resource) Create(ctx context.Context, req resource.CreateReq
 	if resp.Diagnostics.HasError() {
 		return
 	}
+{{- if not .OmitOrganisationInBody }}
 	body["organisation"] = r.client.OrganisationID()
+{{- end }}
 
 	data, status, err := r.client.Do(ctx, http.MethodPost, fmt.Sprintf("{{ .URLBase }}", r.client.OrganisationID()), body)
 	if err != nil {
@@ -211,7 +213,9 @@ func (r *{{ .Name }}Resource) Create(ctx context.Context, req resource.CreateReq
 	}
 {{- if .HasStatus }}
 
-	createTimeout := 10 * time.Minute
+	// 20min headroom: a deploy can spend up to ~5min in the platform's
+	// wait-for-bahriya-secrets gate (30×10s) before helm/health checks even start.
+	createTimeout := 20 * time.Minute
 	_, werr := lifecycle.WaitForStatus(ctx, func(ctx context.Context) (string, error) {
 		fresh, d := r.fetch(ctx, id)
 		if d.HasError() {
@@ -297,7 +301,9 @@ func (r *{{ .Name }}Resource) Update(ctx context.Context, req resource.UpdateReq
 	if resp.Diagnostics.HasError() {
 		return
 	}
+{{- if not .OmitOrganisationInBody }}
 	body["organisation"] = r.client.OrganisationID()
+{{- end }}
 
 	_, status, err := r.client.Do(ctx, http.MethodPut, fmt.Sprintf("{{ .URLItem }}", r.client.OrganisationID(), state.ID.ValueString()), body)
 	if err != nil {
@@ -314,7 +320,7 @@ func (r *{{ .Name }}Resource) Update(ctx context.Context, req resource.UpdateReq
 	// "provisioning" state while the backend rolls out the change. Waiting
 	// for a stable status here avoids "inconsistent result after apply" when
 	// the post-PUT fetch races the rollout.
-	updateTimeout := 10 * time.Minute
+	updateTimeout := 20 * time.Minute
 	_, werr := lifecycle.WaitForStatus(ctx, func(ctx context.Context) (string, error) {
 		fresh, d := r.fetch(ctx, state.ID.ValueString())
 		if d.HasError() {
@@ -351,6 +357,47 @@ func (r *{{ .Name }}Resource) Delete(ctx context.Context, req resource.DeleteReq
 	if resp.Diagnostics.HasError() {
 		return
 	}
+{{- if .HasStatus }}
+	// Status-bearing resources terminate asynchronously. If it's already
+	// terminated (torn down out-of-band, or a prior interrupted destroy that has
+	// since completed), there's nothing to do. If it's already terminating,
+	// don't re-issue terminate — that 4xxs ("cannot be terminated from its
+	// current state") — just wait for the terminal state.
+	skipTerminate := false
+	if raw, ferr := r.fetchRaw(ctx, state.ID.ValueString()); ferr == nil {
+		if s, _ := raw["status"].(string); s == "{{ .TerminatedStatus }}" {
+			return
+		} else if s == "{{ .TerminatingStatus }}" {
+			skipTerminate = true
+		}
+	}
+	if !skipTerminate {
+		_, status, err := r.client.Do(ctx, http.Method{{ .EffectiveDeleteMethod }}, fmt.Sprintf("{{ .EffectiveDeleteURL }}", r.client.OrganisationID(), state.ID.ValueString()), nil)
+		if err != nil && status != http.StatusNotFound {
+			resp.Diagnostics.AddError("Delete failed", err.Error())
+			return
+		}
+	}
+
+	deleteTimeout := 20 * time.Minute
+	_, werr := lifecycle.WaitForStatus(ctx, func(ctx context.Context) (string, error) {
+		raw, ferr := r.fetchRaw(ctx, state.ID.ValueString())
+		if ferr != nil {
+			return "terminated", nil
+		}
+		if s, ok := raw["status"].(string); ok {
+			return s, nil
+		}
+		return "terminated", nil
+	}, lifecycle.WaitOptions{
+		Target:  "{{ .TerminatedStatus }}",
+		Timeout: deleteTimeout,
+	})
+	if werr != nil {
+		resp.Diagnostics.AddError("Resource did not reach terminated status", werr.Error())
+		return
+	}
+{{- else }}
 {{ if .ConfirmDelete }}
 	deleteBody := map[string]any{"confirmName": state.Name.ValueString()}
 	_, status, err := r.client.Do(ctx, http.Method{{ .EffectiveDeleteMethod }}, fmt.Sprintf("{{ .EffectiveDeleteURL }}", r.client.OrganisationID(), state.ID.ValueString()), deleteBody)
@@ -368,26 +415,6 @@ func (r *{{ .Name }}Resource) Delete(ctx context.Context, req resource.DeleteReq
 		}
 {{- end }}
 		resp.Diagnostics.AddError("Delete failed", err.Error())
-		return
-	}
-{{- if .HasStatus }}
-
-	deleteTimeout := 10 * time.Minute
-	_, werr := lifecycle.WaitForStatus(ctx, func(ctx context.Context) (string, error) {
-		raw, ferr := r.fetchRaw(ctx, state.ID.ValueString())
-		if ferr != nil {
-			return "terminated", nil
-		}
-		if s, ok := raw["status"].(string); ok {
-			return s, nil
-		}
-		return "terminated", nil
-	}, lifecycle.WaitOptions{
-		Target:  "{{ .TerminatedStatus }}",
-		Timeout: deleteTimeout,
-	})
-	if werr != nil {
-		resp.Diagnostics.AddError("Resource did not reach terminated status", werr.Error())
 		return
 	}
 {{- end }}

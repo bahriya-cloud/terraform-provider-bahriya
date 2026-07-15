@@ -161,7 +161,7 @@ func (r *projectX509CertAttachmentResource) Read(ctx context.Context, req resour
 		return
 	}
 
-	items, _ := envelope["x509_certs"].([]any)
+	items, _ := envelope["x509certs"].([]any)
 	for _, it := range items {
 		obj, ok := it.(map[string]any)
 		if !ok {

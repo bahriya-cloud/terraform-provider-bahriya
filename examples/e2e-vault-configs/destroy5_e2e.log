@@ -1,0 +1,67 @@
+
+Warning: Provider development overrides are in effect
+
+The following provider development overrides are set in the CLI
+configuration:
+ - bahriya-cloud/bahriya in /var/folders/qh/wlb0zlhj18dbcy10nzhlh3j40000gn/T/tmp.fhLbXZ7U73
+
+The behavior may therefore not match any released version of the provider and
+applying changes may cause the state to become incompatible with published
+releases.
+bahriya_secret.main: Refreshing state... [id=cc9886f3-1a23-4013-ad72-b911cd53510a]
+bahriya_registry.main: Refreshing state... [id=ba6828af-c8ff-40de-a0eb-6904963ff366]
+data.bahriya_regions.active: Reading...
+data.bahriya_regions.active: Read complete after 1s
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  - destroy
+
+Terraform will perform the following actions:
+
+  # bahriya_registry.main will be destroyed
+  - resource "bahriya_registry" "main" {
+      - billable    = true -> null
+      - handle      = "reg-f357f231" -> null
+      - id          = "ba6828af-c8ff-40de-a0eb-6904963ff366" -> null
+      - maxversions = 5 -> null
+      - name        = "TF E2E Registry f357f231" -> null
+      - password    = (sensitive value) -> null
+      - server      = "ghcr.io" -> null
+      - username    = "e2e-user" -> null
+    }
+
+  # bahriya_secret.main will be destroyed
+  - resource "bahriya_secret" "main" {
+      - billable    = true -> null
+      - handle      = "sec-f357f231" -> null
+      - id          = "cc9886f3-1a23-4013-ad72-b911cd53510a" -> null
+      - maxversions = 5 -> null
+      - name        = "TF E2E Secret f357f231" -> null
+      - value       = (sensitive value) -> null
+    }
+
+Plan: 0 to add, 0 to change, 2 to destroy.
+
+Changes to Outputs:
+  - active_regions = [
+      - "falkenstein-1",
+      - "helsinki-1",
+      - "virginia-1",
+      - "singapore-1",
+    ] -> null
+  - registry_id    = "ba6828af-c8ff-40de-a0eb-6904963ff366" -> null
+  - secret_id      = "cc9886f3-1a23-4013-ad72-b911cd53510a" -> null
+  - suffix         = "f357f231" -> null
+bahriya_registry.main: Destroying... [id=ba6828af-c8ff-40de-a0eb-6904963ff366]
+bahriya_secret.main: Destroying... [id=cc9886f3-1a23-4013-ad72-b911cd53510a]
+
+Error: Delete failed
+
+bahriya api error 400 BAD REQUEST: "A registry associated with a project
+cannot be deleted."
+
+Error: Delete failed
+
+bahriya api error 400 BAD REQUEST: "A secret associated with a project cannot
+be deleted."

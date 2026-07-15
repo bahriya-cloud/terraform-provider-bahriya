@@ -161,7 +161,7 @@ func (r *projectSSHKeypairAttachmentResource) Read(ctx context.Context, req reso
 		return
 	}
 
-	items, _ := envelope["ssh_keypairs"].([]any)
+	items, _ := envelope["sshkeypairs"].([]any)
 	for _, it := range items {
 		obj, ok := it.(map[string]any)
 		if !ok {

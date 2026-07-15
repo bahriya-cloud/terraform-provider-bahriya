@@ -84,9 +84,12 @@ func (d *organisationDataSource) Configure(_ context.Context, req datasource.Con
 func (d *organisationDataSource) Read(ctx context.Context, _ datasource.ReadRequest, resp *datasource.ReadResponse) {
 	orgID := d.client.OrganisationID()
 
-	data, status, err := d.client.Do(ctx, http.MethodGet, fmt.Sprintf("/organisations/%s", orgID), nil)
+	// There is no per-organisation show route; the API only exposes the list
+	// endpoint (GET /organisations returns the orgs the caller can access).
+	// Fetch the list and pick the one matching the configured organisation id.
+	data, status, err := d.client.Do(ctx, http.MethodGet, "/organisations", nil)
 	if err != nil {
-		resp.Diagnostics.AddError("Failed to fetch organisation", fmt.Sprintf("HTTP %d: %v", status, err))
+		resp.Diagnostics.AddError("Failed to fetch organisations", fmt.Sprintf("HTTP %d: %v", status, err))
 		return
 	}
 
@@ -96,11 +99,25 @@ func (d *organisationDataSource) Read(ctx context.Context, _ datasource.ReadRequ
 		return
 	}
 
-	raw := envelope
-	if orgs, ok := envelope["organisations"].([]any); ok && len(orgs) > 0 {
-		if obj, ok := orgs[0].(map[string]any); ok {
-			raw = obj
+	var raw map[string]any
+	if orgs, ok := envelope["organisations"].([]any); ok {
+		for _, o := range orgs {
+			obj, ok := o.(map[string]any)
+			if !ok {
+				continue
+			}
+			if id, _ := obj["id"].(string); id == orgID {
+				raw = obj
+				break
+			}
 		}
+	}
+	if raw == nil {
+		resp.Diagnostics.AddError(
+			"Organisation not found",
+			fmt.Sprintf("Configured organisation %q was not present in the accessible organisation list.", orgID),
+		)
+		return
 	}
 
 	state := organisationModel{

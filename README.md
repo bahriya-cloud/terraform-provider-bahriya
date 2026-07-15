@@ -165,6 +165,24 @@ Each vault/config item also has a corresponding `bahriya_project_<type>_attachme
 
 All resource schemas are **code-generated** from the OpenAPI specs at `packages/bahriya-openapi/specs/v1/`.
 
+The `bahriya_organisation` and `bahriya_regions` data sources are also E2E verified.
+
+### End-to-end coverage
+
+`examples/e2e-vault-configs/` is the comprehensive E2E: in a single `apply`/`destroy` it
+exercises every resource above plus both data sources — registry + secret and all
+vault/config items with their project attachments, a network policy, memcached, and HTTP +
+worker + cronjob containers wired to the full set of mounts, env vars, secret env vars,
+persistent storage and path rules. Run `./gen-fixtures.sh` (once) to mint crypto fixtures and
+a fresh handle suffix, then `terraform apply`.
+
+> **Secret-sync timing.** A container that consumes a secret (via `secretsenvvar`) or an env
+> file (via `envfiles`/`envFrom`) will only reach `running` once the project's `bahriya-secrets`
+> bundle has synced into the namespace. On a brand-new project the first container deploy can
+> lose that race and land in `error`; re-running the apply (once the sync has completed)
+> brings it to `running`. This is a platform deploy-pipeline ordering concern, not a provider
+> behaviour — the provider creates and attaches the secret and orders the container after it.
+
 ### Minimum required fields
 
 These are the fields you **must** set for a successful deploy. Omitting any of these will cause errors (API rejection or runtime health-check failures).

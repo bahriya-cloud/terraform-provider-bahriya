@@ -1,0 +1,261 @@
+
+Warning: Provider development overrides are in effect
+
+The following provider development overrides are set in the CLI
+configuration:
+ - bahriya-cloud/bahriya in /var/folders/qh/wlb0zlhj18dbcy10nzhlh3j40000gn/T/tmp.fhLbXZ7U73
+
+The behavior may therefore not match any released version of the provider and
+applying changes may cause the state to become incompatible with published
+releases.
+bahriya_yaml_config.main: Refreshing state... [id=73cb3fbe-448e-4841-9c69-9f03d7840a39]
+bahriya_env_file.main: Refreshing state... [id=75d71391-41a9-43a1-aad5-bf97ce38ff3a]
+bahriya_project.e2e: Refreshing state... [id=b4288efc-ad04-4ae4-99ea-84961d20bb4b]
+bahriya_ssh_keypair.main: Refreshing state... [id=9c184466-309c-4a9c-963a-9697918f2225]
+bahriya_encryption_key.main: Refreshing state... [id=b41a0ada-723a-4768-8f66-b6141349d739]
+bahriya_x509_cert.main: Refreshing state... [id=20598545-e012-408e-8713-2c105b1bde43]
+bahriya_plain_config.main: Refreshing state... [id=a15c1ada-46bb-425e-ad38-09d4209b29e8]
+bahriya_json_config.main: Refreshing state... [id=12f8b71a-d9ab-4637-9343-79086c9ff6e7]
+bahriya_gpg_keypair.main: Refreshing state... [id=3a24c9fd-2573-4de8-9ebe-70b0fcaecc10]
+bahriya_tls_bundle.main: Refreshing state... [id=d071d8ea-bc6e-4c38-942d-afd91ab1bc41]
+bahriya_secret.main: Refreshing state... [id=cc9886f3-1a23-4013-ad72-b911cd53510a]
+bahriya_project.peer: Refreshing state... [id=5d75f642-f29f-40c4-8ea0-4cfb32bd8469]
+bahriya_project_encryption_key_attachment.main: Refreshing state... [id=b4288efc-ad04-4ae4-99ea-84961d20bb4b:enc-f357f231]
+bahriya_project_yaml_config_attachment.main: Refreshing state... [id=b4288efc-ad04-4ae4-99ea-84961d20bb4b:yaml-f357f231]
+bahriya_project_tls_bundle_attachment.main: Refreshing state... [id=b4288efc-ad04-4ae4-99ea-84961d20bb4b:tls-f357f231]
+bahriya_project_x509_cert_attachment.main: Refreshing state... [id=b4288efc-ad04-4ae4-99ea-84961d20bb4b:x509-f357f231]
+bahriya_project_gpg_keypair_attachment.main: Refreshing state... [id=b4288efc-ad04-4ae4-99ea-84961d20bb4b:gpg-f357f231]
+bahriya_project_env_file_attachment.main: Refreshing state... [id=b4288efc-ad04-4ae4-99ea-84961d20bb4b:env-f357f231]
+bahriya_project_json_config_attachment.main: Refreshing state... [id=b4288efc-ad04-4ae4-99ea-84961d20bb4b:json-f357f231]
+bahriya_project_plain_config_attachment.main: Refreshing state... [id=b4288efc-ad04-4ae4-99ea-84961d20bb4b:plain-f357f231]
+bahriya_project_secret_attachment.main: Refreshing state... [id=b4288efc-ad04-4ae4-99ea-84961d20bb4b:sec-f357f231]
+bahriya_network_policy.main: Refreshing state... [id=d7d26e7c-0558-41fc-bf85-648f1c2c21ab]
+bahriya_project_ssh_keypair_attachment.main: Refreshing state... [id=b4288efc-ad04-4ae4-99ea-84961d20bb4b:ssh-f357f231]
+bahriya_project_network_policy_attachment.main: Refreshing state... [id=b4288efc-ad04-4ae4-99ea-84961d20bb4b:netpol-f357f231]
+bahriya_container.worker: Refreshing state... [id=a7789ccb-b2c9-448a-a0ce-e6f69fad5417]
+bahriya_container.web: Refreshing state... [id=45c0575c-f5cc-41bc-b2c0-bf1e1cd30b37]
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  ~ update in-place
+
+Terraform will perform the following actions:
+
+  # bahriya_container.web will be updated in-place
+  ~ resource "bahriya_container" "web" {
+      + activedeadlineseconds           = (known after apply)
+      ~ autoscalingenabled              = false -> (known after apply)
+      + autoscalingmaxreplicas          = (known after apply)
+      ~ autoscalingtargetcpu            = "100" -> (known after apply)
+      ~ autoscalingtargetmemory         = "100" -> (known after apply)
+      + backofflimit                    = (known after apply)
+      + basicauthcredentials            = (known after apply)
+      ~ basicauthenabled                = false -> (known after apply)
+      + concurrencypolicy               = (known after apply)
+      + customdnsmode                   = (known after apply)
+      ~ defaulthostname                 = "h-5jx15knw" -> (known after apply)
+      ~ dnsfailoverenabled              = false -> (known after apply)
+      + dnsttl                          = (known after apply)
+      ~ externalnetworkingenabled       = false -> (known after apply)
+      + failedjobshistorylimit          = (known after apply)
+        id                              = "45c0575c-f5cc-41bc-b2c0-bf1e1cd30b37"
+      ~ ipblacklistenabled              = false -> (known after apply)
+      ~ ipwhitelistenabled              = false -> (known after apply)
+      ~ maxcpu                          = "150" -> (known after apply)
+      ~ maxmemory                       = "192" -> (known after apply)
+        name                            = "TF E2E Web f357f231"
+      ~ networkpolicies                 = [
+          + "netpol-f357f231",
+        ]
+      ~ newenvvar                       = [
+          + {
+              + key   = "REDEPLOY"
+              + value = "1"
+            },
+            # (1 unchanged element hidden)
+        ]
+      ~ projectname                     = "TF E2E Comprehensive f357f231" -> (known after apply)
+      + prometheuspath                  = (known after apply)
+      + prometheusport                  = (known after apply)
+      ~ proxycacheallowforcecacheheader = false -> (known after apply)
+      ~ proxycacheenabled               = false -> (known after apply)
+      ~ proxycachehonorcachecontrol     = false -> (known after apply)
+      + proxycachemaxitemsizemb         = (known after apply)
+      + proxycachememcached             = (known after apply)
+      + proxycachesizemb                = (known after apply)
+      + proxycachestoragettl            = (known after apply)
+      + proxycachettl                   = (known after apply)
+      + proxycachevariant               = (known after apply)
+      ~ ratelimitingenabled             = false -> (known after apply)
+      + ratelimitingrequestsperhour     = (known after apply)
+      + ratelimitingrequestsperminute   = (known after apply)
+      + ratelimitingrequestspersecond   = (known after apply)
+      + registry                        = (known after apply)
+      + schedule                        = (known after apply)
+      + startingdeadlineseconds         = (known after apply)
+      + successfuljobshistorylimit      = (known after apply)
+      ~ suspended                       = false -> (known after apply)
+      + timezone                        = (known after apply)
+      + ttlsecondsafterfinished         = (known after apply)
+      + vanityhostname                  = (known after apply)
+        # (37 unchanged attributes hidden)
+    }
+
+  # bahriya_container.worker will be updated in-place
+  ~ resource "bahriya_container" "worker" {
+      + activedeadlineseconds           = (known after apply)
+      ~ autoscalingenabled              = false -> (known after apply)
+      + autoscalingmaxreplicas          = (known after apply)
+      ~ autoscalingtargetcpu            = "100" -> (known after apply)
+      ~ autoscalingtargetmemory         = "100" -> (known after apply)
+      + backofflimit                    = (known after apply)
+      + basicauthcredentials            = (known after apply)
+      ~ basicauthenabled                = false -> (known after apply)
+      + concurrencypolicy               = (known after apply)
+      + containerport                   = (known after apply)
+      + customdnsmode                   = (known after apply)
+      + defaulthostname                 = (known after apply)
+      ~ dnsfailoverenabled              = false -> (known after apply)
+      + dnsttl                          = (known after apply)
+      ~ externalnetworkingenabled       = false -> (known after apply)
+      + failedjobshistorylimit          = (known after apply)
+      + healthcheckpath                 = (known after apply)
+        id                              = "a7789ccb-b2c9-448a-a0ce-e6f69fad5417"
+      + ipblacklist                     = (known after apply)
+      ~ ipblacklistenabled              = false -> (known after apply)
+      + ipwhitelist                     = (known after apply)
+      ~ ipwhitelistenabled              = false -> (known after apply)
+      ~ maxcpu                          = "150" -> (known after apply)
+      ~ maxmemory                       = "192" -> (known after apply)
+        name                            = "TF E2E Worker f357f231"
+      ~ newenvvar                       = [
+          + {
+              + key   = "REDEPLOY"
+              + value = "1"
+            },
+        ]
+      ~ projectname                     = "TF E2E Comprehensive f357f231" -> (known after apply)
+      + prometheuspath                  = (known after apply)
+      + prometheusport                  = (known after apply)
+      ~ proxycacheallowforcecacheheader = false -> (known after apply)
+      ~ proxycacheenabled               = false -> (known after apply)
+      ~ proxycachehonorcachecontrol     = false -> (known after apply)
+      + proxycachemaxitemsizemb         = (known after apply)
+      + proxycachememcached             = (known after apply)
+      + proxycachesizemb                = (known after apply)
+      + proxycachestoragettl            = (known after apply)
+      + proxycachettl                   = (known after apply)
+      + proxycachevariant               = (known after apply)
+      ~ ratelimitingenabled             = false -> (known after apply)
+      + ratelimitingrequestsperhour     = (known after apply)
+      + ratelimitingrequestsperminute   = (known after apply)
+      + ratelimitingrequestspersecond   = (known after apply)
+      + registry                        = (known after apply)
+      + schedule                        = (known after apply)
+      + startingdeadlineseconds         = (known after apply)
+      + successfuljobshistorylimit      = (known after apply)
+      ~ suspended                       = false -> (known after apply)
+      + timezone                        = (known after apply)
+      + ttlsecondsafterfinished         = (known after apply)
+      + vanityhostname                  = (known after apply)
+        # (34 unchanged attributes hidden)
+    }
+
+Plan: 0 to add, 2 to change, 0 to destroy.
+
+Changes to Outputs:
+  + web_container_id        = "45c0575c-f5cc-41bc-b2c0-bf1e1cd30b37"
+  + web_container_status    = "error"
+  + worker_container_status = "error"
+bahriya_container.worker: Modifying... [id=a7789ccb-b2c9-448a-a0ce-e6f69fad5417]
+bahriya_container.web: Modifying... [id=45c0575c-f5cc-41bc-b2c0-bf1e1cd30b37]
+bahriya_container.worker: Still modifying... [id=a7789ccb-b2c9-448a-a0ce-e6f69fad5417, 00m10s elapsed]
+bahriya_container.web: Still modifying... [id=45c0575c-f5cc-41bc-b2c0-bf1e1cd30b37, 00m10s elapsed]
+bahriya_container.worker: Still modifying... [id=a7789ccb-b2c9-448a-a0ce-e6f69fad5417, 00m20s elapsed]
+bahriya_container.web: Still modifying... [id=45c0575c-f5cc-41bc-b2c0-bf1e1cd30b37, 00m20s elapsed]
+bahriya_container.worker: Still modifying... [id=a7789ccb-b2c9-448a-a0ce-e6f69fad5417, 00m30s elapsed]
+bahriya_container.web: Still modifying... [id=45c0575c-f5cc-41bc-b2c0-bf1e1cd30b37, 00m30s elapsed]
+bahriya_container.worker: Still modifying... [id=a7789ccb-b2c9-448a-a0ce-e6f69fad5417, 00m40s elapsed]
+bahriya_container.web: Still modifying... [id=45c0575c-f5cc-41bc-b2c0-bf1e1cd30b37, 00m40s elapsed]
+bahriya_container.worker: Still modifying... [id=a7789ccb-b2c9-448a-a0ce-e6f69fad5417, 00m50s elapsed]
+bahriya_container.web: Still modifying... [id=45c0575c-f5cc-41bc-b2c0-bf1e1cd30b37, 00m50s elapsed]
+bahriya_container.web: Still modifying... [id=45c0575c-f5cc-41bc-b2c0-bf1e1cd30b37, 01m00s elapsed]
+bahriya_container.worker: Still modifying... [id=a7789ccb-b2c9-448a-a0ce-e6f69fad5417, 01m00s elapsed]
+bahriya_container.worker: Still modifying... [id=a7789ccb-b2c9-448a-a0ce-e6f69fad5417, 01m10s elapsed]
+bahriya_container.web: Still modifying... [id=45c0575c-f5cc-41bc-b2c0-bf1e1cd30b37, 01m10s elapsed]
+bahriya_container.web: Still modifying... [id=45c0575c-f5cc-41bc-b2c0-bf1e1cd30b37, 01m20s elapsed]
+bahriya_container.worker: Still modifying... [id=a7789ccb-b2c9-448a-a0ce-e6f69fad5417, 01m20s elapsed]
+bahriya_container.worker: Still modifying... [id=a7789ccb-b2c9-448a-a0ce-e6f69fad5417, 01m30s elapsed]
+bahriya_container.web: Still modifying... [id=45c0575c-f5cc-41bc-b2c0-bf1e1cd30b37, 01m30s elapsed]
+bahriya_container.web: Still modifying... [id=45c0575c-f5cc-41bc-b2c0-bf1e1cd30b37, 01m40s elapsed]
+bahriya_container.worker: Still modifying... [id=a7789ccb-b2c9-448a-a0ce-e6f69fad5417, 01m40s elapsed]
+bahriya_container.worker: Still modifying... [id=a7789ccb-b2c9-448a-a0ce-e6f69fad5417, 01m50s elapsed]
+bahriya_container.web: Still modifying... [id=45c0575c-f5cc-41bc-b2c0-bf1e1cd30b37, 01m50s elapsed]
+bahriya_container.web: Still modifying... [id=45c0575c-f5cc-41bc-b2c0-bf1e1cd30b37, 02m00s elapsed]
+bahriya_container.worker: Still modifying... [id=a7789ccb-b2c9-448a-a0ce-e6f69fad5417, 02m00s elapsed]
+bahriya_container.worker: Still modifying... [id=a7789ccb-b2c9-448a-a0ce-e6f69fad5417, 02m10s elapsed]
+bahriya_container.web: Still modifying... [id=45c0575c-f5cc-41bc-b2c0-bf1e1cd30b37, 02m10s elapsed]
+bahriya_container.web: Still modifying... [id=45c0575c-f5cc-41bc-b2c0-bf1e1cd30b37, 02m20s elapsed]
+bahriya_container.worker: Still modifying... [id=a7789ccb-b2c9-448a-a0ce-e6f69fad5417, 02m20s elapsed]
+bahriya_container.worker: Still modifying... [id=a7789ccb-b2c9-448a-a0ce-e6f69fad5417, 02m30s elapsed]
+bahriya_container.web: Still modifying... [id=45c0575c-f5cc-41bc-b2c0-bf1e1cd30b37, 02m30s elapsed]
+bahriya_container.web: Still modifying... [id=45c0575c-f5cc-41bc-b2c0-bf1e1cd30b37, 02m40s elapsed]
+bahriya_container.worker: Still modifying... [id=a7789ccb-b2c9-448a-a0ce-e6f69fad5417, 02m40s elapsed]
+bahriya_container.worker: Still modifying... [id=a7789ccb-b2c9-448a-a0ce-e6f69fad5417, 02m50s elapsed]
+bahriya_container.web: Still modifying... [id=45c0575c-f5cc-41bc-b2c0-bf1e1cd30b37, 02m50s elapsed]
+bahriya_container.web: Still modifying... [id=45c0575c-f5cc-41bc-b2c0-bf1e1cd30b37, 03m00s elapsed]
+bahriya_container.worker: Still modifying... [id=a7789ccb-b2c9-448a-a0ce-e6f69fad5417, 03m00s elapsed]
+bahriya_container.web: Still modifying... [id=45c0575c-f5cc-41bc-b2c0-bf1e1cd30b37, 03m10s elapsed]
+bahriya_container.web: Still modifying... [id=45c0575c-f5cc-41bc-b2c0-bf1e1cd30b37, 03m20s elapsed]
+
+Warning: Resource targeting is in effect
+
+You are creating a plan with the -target option, which means that the result
+of this plan may not represent all of the changes requested by the current
+configuration.
+
+The -target option is not for routine use, and is provided only for
+exceptional situations such as recovering from errors or mistakes, or when
+Terraform specifically suggests to use it as part of an error message.
+
+Warning: Applied changes may be incomplete
+
+The plan was created with the -target option in effect, so some changes
+requested in the configuration may have been ignored and the output values
+may not be fully updated. Run the following command to verify that no other
+changes are pending:
+    terraform plan
+
+Note that the -target option is not suitable for routine use, and is provided
+only for exceptional situations such as recovering from errors or mistakes,
+or when Terraform specifically suggests to use it as part of an error
+message.
+
+Error: Provider produced inconsistent result after apply
+
+When applying changes to bahriya_container.web, provider
+"provider[\"registry.terraform.io/bahriya-cloud/bahriya\"]" produced an
+unexpected new value: .status: was cty.StringVal("error"), but now
+cty.StringVal("running").
+
+This is a bug in the provider, which should be reported in the provider's own
+issue tracker.
+
+Error: Provider produced inconsistent result after apply
+
+When applying changes to bahriya_container.web, provider
+"provider[\"registry.terraform.io/bahriya-cloud/bahriya\"]" produced an
+unexpected new value: .networkpolicies: element 0 has vanished.
+
+This is a bug in the provider, which should be reported in the provider's own
+issue tracker.
+
+Error: Provider produced inconsistent result after apply
+
+When applying changes to bahriya_container.worker, provider
+"provider[\"registry.terraform.io/bahriya-cloud/bahriya\"]" produced an
+unexpected new value: .status: was cty.StringVal("error"), but now
+cty.StringVal("running").
+
+This is a bug in the provider, which should be reported in the provider's own
+issue tracker.

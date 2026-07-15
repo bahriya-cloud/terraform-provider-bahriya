@@ -161,7 +161,7 @@ func (r *projectEnvFileAttachmentResource) Read(ctx context.Context, req resourc
 		return
 	}
 
-	items, _ := envelope["env_files"].([]any)
+	items, _ := envelope["envfiles"].([]any)
 	for _, it := range items {
 		obj, ok := it.(map[string]any)
 		if !ok {

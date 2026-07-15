@@ -161,7 +161,7 @@ func (r *projectTLSBundleAttachmentResource) Read(ctx context.Context, req resou
 		return
 	}
 
-	items, _ := envelope["tls_bundles"].([]any)
+	items, _ := envelope["tlsbundles"].([]any)
 	for _, it := range items {
 		obj, ok := it.(map[string]any)
 		if !ok {

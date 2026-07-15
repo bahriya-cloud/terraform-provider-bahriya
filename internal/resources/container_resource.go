@@ -987,7 +987,9 @@ func (r *containerResource) Create(ctx context.Context, req resource.CreateReque
 		return
 	}
 
-	createTimeout := 10 * time.Minute
+	// 20min headroom: a deploy can spend up to ~5min in the platform's
+	// wait-for-bahriya-secrets gate (30×10s) before helm/health checks even start.
+	createTimeout := 20 * time.Minute
 	_, werr := lifecycle.WaitForStatus(ctx, func(ctx context.Context) (string, error) {
 		fresh, d := r.fetch(ctx, id)
 		if d.HasError() {
@@ -1073,7 +1075,7 @@ func (r *containerResource) Update(ctx context.Context, req resource.UpdateReque
 	// "provisioning" state while the backend rolls out the change. Waiting
 	// for a stable status here avoids "inconsistent result after apply" when
 	// the post-PUT fetch races the rollout.
-	updateTimeout := 10 * time.Minute
+	updateTimeout := 20 * time.Minute
 	_, werr := lifecycle.WaitForStatus(ctx, func(ctx context.Context) (string, error) {
 		fresh, d := r.fetch(ctx, state.ID.ValueString())
 		if d.HasError() {
@@ -1104,14 +1106,28 @@ func (r *containerResource) Delete(ctx context.Context, req resource.DeleteReque
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
-	_, status, err := r.client.Do(ctx, http.MethodPost, fmt.Sprintf("/organisations/%s/containers/%s/terminate", r.client.OrganisationID(), state.ID.ValueString()), nil)
-	if err != nil && status != http.StatusNotFound {
-		resp.Diagnostics.AddError("Delete failed", err.Error())
-		return
+	// Status-bearing resources terminate asynchronously. If it's already
+	// terminated (torn down out-of-band, or a prior interrupted destroy that has
+	// since completed), there's nothing to do. If it's already terminating,
+	// don't re-issue terminate — that 4xxs ("cannot be terminated from its
+	// current state") — just wait for the terminal state.
+	skipTerminate := false
+	if raw, ferr := r.fetchRaw(ctx, state.ID.ValueString()); ferr == nil {
+		if s, _ := raw["status"].(string); s == "terminated" {
+			return
+		} else if s == "terminating" {
+			skipTerminate = true
+		}
+	}
+	if !skipTerminate {
+		_, status, err := r.client.Do(ctx, http.MethodPost, fmt.Sprintf("/organisations/%s/containers/%s/terminate", r.client.OrganisationID(), state.ID.ValueString()), nil)
+		if err != nil && status != http.StatusNotFound {
+			resp.Diagnostics.AddError("Delete failed", err.Error())
+			return
+		}
 	}
 
-	deleteTimeout := 10 * time.Minute
+	deleteTimeout := 20 * time.Minute
 	_, werr := lifecycle.WaitForStatus(ctx, func(ctx context.Context) (string, error) {
 		raw, ferr := r.fetchRaw(ctx, state.ID.ValueString())
 		if ferr != nil {

@@ -161,7 +161,7 @@ func (r *projectEncryptionKeyAttachmentResource) Read(ctx context.Context, req r
 		return
 	}
 
-	items, _ := envelope["encryption_keys"].([]any)
+	items, _ := envelope["encryptionkeys"].([]any)
 	for _, it := range items {
 		obj, ok := it.(map[string]any)
 		if !ok {

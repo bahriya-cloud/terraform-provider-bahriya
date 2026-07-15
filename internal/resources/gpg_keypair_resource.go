@@ -75,10 +75,12 @@ func (r *gpg_keypairResource) Schema(_ context.Context, _ resource.SchemaRequest
 			},
 			"privatekey": schema.StringAttribute{
 				Required:    true,
+				Sensitive:   true,
 				Description: "ASCII-armored PGP private key. Never returned on read.",
 			},
 			"publickey": schema.StringAttribute{
 				Required:    true,
+				Sensitive:   true,
 				Description: "ASCII-armored PGP public key.",
 			},
 			"maxversions": schema.Int64Attribute{
@@ -207,6 +209,8 @@ func (r *gpg_keypairResource) Create(ctx context.Context, req resource.CreateReq
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	state.Privatekey = plan.Privatekey
+	state.Publickey = plan.Publickey
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
@@ -227,6 +231,8 @@ func (r *gpg_keypairResource) Read(ctx context.Context, req resource.ReadRequest
 		resp.Diagnostics.Append(diags...)
 		return
 	}
+	fresh.Privatekey = state.Privatekey
+	fresh.Publickey = state.Publickey
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, fresh)...)
 }
@@ -266,6 +272,8 @@ func (r *gpg_keypairResource) Update(ctx context.Context, req resource.UpdateReq
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	fresh.Privatekey = plan.Privatekey
+	fresh.Publickey = plan.Publickey
 	resp.Diagnostics.Append(resp.State.Set(ctx, fresh)...)
 }
 

@@ -161,7 +161,7 @@ func (r *projectNetworkPolicyAttachmentResource) Read(ctx context.Context, req r
 		return
 	}
 
-	items, _ := envelope["network_policies"].([]any)
+	items, _ := envelope["networkpolicies"].([]any)
 	for _, it := range items {
 		obj, ok := it.(map[string]any)
 		if !ok {

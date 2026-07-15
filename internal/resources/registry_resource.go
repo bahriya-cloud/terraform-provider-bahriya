@@ -151,7 +151,6 @@ func (r *registryResource) Create(ctx context.Context, req resource.CreateReques
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	body["organisation"] = r.client.OrganisationID()
 
 	data, status, err := r.client.Do(ctx, http.MethodPost, fmt.Sprintf("/organisations/%s/registries", r.client.OrganisationID()), body)
 	if err != nil {
@@ -218,7 +217,6 @@ func (r *registryResource) Update(ctx context.Context, req resource.UpdateReques
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	body["organisation"] = r.client.OrganisationID()
 
 	_, status, err := r.client.Do(ctx, http.MethodPut, fmt.Sprintf("/organisations/%s/registries/%s", r.client.OrganisationID(), state.ID.ValueString()), body)
 	if err != nil {
