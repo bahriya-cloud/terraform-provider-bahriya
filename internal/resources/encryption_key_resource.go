@@ -34,7 +34,6 @@ type encryption_keyResource struct {
 type encryption_keyModel struct {
 	ID                    types.String `tfsdk:"id"`
 	Handle                types.String `tfsdk:"handle"`
-	Algorithm             types.String `tfsdk:"algorithm"`
 	Format                types.String `tfsdk:"format"`
 	Key                   types.String `tfsdk:"key"`
 	Name                  types.String `tfsdk:"name"`
@@ -67,10 +66,6 @@ func (r *encryption_keyResource) Schema(_ context.Context, _ resource.SchemaRequ
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
-			},
-			"algorithm": schema.StringAttribute{
-				Required:    true,
-				Description: "Algorithm name (AES-128, AES-256, ChaCha20, etc.)",
 			},
 			"format": schema.StringAttribute{
 				Required:    true,
@@ -300,9 +295,6 @@ func planToEncryptionKeyPayload(ctx context.Context, m *encryption_keyModel) (ma
 	if !m.Handle.IsNull() && !m.Handle.IsUnknown() {
 		out["handle"] = m.Handle.ValueString()
 	}
-	if !m.Algorithm.IsNull() && !m.Algorithm.IsUnknown() {
-		out["algorithm"] = m.Algorithm.ValueString()
-	}
 	if !m.Format.IsNull() && !m.Format.IsUnknown() {
 		out["format"] = m.Format.ValueString()
 	}
@@ -329,11 +321,6 @@ func apiToEncryptionKeyModel(raw map[string]any) encryption_keyModel {
 		m.Handle = types.StringValue(v)
 	} else {
 		m.Handle = types.StringNull()
-	}
-	if v, ok := raw["algorithm"].(string); ok {
-		m.Algorithm = types.StringValue(v)
-	} else {
-		m.Algorithm = types.StringNull()
 	}
 	if v, ok := raw["format"].(string); ok {
 		m.Format = types.StringValue(v)
@@ -390,9 +377,6 @@ func apiToEncryptionKeyModel(raw map[string]any) encryption_keyModel {
 
 func encryption_keyModelsEqual(a, b encryption_keyModel) bool {
 	if !a.Handle.Equal(b.Handle) {
-		return false
-	}
-	if !a.Algorithm.Equal(b.Algorithm) {
 		return false
 	}
 	if !a.Format.Equal(b.Format) {

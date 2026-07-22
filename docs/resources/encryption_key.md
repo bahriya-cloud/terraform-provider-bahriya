@@ -15,7 +15,6 @@ Manages a Bahriya symmetric encryption key. The key material is encrypted at res
 resource "bahriya_encryption_key" "tokens" {
   handle    = "session-tokens"
   name      = "Session token AES key"
-  algorithm = "AES-256"
   format    = "base64"
   key       = var.session_token_key
 }
@@ -27,7 +26,6 @@ resource "bahriya_encryption_key" "tokens" {
 
 - `handle` (String) - DNS-1123 compliant: lowercase alphanumeric and hyphens only. Immutable — changing forces recreation.
 - `name` (String) - Display name.
-- `algorithm` (String) - Algorithm name (AES-128, AES-256, ChaCha20, etc.).
 - `format` (String) - Key encoding format: `base64`, `hex`, or `raw`.
 - `key` (String, Sensitive) - The raw encryption key (base64 or hex encoded). Never returned on read.
 
@@ -40,7 +38,7 @@ resource "bahriya_encryption_key" "tokens" {
 - `id` (String) - Key UUID.
 - `billable` (Boolean) - Whether this key is billable.
 - `currentversion` (Number) - The currently active version number.
-- `key_bits` (Number) - Key length in bits.
+- `keybits` (Number) - Key length in bits.
 - `managedbyresourceid` (String) - UUID of the managing resource, if any.
 - `managedbyresourcetype` (String) - Type of the managing resource, if any.
 - `organisation` (String) - Organisation UUID.

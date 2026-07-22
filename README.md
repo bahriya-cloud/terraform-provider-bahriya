@@ -252,7 +252,7 @@ All vault types require `handle` and `name` plus the content fields below. Handl
 | `bahriya_x509_cert`      | `cert`                               | PEM-encoded standalone cert (no key).                                 |
 | `bahriya_gpg_keypair`    | `public_key`, `private_key`          | OpenPGP armored. Both fields marked sensitive by the spec.            |
 | `bahriya_ssh_keypair`    | `public_key`, `private_key`          | OpenSSH format. Both fields marked sensitive by the spec.             |
-| `bahriya_encryption_key` | `algorithm`, `format`, `key`         | `format` ∈ `base64`, `hex`, `raw`. `key` is sensitive.                |
+| `bahriya_encryption_key` | `format`, `key`                      | `format` ∈ `base64`, `hex`, `raw`. `key` is sensitive.                |
 
 The API parses content on create / rotate — invalid material is rejected.
 

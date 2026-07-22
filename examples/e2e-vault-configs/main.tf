@@ -146,7 +146,6 @@ resource "bahriya_ssh_keypair" "main" {
 resource "bahriya_encryption_key" "main" {
   handle    = "enc-${local.suffix}"
   name      = "TF E2E Encryption Key ${local.suffix}"
-  algorithm = "AES-256"
   format    = "base64"
   key       = chomp(file("${path.module}/fixtures/encryption.key"))
 }
