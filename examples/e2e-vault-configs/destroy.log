@@ -1,378 +1,569 @@
-
-Warning: Provider development overrides are in effect
-
-The following provider development overrides are set in the CLI
-configuration:
- - bahriya-cloud/bahriya in /Users/meezaan/code/bahriya/bahriya-platform/terraform-provider-bahriya/bin
-
-The behavior may therefore not match any released version of the provider and
-applying changes may cause the state to become incompatible with published
-releases.
-bahriya_gpg_keypair.main: Refreshing state... [id=19464953-67ed-49ac-b845-cef70cd97872]
-bahriya_yaml_config.main: Refreshing state... [id=51f1c9f0-6fe2-489e-8aab-850613062bb8]
-bahriya_x509_cert.main: Refreshing state... [id=cf356cf2-ab4c-4049-8509-c6fbb3a314a8]
-bahriya_project.e2e: Refreshing state... [id=a469c38b-8556-4e2d-a0ed-82c6431bb7c9]
-bahriya_encryption_key.main: Refreshing state... [id=36009576-573d-4b29-931a-c31dedf92406]
-bahriya_tls_bundle.main: Refreshing state... [id=fa4d2550-7bc6-42e5-bf44-de4d88ed737f]
-bahriya_ssh_keypair.main: Refreshing state... [id=2d489a1d-8313-4a07-ad74-3e1372f0533a]
-bahriya_plain_config.main: Refreshing state... [id=ef0b6f90-450b-4f7e-ad52-38db47a39e23]
-bahriya_json_config.main: Refreshing state... [id=e297c584-2080-48c4-9f1d-ea48f91772e8]
-bahriya_env_file.main: Refreshing state... [id=f4738427-f90a-4d7e-a46c-9ba450bc3986]
-bahriya_project_plain_config_attachment.main: Refreshing state... [id=a469c38b-8556-4e2d-a0ed-82c6431bb7c9:plain-9d2ea417]
-bahriya_project_json_config_attachment.main: Refreshing state... [id=a469c38b-8556-4e2d-a0ed-82c6431bb7c9:json-9d2ea417]
-bahriya_project_ssh_keypair_attachment.main: Refreshing state... [id=a469c38b-8556-4e2d-a0ed-82c6431bb7c9:ssh-9d2ea417]
-bahriya_project_tls_bundle_attachment.main: Refreshing state... [id=a469c38b-8556-4e2d-a0ed-82c6431bb7c9:tls-9d2ea417]
-bahriya_project_yaml_config_attachment.main: Refreshing state... [id=a469c38b-8556-4e2d-a0ed-82c6431bb7c9:yaml-9d2ea417]
-bahriya_project_gpg_keypair_attachment.main: Refreshing state... [id=a469c38b-8556-4e2d-a0ed-82c6431bb7c9:gpg-9d2ea417]
-bahriya_project_x509_cert_attachment.main: Refreshing state... [id=a469c38b-8556-4e2d-a0ed-82c6431bb7c9:x509-9d2ea417]
-bahriya_project_env_file_attachment.main: Refreshing state... [id=a469c38b-8556-4e2d-a0ed-82c6431bb7c9:env-9d2ea417]
-bahriya_project_encryption_key_attachment.main: Refreshing state... [id=a469c38b-8556-4e2d-a0ed-82c6431bb7c9:enc-9d2ea417]
+[33m╷[0m[0m
+[33m│[0m [0m[1m[33mWarning: [0m[0m[1mProvider development overrides are in effect[0m
+[33m│[0m [0m
+[33m│[0m [0m[0mThe following provider development overrides are set in the CLI
+[33m│[0m [0mconfiguration:
+[33m│[0m [0m - bahriya-cloud/bahriya in /Users/meezaan/code/bahriya/bahriya-platform/terraform-provider-bahriya/bin
+[33m│[0m [0m
+[33m│[0m [0mThe behavior may therefore not match any released version of the provider
+[33m│[0m [0mand applying changes may cause the state to become incompatible with
+[33m│[0m [0mpublished releases.
+[33m╵[0m[0m
+[0m[1mbahriya_secret.main: Refreshing state... [id=e3bb1b58-e6e8-4a23-9c08-ed81260d17a2][0m
+[0m[1mbahriya_gpg_keypair.main: Refreshing state... [id=6986da6e-6bf0-441b-93fb-2fe3493de11d][0m
+[0m[1mbahriya_json_config.main: Refreshing state... [id=1edbdfa7-bb4d-4bf3-b505-89d490b3d9ec][0m
+[0m[1mbahriya_plain_config.main: Refreshing state... [id=47ae577e-00ec-48a7-8016-7acf765f73fe][0m
+[0m[1mbahriya_project.e2e: Refreshing state... [id=bd80f3a0-aee1-4094-b584-73058973ca78][0m
+[0m[1mbahriya_x509_cert.main: Refreshing state... [id=4e273336-6baa-498e-a3ed-95bda462aefe][0m
+[0m[1mbahriya_yaml_config.main: Refreshing state... [id=972e83b5-bc59-45f9-ba4d-3669894952df][0m
+[0m[1mbahriya_encryption_key.main: Refreshing state... [id=3c94a5c2-1c73-48c1-b2c7-819230cda467][0m
+[0m[1mbahriya_ssh_keypair.main: Refreshing state... [id=cd0866c4-c031-4a2e-9b9d-e635b51d7679][0m
+[0m[1mbahriya_tls_bundle.main: Refreshing state... [id=8a2d6182-82ca-409b-98bf-e1ad009158ef][0m
+[0m[1mbahriya_env_file.main: Refreshing state... [id=6cc60be2-1829-4be0-aec2-5d57d28520ee][0m
+[0m[1mbahriya_registry.main: Refreshing state... [id=2ab3fc3f-ac63-4a07-8f97-05f7fc86cb93][0m
+[0m[1mdata.bahriya_regions.active: Reading...[0m[0m
+[0m[1mbahriya_project.peer: Refreshing state... [id=ad189592-1179-4416-b205-607984dc7b19][0m
+[0m[1mdata.bahriya_regions.active: Read complete after 0s[0m
+[0m[1mbahriya_project_x509_cert_attachment.main: Refreshing state... [id=bd80f3a0-aee1-4094-b584-73058973ca78:x509-19d8960f][0m
+[0m[1mbahriya_project_env_file_attachment.main: Refreshing state... [id=bd80f3a0-aee1-4094-b584-73058973ca78:env-19d8960f][0m
+[0m[1mbahriya_project_secret_attachment.main: Refreshing state... [id=bd80f3a0-aee1-4094-b584-73058973ca78:sec-19d8960f][0m
+[0m[1mbahriya_project_tls_bundle_attachment.main: Refreshing state... [id=bd80f3a0-aee1-4094-b584-73058973ca78:tls-19d8960f][0m
+[0m[1mbahriya_project_plain_config_attachment.main: Refreshing state... [id=bd80f3a0-aee1-4094-b584-73058973ca78:plain-19d8960f][0m
+[0m[1mbahriya_project_json_config_attachment.main: Refreshing state... [id=bd80f3a0-aee1-4094-b584-73058973ca78:json-19d8960f][0m
+[0m[1mbahriya_project_gpg_keypair_attachment.main: Refreshing state... [id=bd80f3a0-aee1-4094-b584-73058973ca78:gpg-19d8960f][0m
+[0m[1mbahriya_project_yaml_config_attachment.main: Refreshing state... [id=bd80f3a0-aee1-4094-b584-73058973ca78:yaml-19d8960f][0m
+[0m[1mbahriya_project_ssh_keypair_attachment.main: Refreshing state... [id=bd80f3a0-aee1-4094-b584-73058973ca78:ssh-19d8960f][0m
+[0m[1mbahriya_project_encryption_key_attachment.main: Refreshing state... [id=bd80f3a0-aee1-4094-b584-73058973ca78:enc-19d8960f][0m
+[0m[1mbahriya_container.cron: Refreshing state... [id=ab5220a1-ee60-4736-b08a-0c8bce107304][0m
+[0m[1mbahriya_project_registry_attachment.main: Refreshing state... [id=bd80f3a0-aee1-4094-b584-73058973ca78:reg-19d8960f][0m
+[0m[1mbahriya_network_policy.main: Refreshing state... [id=2b77bd06-5bbc-4a14-9dcf-56b0fd1c66f2][0m
+[0m[1mbahriya_project_network_policy_attachment.main: Refreshing state... [id=bd80f3a0-aee1-4094-b584-73058973ca78:netpol-19d8960f][0m
 
 Terraform used the selected providers to generate the following execution
 plan. Resource actions are indicated with the following symbols:
-  - destroy
+  [31m-[0m destroy[0m
 
 Terraform will perform the following actions:
 
-  # bahriya_encryption_key.main will be destroyed
-  - resource "bahriya_encryption_key" "main" {
-      - algorithm    = "AES-256" -> null
-      - billable     = true -> null
-      - format       = "base64" -> null
-      - handle       = "enc-9d2ea417" -> null
-      - id           = "36009576-573d-4b29-931a-c31dedf92406" -> null
-      - key          = (sensitive value) -> null
-      - maxversions  = 5 -> null
-      - name         = "TF E2E Encryption Key 9d2ea417" -> null
-      - organisation = "7d35e320-2291-4e65-8be6-ce0cf9019916" -> null
+[1m  # bahriya_container.cron[0m will be [1m[31mdestroyed[0m
+[0m  [31m-[0m[0m resource "bahriya_container" "cron" {
+      [31m-[0m[0m activeregions                   = [
+          [31m-[0m[0m "helsinki-1",
+        ] [90m-> null[0m[0m
+      [31m-[0m[0m args                            = [] [90m-> null[0m[0m
+      [31m-[0m[0m autoscalingenabled              = false [90m-> null[0m[0m
+      [31m-[0m[0m autoscalingminreplicas          = "1" [90m-> null[0m[0m
+      [31m-[0m[0m autoscalingtargetcpu            = "100" [90m-> null[0m[0m
+      [31m-[0m[0m autoscalingtargetmemory         = "100" [90m-> null[0m[0m
+      [31m-[0m[0m backofflimit                    = 3 [90m-> null[0m[0m
+      [31m-[0m[0m basicauthenabled                = false [90m-> null[0m[0m
+      [31m-[0m[0m bootstraptime                   = 30 [90m-> null[0m[0m
+      [31m-[0m[0m command                         = [
+          [31m-[0m[0m "sh",
+          [31m-[0m[0m "-c",
+          [31m-[0m[0m "echo e2e-tick",
+        ] [90m-> null[0m[0m
+      [31m-[0m[0m concurrencypolicy               = "Forbid" [90m-> null[0m[0m
+      [31m-[0m[0m dnsfailoverenabled              = false [90m-> null[0m[0m
+      [31m-[0m[0m encryptionkeys                  = [] [90m-> null[0m[0m
+      [31m-[0m[0m envfiles                        = [] [90m-> null[0m[0m
+      [31m-[0m[0m ephemeralstoragegb              = 3 [90m-> null[0m[0m
+      [31m-[0m[0m externalnetworkingenabled       = false [90m-> null[0m[0m
+      [31m-[0m[0m failedjobshistorylimit          = 3 [90m-> null[0m[0m
+      [31m-[0m[0m gpgkeypairs                     = [] [90m-> null[0m[0m
+      [31m-[0m[0m handle                          = "cron-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m hostnames                       = [] [90m-> null[0m[0m
+      [31m-[0m[0m id                              = "ab5220a1-ee60-4736-b08a-0c8bce107304" [90m-> null[0m[0m
+      [31m-[0m[0m image                           = "busybox:latest" [90m-> null[0m[0m
+      [31m-[0m[0m initjobs                        = [] [90m-> null[0m[0m
+      [31m-[0m[0m ipblacklistenabled              = false [90m-> null[0m[0m
+      [31m-[0m[0m ipwhitelistenabled              = false [90m-> null[0m[0m
+      [31m-[0m[0m jsonconfigs                     = [] [90m-> null[0m[0m
+      [31m-[0m[0m maxcpu                          = "150" [90m-> null[0m[0m
+      [31m-[0m[0m maxmemory                       = "192" [90m-> null[0m[0m
+      [31m-[0m[0m mincpu                          = "100" [90m-> null[0m[0m
+      [31m-[0m[0m minmemory                       = "128" [90m-> null[0m[0m
+      [31m-[0m[0m name                            = "TF E2E Cron 19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m networkpolicies                 = [] [90m-> null[0m[0m
+      [31m-[0m[0m newenvvar                       = [] [90m-> null[0m[0m
+      [31m-[0m[0m organisation                    = "7d35e320-2291-4e65-8be6-ce0cf9019916" [90m-> null[0m[0m
+      [31m-[0m[0m persistentvolumes               = [] [90m-> null[0m[0m
+      [31m-[0m[0m plainconfigs                    = [] [90m-> null[0m[0m
+      [31m-[0m[0m project                         = "bd80f3a0-aee1-4094-b584-73058973ca78" [90m-> null[0m[0m
+      [31m-[0m[0m projectname                     = "TF E2E Comprehensive 19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m proxycacheallowforcecacheheader = false [90m-> null[0m[0m
+      [31m-[0m[0m proxycachecontenttypes          = [] [90m-> null[0m[0m
+      [31m-[0m[0m proxycacheenabled               = false [90m-> null[0m[0m
+      [31m-[0m[0m proxycachehonorcachecontrol     = false [90m-> null[0m[0m
+      [31m-[0m[0m proxycacherequestmethods        = [] [90m-> null[0m[0m
+      [31m-[0m[0m proxycacheresponsecodes         = [] [90m-> null[0m[0m
+      [31m-[0m[0m proxycachevarybodyjsonfields    = [] [90m-> null[0m[0m
+      [31m-[0m[0m proxycachevaryheaders           = [] [90m-> null[0m[0m
+      [31m-[0m[0m proxycachevaryqueryparams       = [] [90m-> null[0m[0m
+      [31m-[0m[0m ratelimitingenabled             = false [90m-> null[0m[0m
+      [31m-[0m[0m schedule                        = "*/5 * * * *" [90m-> null[0m[0m
+      [31m-[0m[0m secretsenvvar                   = [] [90m-> null[0m[0m
+      [31m-[0m[0m sshkeypairs                     = [] [90m-> null[0m[0m
+      [31m-[0m[0m status                          = "running" [90m-> null[0m[0m
+      [31m-[0m[0m successfuljobshistorylimit      = 3 [90m-> null[0m[0m
+      [31m-[0m[0m suspended                       = false [90m-> null[0m[0m
+      [31m-[0m[0m timezone                        = "UTC" [90m-> null[0m[0m
+      [31m-[0m[0m tlsbundles                      = [] [90m-> null[0m[0m
+      [31m-[0m[0m ttlsecondsafterfinished         = 3600 [90m-> null[0m[0m
+      [31m-[0m[0m type                            = "cronjob" [90m-> null[0m[0m
+      [31m-[0m[0m x509certs                       = [] [90m-> null[0m[0m
+      [31m-[0m[0m yamlconfigs                     = [] [90m-> null[0m[0m
     }
 
-  # bahriya_env_file.main will be destroyed
-  - resource "bahriya_env_file" "main" {
-      - billable     = true -> null
-      - content      = <<-EOT
+[1m  # bahriya_encryption_key.main[0m will be [1m[31mdestroyed[0m
+[0m  [31m-[0m[0m resource "bahriya_encryption_key" "main" {
+      [31m-[0m[0m billable     = true [90m-> null[0m[0m
+      [31m-[0m[0m format       = "base64" [90m-> null[0m[0m
+      [31m-[0m[0m handle       = "enc-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m id           = "3c94a5c2-1c73-48c1-b2c7-819230cda467" [90m-> null[0m[0m
+      [31m-[0m[0m key          = (sensitive value) [90m-> null[0m[0m
+      [31m-[0m[0m keybits      = 256 [90m-> null[0m[0m
+      [31m-[0m[0m maxversions  = 5 [90m-> null[0m[0m
+      [31m-[0m[0m name         = "TF E2E Encryption Key 19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m organisation = "7d35e320-2291-4e65-8be6-ce0cf9019916" [90m-> null[0m[0m
+    }
+
+[1m  # bahriya_env_file.main[0m will be [1m[31mdestroyed[0m
+[0m  [31m-[0m[0m resource "bahriya_env_file" "main" {
+      [31m-[0m[0m billable     = true [90m-> null[0m[0m
+      [31m-[0m[0m content      = <<-EOT
             # E2E env file
             APP_MODE=production
             LOG_LEVEL=info
             FEATURE_X_ENABLED=true
-        EOT -> null
-      - handle       = "env-9d2ea417" -> null
-      - id           = "f4738427-f90a-4d7e-a46c-9ba450bc3986" -> null
-      - maxversions  = 5 -> null
-      - name         = "TF E2E Env File 9d2ea417" -> null
-      - organisation = "7d35e320-2291-4e65-8be6-ce0cf9019916" -> null
+        EOT [90m-> null[0m[0m
+      [31m-[0m[0m entrycount   = 3 [90m-> null[0m[0m
+      [31m-[0m[0m handle       = "env-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m id           = "6cc60be2-1829-4be0-aec2-5d57d28520ee" [90m-> null[0m[0m
+      [31m-[0m[0m maxversions  = 5 [90m-> null[0m[0m
+      [31m-[0m[0m name         = "TF E2E Env File 19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m organisation = "7d35e320-2291-4e65-8be6-ce0cf9019916" [90m-> null[0m[0m
     }
 
-  # bahriya_gpg_keypair.main will be destroyed
-  - resource "bahriya_gpg_keypair" "main" {
-      - algorithm    = "EdDSA" -> null
-      - billable     = true -> null
-      - handle       = "gpg-9d2ea417" -> null
-      - id           = "19464953-67ed-49ac-b845-cef70cd97872" -> null
-      - maxversions  = 5 -> null
-      - name         = "TF E2E GPG Keypair 9d2ea417" -> null
-      - organisation = "7d35e320-2291-4e65-8be6-ce0cf9019916" -> null
-      - private_key  = (sensitive value) -> null
-      - public_key   = (sensitive value) -> null
-      - uid          = "Bahriya E2E 9d2ea417 <e2e-9d2ea417@bahriya.test>" -> null
+[1m  # bahriya_gpg_keypair.main[0m will be [1m[31mdestroyed[0m
+[0m  [31m-[0m[0m resource "bahriya_gpg_keypair" "main" {
+      [31m-[0m[0m algorithm    = "EdDSA" [90m-> null[0m[0m
+      [31m-[0m[0m billable     = true [90m-> null[0m[0m
+      [31m-[0m[0m handle       = "gpg-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m id           = "6986da6e-6bf0-441b-93fb-2fe3493de11d" [90m-> null[0m[0m
+      [31m-[0m[0m keyid        = "BBD64C515FF45C31" [90m-> null[0m[0m
+      [31m-[0m[0m maxversions  = 5 [90m-> null[0m[0m
+      [31m-[0m[0m name         = "TF E2E GPG Keypair 19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m organisation = "7d35e320-2291-4e65-8be6-ce0cf9019916" [90m-> null[0m[0m
+      [31m-[0m[0m privatekey   = (sensitive value) [90m-> null[0m[0m
+      [31m-[0m[0m publickey    = (sensitive value) [90m-> null[0m[0m
+      [31m-[0m[0m uid          = "Bahriya E2E 19d8960f <e2e-19d8960f@bahriya.test>" [90m-> null[0m[0m
     }
 
-  # bahriya_json_config.main will be destroyed
-  - resource "bahriya_json_config" "main" {
-      - billable     = true -> null
-      - content      = jsonencode(
+[1m  # bahriya_json_config.main[0m will be [1m[31mdestroyed[0m
+[0m  [31m-[0m[0m resource "bahriya_json_config" "main" {
+      [31m-[0m[0m billable     = true [90m-> null[0m[0m
+      [31m-[0m[0m content      = jsonencode(
             {
-              - features = [
-                  - "alpha",
-                  - "beta",
+              [31m-[0m[0m features = [
+                  [31m-[0m[0m "alpha",
+                  [31m-[0m[0m "beta",
                 ]
-              - replicas = 1
-              - service  = "e2e-9d2ea417"
+              [31m-[0m[0m replicas = 1
+              [31m-[0m[0m service  = "e2e-19d8960f"
             }
-        ) -> null
-      - handle       = "json-9d2ea417" -> null
-      - id           = "e297c584-2080-48c4-9f1d-ea48f91772e8" -> null
-      - maxversions  = 5 -> null
-      - name         = "TF E2E JSON Config 9d2ea417" -> null
-      - organisation = "7d35e320-2291-4e65-8be6-ce0cf9019916" -> null
+        ) [90m-> null[0m[0m
+      [31m-[0m[0m handle       = "json-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m id           = "1edbdfa7-bb4d-4bf3-b505-89d490b3d9ec" [90m-> null[0m[0m
+      [31m-[0m[0m maxversions  = 5 [90m-> null[0m[0m
+      [31m-[0m[0m name         = "TF E2E JSON Config 19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m organisation = "7d35e320-2291-4e65-8be6-ce0cf9019916" [90m-> null[0m[0m
     }
 
-  # bahriya_plain_config.main will be destroyed
-  - resource "bahriya_plain_config" "main" {
-      - billable      = true -> null
-      - content       = <<-EOT
-            # Plain text config for e2e-9d2ea417
+[1m  # bahriya_network_policy.main[0m will be [1m[31mdestroyed[0m
+[0m  [31m-[0m[0m resource "bahriya_network_policy" "main" {
+      [31m-[0m[0m billable     = true [90m-> null[0m[0m
+      [31m-[0m[0m egresscidrs  = [
+          [31m-[0m[0m "10.0.0.0/8",
+        ] [90m-> null[0m[0m
+      [31m-[0m[0m egressfqdns  = [] [90m-> null[0m[0m
+      [31m-[0m[0m handle       = "netpol-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m id           = "2b77bd06-5bbc-4a14-9dcf-56b0fd1c66f2" [90m-> null[0m[0m
+      [31m-[0m[0m ingresspeers = [
+          [31m-[0m[0m "tfe2epeer-19d8960f",
+        ] [90m-> null[0m[0m
+      [31m-[0m[0m l7enabled    = false [90m-> null[0m[0m
+      [31m-[0m[0m name         = "TF E2E Network Policy 19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m organisation = "7d35e320-2291-4e65-8be6-ce0cf9019916" [90m-> null[0m[0m
+      [31m-[0m[0m ports        = [
+          [31m-[0m[0m {
+              [31m-[0m[0m port     = 443 [90m-> null[0m[0m
+              [31m-[0m[0m protocol = "TCP" [90m-> null[0m[0m
+            },
+        ] [90m-> null[0m[0m
+    }
+
+[1m  # bahriya_plain_config.main[0m will be [1m[31mdestroyed[0m
+[0m  [31m-[0m[0m resource "bahriya_plain_config" "main" {
+      [31m-[0m[0m billable      = true [90m-> null[0m[0m
+      [31m-[0m[0m content       = <<-EOT
+            # Plain text config for e2e-19d8960f
             key1=value1
             key2=value2
-        EOT -> null
-      - contentlength = 61 -> null
-      - handle        = "plain-9d2ea417" -> null
-      - id            = "ef0b6f90-450b-4f7e-ad52-38db47a39e23" -> null
-      - maxversions   = 5 -> null
-      - name          = "TF E2E Plain Config 9d2ea417" -> null
-      - organisation  = "7d35e320-2291-4e65-8be6-ce0cf9019916" -> null
+        EOT [90m-> null[0m[0m
+      [31m-[0m[0m contentlength = 61 [90m-> null[0m[0m
+      [31m-[0m[0m handle        = "plain-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m id            = "47ae577e-00ec-48a7-8016-7acf765f73fe" [90m-> null[0m[0m
+      [31m-[0m[0m maxversions   = 5 [90m-> null[0m[0m
+      [31m-[0m[0m name          = "TF E2E Plain Config 19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m organisation  = "7d35e320-2291-4e65-8be6-ce0cf9019916" [90m-> null[0m[0m
     }
 
-  # bahriya_project.e2e will be destroyed
-  - resource "bahriya_project" "e2e" {
-      - handle       = "tfe2e-9d2ea417" -> null
-      - id           = "a469c38b-8556-4e2d-a0ed-82c6431bb7c9" -> null
-      - name         = "TF E2E Vault Configs 9d2ea417" -> null
-      - organisation = "7d35e320-2291-4e65-8be6-ce0cf9019916" -> null
-      - regions      = [
-          - "helsinki-1",
-        ] -> null
-      - users        = [
-          - "fd280783-1a32-462b-a25d-9562171cf7c6",
-        ] -> null
+[1m  # bahriya_project.e2e[0m will be [1m[31mdestroyed[0m
+[0m  [31m-[0m[0m resource "bahriya_project" "e2e" {
+      [31m-[0m[0m handle       = "tfe2e-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m id           = "bd80f3a0-aee1-4094-b584-73058973ca78" [90m-> null[0m[0m
+      [31m-[0m[0m name         = "TF E2E Comprehensive 19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m organisation = "7d35e320-2291-4e65-8be6-ce0cf9019916" [90m-> null[0m[0m
+      [31m-[0m[0m regions      = [
+          [31m-[0m[0m "helsinki-1",
+        ] [90m-> null[0m[0m
+      [31m-[0m[0m users        = [
+          [31m-[0m[0m "fd280783-1a32-462b-a25d-9562171cf7c6",
+        ] [90m-> null[0m[0m
     }
 
-  # bahriya_project_encryption_key_attachment.main will be destroyed
-  - resource "bahriya_project_encryption_key_attachment" "main" {
-      - handle     = "enc-9d2ea417" -> null
-      - id         = "a469c38b-8556-4e2d-a0ed-82c6431bb7c9:enc-9d2ea417" -> null
-      - join_id    = "6b6a094d-8195-4151-aafc-090e05fd815a" -> null
-      - project_id = "a469c38b-8556-4e2d-a0ed-82c6431bb7c9" -> null
+[1m  # bahriya_project.peer[0m will be [1m[31mdestroyed[0m
+[0m  [31m-[0m[0m resource "bahriya_project" "peer" {
+      [31m-[0m[0m handle       = "tfe2epeer-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m id           = "ad189592-1179-4416-b205-607984dc7b19" [90m-> null[0m[0m
+      [31m-[0m[0m name         = "TF E2E Peer 19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m organisation = "7d35e320-2291-4e65-8be6-ce0cf9019916" [90m-> null[0m[0m
+      [31m-[0m[0m regions      = [
+          [31m-[0m[0m "helsinki-1",
+        ] [90m-> null[0m[0m
+      [31m-[0m[0m users        = [
+          [31m-[0m[0m "fd280783-1a32-462b-a25d-9562171cf7c6",
+        ] [90m-> null[0m[0m
     }
 
-  # bahriya_project_env_file_attachment.main will be destroyed
-  - resource "bahriya_project_env_file_attachment" "main" {
-      - handle     = "env-9d2ea417" -> null
-      - id         = "a469c38b-8556-4e2d-a0ed-82c6431bb7c9:env-9d2ea417" -> null
-      - join_id    = "3389cb77-d4e8-4165-9f91-f42e46188fe9" -> null
-      - project_id = "a469c38b-8556-4e2d-a0ed-82c6431bb7c9" -> null
+[1m  # bahriya_project_encryption_key_attachment.main[0m will be [1m[31mdestroyed[0m
+[0m  [31m-[0m[0m resource "bahriya_project_encryption_key_attachment" "main" {
+      [31m-[0m[0m handle     = "enc-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m id         = "bd80f3a0-aee1-4094-b584-73058973ca78:enc-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m join_id    = "907d11a4-7839-472d-b973-12027fd28eee" [90m-> null[0m[0m
+      [31m-[0m[0m project_id = "bd80f3a0-aee1-4094-b584-73058973ca78" [90m-> null[0m[0m
     }
 
-  # bahriya_project_gpg_keypair_attachment.main will be destroyed
-  - resource "bahriya_project_gpg_keypair_attachment" "main" {
-      - handle     = "gpg-9d2ea417" -> null
-      - id         = "a469c38b-8556-4e2d-a0ed-82c6431bb7c9:gpg-9d2ea417" -> null
-      - join_id    = "293ac46f-d81e-4fbc-a378-827ff2cf1e79" -> null
-      - project_id = "a469c38b-8556-4e2d-a0ed-82c6431bb7c9" -> null
+[1m  # bahriya_project_env_file_attachment.main[0m will be [1m[31mdestroyed[0m
+[0m  [31m-[0m[0m resource "bahriya_project_env_file_attachment" "main" {
+      [31m-[0m[0m handle     = "env-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m id         = "bd80f3a0-aee1-4094-b584-73058973ca78:env-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m join_id    = "821b7cdc-61e0-4372-a2dd-1ce30594c921" [90m-> null[0m[0m
+      [31m-[0m[0m project_id = "bd80f3a0-aee1-4094-b584-73058973ca78" [90m-> null[0m[0m
     }
 
-  # bahriya_project_json_config_attachment.main will be destroyed
-  - resource "bahriya_project_json_config_attachment" "main" {
-      - handle     = "json-9d2ea417" -> null
-      - id         = "a469c38b-8556-4e2d-a0ed-82c6431bb7c9:json-9d2ea417" -> null
-      - join_id    = "5d9de344-64bd-4388-9d24-a74c95466f99" -> null
-      - project_id = "a469c38b-8556-4e2d-a0ed-82c6431bb7c9" -> null
+[1m  # bahriya_project_gpg_keypair_attachment.main[0m will be [1m[31mdestroyed[0m
+[0m  [31m-[0m[0m resource "bahriya_project_gpg_keypair_attachment" "main" {
+      [31m-[0m[0m handle     = "gpg-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m id         = "bd80f3a0-aee1-4094-b584-73058973ca78:gpg-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m join_id    = "57dc6fd3-0651-4f9f-bf56-03e4cd926300" [90m-> null[0m[0m
+      [31m-[0m[0m project_id = "bd80f3a0-aee1-4094-b584-73058973ca78" [90m-> null[0m[0m
     }
 
-  # bahriya_project_plain_config_attachment.main will be destroyed
-  - resource "bahriya_project_plain_config_attachment" "main" {
-      - handle     = "plain-9d2ea417" -> null
-      - id         = "a469c38b-8556-4e2d-a0ed-82c6431bb7c9:plain-9d2ea417" -> null
-      - join_id    = "f44935b7-f3e4-48ec-a068-4cc5aa33cb01" -> null
-      - project_id = "a469c38b-8556-4e2d-a0ed-82c6431bb7c9" -> null
+[1m  # bahriya_project_json_config_attachment.main[0m will be [1m[31mdestroyed[0m
+[0m  [31m-[0m[0m resource "bahriya_project_json_config_attachment" "main" {
+      [31m-[0m[0m handle     = "json-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m id         = "bd80f3a0-aee1-4094-b584-73058973ca78:json-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m join_id    = "b40faff0-8dc0-4aa3-b32a-58fedff86d77" [90m-> null[0m[0m
+      [31m-[0m[0m project_id = "bd80f3a0-aee1-4094-b584-73058973ca78" [90m-> null[0m[0m
     }
 
-  # bahriya_project_ssh_keypair_attachment.main will be destroyed
-  - resource "bahriya_project_ssh_keypair_attachment" "main" {
-      - handle     = "ssh-9d2ea417" -> null
-      - id         = "a469c38b-8556-4e2d-a0ed-82c6431bb7c9:ssh-9d2ea417" -> null
-      - join_id    = "c2f403fe-3430-4245-bd3d-1b7ccccfddc3" -> null
-      - project_id = "a469c38b-8556-4e2d-a0ed-82c6431bb7c9" -> null
+[1m  # bahriya_project_network_policy_attachment.main[0m will be [1m[31mdestroyed[0m
+[0m  [31m-[0m[0m resource "bahriya_project_network_policy_attachment" "main" {
+      [31m-[0m[0m handle     = "netpol-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m id         = "bd80f3a0-aee1-4094-b584-73058973ca78:netpol-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m join_id    = "11bf7fcd-6758-4df1-abd2-c994f1dba989" [90m-> null[0m[0m
+      [31m-[0m[0m project_id = "bd80f3a0-aee1-4094-b584-73058973ca78" [90m-> null[0m[0m
     }
 
-  # bahriya_project_tls_bundle_attachment.main will be destroyed
-  - resource "bahriya_project_tls_bundle_attachment" "main" {
-      - handle     = "tls-9d2ea417" -> null
-      - id         = "a469c38b-8556-4e2d-a0ed-82c6431bb7c9:tls-9d2ea417" -> null
-      - join_id    = "50db5dfa-fe77-49ed-93e5-5e422cfcd60b" -> null
-      - project_id = "a469c38b-8556-4e2d-a0ed-82c6431bb7c9" -> null
+[1m  # bahriya_project_plain_config_attachment.main[0m will be [1m[31mdestroyed[0m
+[0m  [31m-[0m[0m resource "bahriya_project_plain_config_attachment" "main" {
+      [31m-[0m[0m handle     = "plain-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m id         = "bd80f3a0-aee1-4094-b584-73058973ca78:plain-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m join_id    = "f811ff48-0017-4191-99e3-67f531ec8abd" [90m-> null[0m[0m
+      [31m-[0m[0m project_id = "bd80f3a0-aee1-4094-b584-73058973ca78" [90m-> null[0m[0m
     }
 
-  # bahriya_project_x509_cert_attachment.main will be destroyed
-  - resource "bahriya_project_x509_cert_attachment" "main" {
-      - handle     = "x509-9d2ea417" -> null
-      - id         = "a469c38b-8556-4e2d-a0ed-82c6431bb7c9:x509-9d2ea417" -> null
-      - join_id    = "bae77304-13c0-4a35-9e27-977ae3c550e7" -> null
-      - project_id = "a469c38b-8556-4e2d-a0ed-82c6431bb7c9" -> null
+[1m  # bahriya_project_registry_attachment.main[0m will be [1m[31mdestroyed[0m
+[0m  [31m-[0m[0m resource "bahriya_project_registry_attachment" "main" {
+      [31m-[0m[0m handle     = "reg-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m id         = "bd80f3a0-aee1-4094-b584-73058973ca78:reg-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m join_id    = "a834e8ec-3ec3-4fdd-b020-46eb81243dd8" [90m-> null[0m[0m
+      [31m-[0m[0m project_id = "bd80f3a0-aee1-4094-b584-73058973ca78" [90m-> null[0m[0m
     }
 
-  # bahriya_project_yaml_config_attachment.main will be destroyed
-  - resource "bahriya_project_yaml_config_attachment" "main" {
-      - handle     = "yaml-9d2ea417" -> null
-      - id         = "a469c38b-8556-4e2d-a0ed-82c6431bb7c9:yaml-9d2ea417" -> null
-      - join_id    = "283ab38f-2fa5-4517-ae57-46a69d6b9fd4" -> null
-      - project_id = "a469c38b-8556-4e2d-a0ed-82c6431bb7c9" -> null
+[1m  # bahriya_project_secret_attachment.main[0m will be [1m[31mdestroyed[0m
+[0m  [31m-[0m[0m resource "bahriya_project_secret_attachment" "main" {
+      [31m-[0m[0m handle     = "sec-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m id         = "bd80f3a0-aee1-4094-b584-73058973ca78:sec-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m join_id    = "c0c6e07c-1778-43d9-b6f3-657f79fcc85f" [90m-> null[0m[0m
+      [31m-[0m[0m project_id = "bd80f3a0-aee1-4094-b584-73058973ca78" [90m-> null[0m[0m
     }
 
-  # bahriya_ssh_keypair.main will be destroyed
-  - resource "bahriya_ssh_keypair" "main" {
-      - algorithm    = "ssh-ed25519" -> null
-      - billable     = true -> null
-      - comment      = "e2e-9d2ea417@bahriya.test" -> null
-      - handle       = "ssh-9d2ea417" -> null
-      - id           = "2d489a1d-8313-4a07-ad74-3e1372f0533a" -> null
-      - maxversions  = 5 -> null
-      - name         = "TF E2E SSH Keypair 9d2ea417" -> null
-      - organisation = "7d35e320-2291-4e65-8be6-ce0cf9019916" -> null
-      - private_key  = (sensitive value) -> null
-      - public_key   = (sensitive value) -> null
+[1m  # bahriya_project_ssh_keypair_attachment.main[0m will be [1m[31mdestroyed[0m
+[0m  [31m-[0m[0m resource "bahriya_project_ssh_keypair_attachment" "main" {
+      [31m-[0m[0m handle     = "ssh-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m id         = "bd80f3a0-aee1-4094-b584-73058973ca78:ssh-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m join_id    = "8e18ec8d-76f3-4614-9917-69e1a46dccd4" [90m-> null[0m[0m
+      [31m-[0m[0m project_id = "bd80f3a0-aee1-4094-b584-73058973ca78" [90m-> null[0m[0m
     }
 
-  # bahriya_tls_bundle.main will be destroyed
-  - resource "bahriya_tls_bundle" "main" {
-      - algorithm    = "RSA" -> null
-      - billable     = true -> null
-      - ca           = <<-EOT
+[1m  # bahriya_project_tls_bundle_attachment.main[0m will be [1m[31mdestroyed[0m
+[0m  [31m-[0m[0m resource "bahriya_project_tls_bundle_attachment" "main" {
+      [31m-[0m[0m handle     = "tls-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m id         = "bd80f3a0-aee1-4094-b584-73058973ca78:tls-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m join_id    = "5a7df78b-e392-45eb-86c1-b3bf66ad8a8d" [90m-> null[0m[0m
+      [31m-[0m[0m project_id = "bd80f3a0-aee1-4094-b584-73058973ca78" [90m-> null[0m[0m
+    }
+
+[1m  # bahriya_project_x509_cert_attachment.main[0m will be [1m[31mdestroyed[0m
+[0m  [31m-[0m[0m resource "bahriya_project_x509_cert_attachment" "main" {
+      [31m-[0m[0m handle     = "x509-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m id         = "bd80f3a0-aee1-4094-b584-73058973ca78:x509-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m join_id    = "27b4e664-73ca-494c-a22b-e19e3b37ddbc" [90m-> null[0m[0m
+      [31m-[0m[0m project_id = "bd80f3a0-aee1-4094-b584-73058973ca78" [90m-> null[0m[0m
+    }
+
+[1m  # bahriya_project_yaml_config_attachment.main[0m will be [1m[31mdestroyed[0m
+[0m  [31m-[0m[0m resource "bahriya_project_yaml_config_attachment" "main" {
+      [31m-[0m[0m handle     = "yaml-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m id         = "bd80f3a0-aee1-4094-b584-73058973ca78:yaml-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m join_id    = "60c47a91-1905-4c90-85d5-e340fd416c90" [90m-> null[0m[0m
+      [31m-[0m[0m project_id = "bd80f3a0-aee1-4094-b584-73058973ca78" [90m-> null[0m[0m
+    }
+
+[1m  # bahriya_registry.main[0m will be [1m[31mdestroyed[0m
+[0m  [31m-[0m[0m resource "bahriya_registry" "main" {
+      [31m-[0m[0m billable    = true [90m-> null[0m[0m
+      [31m-[0m[0m handle      = "reg-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m id          = "2ab3fc3f-ac63-4a07-8f97-05f7fc86cb93" [90m-> null[0m[0m
+      [31m-[0m[0m maxversions = 5 [90m-> null[0m[0m
+      [31m-[0m[0m name        = "TF E2E Registry 19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m password    = (sensitive value) [90m-> null[0m[0m
+      [31m-[0m[0m server      = "ghcr.io" [90m-> null[0m[0m
+      [31m-[0m[0m username    = "e2e-user" [90m-> null[0m[0m
+    }
+
+[1m  # bahriya_secret.main[0m will be [1m[31mdestroyed[0m
+[0m  [31m-[0m[0m resource "bahriya_secret" "main" {
+      [31m-[0m[0m billable    = true [90m-> null[0m[0m
+      [31m-[0m[0m handle      = "sec-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m id          = "e3bb1b58-e6e8-4a23-9c08-ed81260d17a2" [90m-> null[0m[0m
+      [31m-[0m[0m maxversions = 5 [90m-> null[0m[0m
+      [31m-[0m[0m name        = "TF E2E Secret 19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m value       = (sensitive value) [90m-> null[0m[0m
+    }
+
+[1m  # bahriya_ssh_keypair.main[0m will be [1m[31mdestroyed[0m
+[0m  [31m-[0m[0m resource "bahriya_ssh_keypair" "main" {
+      [31m-[0m[0m algorithm    = "ssh-ed25519" [90m-> null[0m[0m
+      [31m-[0m[0m billable     = true [90m-> null[0m[0m
+      [31m-[0m[0m comment      = "e2e-19d8960f@bahriya.test" [90m-> null[0m[0m
+      [31m-[0m[0m handle       = "ssh-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m id           = "cd0866c4-c031-4a2e-9b9d-e635b51d7679" [90m-> null[0m[0m
+      [31m-[0m[0m keyid        = "SHA256:hdmHMuYspoUNY7fTg1fG812SffWcEMlgcV00t4cKC6c" [90m-> null[0m[0m
+      [31m-[0m[0m maxversions  = 5 [90m-> null[0m[0m
+      [31m-[0m[0m name         = "TF E2E SSH Keypair 19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m organisation = "7d35e320-2291-4e65-8be6-ce0cf9019916" [90m-> null[0m[0m
+      [31m-[0m[0m privatekey   = (sensitive value) [90m-> null[0m[0m
+      [31m-[0m[0m publickey    = (sensitive value) [90m-> null[0m[0m
+    }
+
+[1m  # bahriya_tls_bundle.main[0m will be [1m[31mdestroyed[0m
+[0m  [31m-[0m[0m resource "bahriya_tls_bundle" "main" {
+      [31m-[0m[0m algorithm    = "RSA" [90m-> null[0m[0m
+      [31m-[0m[0m billable     = true [90m-> null[0m[0m
+      [31m-[0m[0m ca           = <<-EOT
             -----BEGIN CERTIFICATE-----
-            MIIDQTCCAimgAwIBAgIUS8BNhM1aOb0h8u8ITRKmmW3qkf4wDQYJKoZIhvcNAQEL
+            MIIDQTCCAimgAwIBAgIUJaEZSTRngEDSMA3NxWN7tza9mTQwDQYJKoZIhvcNAQEL
             BQAwMDEYMBYGA1UEAwwPQmFocml5YSBUZXN0IENBMRQwEgYDVQQKDAtCYWhyaXlh
-            IEUyRTAeFw0yNjA2MjEwNzI0NDBaFw0yNzA2MjEwNzI0NDBaMDAxGDAWBgNVBAMM
+            IEUyRTAeFw0yNjA3MjMxMjI5NDlaFw0yNzA3MjMxMjI5NDlaMDAxGDAWBgNVBAMM
             D0JhaHJpeWEgVGVzdCBDQTEUMBIGA1UECgwLQmFocml5YSBFMkUwggEiMA0GCSqG
-            SIb3DQEBAQUAA4IBDwAwggEKAoIBAQCnuPpVo+pX3sm5s8w09lrrp79Tw3riz7ig
-            Ao2HmQIH0aU7D24z5j612kk4B6r90tO3UIMKKcbDd0o/qce+cL56Wsz06uxXxc8G
-            KFV58YiALMWwE+frTMG9IEJ6M4cXw5oWc2m3T6JfCpLsChbSj8/eA4XoYCRn5pYp
-            Rz3oTbG0dh4NuOGMUDoEl+x6DKtxHxo5sT1smCy3+Bt7lGz0JXTnTDRXH8/5VFRr
-            NLcxCs3O7WB4yMmloSLSpDzCATzfFH08GYIN/YbNrJqmMXu0bzlreZE9iSFLWEiW
-            QOULwwx4H0iR66dH5qXJ/QPobP1eDVBr9/85D29kdVbwjKKzqI8rAgMBAAGjUzBR
-            MB0GA1UdDgQWBBQXIGtY9lxYhckm1WlmZZRxWxxFMjAfBgNVHSMEGDAWgBQXIGtY
-            9lxYhckm1WlmZZRxWxxFMjAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUA
-            A4IBAQAlzC/KxULdX1uBwf9O2SQ7V8Zj63OqEHcZMBD2fn68BH1LXxRWhDta1KfB
-            HwAEvtGPF6lP4aVYOVQI10oxHQMjb+i2+lk1PFcMU3rBYdGlKwdzHkl0L8WkGqku
-            5asebcXrtiNxsa7uiMktvZ07hxx75OG7i3Q0HrzjbVBzk72nr8AYAykeh9UZFpyG
-            e1wcopRBXoRNyR6dAYnTBOxC6SJm2GnZ8kp8h2QfLeRMn5OwqetO3gvrM9+mv0qB
-            E8jtMEUTFR50CVxEKUXZvluOKuqtCTBjkI3wwBQUEL+XxdRV2Zm6CJ+KNVGP31i9
-            2mJgjYwWAb/e7Cbcci0Bh/OlEjPc
+            SIb3DQEBAQUAA4IBDwAwggEKAoIBAQC12RR8G6pyYJYST0iRBAVHFWTQVY2l8ULn
+            gfGf5LLMcITxanAY+BVz2gQsBLrp2BGRvhYkmWO2QU5UptJaijSlPK4EOrEpyl8Y
+            rsFewinswMwXRJiuy+mGg7o3OXhHwxhOwmCkge1if8uL6Y9CzPPgr8RXuPaQjxJv
+            +I3v/iTxHh77uKVV3o32jDaouYjbAx6zI1T5QYPsMs803gdQUtfUyoHqNkb3Hu4X
+            jFhB5K1hmyiyaa85k29HHWFXvGDcp5ToaWgAdbtGFQn9Vewg06Ox0qITpVwDatOU
+            LxF7DKX+gOwbXXk/USw15cDLNaBD7F9Q7EPS03hR5RgLInxA6cBZAgMBAAGjUzBR
+            MB0GA1UdDgQWBBTMI2LuaGTFbRApuZsKFW4ENyxP3TAfBgNVHSMEGDAWgBTMI2Lu
+            aGTFbRApuZsKFW4ENyxP3TAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUA
+            A4IBAQAIW/6gX/5iwkgVx3ThKZMYJwkvFq5x0wJYQH7QP2xQW1SKvM+p/wjKLhJw
+            lr9uaZvJiYXtZIVPrRbQz3+KikehPCITq2djM/elZg45md11uMHLXKLaTERaRxEl
+            3bt+IwljrZDBwSdcgt1fBqK1x5QFdf09lGX0EOFYYmuPQEtySrqUFJ0Hh3gFo6yJ
+            5Ys/C2CHXK3AtKALfTwS39VWRQIhJrZ7ipcH9y965wthiYJhzbyblFyR6kufEPDP
+            JOS59DpQ1e6L/MvZG/seOJ11R/rLblrmC+vdCjc3+uH/HsaCxuB3Iv4SBYFx2Ssj
+            MdsUsaY6W1alxGj2J2dgBYlIUQoT
             -----END CERTIFICATE-----
-        EOT -> null
-      - cert         = <<-EOT
+        EOT [90m-> null[0m[0m
+      [31m-[0m[0m cert         = <<-EOT
             -----BEGIN CERTIFICATE-----
-            MIIDOjCCAiKgAwIBAgIUQOe775GNaNTx8CJEEAwb6/9U4fkwDQYJKoZIhvcNAQEL
+            MIIDOjCCAiKgAwIBAgIUF9zBC0YaNw6DZKmbaV5XtR0zTd8wDQYJKoZIhvcNAQEL
             BQAwMDEYMBYGA1UEAwwPQmFocml5YSBUZXN0IENBMRQwEgYDVQQKDAtCYWhyaXlh
-            IEUyRTAeFw0yNjA2MjEwNzI0NDBaFw0yNzA2MjEwNzI0NDBaMDoxIjAgBgNVBAMM
-            GWUyZS05ZDJlYTQxNy5iYWhyaXlhLnRlc3QxFDASBgNVBAoMC0JhaHJpeWEgRTJF
-            MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqVYU6ZJ+PscXrw9qoeMQ
-            Ya+pvP/FU6RDrVTsPSTwak5RM5PubYirUo9Y9s4KHfTC+hFLSXfDQUYZLNx2bZtt
-            vhKnmloSbLjnNMJKH7MUugCbfGOfN/t/By4eIp48pXZLHI/XPrMr0Zs7MBiALwO3
-            m38YKfiapiuJtxKbBKyEZeNmD1eqU7enYcTucTaVCclQCbi5slKhXmLXrQp/tmx+
-            Nc5l2FGFJJ5FC6dorBiYg4fNeakNDTpG8uASWZOh4q7emfFwV9gPogEh7qls7mSR
-            703DGIbSjgGK52EouvS6oJfXl+OTigmPwm44OOm5muB9Mhya2k3w6/FwprXW9IEx
-            iwIDAQABo0IwQDAdBgNVHQ4EFgQU0oiemP9zokx6Zx2nuVkbnEMpxS8wHwYDVR0j
-            BBgwFoAUFyBrWPZcWIXJJtVpZmWUcVscRTIwDQYJKoZIhvcNAQELBQADggEBAG45
-            91dtb6oLB9lI0BxSV2MLegLoJDW35+b7DRPjWtkAfnHHYFdJSg/yPMdNoFZdeoMS
-            7G/bzjbzaZ3IjVpzRpqXxyMdJ5rK+e7BrZ4+Xm6E4+AOOPrsfuO8779UtJLE9N/C
-            KXmby6clNoI5pLPmCMUlSE4W4YvkX2OKe97P9uNmVsGG9DqBGiR08ZCVrK3RriQb
-            fbFfp/qjrPZzBeN/TEB3P2yhWrt0j/uXichKW+PTV4MvYLYqCi9gg02WHker0FvH
-            dRJ+blq+llqBz7qgKb5D/LghdoWJqj4qIwTcCERxpoWDkTvPAyctBiQyx3lWsRIo
-            9kjkr6tP3cvYJcCsIrM=
+            IEUyRTAeFw0yNjA3MjMxMjI5NDlaFw0yNzA3MjMxMjI5NDlaMDoxIjAgBgNVBAMM
+            GWUyZS0xOWQ4OTYwZi5iYWhyaXlhLnRlc3QxFDASBgNVBAoMC0JhaHJpeWEgRTJF
+            MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuQ9QDpyLiu7kYTt1jVSb
+            JHwJvY6pVkunvlAR5Ks1Pgq74thideX5/bElTSV1kUkaz66Q3+hDqGMINjSWeml4
+            itl9RY+uwEIwGIw+X0DDMcyGWIt3Sw4wCfjBOujnCjFBSQnK+sXelaa97w1ld3vo
+            CsMAZw31FZCbVa5HiFGzs1x1MG5WuOvXeQ0HsiZcLJblGxG0mPUCTtjQ4GK8S5ed
+            g/TKW3EFgd1S1MfqO5G4zEYmRHUMK80R2YkQtNAC3fOkZn6ssETop92R6YzpaikY
+            Pq0H3NGgqmufeEAT0LH4IMbbtwgB9jVktPFs0CjpgKhgX3roddf14qVD7AZW8Z3W
+            tQIDAQABo0IwQDAdBgNVHQ4EFgQUYIV0fVW6IKH+HJ6UsTsMX4l12xYwHwYDVR0j
+            BBgwFoAUzCNi7mhkxW0QKbmbChVuBDcsT90wDQYJKoZIhvcNAQELBQADggEBAEdq
+            celjY9DfuL//VBT6QP4vNihrthQbVDufFldmrDvjNFTb9W3h1EyeOSGVsMXgIP+M
+            +d4x36CzN6JLWEymMGFyuWpc2CPKjZu28epxxk5XLN7h+miwzCjeZFnEsFanLtZf
+            HINbUZUeqnoKLeMDiergeiFyI31zFZdP2g6kGvTtDtG7lJX0RvCthiEfgqqqYcs1
+            iwQWkgKTiX9bdIqcyes5Nb3XQTr9XmFFYGVw7K3gib1G1MJCyY5WqQcBGEkQ2VZ1
+            hhWKlQaMGuH2lBIhz2uXo7xOm2u/u5bOHgpCGsRV1T7NzpP8FvB+uj8JBmrozUVz
+            dUs+6PTxlTK/ocoPvm8=
             -----END CERTIFICATE-----
-        EOT -> null
-      - fingerprint  = "SHA256:56:D4:73:A1:E8:23:19:CB:B5:09:F2:0F:1D:ED:CD:A3:94:2B:32:EA:45:3F:2D:69:8F:0C:91:5A:6E:36:94:46:" -> null
-      - handle       = "tls-9d2ea417" -> null
-      - id           = "fa4d2550-7bc6-42e5-bf44-de4d88ed737f" -> null
-      - issuer       = "CN=Bahriya Test CA, O=Bahriya E2E" -> null
-      - key          = (sensitive value) -> null
-      - keybits      = 2048 -> null
-      - maxversions  = 5 -> null
-      - name         = "TF E2E TLS Bundle 9d2ea417" -> null
-      - organisation = "7d35e320-2291-4e65-8be6-ce0cf9019916" -> null
-      - subject      = "CN=e2e-9d2ea417.bahriya.test, O=Bahriya E2E" -> null
+        EOT [90m-> null[0m[0m
+      [31m-[0m[0m fingerprint  = "SHA256:B7:9B:97:4E:9E:DF:BC:D9:12:B8:9B:CF:D9:FD:27:B8:CF:FB:81:44:8E:2E:2A:75:67:F4:07:88:E1:B1:EF:F8:" [90m-> null[0m[0m
+      [31m-[0m[0m handle       = "tls-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m id           = "8a2d6182-82ca-409b-98bf-e1ad009158ef" [90m-> null[0m[0m
+      [31m-[0m[0m issuer       = "CN=Bahriya Test CA, O=Bahriya E2E" [90m-> null[0m[0m
+      [31m-[0m[0m key          = (sensitive value) [90m-> null[0m[0m
+      [31m-[0m[0m keybits      = 2048 [90m-> null[0m[0m
+      [31m-[0m[0m maxversions  = 5 [90m-> null[0m[0m
+      [31m-[0m[0m name         = "TF E2E TLS Bundle 19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m organisation = "7d35e320-2291-4e65-8be6-ce0cf9019916" [90m-> null[0m[0m
+      [31m-[0m[0m subject      = "CN=e2e-19d8960f.bahriya.test, O=Bahriya E2E" [90m-> null[0m[0m
     }
 
-  # bahriya_x509_cert.main will be destroyed
-  - resource "bahriya_x509_cert" "main" {
-      - algorithm    = "RSA" -> null
-      - billable     = true -> null
-      - cert         = <<-EOT
+[1m  # bahriya_x509_cert.main[0m will be [1m[31mdestroyed[0m
+[0m  [31m-[0m[0m resource "bahriya_x509_cert" "main" {
+      [31m-[0m[0m algorithm    = "RSA" [90m-> null[0m[0m
+      [31m-[0m[0m billable     = true [90m-> null[0m[0m
+      [31m-[0m[0m cert         = <<-EOT
             -----BEGIN CERTIFICATE-----
-            MIIDXzCCAkegAwIBAgIUb39YOT6b6OZO2HIgvcWpbeAyUGwwDQYJKoZIhvcNAQEL
-            BQAwPzEnMCUGA1UEAwweZTJlLXg1MDktOWQyZWE0MTcuYmFocml5YS50ZXN0MRQw
-            EgYDVQQKDAtCYWhyaXlhIEUyRTAeFw0yNjA2MjEwNzI0NDBaFw0yNzA2MjEwNzI0
-            NDBaMD8xJzAlBgNVBAMMHmUyZS14NTA5LTlkMmVhNDE3LmJhaHJpeWEudGVzdDEU
+            MIIDXzCCAkegAwIBAgIUK1OTTYtkQ0+2Fx1LrzQB/H+dSW0wDQYJKoZIhvcNAQEL
+            BQAwPzEnMCUGA1UEAwweZTJlLXg1MDktMTlkODk2MGYuYmFocml5YS50ZXN0MRQw
+            EgYDVQQKDAtCYWhyaXlhIEUyRTAeFw0yNjA3MjMxMjI5NDlaFw0yNzA3MjMxMjI5
+            NDlaMD8xJzAlBgNVBAMMHmUyZS14NTA5LTE5ZDg5NjBmLmJhaHJpeWEudGVzdDEU
             MBIGA1UECgwLQmFocml5YSBFMkUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEK
-            AoIBAQDAa4+6TjR/ul+5JmXMbOkS20MVni7EOpRrDkDquXwKqr+7xLY8UxmigLuG
-            Np4gV0qbXxkW2gZNktwWb1dkvmNtJP7nwk5j50iBWlz7qS8tw9yD/4LH5feV3O1l
-            bhitNqsVf1qYVf2xgII18DTeJoYnASNWebFs6FhjelG3P1Q/g6iZ9hYAAsJTRoin
-            li7L1oyfWoumbDia9bGcflmKpwfuC0qq2dfbEmYwte5bM7efGgt0EAPFPV6KSD1d
-            UbicD5emHP5SNpFhufP/BIZAtCvIPyPce/pmWdwj9h3YTAIB8NeoHcuaSOWHA/Oi
-            RF8XAKFk/Xh//0Zrn5+mGhvbUi/7AgMBAAGjUzBRMB0GA1UdDgQWBBSkV0xZm8gl
-            pWlqdVmK50Z7amdu9zAfBgNVHSMEGDAWgBSkV0xZm8glpWlqdVmK50Z7amdu9zAP
-            BgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQC8mlOlWZ33dSpB8hIV
-            EPD8KIMpttBhJX+1nOBaBUdRglwpjQRLvlHrdaAxhBboDIU1eEPu9lnZZJziVrv7
-            fT+C91IdB5pYrEvCFdLVs8zTDpYqpT9FZsnj6DifXDpKwY75eRp1PblkDqfT47l+
-            9mtHj1SoF3umCcCIQjEKD7WU1PXOxlaCeAjZaQDyRAQI5UBMsUbe/yE4cEjEq15q
-            bmUUAfnFPBagggjUa3Bt/stSD3suwXumdGiTRf7NXLE/NfYJjkQi7UhR/tvAAfm/
-            +smouBQ10ip9s8wPUerIsbJHM2OiO8a/eqir7gcH5W7grmwm5cXSn9C9IG1rppLY
-            bO9+
+            AoIBAQCqw4X+v6UMMh4bpZZv96bMjBHowhHlszKVz3mPYCzmbq3NLI1VcP3a0ckc
+            DrI5ZQjBg7IhIcmvGiZ+fPA5KQxQLVpPxQ1uNGh6d1Y4MQKWvLUI2byedd9hrrNz
+            0qvXRAKCPL4u/i8rB6c9H/ajhNbaxuHFbddM/5lh2wrxOwKlbWt8dCTm5Qo9MyGy
+            3xzcdeYmXxpXj8zMJsluyKePsSOyoUnxMQlhA47VbTjVS0igf9cnOPIBBJp88IKo
+            UxGg+IAaUHVxmS5Obo4OAGIgOqeo/MGB+G3YE33j4dxd1ubFb622DjysMvyqe5yS
+            ggEhi0IGkhdLw14h/vXCmtT04DjDAgMBAAGjUzBRMB0GA1UdDgQWBBROCQrmBE3C
+            vfHc/WxQ+Lo3GH2BwDAfBgNVHSMEGDAWgBROCQrmBE3CvfHc/WxQ+Lo3GH2BwDAP
+            BgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQAhaiZKUkjtBtfl6PIO
+            OVEuIbuAxcGil9YQfCUpU7N10hqpVr96w/wlCuIJzk/oXEIzO7w+t9XKoCanLNr2
+            /oXTfOh/Pj170LGSlcCmu4wsbyOnwaing1Q+BTydzOxOzvPuzckRqOpvWUFd157m
+            2HuM+k1vIbSLbMvHxanA0TtsOS00qX+ZXem7Z20s9T0r7VX2FjoZDW0DlA3HxRhi
+            v6yxP5VZDqUxRE6ryKYk43U/o8gAScFoDrEhXlnjr6mextvsNNM5yOc4sum89u5g
+            qxGtNO6l197dhWP0KGLzJefm5kstSQS+MKmejQWvQXQ6AL+wo64SL++GbUP/79T7
+            xghh
             -----END CERTIFICATE-----
-        EOT -> null
-      - fingerprint  = "SHA256:45:55:C3:BE:00:69:69:D2:26:BB:ED:1E:86:9A:C4:AC:ED:03:02:72:63:3F:30:22:DD:0E:B7:E3:14:49:E7:9A:" -> null
-      - handle       = "x509-9d2ea417" -> null
-      - id           = "cf356cf2-ab4c-4049-8509-c6fbb3a314a8" -> null
-      - issuer       = "CN=e2e-x509-9d2ea417.bahriya.test, O=Bahriya E2E" -> null
-      - maxversions  = 5 -> null
-      - name         = "TF E2E X509 Cert 9d2ea417" -> null
-      - organisation = "7d35e320-2291-4e65-8be6-ce0cf9019916" -> null
-      - subject      = "CN=e2e-x509-9d2ea417.bahriya.test, O=Bahriya E2E" -> null
+        EOT [90m-> null[0m[0m
+      [31m-[0m[0m fingerprint  = "SHA256:79:A1:91:62:AC:D8:8B:4D:AB:F0:1C:DF:4D:A8:2F:18:F1:12:65:E3:CE:BA:4C:B5:77:8C:23:7D:A0:F5:D2:85:" [90m-> null[0m[0m
+      [31m-[0m[0m handle       = "x509-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m id           = "4e273336-6baa-498e-a3ed-95bda462aefe" [90m-> null[0m[0m
+      [31m-[0m[0m issuer       = "CN=e2e-x509-19d8960f.bahriya.test, O=Bahriya E2E" [90m-> null[0m[0m
+      [31m-[0m[0m maxversions  = 5 [90m-> null[0m[0m
+      [31m-[0m[0m name         = "TF E2E X509 Cert 19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m organisation = "7d35e320-2291-4e65-8be6-ce0cf9019916" [90m-> null[0m[0m
+      [31m-[0m[0m subject      = "CN=e2e-x509-19d8960f.bahriya.test, O=Bahriya E2E" [90m-> null[0m[0m
     }
 
-  # bahriya_yaml_config.main will be destroyed
-  - resource "bahriya_yaml_config" "main" {
-      - billable     = true -> null
-      - content      = <<-EOT
+[1m  # bahriya_yaml_config.main[0m will be [1m[31mdestroyed[0m
+[0m  [31m-[0m[0m resource "bahriya_yaml_config" "main" {
+      [31m-[0m[0m billable     = true [90m-> null[0m[0m
+      [31m-[0m[0m content      = <<-EOT
             service:
-              name: e2e-9d2ea417
+              name: e2e-19d8960f
               replicas: 1
               features:
                 - alpha
                 - beta
-        EOT -> null
-      - handle       = "yaml-9d2ea417" -> null
-      - id           = "51f1c9f0-6fe2-489e-8aab-850613062bb8" -> null
-      - maxversions  = 5 -> null
-      - name         = "TF E2E YAML Config 9d2ea417" -> null
-      - organisation = "7d35e320-2291-4e65-8be6-ce0cf9019916" -> null
+        EOT [90m-> null[0m[0m
+      [31m-[0m[0m handle       = "yaml-19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m id           = "972e83b5-bc59-45f9-ba4d-3669894952df" [90m-> null[0m[0m
+      [31m-[0m[0m maxversions  = 5 [90m-> null[0m[0m
+      [31m-[0m[0m name         = "TF E2E YAML Config 19d8960f" [90m-> null[0m[0m
+      [31m-[0m[0m organisation = "7d35e320-2291-4e65-8be6-ce0cf9019916" [90m-> null[0m[0m
     }
 
-Plan: 0 to add, 0 to change, 19 to destroy.
+[1mPlan:[0m [0m0 to add, 0 to change, 27 to destroy.
 
 Changes to Outputs:
-  - project_id = "a469c38b-8556-4e2d-a0ed-82c6431bb7c9" -> null
-  - suffix     = "9d2ea417" -> null
-bahriya_project_env_file_attachment.main: Destroying... [id=a469c38b-8556-4e2d-a0ed-82c6431bb7c9:env-9d2ea417]
-bahriya_project_encryption_key_attachment.main: Destroying... [id=a469c38b-8556-4e2d-a0ed-82c6431bb7c9:enc-9d2ea417]
-bahriya_project_plain_config_attachment.main: Destroying... [id=a469c38b-8556-4e2d-a0ed-82c6431bb7c9:plain-9d2ea417]
-bahriya_project_gpg_keypair_attachment.main: Destroying... [id=a469c38b-8556-4e2d-a0ed-82c6431bb7c9:gpg-9d2ea417]
-bahriya_project_tls_bundle_attachment.main: Destroying... [id=a469c38b-8556-4e2d-a0ed-82c6431bb7c9:tls-9d2ea417]
-bahriya_project_json_config_attachment.main: Destroying... [id=a469c38b-8556-4e2d-a0ed-82c6431bb7c9:json-9d2ea417]
-bahriya_project_x509_cert_attachment.main: Destroying... [id=a469c38b-8556-4e2d-a0ed-82c6431bb7c9:x509-9d2ea417]
-bahriya_project_ssh_keypair_attachment.main: Destroying... [id=a469c38b-8556-4e2d-a0ed-82c6431bb7c9:ssh-9d2ea417]
-bahriya_project_yaml_config_attachment.main: Destroying... [id=a469c38b-8556-4e2d-a0ed-82c6431bb7c9:yaml-9d2ea417]
-bahriya_project_env_file_attachment.main: Destruction complete after 1s
-bahriya_project_yaml_config_attachment.main: Destruction complete after 1s
-bahriya_env_file.main: Destroying... [id=f4738427-f90a-4d7e-a46c-9ba450bc3986]
-bahriya_yaml_config.main: Destroying... [id=51f1c9f0-6fe2-489e-8aab-850613062bb8]
-bahriya_project_x509_cert_attachment.main: Destruction complete after 1s
-bahriya_x509_cert.main: Destroying... [id=cf356cf2-ab4c-4049-8509-c6fbb3a314a8]
-bahriya_project_json_config_attachment.main: Destruction complete after 1s
-bahriya_json_config.main: Destroying... [id=e297c584-2080-48c4-9f1d-ea48f91772e8]
-bahriya_project_tls_bundle_attachment.main: Destruction complete after 1s
-bahriya_tls_bundle.main: Destroying... [id=fa4d2550-7bc6-42e5-bf44-de4d88ed737f]
-bahriya_project_gpg_keypair_attachment.main: Destruction complete after 1s
-bahriya_project_plain_config_attachment.main: Destruction complete after 1s
-bahriya_gpg_keypair.main: Destroying... [id=19464953-67ed-49ac-b845-cef70cd97872]
-bahriya_plain_config.main: Destroying... [id=ef0b6f90-450b-4f7e-ad52-38db47a39e23]
-bahriya_project_encryption_key_attachment.main: Destruction complete after 1s
-bahriya_encryption_key.main: Destroying... [id=36009576-573d-4b29-931a-c31dedf92406]
-bahriya_project_ssh_keypair_attachment.main: Destruction complete after 1s
-bahriya_project.e2e: Destroying... [id=a469c38b-8556-4e2d-a0ed-82c6431bb7c9]
-bahriya_ssh_keypair.main: Destroying... [id=2d489a1d-8313-4a07-ad74-3e1372f0533a]
-bahriya_x509_cert.main: Destruction complete after 1s
-bahriya_env_file.main: Destruction complete after 1s
-bahriya_yaml_config.main: Destruction complete after 1s
-bahriya_json_config.main: Destruction complete after 1s
-bahriya_plain_config.main: Destruction complete after 1s
-bahriya_tls_bundle.main: Destruction complete after 1s
-bahriya_gpg_keypair.main: Destruction complete after 1s
-bahriya_encryption_key.main: Destruction complete after 1s
-bahriya_ssh_keypair.main: Destruction complete after 1s
-
-Error: Delete failed
-
-bahriya api error 409 CONFLICT: "Project cannot be deleted because it still
-has 1 container. Please detach or remove these resources from this project
-before deleting it."
+  [31m-[0m[0m active_regions        = [
+      [31m-[0m[0m "falkenstein-1",
+      [31m-[0m[0m "helsinki-1",
+      [31m-[0m[0m "virginia-1",
+      [31m-[0m[0m "singapore-1",
+    ] [90m-> null[0m[0m
+  [31m-[0m[0m cron_container_status = "running" [90m-> null[0m[0m
+  [31m-[0m[0m network_policy_id     = "2b77bd06-5bbc-4a14-9dcf-56b0fd1c66f2" [90m-> null[0m[0m
+  [31m-[0m[0m project_id            = "bd80f3a0-aee1-4094-b584-73058973ca78" [90m-> null[0m[0m
+  [31m-[0m[0m registry_id           = "2ab3fc3f-ac63-4a07-8f97-05f7fc86cb93" [90m-> null[0m[0m
+  [31m-[0m[0m secret_id             = "e3bb1b58-e6e8-4a23-9c08-ed81260d17a2" [90m-> null[0m[0m
+  [31m-[0m[0m suffix                = "19d8960f" [90m-> null[0m[0m
+[0m[1mbahriya_project_encryption_key_attachment.main: Destroying... [id=bd80f3a0-aee1-4094-b584-73058973ca78:enc-19d8960f][0m[0m
+[0m[1mbahriya_project_ssh_keypair_attachment.main: Destroying... [id=bd80f3a0-aee1-4094-b584-73058973ca78:ssh-19d8960f][0m[0m
+[0m[1mbahriya_project_tls_bundle_attachment.main: Destroying... [id=bd80f3a0-aee1-4094-b584-73058973ca78:tls-19d8960f][0m[0m
+[0m[1mbahriya_project_x509_cert_attachment.main: Destroying... [id=bd80f3a0-aee1-4094-b584-73058973ca78:x509-19d8960f][0m[0m
+[0m[1mbahriya_project_secret_attachment.main: Destroying... [id=bd80f3a0-aee1-4094-b584-73058973ca78:sec-19d8960f][0m[0m
+[0m[1mbahriya_project_registry_attachment.main: Destroying... [id=bd80f3a0-aee1-4094-b584-73058973ca78:reg-19d8960f][0m[0m
+[0m[1mbahriya_project_network_policy_attachment.main: Destroying... [id=bd80f3a0-aee1-4094-b584-73058973ca78:netpol-19d8960f][0m[0m
+[0m[1mbahriya_project_yaml_config_attachment.main: Destroying... [id=bd80f3a0-aee1-4094-b584-73058973ca78:yaml-19d8960f][0m[0m
+[0m[1mbahriya_project_env_file_attachment.main: Destroying... [id=bd80f3a0-aee1-4094-b584-73058973ca78:env-19d8960f][0m[0m
+[0m[1mbahriya_project_gpg_keypair_attachment.main: Destroying... [id=bd80f3a0-aee1-4094-b584-73058973ca78:gpg-19d8960f][0m[0m
+[0m[1mbahriya_project_tls_bundle_attachment.main: Destruction complete after 1s[0m
+[0m[1mbahriya_project_json_config_attachment.main: Destroying... [id=bd80f3a0-aee1-4094-b584-73058973ca78:json-19d8960f][0m[0m
+[0m[1mbahriya_project_encryption_key_attachment.main: Destruction complete after 1s[0m
+[0m[1mbahriya_project_plain_config_attachment.main: Destroying... [id=bd80f3a0-aee1-4094-b584-73058973ca78:plain-19d8960f][0m[0m
+[0m[1mbahriya_project_registry_attachment.main: Destruction complete after 1s[0m
+[0m[1mbahriya_project_network_policy_attachment.main: Destruction complete after 1s[0m
+[0m[1mbahriya_container.cron: Destroying... [id=ab5220a1-ee60-4736-b08a-0c8bce107304][0m[0m
+[0m[1mbahriya_tls_bundle.main: Destroying... [id=8a2d6182-82ca-409b-98bf-e1ad009158ef][0m[0m
+[0m[1mbahriya_project_gpg_keypair_attachment.main: Destruction complete after 1s[0m
+[0m[1mbahriya_project_yaml_config_attachment.main: Destruction complete after 1s[0m
+[0m[1mbahriya_project_secret_attachment.main: Destruction complete after 1s[0m
+[0m[1mbahriya_project_ssh_keypair_attachment.main: Destruction complete after 1s[0m
+[0m[1mbahriya_encryption_key.main: Destroying... [id=3c94a5c2-1c73-48c1-b2c7-819230cda467][0m[0m
+[0m[1mbahriya_registry.main: Destroying... [id=2ab3fc3f-ac63-4a07-8f97-05f7fc86cb93][0m[0m
+[0m[1mbahriya_network_policy.main: Destroying... [id=2b77bd06-5bbc-4a14-9dcf-56b0fd1c66f2][0m[0m
+[0m[1mbahriya_gpg_keypair.main: Destroying... [id=6986da6e-6bf0-441b-93fb-2fe3493de11d][0m[0m
+[0m[1mbahriya_project_x509_cert_attachment.main: Destruction complete after 1s[0m
+[0m[1mbahriya_yaml_config.main: Destroying... [id=972e83b5-bc59-45f9-ba4d-3669894952df][0m[0m
+[0m[1mbahriya_project_env_file_attachment.main: Destruction complete after 2s[0m
+[0m[1mbahriya_secret.main: Destroying... [id=e3bb1b58-e6e8-4a23-9c08-ed81260d17a2][0m[0m
+[0m[1mbahriya_project_plain_config_attachment.main: Destruction complete after 1s[0m
+[0m[1mbahriya_ssh_keypair.main: Destroying... [id=cd0866c4-c031-4a2e-9b9d-e635b51d7679][0m[0m
+[0m[1mbahriya_project_json_config_attachment.main: Destruction complete after 1s[0m
+[0m[1mbahriya_x509_cert.main: Destroying... [id=4e273336-6baa-498e-a3ed-95bda462aefe][0m[0m
+[0m[1mbahriya_tls_bundle.main: Destruction complete after 1s[0m
+[0m[1mbahriya_env_file.main: Destroying... [id=6cc60be2-1829-4be0-aec2-5d57d28520ee][0m[0m
+[0m[1mbahriya_gpg_keypair.main: Destruction complete after 1s[0m
+[0m[1mbahriya_plain_config.main: Destroying... [id=47ae577e-00ec-48a7-8016-7acf765f73fe][0m[0m
+[0m[1mbahriya_registry.main: Destruction complete after 1s[0m
+[0m[1mbahriya_json_config.main: Destroying... [id=1edbdfa7-bb4d-4bf3-b505-89d490b3d9ec][0m[0m
+[0m[1mbahriya_network_policy.main: Destruction complete after 1s[0m
+[0m[1mbahriya_project.peer: Destroying... [id=ad189592-1179-4416-b205-607984dc7b19][0m[0m
+[0m[1mbahriya_encryption_key.main: Destruction complete after 1s[0m
+[0m[1mbahriya_secret.main: Destruction complete after 0s[0m
+[0m[1mbahriya_yaml_config.main: Destruction complete after 1s[0m
+[0m[1mbahriya_env_file.main: Destruction complete after 0s[0m
+[0m[1mbahriya_ssh_keypair.main: Destruction complete after 0s[0m
+[0m[1mbahriya_plain_config.main: Destruction complete after 0s[0m
+[0m[1mbahriya_json_config.main: Destruction complete after 0s[0m
+[0m[1mbahriya_x509_cert.main: Destruction complete after 0s[0m
+[0m[1mbahriya_project.peer: Destruction complete after 0s[0m
+[0m[1mbahriya_container.cron: Still destroying... [id=ab5220a1-ee60-4736-b08a-0c8bce107304, 00m10s elapsed][0m[0m
+[0m[1mbahriya_container.cron: Destruction complete after 19s[0m
+[0m[1mbahriya_project.e2e: Destroying... [id=bd80f3a0-aee1-4094-b584-73058973ca78][0m[0m
+[0m[1mbahriya_project.e2e: Destruction complete after 0s[0m
+[0m[1m[32m
+Destroy complete! Resources: 27 destroyed.[0m

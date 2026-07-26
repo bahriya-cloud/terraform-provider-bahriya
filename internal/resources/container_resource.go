@@ -1002,13 +1002,34 @@ func (r *containerResource) Create(ctx context.Context, req resource.CreateReque
 		Timeout:  createTimeout,
 	})
 	if werr != nil {
-		// Persist whatever state we can read so `terraform destroy` can clean
-		// the partially-created resource. Without this the ID is lost on
-		// Create failure and the resource leaks.
-		if partial, d := r.fetch(ctx, id); !d.HasError() {
-			resp.Diagnostics.Append(resp.State.Set(ctx, partial)...)
+		// The container WAS created — the POST returned its id, so the handle is
+		// now permanently taken. It merely didn't reach "running" within the wait
+		// (still provisioning, or its deploy errored). Do NOT return an error here:
+		// an error taints the resource, and Terraform would then destroy + recreate
+		// it on the next apply — which fails with 409 because the immutable handle
+		// cannot be reused, wedging the whole configuration. Instead persist the
+		// resource with its real (non-running) status and WARN. A later `apply`
+		// re-reads the status (a slow deploy may since have come up); if it stays
+		// "error", the operator investigates and terminates it explicitly. Either
+		// way the handle is never orphaned behind a taint.
+		partial, d := r.fetch(ctx, id)
+		if d.HasError() {
+			// Created but unreadable (rare) — surface it so the id isn't lost silently.
+			resp.Diagnostics.Append(d...)
+			resp.Diagnostics.AddError("Container created but could not be read back", werr.Error())
+			return
 		}
-		resp.Diagnostics.AddError("Resource did not reach ready status", werr.Error())
+		resp.Diagnostics.Append(resp.State.Set(ctx, partial)...)
+		resp.Diagnostics.AddWarning(
+			"Container created but not yet running",
+			fmt.Sprintf(
+				"Container %q was created but did not reach \"running\" within %s (last status %q). "+
+					"It is saved to state; run `terraform apply` again to re-check once the deploy settles. "+
+					"If it stays in \"error\", investigate the deploy and terminate the container explicitly — it "+
+					"is not auto-replaced, because the handle is immutable and cannot be reused.",
+				handle, createTimeout, partial.Status.ValueString(),
+			),
+		)
 		return
 	}
 
@@ -1061,13 +1082,15 @@ func (r *containerResource) Update(ctx context.Context, req resource.UpdateReque
 	}
 	body["organisation"] = r.client.OrganisationID()
 
-	_, status, err := r.client.Do(ctx, http.MethodPut, fmt.Sprintf("/organisations/%s/containers/%s", r.client.OrganisationID(), state.ID.ValueString()), body)
+	data, status, err := r.client.Do(ctx, http.MethodPut, fmt.Sprintf("/organisations/%s/containers/%s", r.client.OrganisationID(), state.ID.ValueString()), body)
 	if err != nil {
 		resp.Diagnostics.AddError("Update failed", err.Error())
 		return
 	}
 	if status != http.StatusOK {
-		resp.Diagnostics.AddError("Unexpected status from Update", fmt.Sprintf("HTTP %d", status))
+		// Surface the API's message body (e.g. a 409 explaining a network policy is
+		// already project-attached) so the user can act on it, not just the code.
+		resp.Diagnostics.AddError("Unexpected status from Update", fmt.Sprintf("HTTP %d: %s", status, string(data)))
 		return
 	}
 
