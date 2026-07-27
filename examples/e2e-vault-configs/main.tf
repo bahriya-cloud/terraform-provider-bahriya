@@ -202,6 +202,25 @@ resource "bahriya_project_network_policy_attachment" "main" {
   handle     = bahriya_network_policy.main.handle
 }
 
+# A SECOND policy attached at CONTAINER scope only (deliberately NOT project-
+# attached). This is the #69 round-trip case: a container-scope `networkpolicies`
+# entry must apply and read back cleanly (no "element 0 has vanished"). Putting a
+# PROJECT-attached policy on a container is now a deliberate 409 (covered by the
+# API integration tests), so the container references THIS pod-scoped policy.
+resource "bahriya_network_policy" "podscoped" {
+  handle = "netpol-pod-${local.suffix}"
+  name   = "TF E2E Pod-scoped Network Policy ${local.suffix}"
+
+  egresscidrs = ["10.1.0.0/16"]
+
+  ports = [
+    {
+      port     = 8080
+      protocol = "TCP"
+    },
+  ]
+}
+
 # ===========================================================================
 # Project attachments for every vault + config kind
 # ===========================================================================
@@ -285,8 +304,10 @@ resource "bahriya_container" "web" {
   activeregions = [local.region]
   project       = bahriya_project.e2e.id
 
-  # Network policy (org-scoped, referenced by handle)
-  networkpolicies = [bahriya_network_policy.main.handle]
+  # Network policy at CONTAINER scope — a pod-scoped policy that is NOT project-
+  # attached, so it must round-trip (the #69 fix). The project-attached
+  # bahriya_network_policy.main already applies namespace-wide to this container.
+  networkpolicies = [bahriya_network_policy.podscoped.handle]
 
   # Plain env vars
   newenvvar = [

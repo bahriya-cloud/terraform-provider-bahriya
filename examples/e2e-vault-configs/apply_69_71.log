@@ -1,0 +1,1024 @@
+
+Warning: Provider development overrides are in effect
+
+The following provider development overrides are set in the CLI
+configuration:
+ - bahriya-cloud/bahriya in /Users/meezaan/code/bahriya/bahriya-platform/terraform-provider-bahriya/bin
+
+The behavior may therefore not match any released version of the provider and
+applying changes may cause the state to become incompatible with published
+releases.
+data.bahriya_regions.active: Reading...
+data.bahriya_regions.active: Read complete after 1s
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # bahriya_container.cron will be created
+  + resource "bahriya_container" "cron" {
+      + activedeadlineseconds           = (known after apply)
+      + activeregions                   = [
+          + "helsinki-1",
+        ]
+      + args                            = (known after apply)
+      + autoscalingenabled              = (known after apply)
+      + autoscalingmaxreplicas          = (known after apply)
+      + autoscalingminreplicas          = (known after apply)
+      + autoscalingtargetcpu            = (known after apply)
+      + autoscalingtargetmemory         = (known after apply)
+      + backofflimit                    = (known after apply)
+      + basicauthcredentials            = (known after apply)
+      + basicauthenabled                = (known after apply)
+      + bootstraptime                   = (known after apply)
+      + command                         = [
+          + "sh",
+          + "-c",
+          + "echo e2e-tick",
+        ]
+      + concurrencypolicy               = (known after apply)
+      + containerport                   = (known after apply)
+      + customdnsmode                   = (known after apply)
+      + defaulthostname                 = (known after apply)
+      + dnsfailoverenabled              = (known after apply)
+      + dnsttl                          = (known after apply)
+      + encryptionkeys                  = (known after apply)
+      + envfiles                        = (known after apply)
+      + ephemeralstoragegb              = (known after apply)
+      + externalnetworkingenabled       = (known after apply)
+      + failedjobshistorylimit          = (known after apply)
+      + gpgkeypairs                     = (known after apply)
+      + handle                          = "cron-393cc3bf"
+      + healthcheckpath                 = (known after apply)
+      + hostnames                       = (known after apply)
+      + id                              = (known after apply)
+      + image                           = "busybox:latest"
+      + initjobs                        = (known after apply)
+      + ipblacklist                     = (known after apply)
+      + ipblacklistenabled              = (known after apply)
+      + ipwhitelist                     = (known after apply)
+      + ipwhitelistenabled              = (known after apply)
+      + jsonconfigs                     = (known after apply)
+      + maxcpu                          = (known after apply)
+      + maxmemory                       = (known after apply)
+      + mincpu                          = "100"
+      + minmemory                       = "128"
+      + name                            = "TF E2E Cron 393cc3bf"
+      + networkpolicies                 = (known after apply)
+      + newenvvar                       = (known after apply)
+      + organisation                    = (known after apply)
+      + persistentvolumes               = (known after apply)
+      + plainconfigs                    = (known after apply)
+      + project                         = (known after apply)
+      + projectname                     = (known after apply)
+      + prometheuspath                  = (known after apply)
+      + prometheusport                  = (known after apply)
+      + proxycacheallowforcecacheheader = (known after apply)
+      + proxycachecontenttypes          = (known after apply)
+      + proxycacheenabled               = (known after apply)
+      + proxycachehonorcachecontrol     = (known after apply)
+      + proxycachemaxitemsizemb         = (known after apply)
+      + proxycachememcached             = (known after apply)
+      + proxycacherequestmethods        = (known after apply)
+      + proxycacheresponsecodes         = (known after apply)
+      + proxycachesizemb                = (known after apply)
+      + proxycachestoragettl            = (known after apply)
+      + proxycachettl                   = (known after apply)
+      + proxycachevariant               = (known after apply)
+      + proxycachevarybodyjsonfields    = (known after apply)
+      + proxycachevaryheaders           = (known after apply)
+      + proxycachevaryqueryparams       = (known after apply)
+      + ratelimitingenabled             = (known after apply)
+      + ratelimitingrequestsperhour     = (known after apply)
+      + ratelimitingrequestsperminute   = (known after apply)
+      + ratelimitingrequestspersecond   = (known after apply)
+      + registry                        = (known after apply)
+      + schedule                        = "*/5 * * * *"
+      + secretsenvvar                   = (known after apply)
+      + sshkeypairs                     = (known after apply)
+      + startingdeadlineseconds         = (known after apply)
+      + status                          = (known after apply)
+      + successfuljobshistorylimit      = (known after apply)
+      + suspended                       = (known after apply)
+      + timezone                        = (known after apply)
+      + tlsbundles                      = (known after apply)
+      + ttlsecondsafterfinished         = (known after apply)
+      + type                            = "cronjob"
+      + vanityhostname                  = (known after apply)
+      + x509certs                       = (known after apply)
+      + yamlconfigs                     = (known after apply)
+    }
+
+  # bahriya_container.web will be created
+  + resource "bahriya_container" "web" {
+      + activedeadlineseconds           = (known after apply)
+      + activeregions                   = [
+          + "helsinki-1",
+        ]
+      + args                            = (known after apply)
+      + autoscalingenabled              = (known after apply)
+      + autoscalingmaxreplicas          = (known after apply)
+      + autoscalingminreplicas          = "1"
+      + autoscalingtargetcpu            = (known after apply)
+      + autoscalingtargetmemory         = (known after apply)
+      + backofflimit                    = (known after apply)
+      + basicauthcredentials            = (known after apply)
+      + basicauthenabled                = (known after apply)
+      + bootstraptime                   = (known after apply)
+      + command                         = (known after apply)
+      + concurrencypolicy               = (known after apply)
+      + containerport                   = "80"
+      + customdnsmode                   = (known after apply)
+      + defaulthostname                 = (known after apply)
+      + dnsfailoverenabled              = (known after apply)
+      + dnsttl                          = (known after apply)
+      + encryptionkeys                  = [
+          + {
+              + handle    = "enc-393cc3bf"
+              + mountpath = "/etc/bahriya/enc"
+            },
+        ]
+      + envfiles                        = [
+          + {
+              + handle          = "env-393cc3bf"
+              + injectionmethod = "envFrom"
+            },
+        ]
+      + ephemeralstoragegb              = (known after apply)
+      + externalnetworkingenabled       = (known after apply)
+      + failedjobshistorylimit          = (known after apply)
+      + gpgkeypairs                     = [
+          + {
+              + handle    = "gpg-393cc3bf"
+              + mountpath = "/etc/bahriya/gpg"
+            },
+        ]
+      + handle                          = "web-393cc3bf"
+      + healthcheckpath                 = "/"
+      + hostnames                       = [
+          + {
+              + hostname    = "web-393cc3bf.e2e.bahriya.test"
+              + wwwredirect = false
+            },
+        ]
+      + id                              = (known after apply)
+      + image                           = "nginx:alpine"
+      + initjobs                        = (known after apply)
+      + ipblacklist                     = (known after apply)
+      + ipblacklistenabled              = (known after apply)
+      + ipwhitelist                     = (known after apply)
+      + ipwhitelistenabled              = (known after apply)
+      + jsonconfigs                     = [
+          + {
+              + handle    = "json-393cc3bf"
+              + mountpath = "/etc/bahriya/cfg/json"
+            },
+        ]
+      + maxcpu                          = (known after apply)
+      + maxmemory                       = (known after apply)
+      + mincpu                          = "100"
+      + minmemory                       = "128"
+      + name                            = "TF E2E Web 393cc3bf"
+      + networkpolicies                 = [
+          + "netpol-pod-393cc3bf",
+        ]
+      + newenvvar                       = [
+          + {
+              + key   = "APP_MODE"
+              + value = "e2e"
+            },
+        ]
+      + organisation                    = (known after apply)
+      + persistentvolumes               = [
+          + {
+              + handle    = "data"
+              + mountpath = "/var/lib/data"
+              + sizegb    = 1
+            },
+        ]
+      + plainconfigs                    = [
+          + {
+              + handle    = "plain-393cc3bf"
+              + mountpath = "/etc/bahriya/cfg/plain"
+            },
+        ]
+      + project                         = (known after apply)
+      + projectname                     = (known after apply)
+      + prometheuspath                  = (known after apply)
+      + prometheusport                  = (known after apply)
+      + proxycacheallowforcecacheheader = (known after apply)
+      + proxycachecontenttypes          = (known after apply)
+      + proxycacheenabled               = (known after apply)
+      + proxycachehonorcachecontrol     = (known after apply)
+      + proxycachemaxitemsizemb         = (known after apply)
+      + proxycachememcached             = (known after apply)
+      + proxycacherequestmethods        = (known after apply)
+      + proxycacheresponsecodes         = (known after apply)
+      + proxycachesizemb                = (known after apply)
+      + proxycachestoragettl            = (known after apply)
+      + proxycachettl                   = (known after apply)
+      + proxycachevariant               = (known after apply)
+      + proxycachevarybodyjsonfields    = (known after apply)
+      + proxycachevaryheaders           = (known after apply)
+      + proxycachevaryqueryparams       = (known after apply)
+      + ratelimitingenabled             = (known after apply)
+      + ratelimitingrequestsperhour     = (known after apply)
+      + ratelimitingrequestsperminute   = (known after apply)
+      + ratelimitingrequestspersecond   = (known after apply)
+      + registry                        = (known after apply)
+      + schedule                        = (known after apply)
+      + secretsenvvar                   = [
+          + {
+              + name   = "APP_SECRET"
+              + secret = "sec-393cc3bf"
+            },
+        ]
+      + sshkeypairs                     = [
+          + {
+              + handle    = "ssh-393cc3bf"
+              + mountpath = "/etc/bahriya/ssh"
+            },
+        ]
+      + startingdeadlineseconds         = (known after apply)
+      + status                          = (known after apply)
+      + successfuljobshistorylimit      = (known after apply)
+      + suspended                       = (known after apply)
+      + timezone                        = (known after apply)
+      + tlsbundles                      = [
+          + {
+              + handle    = "tls-393cc3bf"
+              + mountpath = "/etc/bahriya/tls"
+            },
+        ]
+      + ttlsecondsafterfinished         = (known after apply)
+      + type                            = "http"
+      + vanityhostname                  = (known after apply)
+      + x509certs                       = [
+          + {
+              + handle    = "x509-393cc3bf"
+              + mountpath = "/etc/bahriya/x509"
+            },
+        ]
+      + yamlconfigs                     = [
+          + {
+              + handle    = "yaml-393cc3bf"
+              + mountpath = "/etc/bahriya/cfg/yaml"
+            },
+        ]
+    }
+
+  # bahriya_container.worker will be created
+  + resource "bahriya_container" "worker" {
+      + activedeadlineseconds           = (known after apply)
+      + activeregions                   = [
+          + "helsinki-1",
+        ]
+      + args                            = (known after apply)
+      + autoscalingenabled              = (known after apply)
+      + autoscalingmaxreplicas          = (known after apply)
+      + autoscalingminreplicas          = "1"
+      + autoscalingtargetcpu            = (known after apply)
+      + autoscalingtargetmemory         = (known after apply)
+      + backofflimit                    = (known after apply)
+      + basicauthcredentials            = (known after apply)
+      + basicauthenabled                = (known after apply)
+      + bootstraptime                   = (known after apply)
+      + command                         = (known after apply)
+      + concurrencypolicy               = (known after apply)
+      + containerport                   = (known after apply)
+      + customdnsmode                   = (known after apply)
+      + defaulthostname                 = (known after apply)
+      + dnsfailoverenabled              = (known after apply)
+      + dnsttl                          = (known after apply)
+      + encryptionkeys                  = (known after apply)
+      + envfiles                        = (known after apply)
+      + ephemeralstoragegb              = (known after apply)
+      + externalnetworkingenabled       = (known after apply)
+      + failedjobshistorylimit          = (known after apply)
+      + gpgkeypairs                     = (known after apply)
+      + handle                          = "worker-393cc3bf"
+      + healthcheckpath                 = (known after apply)
+      + hostnames                       = (known after apply)
+      + id                              = (known after apply)
+      + image                           = "nginx:alpine"
+      + initjobs                        = (known after apply)
+      + ipblacklist                     = (known after apply)
+      + ipblacklistenabled              = (known after apply)
+      + ipwhitelist                     = (known after apply)
+      + ipwhitelistenabled              = (known after apply)
+      + jsonconfigs                     = (known after apply)
+      + maxcpu                          = (known after apply)
+      + maxmemory                       = (known after apply)
+      + mincpu                          = "100"
+      + minmemory                       = "128"
+      + name                            = "TF E2E Worker 393cc3bf"
+      + networkpolicies                 = (known after apply)
+      + newenvvar                       = (known after apply)
+      + organisation                    = (known after apply)
+      + persistentvolumes               = (known after apply)
+      + plainconfigs                    = (known after apply)
+      + project                         = (known after apply)
+      + projectname                     = (known after apply)
+      + prometheuspath                  = (known after apply)
+      + prometheusport                  = (known after apply)
+      + proxycacheallowforcecacheheader = (known after apply)
+      + proxycachecontenttypes          = (known after apply)
+      + proxycacheenabled               = (known after apply)
+      + proxycachehonorcachecontrol     = (known after apply)
+      + proxycachemaxitemsizemb         = (known after apply)
+      + proxycachememcached             = (known after apply)
+      + proxycacherequestmethods        = (known after apply)
+      + proxycacheresponsecodes         = (known after apply)
+      + proxycachesizemb                = (known after apply)
+      + proxycachestoragettl            = (known after apply)
+      + proxycachettl                   = (known after apply)
+      + proxycachevariant               = (known after apply)
+      + proxycachevarybodyjsonfields    = (known after apply)
+      + proxycachevaryheaders           = (known after apply)
+      + proxycachevaryqueryparams       = (known after apply)
+      + ratelimitingenabled             = (known after apply)
+      + ratelimitingrequestsperhour     = (known after apply)
+      + ratelimitingrequestsperminute   = (known after apply)
+      + ratelimitingrequestspersecond   = (known after apply)
+      + registry                        = (known after apply)
+      + schedule                        = (known after apply)
+      + secretsenvvar                   = [
+          + {
+              + name   = "WORKER_SECRET"
+              + secret = "sec-393cc3bf"
+            },
+        ]
+      + sshkeypairs                     = (known after apply)
+      + startingdeadlineseconds         = (known after apply)
+      + status                          = (known after apply)
+      + successfuljobshistorylimit      = (known after apply)
+      + suspended                       = (known after apply)
+      + timezone                        = (known after apply)
+      + tlsbundles                      = (known after apply)
+      + ttlsecondsafterfinished         = (known after apply)
+      + type                            = "worker"
+      + vanityhostname                  = (known after apply)
+      + x509certs                       = (known after apply)
+      + yamlconfigs                     = (known after apply)
+    }
+
+  # bahriya_encryption_key.main will be created
+  + resource "bahriya_encryption_key" "main" {
+      + billable              = (known after apply)
+      + currentversion        = (known after apply)
+      + format                = "base64"
+      + handle                = "enc-393cc3bf"
+      + id                    = (known after apply)
+      + key                   = (sensitive value)
+      + keybits               = (known after apply)
+      + managedbyresourceid   = (known after apply)
+      + managedbyresourcetype = (known after apply)
+      + maxversions           = (known after apply)
+      + name                  = "TF E2E Encryption Key 393cc3bf"
+      + organisation          = (known after apply)
+    }
+
+  # bahriya_env_file.main will be created
+  + resource "bahriya_env_file" "main" {
+      + billable              = (known after apply)
+      + content               = <<-EOT
+            # E2E env file
+            APP_MODE=production
+            LOG_LEVEL=info
+            FEATURE_X_ENABLED=true
+        EOT
+      + currentversion        = (known after apply)
+      + entrycount            = (known after apply)
+      + handle                = "env-393cc3bf"
+      + id                    = (known after apply)
+      + managedbyresourceid   = (known after apply)
+      + managedbyresourcetype = (known after apply)
+      + maxversions           = (known after apply)
+      + name                  = "TF E2E Env File 393cc3bf"
+      + organisation          = (known after apply)
+    }
+
+  # bahriya_gpg_keypair.main will be created
+  + resource "bahriya_gpg_keypair" "main" {
+      + algorithm             = (known after apply)
+      + billable              = (known after apply)
+      + currentversion        = (known after apply)
+      + handle                = "gpg-393cc3bf"
+      + id                    = (known after apply)
+      + keybits               = (known after apply)
+      + keyid                 = (known after apply)
+      + managedbyresourceid   = (known after apply)
+      + managedbyresourcetype = (known after apply)
+      + maxversions           = (known after apply)
+      + name                  = "TF E2E GPG Keypair 393cc3bf"
+      + organisation          = (known after apply)
+      + privatekey            = (sensitive value)
+      + publickey             = (sensitive value)
+      + uid                   = (known after apply)
+    }
+
+  # bahriya_json_config.main will be created
+  + resource "bahriya_json_config" "main" {
+      + billable              = (known after apply)
+      + content               = jsonencode(
+            {
+              + features = [
+                  + "alpha",
+                  + "beta",
+                ]
+              + replicas = 1
+              + service  = "e2e-393cc3bf"
+            }
+        )
+      + currentversion        = (known after apply)
+      + handle                = "json-393cc3bf"
+      + id                    = (known after apply)
+      + managedbyresourceid   = (known after apply)
+      + managedbyresourcetype = (known after apply)
+      + maxversions           = (known after apply)
+      + name                  = "TF E2E JSON Config 393cc3bf"
+      + organisation          = (known after apply)
+    }
+
+  # bahriya_memcached.cache will be created
+  + resource "bahriya_memcached" "cache" {
+      + activeregions      = [
+          + "helsinki-1",
+        ]
+      + handle             = "cache-393cc3bf"
+      + id                 = (known after apply)
+      + managedbycontainer = (known after apply)
+      + maxconnections     = (known after apply)
+      + maxitemsizemb      = (known after apply)
+      + memorymb           = 512
+      + name               = "TF E2E Cache 393cc3bf"
+      + networkpolicies    = (known after apply)
+      + nodes              = (known after apply)
+      + organisation       = (known after apply)
+      + project            = (known after apply)
+      + projectname        = (known after apply)
+      + status             = (known after apply)
+      + threads            = (known after apply)
+    }
+
+  # bahriya_network_policy.main will be created
+  + resource "bahriya_network_policy" "main" {
+      + billable              = (known after apply)
+      + egresscidrs           = [
+          + "10.0.0.0/8",
+        ]
+      + egressfqdns           = (known after apply)
+      + handle                = "netpol-393cc3bf"
+      + id                    = (known after apply)
+      + ingresspeers          = [
+          + "tfe2epeer-393cc3bf",
+        ]
+      + l7enabled             = (known after apply)
+      + managedbyresourceid   = (known after apply)
+      + managedbyresourcetype = (known after apply)
+      + name                  = "TF E2E Network Policy 393cc3bf"
+      + organisation          = (known after apply)
+      + ports                 = [
+          + {
+              + port     = 443
+              + protocol = "TCP"
+            },
+        ]
+    }
+
+  # bahriya_network_policy.podscoped will be created
+  + resource "bahriya_network_policy" "podscoped" {
+      + billable              = (known after apply)
+      + egresscidrs           = [
+          + "10.1.0.0/16",
+        ]
+      + egressfqdns           = (known after apply)
+      + handle                = "netpol-pod-393cc3bf"
+      + id                    = (known after apply)
+      + ingresspeers          = (known after apply)
+      + l7enabled             = (known after apply)
+      + managedbyresourceid   = (known after apply)
+      + managedbyresourcetype = (known after apply)
+      + name                  = "TF E2E Pod-scoped Network Policy 393cc3bf"
+      + organisation          = (known after apply)
+      + ports                 = [
+          + {
+              + port     = 8080
+              + protocol = "TCP"
+            },
+        ]
+    }
+
+  # bahriya_path_rule.admin will be created
+  + resource "bahriya_path_rule" "admin" {
+      + basicauthcredentials = [
+          + {
+              + password = (sensitive value)
+              + username = "alice"
+            },
+        ]
+      + basicauthenabled     = true
+      + container_id         = (known after apply)
+      + handle               = "admin-393cc3bf"
+      + id                   = (known after apply)
+      + ipblacklist          = (known after apply)
+      + ipblacklistenabled   = (known after apply)
+      + ipwhitelist          = [
+          + "10.0.0.0/8",
+        ]
+      + ipwhitelistenabled   = true
+      + path                 = "/admin"
+      + priority             = 100
+      + ratelimitingenabled  = (known after apply)
+    }
+
+  # bahriya_path_rule.webhook will be created
+  + resource "bahriya_path_rule" "webhook" {
+      + basicauthcredentials          = (known after apply)
+      + basicauthenabled              = (known after apply)
+      + container_id                  = (known after apply)
+      + handle                        = "webhook-393cc3bf"
+      + id                            = (known after apply)
+      + ipblacklist                   = (known after apply)
+      + ipblacklistenabled            = (known after apply)
+      + ipwhitelist                   = (known after apply)
+      + ipwhitelistenabled            = (known after apply)
+      + path                          = "/webhook"
+      + priority                      = (known after apply)
+      + ratelimitingenabled           = true
+      + ratelimitingrequestsperhour   = 1000
+      + ratelimitingrequestsperminute = 60
+    }
+
+  # bahriya_plain_config.main will be created
+  + resource "bahriya_plain_config" "main" {
+      + billable              = (known after apply)
+      + content               = <<-EOT
+            # Plain text config for e2e-393cc3bf
+            key1=value1
+            key2=value2
+        EOT
+      + contentlength         = (known after apply)
+      + currentversion        = (known after apply)
+      + handle                = "plain-393cc3bf"
+      + id                    = (known after apply)
+      + managedbyresourceid   = (known after apply)
+      + managedbyresourcetype = (known after apply)
+      + maxversions           = (known after apply)
+      + name                  = "TF E2E Plain Config 393cc3bf"
+      + organisation          = (known after apply)
+    }
+
+  # bahriya_project.e2e will be created
+  + resource "bahriya_project" "e2e" {
+      + handle             = "tfe2e-393cc3bf"
+      + id                 = (known after apply)
+      + name               = "TF E2E Comprehensive 393cc3bf"
+      + organisation       = (known after apply)
+      + quotalimitcpu      = (known after apply)
+      + quotalimitmemory   = (known after apply)
+      + quotarequestcpu    = (known after apply)
+      + quotarequestmemory = (known after apply)
+      + regions            = [
+          + "helsinki-1",
+        ]
+      + users              = (known after apply)
+    }
+
+  # bahriya_project.peer will be created
+  + resource "bahriya_project" "peer" {
+      + handle             = "tfe2epeer-393cc3bf"
+      + id                 = (known after apply)
+      + name               = "TF E2E Peer 393cc3bf"
+      + organisation       = (known after apply)
+      + quotalimitcpu      = (known after apply)
+      + quotalimitmemory   = (known after apply)
+      + quotarequestcpu    = (known after apply)
+      + quotarequestmemory = (known after apply)
+      + regions            = [
+          + "helsinki-1",
+        ]
+      + users              = (known after apply)
+    }
+
+  # bahriya_project_encryption_key_attachment.main will be created
+  + resource "bahriya_project_encryption_key_attachment" "main" {
+      + handle     = "enc-393cc3bf"
+      + id         = (known after apply)
+      + join_id    = (known after apply)
+      + project_id = (known after apply)
+    }
+
+  # bahriya_project_env_file_attachment.main will be created
+  + resource "bahriya_project_env_file_attachment" "main" {
+      + handle     = "env-393cc3bf"
+      + id         = (known after apply)
+      + join_id    = (known after apply)
+      + project_id = (known after apply)
+    }
+
+  # bahriya_project_gpg_keypair_attachment.main will be created
+  + resource "bahriya_project_gpg_keypair_attachment" "main" {
+      + handle     = "gpg-393cc3bf"
+      + id         = (known after apply)
+      + join_id    = (known after apply)
+      + project_id = (known after apply)
+    }
+
+  # bahriya_project_json_config_attachment.main will be created
+  + resource "bahriya_project_json_config_attachment" "main" {
+      + handle     = "json-393cc3bf"
+      + id         = (known after apply)
+      + join_id    = (known after apply)
+      + project_id = (known after apply)
+    }
+
+  # bahriya_project_network_policy_attachment.main will be created
+  + resource "bahriya_project_network_policy_attachment" "main" {
+      + handle     = "netpol-393cc3bf"
+      + id         = (known after apply)
+      + join_id    = (known after apply)
+      + project_id = (known after apply)
+    }
+
+  # bahriya_project_plain_config_attachment.main will be created
+  + resource "bahriya_project_plain_config_attachment" "main" {
+      + handle     = "plain-393cc3bf"
+      + id         = (known after apply)
+      + join_id    = (known after apply)
+      + project_id = (known after apply)
+    }
+
+  # bahriya_project_registry_attachment.main will be created
+  + resource "bahriya_project_registry_attachment" "main" {
+      + handle     = "reg-393cc3bf"
+      + id         = (known after apply)
+      + join_id    = (known after apply)
+      + project_id = (known after apply)
+    }
+
+  # bahriya_project_secret_attachment.main will be created
+  + resource "bahriya_project_secret_attachment" "main" {
+      + handle     = "sec-393cc3bf"
+      + id         = (known after apply)
+      + join_id    = (known after apply)
+      + project_id = (known after apply)
+    }
+
+  # bahriya_project_ssh_keypair_attachment.main will be created
+  + resource "bahriya_project_ssh_keypair_attachment" "main" {
+      + handle     = "ssh-393cc3bf"
+      + id         = (known after apply)
+      + join_id    = (known after apply)
+      + project_id = (known after apply)
+    }
+
+  # bahriya_project_tls_bundle_attachment.main will be created
+  + resource "bahriya_project_tls_bundle_attachment" "main" {
+      + handle     = "tls-393cc3bf"
+      + id         = (known after apply)
+      + join_id    = (known after apply)
+      + project_id = (known after apply)
+    }
+
+  # bahriya_project_x509_cert_attachment.main will be created
+  + resource "bahriya_project_x509_cert_attachment" "main" {
+      + handle     = "x509-393cc3bf"
+      + id         = (known after apply)
+      + join_id    = (known after apply)
+      + project_id = (known after apply)
+    }
+
+  # bahriya_project_yaml_config_attachment.main will be created
+  + resource "bahriya_project_yaml_config_attachment" "main" {
+      + handle     = "yaml-393cc3bf"
+      + id         = (known after apply)
+      + join_id    = (known after apply)
+      + project_id = (known after apply)
+    }
+
+  # bahriya_registry.main will be created
+  + resource "bahriya_registry" "main" {
+      + billable              = (known after apply)
+      + currentversionid      = (known after apply)
+      + handle                = "reg-393cc3bf"
+      + id                    = (known after apply)
+      + managedbyresourceid   = (known after apply)
+      + managedbyresourcetype = (known after apply)
+      + maxversions           = (known after apply)
+      + name                  = "TF E2E Registry 393cc3bf"
+      + password              = (sensitive value)
+      + server                = "ghcr.io"
+      + username              = "e2e-user"
+    }
+
+  # bahriya_secret.main will be created
+  + resource "bahriya_secret" "main" {
+      + billable              = (known after apply)
+      + handle                = "sec-393cc3bf"
+      + id                    = (known after apply)
+      + managedbyresourceid   = (known after apply)
+      + managedbyresourcetype = (known after apply)
+      + maxversions           = (known after apply)
+      + name                  = "TF E2E Secret 393cc3bf"
+      + value                 = (sensitive value)
+    }
+
+  # bahriya_ssh_keypair.main will be created
+  + resource "bahriya_ssh_keypair" "main" {
+      + algorithm             = (known after apply)
+      + billable              = (known after apply)
+      + comment               = (known after apply)
+      + currentversion        = (known after apply)
+      + handle                = "ssh-393cc3bf"
+      + id                    = (known after apply)
+      + keybits               = (known after apply)
+      + keyid                 = (known after apply)
+      + managedbyresourceid   = (known after apply)
+      + managedbyresourcetype = (known after apply)
+      + maxversions           = (known after apply)
+      + name                  = "TF E2E SSH Keypair 393cc3bf"
+      + organisation          = (known after apply)
+      + privatekey            = (sensitive value)
+      + publickey             = (sensitive value)
+    }
+
+  # bahriya_tls_bundle.main will be created
+  + resource "bahriya_tls_bundle" "main" {
+      + algorithm             = (known after apply)
+      + billable              = (known after apply)
+      + ca                    = <<-EOT
+            -----BEGIN CERTIFICATE-----
+            MIIDQTCCAimgAwIBAgIUWIsX6gWY+Ty6eKOwcEa7CxJ11p8wDQYJKoZIhvcNAQEL
+            BQAwMDEYMBYGA1UEAwwPQmFocml5YSBUZXN0IENBMRQwEgYDVQQKDAtCYWhyaXlh
+            IEUyRTAeFw0yNjA3MjcwNzAyMDNaFw0yNzA3MjcwNzAyMDNaMDAxGDAWBgNVBAMM
+            D0JhaHJpeWEgVGVzdCBDQTEUMBIGA1UECgwLQmFocml5YSBFMkUwggEiMA0GCSqG
+            SIb3DQEBAQUAA4IBDwAwggEKAoIBAQCcSYFlu3PvETlk0jaKggwzWrOEimfrCrL/
+            LrPBJ4KSbKDMfQDemUP+Y8HubRXaJiU17vH1Md/dGreJ/n8IZCMrOALaqeTiCUZV
+            Pgd8QshSTjjwirjzTaWHnVGDapMx9MmQLLHDiJq80e6M50tbi/iE1zvQtoB6AVH/
+            croi+zRi6AwIt8J3MZR21MLiDMqHLjxlBlvO0RiVWO+zVH0tV9ghX5R/JLMElVJI
+            fW6ThYZO3MCYkm8kdDX+76MeTC9ILtllDJgVA0F7f+Qi5gXaAXEtXqF4lfOLJTlR
+            ckuUP0Xg4ir0hUZKFOhBiMV0SKHYJPe/+ZUUD+ZU8f/8w6l7V1XDAgMBAAGjUzBR
+            MB0GA1UdDgQWBBSfrADVrTRhQnA/aSQld8P4tnHaejAfBgNVHSMEGDAWgBSfrADV
+            rTRhQnA/aSQld8P4tnHaejAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUA
+            A4IBAQCQ/PRxwAnAF3tAmgsRQQEWPXTE0ccroge36/FbX1UI7X3sevMydpyU6wtg
+            XOsa8t7ra8dwqvO3TJHlPcxC1vS/TDqkERXFJHg8a4tilXNg4S96Ux1PTWNsOz2u
+            +YgrUgXF1Lv40PqHSZlO6YWQAI9yh6T3M8U32cg63RShN3Xnqa1+TBm49E7QxKGF
+            8V+jgh+cAw1zWHlqPuUXO9AKDN+CEhbNXP6V8EJ7o1Vr+4BaXlSgkwhHY6s73FWs
+            02ZunRU/3st78nKrVWr4gTN+psMS6FV8V+cpDUJxP4tboF2NuHzFboxEx0VByv/f
+            XiuN+2cFFVFqZxr7N9r6J+JS0FFS
+            -----END CERTIFICATE-----
+        EOT
+      + cert                  = <<-EOT
+            -----BEGIN CERTIFICATE-----
+            MIIDOjCCAiKgAwIBAgIUJ/1r/WiYo80DX3EKEum/iPE+HewwDQYJKoZIhvcNAQEL
+            BQAwMDEYMBYGA1UEAwwPQmFocml5YSBUZXN0IENBMRQwEgYDVQQKDAtCYWhyaXlh
+            IEUyRTAeFw0yNjA3MjcwNzAyMDNaFw0yNzA3MjcwNzAyMDNaMDoxIjAgBgNVBAMM
+            GWUyZS0zOTNjYzNiZi5iYWhyaXlhLnRlc3QxFDASBgNVBAoMC0JhaHJpeWEgRTJF
+            MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAw7+alO7FBJihOOmxPDdK
+            +vS+ijEGn7TSbPIPKmF3P3l3KRJPgMcNeXAA/fIMzXMGMSKyekYWpg+jcDXK9zd7
+            U/fCBFdJE/kKHB6askMBhVcmg41yLUiF49iCilIvAcvL0vYItvGKb7Wt36XBghaw
+            1mYy/QHwfT3tZggxhqZBZcuKM0Wyx7zhHtqhZLFCIXzybZPMlLpVWEPPb9SU6X/J
+            YNLzqcwiRcv9SKdBwW8Pj8j8+WbchT4O3JU+6DcZTc9zuPM8I/AnVIliZsHzcsOx
+            2t5r52Lt6oTvL+uiygIo0oNeLMXl+Y+/3e0Skml3lxSE7EKCAUxDeDc2yS7mxaNF
+            PwIDAQABo0IwQDAdBgNVHQ4EFgQUBtDGt6qHswi65n3GoICtqoFw6SIwHwYDVR0j
+            BBgwFoAUn6wA1a00YUJwP2kkJXfD+LZx2nowDQYJKoZIhvcNAQELBQADggEBAEU6
+            yB9eL8wpmrSFRzKTUXWQ4ym3dxT4e/vVOLoVu2cJWuXG56sVvVCDUg4GC8/6Frg8
+            9s8QB+1VuPyvfAB4pESqys1f7shCaiucdRg5ZmZU+7BrQGOhbT/U0XWNQv/2SqGU
+            +jFB0M77XSxU9xpAGbjA7mdCAi3HYQK0afWe63PFWCp3QipS+gYooKd1jEQqgrkl
+            gCNlRCrZdYbyS6KZeP6nAYoN+ab0g2lA6iWQxJHQzLnThCz1Qmi0tGzB8v4PXU5P
+            3XDGzkfUwoJEAuPxtkHcR5Zl7oR9XQJVNIPsFfR+A76m8uGZrN+7Y96riNMnVRYA
+            ioQ6IPd5aNoFKiagFxw=
+            -----END CERTIFICATE-----
+        EOT
+      + currentversion        = (known after apply)
+      + fingerprint           = (known after apply)
+      + handle                = "tls-393cc3bf"
+      + id                    = (known after apply)
+      + issuer                = (known after apply)
+      + key                   = (sensitive value)
+      + keybits               = (known after apply)
+      + managedbyresourceid   = (known after apply)
+      + managedbyresourcetype = (known after apply)
+      + maxversions           = (known after apply)
+      + name                  = "TF E2E TLS Bundle 393cc3bf"
+      + organisation          = (known after apply)
+      + subject               = (known after apply)
+    }
+
+  # bahriya_x509_cert.main will be created
+  + resource "bahriya_x509_cert" "main" {
+      + algorithm             = (known after apply)
+      + billable              = (known after apply)
+      + cert                  = <<-EOT
+            -----BEGIN CERTIFICATE-----
+            MIIDXzCCAkegAwIBAgIUBnAOMNWPlOBpPleACrpoGA8DBtcwDQYJKoZIhvcNAQEL
+            BQAwPzEnMCUGA1UEAwweZTJlLXg1MDktMzkzY2MzYmYuYmFocml5YS50ZXN0MRQw
+            EgYDVQQKDAtCYWhyaXlhIEUyRTAeFw0yNjA3MjcwNzAyMDNaFw0yNzA3MjcwNzAy
+            MDNaMD8xJzAlBgNVBAMMHmUyZS14NTA5LTM5M2NjM2JmLmJhaHJpeWEudGVzdDEU
+            MBIGA1UECgwLQmFocml5YSBFMkUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEK
+            AoIBAQDDbL73XE6wjtSBdOz+aaxUFvHO/9fhUzSuadFUMsrrs9ZpT07QDnVVFoxN
+            s/eD4ZYum7z3GZw8G4jCvNQMjmNh5FJx+SVB0ihSz2abpofhZSKD096YdAjMYIxN
+            /+mmIQ/5vykK9gr8RxfAkuMOxBPbKXqEZfUhtLWn6bWVyQPS+Fk9aerke+7uFjSY
+            yl2ZG6XUrWI5DWslKBWQYosLbsLmGJocM2Bpwu42VL1kT8jxwV1diAZwbCfA6LP3
+            0EmGP0hG9k6Fe8eUB/csB8F9hhpFkmSJFzW4bUK0iEL0HgqyGDeT95c2DtiK3IZq
+            7wPWGep2WBopWZQM4rvushnP1cp9AgMBAAGjUzBRMB0GA1UdDgQWBBQFithTLT/s
+            5MO1ZLKpLCeT8+NVwTAfBgNVHSMEGDAWgBQFithTLT/s5MO1ZLKpLCeT8+NVwTAP
+            BgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQA4kF+30+wA9T+YcraF
+            KQQ6t50gAL+JTsnflTxyNcXbAyFscr+RsDgjC8OlPVBzhixyMdVkLuGw6vVO0Jpf
+            WuxwmhBG3M6ZpIqModKQlV/dP0BsR7MgLdLhHtkwoOFOwAKX/chJMOF5zIwPmK9W
+            dVbWup4F+k3oFfUo76PKnnb3DAte1A/UUODUbapPLnULYNCfVnIX6QTG7Hwv0b9/
+            PqT0NJQxMG9wp/Vjm8nQ1cpdMRpg9oPei4gazP0FGRTMreJYVBqJ8lPk/hd68yZI
+            MOBhJU7OWGj1m/0/7pSUoMoh8QOeGq3fLz1/UFzo8bLvJntpEgXsUycaQbpHm+CD
+            nVOL
+            -----END CERTIFICATE-----
+        EOT
+      + currentversion        = (known after apply)
+      + fingerprint           = (known after apply)
+      + handle                = "x509-393cc3bf"
+      + id                    = (known after apply)
+      + issuer                = (known after apply)
+      + managedbyresourceid   = (known after apply)
+      + managedbyresourcetype = (known after apply)
+      + maxversions           = (known after apply)
+      + name                  = "TF E2E X509 Cert 393cc3bf"
+      + organisation          = (known after apply)
+      + subject               = (known after apply)
+    }
+
+  # bahriya_yaml_config.main will be created
+  + resource "bahriya_yaml_config" "main" {
+      + billable              = (known after apply)
+      + content               = <<-EOT
+            service:
+              name: e2e-393cc3bf
+              replicas: 1
+              features:
+                - alpha
+                - beta
+        EOT
+      + currentversion        = (known after apply)
+      + handle                = "yaml-393cc3bf"
+      + id                    = (known after apply)
+      + managedbyresourceid   = (known after apply)
+      + managedbyresourcetype = (known after apply)
+      + maxversions           = (known after apply)
+      + name                  = "TF E2E YAML Config 393cc3bf"
+      + organisation          = (known after apply)
+    }
+
+Plan: 33 to add, 0 to change, 0 to destroy.
+
+Changes to Outputs:
+  + active_regions          = [
+      + "falkenstein-1",
+      + "helsinki-1",
+      + "virginia-1",
+      + "singapore-1",
+    ]
+  + cron_container_status   = (known after apply)
+  + memcached_id            = (known after apply)
+  + memcached_status        = (known after apply)
+  + network_policy_id       = (known after apply)
+  + project_id              = (known after apply)
+  + registry_id             = (known after apply)
+  + secret_id               = (known after apply)
+  + suffix                  = "393cc3bf"
+  + web_container_id        = (known after apply)
+  + web_container_status    = (known after apply)
+  + worker_container_status = (known after apply)
+bahriya_gpg_keypair.main: Creating...
+bahriya_x509_cert.main: Creating...
+bahriya_yaml_config.main: Creating...
+bahriya_env_file.main: Creating...
+bahriya_json_config.main: Creating...
+bahriya_plain_config.main: Creating...
+bahriya_ssh_keypair.main: Creating...
+bahriya_project.peer: Creating...
+bahriya_secret.main: Creating...
+bahriya_tls_bundle.main: Creating...
+bahriya_project.peer: Creation complete after 3s [id=d44bae3f-6ddf-4021-a639-8d7c6b8fe975]
+bahriya_registry.main: Creating...
+bahriya_yaml_config.main: Creation complete after 3s [id=e357a49b-f250-46ec-b74a-b8a09144afa6]
+bahriya_encryption_key.main: Creating...
+bahriya_tls_bundle.main: Creation complete after 4s [id=af7522c6-14ba-47ad-95a6-a5e03d28cf4f]
+bahriya_project.e2e: Creating...
+bahriya_json_config.main: Creation complete after 4s [id=e5a070fb-08b4-4566-8035-f2f8434a7eff]
+bahriya_network_policy.podscoped: Creating...
+bahriya_plain_config.main: Creation complete after 4s [id=3c392d51-6210-4d58-b284-1b66efa3aa84]
+bahriya_network_policy.main: Creating...
+bahriya_secret.main: Creation complete after 4s [id=1b85df69-e4e0-477b-844d-d0483496aac6]
+bahriya_gpg_keypair.main: Creation complete after 4s [id=e488714d-a011-4fd6-af6a-fc5bf5b28bc7]
+bahriya_env_file.main: Creation complete after 4s [id=9a1b2aa2-be0f-491e-9cef-be099680f9be]
+bahriya_x509_cert.main: Creation complete after 4s [id=fb1641f4-30c1-4cb3-aef3-ff8274a426b3]
+bahriya_ssh_keypair.main: Creation complete after 5s [id=7e0d8ca8-63f7-4609-8cec-8ad171900a57]
+bahriya_registry.main: Creation complete after 3s [id=1c646ad5-015c-4620-93e7-ac9fcc5210e6]
+bahriya_encryption_key.main: Creation complete after 3s [id=c33db5ed-de1f-4203-a54e-9bc3e9941e98]
+bahriya_project.e2e: Creation complete after 2s [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5]
+bahriya_project_tls_bundle_attachment.main: Creating...
+bahriya_project_ssh_keypair_attachment.main: Creating...
+bahriya_project_json_config_attachment.main: Creating...
+bahriya_project_encryption_key_attachment.main: Creating...
+bahriya_project_gpg_keypair_attachment.main: Creating...
+bahriya_project_env_file_attachment.main: Creating...
+bahriya_memcached.cache: Creating...
+bahriya_container.cron: Creating...
+bahriya_network_policy.podscoped: Creation complete after 2s [id=eb48b8da-5168-4d7d-87e6-b5f5ea227afb]
+bahriya_project_plain_config_attachment.main: Creating...
+bahriya_network_policy.main: Creation complete after 2s [id=7cdf9ca6-ab4c-455a-ac7d-447b43509016]
+bahriya_project_secret_attachment.main: Creating...
+bahriya_project_json_config_attachment.main: Creation complete after 0s [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5:json-393cc3bf]
+bahriya_project_registry_attachment.main: Creating...
+bahriya_project_ssh_keypair_attachment.main: Creation complete after 0s [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5:ssh-393cc3bf]
+bahriya_project_tls_bundle_attachment.main: Creation complete after 0s [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5:tls-393cc3bf]
+bahriya_project_yaml_config_attachment.main: Creating...
+bahriya_project_x509_cert_attachment.main: Creating...
+bahriya_project_gpg_keypair_attachment.main: Creation complete after 1s [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5:gpg-393cc3bf]
+bahriya_project_network_policy_attachment.main: Creating...
+bahriya_project_env_file_attachment.main: Creation complete after 1s [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5:env-393cc3bf]
+bahriya_project_encryption_key_attachment.main: Creation complete after 1s [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5:enc-393cc3bf]
+bahriya_project_secret_attachment.main: Creation complete after 1s [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5:sec-393cc3bf]
+bahriya_project_x509_cert_attachment.main: Creation complete after 1s [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5:x509-393cc3bf]
+bahriya_container.worker: Creating...
+bahriya_project_plain_config_attachment.main: Creation complete after 1s [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5:plain-393cc3bf]
+bahriya_project_registry_attachment.main: Creation complete after 2s [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5:reg-393cc3bf]
+bahriya_project_network_policy_attachment.main: Creation complete after 1s [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5:netpol-393cc3bf]
+bahriya_project_yaml_config_attachment.main: Creation complete after 2s [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5:yaml-393cc3bf]
+bahriya_container.web: Creating...
+bahriya_memcached.cache: Still creating... [00m10s elapsed]
+bahriya_container.cron: Still creating... [00m10s elapsed]
+bahriya_container.worker: Still creating... [00m10s elapsed]
+bahriya_container.web: Still creating... [00m10s elapsed]
+bahriya_memcached.cache: Still creating... [00m20s elapsed]
+bahriya_container.cron: Still creating... [00m20s elapsed]
+bahriya_container.worker: Still creating... [00m20s elapsed]
+bahriya_container.web: Still creating... [00m20s elapsed]
+bahriya_memcached.cache: Still creating... [00m30s elapsed]
+bahriya_container.cron: Still creating... [00m30s elapsed]
+bahriya_container.worker: Still creating... [00m30s elapsed]
+bahriya_container.web: Still creating... [00m30s elapsed]
+bahriya_memcached.cache: Still creating... [00m40s elapsed]
+bahriya_container.cron: Still creating... [00m40s elapsed]
+bahriya_container.worker: Still creating... [00m40s elapsed]
+bahriya_container.web: Still creating... [00m40s elapsed]
+bahriya_memcached.cache: Still creating... [00m50s elapsed]
+bahriya_container.cron: Still creating... [00m50s elapsed]
+bahriya_container.worker: Still creating... [00m50s elapsed]
+bahriya_container.web: Still creating... [00m50s elapsed]
+bahriya_memcached.cache: Still creating... [01m00s elapsed]
+bahriya_container.cron: Still creating... [01m00s elapsed]
+bahriya_container.worker: Still creating... [01m00s elapsed]
+bahriya_container.web: Still creating... [01m00s elapsed]
+bahriya_memcached.cache: Still creating... [01m10s elapsed]
+bahriya_container.cron: Still creating... [01m10s elapsed]
+bahriya_container.worker: Still creating... [01m10s elapsed]
+bahriya_container.web: Still creating... [01m10s elapsed]
+bahriya_memcached.cache: Still creating... [01m20s elapsed]
+bahriya_container.cron: Still creating... [01m20s elapsed]
+bahriya_container.worker: Still creating... [01m20s elapsed]
+bahriya_container.web: Still creating... [01m20s elapsed]
+bahriya_memcached.cache: Still creating... [01m30s elapsed]
+bahriya_container.cron: Still creating... [01m30s elapsed]
+bahriya_container.worker: Still creating... [01m30s elapsed]
+bahriya_container.web: Still creating... [01m30s elapsed]
+bahriya_container.cron: Creation complete after 1m33s [id=955aa379-6262-4786-8f79-15f1b0f2da71]
+bahriya_container.worker: Creation complete after 1m32s [id=6ff32517-8b63-404e-92ef-0e9508982c2f]
+bahriya_memcached.cache: Still creating... [01m40s elapsed]
+bahriya_container.web: Still creating... [01m40s elapsed]
+bahriya_memcached.cache: Still creating... [01m50s elapsed]
+bahriya_container.web: Still creating... [01m50s elapsed]
+bahriya_memcached.cache: Creation complete after 1m53s [id=92e37ee3-83e5-4e3a-8932-3aef99e83a3d]
+bahriya_container.web: Still creating... [02m00s elapsed]
+bahriya_container.web: Still creating... [02m10s elapsed]
+bahriya_container.web: Still creating... [02m20s elapsed]
+bahriya_container.web: Still creating... [02m30s elapsed]
+bahriya_container.web: Still creating... [02m40s elapsed]
+bahriya_container.web: Creation complete after 2m44s [id=fee4544b-0a09-4df7-90ec-d30068f01724]
+bahriya_path_rule.webhook: Creating...
+bahriya_path_rule.admin: Creating...
+bahriya_path_rule.admin: Creation complete after 1s [id=08f21d42-d34a-4db1-9b8c-318a6dc932f9]
+bahriya_path_rule.webhook: Creation complete after 1s [id=1b8abb87-2e94-49b5-aad6-4854d90edeb0]
+
+Apply complete! Resources: 33 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+active_regions = [
+  "falkenstein-1",
+  "helsinki-1",
+  "virginia-1",
+  "singapore-1",
+]
+cron_container_status = "running"
+memcached_id = "92e37ee3-83e5-4e3a-8932-3aef99e83a3d"
+memcached_status = "running"
+network_policy_id = "7cdf9ca6-ab4c-455a-ac7d-447b43509016"
+project_id = "806c0674-bea3-41a4-a4e5-3eec113fd0f5"
+registry_id = "1c646ad5-015c-4620-93e7-ac9fcc5210e6"
+secret_id = "1b85df69-e4e0-477b-844d-d0483496aac6"
+suffix = "393cc3bf"
+web_container_id = "fee4544b-0a09-4df7-90ec-d30068f01724"
+web_container_status = "running"
+worker_container_status = "running"

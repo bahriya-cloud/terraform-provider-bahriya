@@ -1,0 +1,897 @@
+
+Warning: Provider development overrides are in effect
+
+The following provider development overrides are set in the CLI
+configuration:
+ - bahriya-cloud/bahriya in /Users/meezaan/code/bahriya/bahriya-platform/terraform-provider-bahriya/bin
+
+The behavior may therefore not match any released version of the provider and
+applying changes may cause the state to become incompatible with published
+releases.
+data.bahriya_regions.active: Reading...
+bahriya_env_file.main: Refreshing state... [id=9a1b2aa2-be0f-491e-9cef-be099680f9be]
+bahriya_registry.main: Refreshing state... [id=1c646ad5-015c-4620-93e7-ac9fcc5210e6]
+bahriya_network_policy.podscoped: Refreshing state... [id=eb48b8da-5168-4d7d-87e6-b5f5ea227afb]
+bahriya_project.peer: Refreshing state... [id=d44bae3f-6ddf-4021-a639-8d7c6b8fe975]
+bahriya_yaml_config.main: Refreshing state... [id=e357a49b-f250-46ec-b74a-b8a09144afa6]
+bahriya_json_config.main: Refreshing state... [id=e5a070fb-08b4-4566-8035-f2f8434a7eff]
+bahriya_x509_cert.main: Refreshing state... [id=fb1641f4-30c1-4cb3-aef3-ff8274a426b3]
+bahriya_gpg_keypair.main: Refreshing state... [id=e488714d-a011-4fd6-af6a-fc5bf5b28bc7]
+bahriya_tls_bundle.main: Refreshing state... [id=af7522c6-14ba-47ad-95a6-a5e03d28cf4f]
+data.bahriya_regions.active: Read complete after 1s
+bahriya_plain_config.main: Refreshing state... [id=3c392d51-6210-4d58-b284-1b66efa3aa84]
+bahriya_encryption_key.main: Refreshing state... [id=c33db5ed-de1f-4203-a54e-9bc3e9941e98]
+bahriya_project.e2e: Refreshing state... [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5]
+bahriya_secret.main: Refreshing state... [id=1b85df69-e4e0-477b-844d-d0483496aac6]
+bahriya_ssh_keypair.main: Refreshing state... [id=7e0d8ca8-63f7-4609-8cec-8ad171900a57]
+bahriya_network_policy.main: Refreshing state... [id=7cdf9ca6-ab4c-455a-ac7d-447b43509016]
+bahriya_project_x509_cert_attachment.main: Refreshing state... [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5:x509-393cc3bf]
+bahriya_project_yaml_config_attachment.main: Refreshing state... [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5:yaml-393cc3bf]
+bahriya_project_plain_config_attachment.main: Refreshing state... [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5:plain-393cc3bf]
+bahriya_project_gpg_keypair_attachment.main: Refreshing state... [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5:gpg-393cc3bf]
+bahriya_project_tls_bundle_attachment.main: Refreshing state... [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5:tls-393cc3bf]
+bahriya_project_env_file_attachment.main: Refreshing state... [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5:env-393cc3bf]
+bahriya_memcached.cache: Refreshing state... [id=92e37ee3-83e5-4e3a-8932-3aef99e83a3d]
+bahriya_project_registry_attachment.main: Refreshing state... [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5:reg-393cc3bf]
+bahriya_container.cron: Refreshing state... [id=955aa379-6262-4786-8f79-15f1b0f2da71]
+bahriya_project_json_config_attachment.main: Refreshing state... [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5:json-393cc3bf]
+bahriya_project_encryption_key_attachment.main: Refreshing state... [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5:enc-393cc3bf]
+bahriya_project_ssh_keypair_attachment.main: Refreshing state... [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5:ssh-393cc3bf]
+bahriya_project_secret_attachment.main: Refreshing state... [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5:sec-393cc3bf]
+bahriya_project_network_policy_attachment.main: Refreshing state... [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5:netpol-393cc3bf]
+bahriya_container.worker: Refreshing state... [id=6ff32517-8b63-404e-92ef-0e9508982c2f]
+bahriya_container.web: Refreshing state... [id=fee4544b-0a09-4df7-90ec-d30068f01724]
+bahriya_path_rule.admin: Refreshing state... [id=08f21d42-d34a-4db1-9b8c-318a6dc932f9]
+bahriya_path_rule.webhook: Refreshing state... [id=1b8abb87-2e94-49b5-aad6-4854d90edeb0]
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  - destroy
+
+Terraform will perform the following actions:
+
+  # bahriya_container.cron will be destroyed
+  - resource "bahriya_container" "cron" {
+      - activeregions                   = [
+          - "helsinki-1",
+        ] -> null
+      - args                            = [] -> null
+      - autoscalingenabled              = false -> null
+      - autoscalingminreplicas          = "1" -> null
+      - autoscalingtargetcpu            = "100" -> null
+      - autoscalingtargetmemory         = "100" -> null
+      - backofflimit                    = 3 -> null
+      - basicauthenabled                = false -> null
+      - bootstraptime                   = 30 -> null
+      - command                         = [
+          - "sh",
+          - "-c",
+          - "echo e2e-tick",
+        ] -> null
+      - concurrencypolicy               = "Forbid" -> null
+      - dnsfailoverenabled              = false -> null
+      - encryptionkeys                  = [] -> null
+      - envfiles                        = [] -> null
+      - ephemeralstoragegb              = 3 -> null
+      - externalnetworkingenabled       = false -> null
+      - failedjobshistorylimit          = 3 -> null
+      - gpgkeypairs                     = [] -> null
+      - handle                          = "cron-393cc3bf" -> null
+      - hostnames                       = [] -> null
+      - id                              = "955aa379-6262-4786-8f79-15f1b0f2da71" -> null
+      - image                           = "busybox:latest" -> null
+      - initjobs                        = [] -> null
+      - ipblacklistenabled              = false -> null
+      - ipwhitelistenabled              = false -> null
+      - jsonconfigs                     = [] -> null
+      - maxcpu                          = "150" -> null
+      - maxmemory                       = "192" -> null
+      - mincpu                          = "100" -> null
+      - minmemory                       = "128" -> null
+      - name                            = "TF E2E Cron 393cc3bf" -> null
+      - networkpolicies                 = [] -> null
+      - newenvvar                       = [] -> null
+      - organisation                    = "7d35e320-2291-4e65-8be6-ce0cf9019916" -> null
+      - persistentvolumes               = [] -> null
+      - plainconfigs                    = [] -> null
+      - project                         = "806c0674-bea3-41a4-a4e5-3eec113fd0f5" -> null
+      - projectname                     = "TF E2E Comprehensive 393cc3bf" -> null
+      - proxycacheallowforcecacheheader = false -> null
+      - proxycachecontenttypes          = [] -> null
+      - proxycacheenabled               = false -> null
+      - proxycachehonorcachecontrol     = false -> null
+      - proxycacherequestmethods        = [] -> null
+      - proxycacheresponsecodes         = [] -> null
+      - proxycachevarybodyjsonfields    = [] -> null
+      - proxycachevaryheaders           = [] -> null
+      - proxycachevaryqueryparams       = [] -> null
+      - ratelimitingenabled             = false -> null
+      - schedule                        = "*/5 * * * *" -> null
+      - secretsenvvar                   = [] -> null
+      - sshkeypairs                     = [] -> null
+      - status                          = "running" -> null
+      - successfuljobshistorylimit      = 3 -> null
+      - suspended                       = false -> null
+      - timezone                        = "UTC" -> null
+      - tlsbundles                      = [] -> null
+      - ttlsecondsafterfinished         = 3600 -> null
+      - type                            = "cronjob" -> null
+      - x509certs                       = [] -> null
+      - yamlconfigs                     = [] -> null
+    }
+
+  # bahriya_container.web will be destroyed
+  - resource "bahriya_container" "web" {
+      - activeregions                   = [
+          - "helsinki-1",
+        ] -> null
+      - args                            = [] -> null
+      - autoscalingenabled              = false -> null
+      - autoscalingminreplicas          = "1" -> null
+      - autoscalingtargetcpu            = "100" -> null
+      - autoscalingtargetmemory         = "100" -> null
+      - basicauthenabled                = false -> null
+      - bootstraptime                   = 30 -> null
+      - command                         = [] -> null
+      - containerport                   = "80" -> null
+      - defaulthostname                 = "rwornexn" -> null
+      - dnsfailoverenabled              = false -> null
+      - encryptionkeys                  = [
+          - {
+              - handle    = "enc-393cc3bf" -> null
+              - mountpath = "/etc/bahriya/enc" -> null
+            },
+        ] -> null
+      - envfiles                        = [
+          - {
+              - handle          = "env-393cc3bf" -> null
+              - injectionmethod = "envFrom" -> null
+            },
+        ] -> null
+      - ephemeralstoragegb              = 3 -> null
+      - externalnetworkingenabled       = false -> null
+      - gpgkeypairs                     = [
+          - {
+              - handle    = "gpg-393cc3bf" -> null
+              - mountpath = "/etc/bahriya/gpg" -> null
+            },
+        ] -> null
+      - handle                          = "web-393cc3bf" -> null
+      - healthcheckpath                 = "/" -> null
+      - hostnames                       = [
+          - {
+              - hostname    = "web-393cc3bf.e2e.bahriya.test" -> null
+              - wwwredirect = false -> null
+            },
+        ] -> null
+      - id                              = "fee4544b-0a09-4df7-90ec-d30068f01724" -> null
+      - image                           = "nginx:alpine" -> null
+      - initjobs                        = [] -> null
+      - ipblacklist                     = [] -> null
+      - ipblacklistenabled              = false -> null
+      - ipwhitelist                     = [] -> null
+      - ipwhitelistenabled              = false -> null
+      - jsonconfigs                     = [
+          - {
+              - handle    = "json-393cc3bf" -> null
+              - mountpath = "/etc/bahriya/cfg/json" -> null
+            },
+        ] -> null
+      - maxcpu                          = "150" -> null
+      - maxmemory                       = "192" -> null
+      - mincpu                          = "100" -> null
+      - minmemory                       = "128" -> null
+      - name                            = "TF E2E Web 393cc3bf" -> null
+      - networkpolicies                 = [
+          - "netpol-pod-393cc3bf",
+        ] -> null
+      - newenvvar                       = [
+          - {
+              - key   = "APP_MODE" -> null
+              - value = "e2e" -> null
+            },
+        ] -> null
+      - organisation                    = "7d35e320-2291-4e65-8be6-ce0cf9019916" -> null
+      - persistentvolumes               = [
+          - {
+              - handle    = "data" -> null
+              - mountpath = "/var/lib/data" -> null
+              - sizegb    = 1 -> null
+            },
+        ] -> null
+      - plainconfigs                    = [
+          - {
+              - handle    = "plain-393cc3bf" -> null
+              - mountpath = "/etc/bahriya/cfg/plain" -> null
+            },
+        ] -> null
+      - project                         = "806c0674-bea3-41a4-a4e5-3eec113fd0f5" -> null
+      - projectname                     = "TF E2E Comprehensive 393cc3bf" -> null
+      - proxycacheallowforcecacheheader = false -> null
+      - proxycachecontenttypes          = [] -> null
+      - proxycacheenabled               = false -> null
+      - proxycachehonorcachecontrol     = false -> null
+      - proxycacherequestmethods        = [] -> null
+      - proxycacheresponsecodes         = [] -> null
+      - proxycachevarybodyjsonfields    = [] -> null
+      - proxycachevaryheaders           = [] -> null
+      - proxycachevaryqueryparams       = [] -> null
+      - ratelimitingenabled             = false -> null
+      - secretsenvvar                   = [
+          - {
+              - name   = "APP_SECRET" -> null
+              - secret = "sec-393cc3bf" -> null
+            },
+        ] -> null
+      - sshkeypairs                     = [
+          - {
+              - handle    = "ssh-393cc3bf" -> null
+              - mountpath = "/etc/bahriya/ssh" -> null
+            },
+        ] -> null
+      - status                          = "running" -> null
+      - suspended                       = false -> null
+      - tlsbundles                      = [
+          - {
+              - handle    = "tls-393cc3bf" -> null
+              - mountpath = "/etc/bahriya/tls" -> null
+            },
+        ] -> null
+      - type                            = "http" -> null
+      - x509certs                       = [
+          - {
+              - handle    = "x509-393cc3bf" -> null
+              - mountpath = "/etc/bahriya/x509" -> null
+            },
+        ] -> null
+      - yamlconfigs                     = [
+          - {
+              - handle    = "yaml-393cc3bf" -> null
+              - mountpath = "/etc/bahriya/cfg/yaml" -> null
+            },
+        ] -> null
+    }
+
+  # bahriya_container.worker will be destroyed
+  - resource "bahriya_container" "worker" {
+      - activeregions                   = [
+          - "helsinki-1",
+        ] -> null
+      - args                            = [] -> null
+      - autoscalingenabled              = false -> null
+      - autoscalingminreplicas          = "1" -> null
+      - autoscalingtargetcpu            = "100" -> null
+      - autoscalingtargetmemory         = "100" -> null
+      - basicauthenabled                = false -> null
+      - bootstraptime                   = 30 -> null
+      - command                         = [] -> null
+      - dnsfailoverenabled              = false -> null
+      - encryptionkeys                  = [] -> null
+      - envfiles                        = [] -> null
+      - ephemeralstoragegb              = 3 -> null
+      - externalnetworkingenabled       = false -> null
+      - gpgkeypairs                     = [] -> null
+      - handle                          = "worker-393cc3bf" -> null
+      - hostnames                       = [] -> null
+      - id                              = "6ff32517-8b63-404e-92ef-0e9508982c2f" -> null
+      - image                           = "nginx:alpine" -> null
+      - initjobs                        = [] -> null
+      - ipblacklistenabled              = false -> null
+      - ipwhitelistenabled              = false -> null
+      - jsonconfigs                     = [] -> null
+      - maxcpu                          = "150" -> null
+      - maxmemory                       = "192" -> null
+      - mincpu                          = "100" -> null
+      - minmemory                       = "128" -> null
+      - name                            = "TF E2E Worker 393cc3bf" -> null
+      - networkpolicies                 = [] -> null
+      - newenvvar                       = [] -> null
+      - organisation                    = "7d35e320-2291-4e65-8be6-ce0cf9019916" -> null
+      - persistentvolumes               = [] -> null
+      - plainconfigs                    = [] -> null
+      - project                         = "806c0674-bea3-41a4-a4e5-3eec113fd0f5" -> null
+      - projectname                     = "TF E2E Comprehensive 393cc3bf" -> null
+      - proxycacheallowforcecacheheader = false -> null
+      - proxycachecontenttypes          = [] -> null
+      - proxycacheenabled               = false -> null
+      - proxycachehonorcachecontrol     = false -> null
+      - proxycacherequestmethods        = [] -> null
+      - proxycacheresponsecodes         = [] -> null
+      - proxycachevarybodyjsonfields    = [] -> null
+      - proxycachevaryheaders           = [] -> null
+      - proxycachevaryqueryparams       = [] -> null
+      - ratelimitingenabled             = false -> null
+      - secretsenvvar                   = [
+          - {
+              - name   = "WORKER_SECRET" -> null
+              - secret = "sec-393cc3bf" -> null
+            },
+        ] -> null
+      - sshkeypairs                     = [] -> null
+      - status                          = "running" -> null
+      - suspended                       = false -> null
+      - tlsbundles                      = [] -> null
+      - type                            = "worker" -> null
+      - x509certs                       = [] -> null
+      - yamlconfigs                     = [] -> null
+    }
+
+  # bahriya_encryption_key.main will be destroyed
+  - resource "bahriya_encryption_key" "main" {
+      - billable     = true -> null
+      - format       = "base64" -> null
+      - handle       = "enc-393cc3bf" -> null
+      - id           = "c33db5ed-de1f-4203-a54e-9bc3e9941e98" -> null
+      - key          = (sensitive value) -> null
+      - keybits      = 256 -> null
+      - maxversions  = 5 -> null
+      - name         = "TF E2E Encryption Key 393cc3bf" -> null
+      - organisation = "7d35e320-2291-4e65-8be6-ce0cf9019916" -> null
+    }
+
+  # bahriya_env_file.main will be destroyed
+  - resource "bahriya_env_file" "main" {
+      - billable     = true -> null
+      - content      = <<-EOT
+            # E2E env file
+            APP_MODE=production
+            LOG_LEVEL=info
+            FEATURE_X_ENABLED=true
+        EOT -> null
+      - entrycount   = 3 -> null
+      - handle       = "env-393cc3bf" -> null
+      - id           = "9a1b2aa2-be0f-491e-9cef-be099680f9be" -> null
+      - maxversions  = 5 -> null
+      - name         = "TF E2E Env File 393cc3bf" -> null
+      - organisation = "7d35e320-2291-4e65-8be6-ce0cf9019916" -> null
+    }
+
+  # bahriya_gpg_keypair.main will be destroyed
+  - resource "bahriya_gpg_keypair" "main" {
+      - algorithm    = "EdDSA" -> null
+      - billable     = true -> null
+      - handle       = "gpg-393cc3bf" -> null
+      - id           = "e488714d-a011-4fd6-af6a-fc5bf5b28bc7" -> null
+      - keyid        = "2408E09748769E47" -> null
+      - maxversions  = 5 -> null
+      - name         = "TF E2E GPG Keypair 393cc3bf" -> null
+      - organisation = "7d35e320-2291-4e65-8be6-ce0cf9019916" -> null
+      - privatekey   = (sensitive value) -> null
+      - publickey    = (sensitive value) -> null
+      - uid          = "Bahriya E2E 393cc3bf <e2e-393cc3bf@bahriya.test>" -> null
+    }
+
+  # bahriya_json_config.main will be destroyed
+  - resource "bahriya_json_config" "main" {
+      - billable     = true -> null
+      - content      = jsonencode(
+            {
+              - features = [
+                  - "alpha",
+                  - "beta",
+                ]
+              - replicas = 1
+              - service  = "e2e-393cc3bf"
+            }
+        ) -> null
+      - handle       = "json-393cc3bf" -> null
+      - id           = "e5a070fb-08b4-4566-8035-f2f8434a7eff" -> null
+      - maxversions  = 5 -> null
+      - name         = "TF E2E JSON Config 393cc3bf" -> null
+      - organisation = "7d35e320-2291-4e65-8be6-ce0cf9019916" -> null
+    }
+
+  # bahriya_memcached.cache will be destroyed
+  - resource "bahriya_memcached" "cache" {
+      - activeregions   = [
+          - "helsinki-1",
+        ] -> null
+      - handle          = "cache-393cc3bf" -> null
+      - id              = "92e37ee3-83e5-4e3a-8932-3aef99e83a3d" -> null
+      - maxconnections  = 1024 -> null
+      - maxitemsizemb   = 1 -> null
+      - memorymb        = 512 -> null
+      - name            = "TF E2E Cache 393cc3bf" -> null
+      - networkpolicies = [] -> null
+      - nodes           = 1 -> null
+      - organisation    = "7d35e320-2291-4e65-8be6-ce0cf9019916" -> null
+      - project         = "806c0674-bea3-41a4-a4e5-3eec113fd0f5" -> null
+      - projectname     = "TF E2E Comprehensive 393cc3bf" -> null
+      - status          = "running" -> null
+      - threads         = 4 -> null
+    }
+
+  # bahriya_network_policy.main will be destroyed
+  - resource "bahriya_network_policy" "main" {
+      - billable     = true -> null
+      - egresscidrs  = [
+          - "10.0.0.0/8",
+        ] -> null
+      - egressfqdns  = [] -> null
+      - handle       = "netpol-393cc3bf" -> null
+      - id           = "7cdf9ca6-ab4c-455a-ac7d-447b43509016" -> null
+      - ingresspeers = [
+          - "tfe2epeer-393cc3bf",
+        ] -> null
+      - l7enabled    = false -> null
+      - name         = "TF E2E Network Policy 393cc3bf" -> null
+      - organisation = "7d35e320-2291-4e65-8be6-ce0cf9019916" -> null
+      - ports        = [
+          - {
+              - port     = 443 -> null
+              - protocol = "TCP" -> null
+            },
+        ] -> null
+    }
+
+  # bahriya_network_policy.podscoped will be destroyed
+  - resource "bahriya_network_policy" "podscoped" {
+      - billable     = true -> null
+      - egresscidrs  = [
+          - "10.1.0.0/16",
+        ] -> null
+      - egressfqdns  = [] -> null
+      - handle       = "netpol-pod-393cc3bf" -> null
+      - id           = "eb48b8da-5168-4d7d-87e6-b5f5ea227afb" -> null
+      - ingresspeers = [] -> null
+      - l7enabled    = false -> null
+      - name         = "TF E2E Pod-scoped Network Policy 393cc3bf" -> null
+      - organisation = "7d35e320-2291-4e65-8be6-ce0cf9019916" -> null
+      - ports        = [
+          - {
+              - port     = 8080 -> null
+              - protocol = "TCP" -> null
+            },
+        ] -> null
+    }
+
+  # bahriya_path_rule.admin will be destroyed
+  - resource "bahriya_path_rule" "admin" {
+      - basicauthcredentials = [
+          - {
+              - password = (sensitive value) -> null
+              - username = "alice" -> null
+            },
+        ] -> null
+      - basicauthenabled     = true -> null
+      - container_id         = "fee4544b-0a09-4df7-90ec-d30068f01724" -> null
+      - handle               = "admin-393cc3bf" -> null
+      - id                   = "08f21d42-d34a-4db1-9b8c-318a6dc932f9" -> null
+      - ipblacklistenabled   = false -> null
+      - ipwhitelist          = [
+          - "10.0.0.0/8",
+        ] -> null
+      - ipwhitelistenabled   = true -> null
+      - path                 = "/admin" -> null
+      - priority             = 100 -> null
+      - ratelimitingenabled  = false -> null
+    }
+
+  # bahriya_path_rule.webhook will be destroyed
+  - resource "bahriya_path_rule" "webhook" {
+      - basicauthenabled              = false -> null
+      - container_id                  = "fee4544b-0a09-4df7-90ec-d30068f01724" -> null
+      - handle                        = "webhook-393cc3bf" -> null
+      - id                            = "1b8abb87-2e94-49b5-aad6-4854d90edeb0" -> null
+      - ipblacklistenabled            = false -> null
+      - ipwhitelistenabled            = false -> null
+      - path                          = "/webhook" -> null
+      - priority                      = 0 -> null
+      - ratelimitingenabled           = true -> null
+      - ratelimitingrequestsperhour   = 1000 -> null
+      - ratelimitingrequestsperminute = 60 -> null
+    }
+
+  # bahriya_plain_config.main will be destroyed
+  - resource "bahriya_plain_config" "main" {
+      - billable      = true -> null
+      - content       = <<-EOT
+            # Plain text config for e2e-393cc3bf
+            key1=value1
+            key2=value2
+        EOT -> null
+      - contentlength = 61 -> null
+      - handle        = "plain-393cc3bf" -> null
+      - id            = "3c392d51-6210-4d58-b284-1b66efa3aa84" -> null
+      - maxversions   = 5 -> null
+      - name          = "TF E2E Plain Config 393cc3bf" -> null
+      - organisation  = "7d35e320-2291-4e65-8be6-ce0cf9019916" -> null
+    }
+
+  # bahriya_project.e2e will be destroyed
+  - resource "bahriya_project" "e2e" {
+      - handle       = "tfe2e-393cc3bf" -> null
+      - id           = "806c0674-bea3-41a4-a4e5-3eec113fd0f5" -> null
+      - name         = "TF E2E Comprehensive 393cc3bf" -> null
+      - organisation = "7d35e320-2291-4e65-8be6-ce0cf9019916" -> null
+      - regions      = [
+          - "helsinki-1",
+        ] -> null
+      - users        = [
+          - "fd280783-1a32-462b-a25d-9562171cf7c6",
+        ] -> null
+    }
+
+  # bahriya_project.peer will be destroyed
+  - resource "bahriya_project" "peer" {
+      - handle       = "tfe2epeer-393cc3bf" -> null
+      - id           = "d44bae3f-6ddf-4021-a639-8d7c6b8fe975" -> null
+      - name         = "TF E2E Peer 393cc3bf" -> null
+      - organisation = "7d35e320-2291-4e65-8be6-ce0cf9019916" -> null
+      - regions      = [
+          - "helsinki-1",
+        ] -> null
+      - users        = [
+          - "fd280783-1a32-462b-a25d-9562171cf7c6",
+        ] -> null
+    }
+
+  # bahriya_project_encryption_key_attachment.main will be destroyed
+  - resource "bahriya_project_encryption_key_attachment" "main" {
+      - handle     = "enc-393cc3bf" -> null
+      - id         = "806c0674-bea3-41a4-a4e5-3eec113fd0f5:enc-393cc3bf" -> null
+      - join_id    = "9ad0a667-1f55-46c2-b6ca-483cbae6d718" -> null
+      - project_id = "806c0674-bea3-41a4-a4e5-3eec113fd0f5" -> null
+    }
+
+  # bahriya_project_env_file_attachment.main will be destroyed
+  - resource "bahriya_project_env_file_attachment" "main" {
+      - handle     = "env-393cc3bf" -> null
+      - id         = "806c0674-bea3-41a4-a4e5-3eec113fd0f5:env-393cc3bf" -> null
+      - join_id    = "b93f9376-c2c4-4e70-9535-527733712584" -> null
+      - project_id = "806c0674-bea3-41a4-a4e5-3eec113fd0f5" -> null
+    }
+
+  # bahriya_project_gpg_keypair_attachment.main will be destroyed
+  - resource "bahriya_project_gpg_keypair_attachment" "main" {
+      - handle     = "gpg-393cc3bf" -> null
+      - id         = "806c0674-bea3-41a4-a4e5-3eec113fd0f5:gpg-393cc3bf" -> null
+      - join_id    = "d5d5aa88-6200-4ba9-aca0-14fd6a877da2" -> null
+      - project_id = "806c0674-bea3-41a4-a4e5-3eec113fd0f5" -> null
+    }
+
+  # bahriya_project_json_config_attachment.main will be destroyed
+  - resource "bahriya_project_json_config_attachment" "main" {
+      - handle     = "json-393cc3bf" -> null
+      - id         = "806c0674-bea3-41a4-a4e5-3eec113fd0f5:json-393cc3bf" -> null
+      - join_id    = "faa03b57-bf74-45a6-8695-b98e039e3a1f" -> null
+      - project_id = "806c0674-bea3-41a4-a4e5-3eec113fd0f5" -> null
+    }
+
+  # bahriya_project_network_policy_attachment.main will be destroyed
+  - resource "bahriya_project_network_policy_attachment" "main" {
+      - handle     = "netpol-393cc3bf" -> null
+      - id         = "806c0674-bea3-41a4-a4e5-3eec113fd0f5:netpol-393cc3bf" -> null
+      - join_id    = "457f277a-ea36-46e0-a788-a0705e848204" -> null
+      - project_id = "806c0674-bea3-41a4-a4e5-3eec113fd0f5" -> null
+    }
+
+  # bahriya_project_plain_config_attachment.main will be destroyed
+  - resource "bahriya_project_plain_config_attachment" "main" {
+      - handle     = "plain-393cc3bf" -> null
+      - id         = "806c0674-bea3-41a4-a4e5-3eec113fd0f5:plain-393cc3bf" -> null
+      - join_id    = "9c79ac26-28ab-41c7-851f-1cba6f159185" -> null
+      - project_id = "806c0674-bea3-41a4-a4e5-3eec113fd0f5" -> null
+    }
+
+  # bahriya_project_registry_attachment.main will be destroyed
+  - resource "bahriya_project_registry_attachment" "main" {
+      - handle     = "reg-393cc3bf" -> null
+      - id         = "806c0674-bea3-41a4-a4e5-3eec113fd0f5:reg-393cc3bf" -> null
+      - join_id    = "531825f9-37f8-4330-8b69-a430394b7012" -> null
+      - project_id = "806c0674-bea3-41a4-a4e5-3eec113fd0f5" -> null
+    }
+
+  # bahriya_project_secret_attachment.main will be destroyed
+  - resource "bahriya_project_secret_attachment" "main" {
+      - handle     = "sec-393cc3bf" -> null
+      - id         = "806c0674-bea3-41a4-a4e5-3eec113fd0f5:sec-393cc3bf" -> null
+      - join_id    = "ecfbe39a-6ae0-4d4c-a7e5-f21d2d4f6618" -> null
+      - project_id = "806c0674-bea3-41a4-a4e5-3eec113fd0f5" -> null
+    }
+
+  # bahriya_project_ssh_keypair_attachment.main will be destroyed
+  - resource "bahriya_project_ssh_keypair_attachment" "main" {
+      - handle     = "ssh-393cc3bf" -> null
+      - id         = "806c0674-bea3-41a4-a4e5-3eec113fd0f5:ssh-393cc3bf" -> null
+      - join_id    = "ef5e02df-4ad4-49f1-81d6-fb77deb89a42" -> null
+      - project_id = "806c0674-bea3-41a4-a4e5-3eec113fd0f5" -> null
+    }
+
+  # bahriya_project_tls_bundle_attachment.main will be destroyed
+  - resource "bahriya_project_tls_bundle_attachment" "main" {
+      - handle     = "tls-393cc3bf" -> null
+      - id         = "806c0674-bea3-41a4-a4e5-3eec113fd0f5:tls-393cc3bf" -> null
+      - join_id    = "0e8f1043-5b1b-4b53-8f33-c780f65637e3" -> null
+      - project_id = "806c0674-bea3-41a4-a4e5-3eec113fd0f5" -> null
+    }
+
+  # bahriya_project_x509_cert_attachment.main will be destroyed
+  - resource "bahriya_project_x509_cert_attachment" "main" {
+      - handle     = "x509-393cc3bf" -> null
+      - id         = "806c0674-bea3-41a4-a4e5-3eec113fd0f5:x509-393cc3bf" -> null
+      - join_id    = "f7aed499-2d33-4347-a2e1-381dfd554205" -> null
+      - project_id = "806c0674-bea3-41a4-a4e5-3eec113fd0f5" -> null
+    }
+
+  # bahriya_project_yaml_config_attachment.main will be destroyed
+  - resource "bahriya_project_yaml_config_attachment" "main" {
+      - handle     = "yaml-393cc3bf" -> null
+      - id         = "806c0674-bea3-41a4-a4e5-3eec113fd0f5:yaml-393cc3bf" -> null
+      - join_id    = "f9b78a8c-b198-4793-a550-b73174d1caa1" -> null
+      - project_id = "806c0674-bea3-41a4-a4e5-3eec113fd0f5" -> null
+    }
+
+  # bahriya_registry.main will be destroyed
+  - resource "bahriya_registry" "main" {
+      - billable    = true -> null
+      - handle      = "reg-393cc3bf" -> null
+      - id          = "1c646ad5-015c-4620-93e7-ac9fcc5210e6" -> null
+      - maxversions = 5 -> null
+      - name        = "TF E2E Registry 393cc3bf" -> null
+      - password    = (sensitive value) -> null
+      - server      = "ghcr.io" -> null
+      - username    = "e2e-user" -> null
+    }
+
+  # bahriya_secret.main will be destroyed
+  - resource "bahriya_secret" "main" {
+      - billable    = true -> null
+      - handle      = "sec-393cc3bf" -> null
+      - id          = "1b85df69-e4e0-477b-844d-d0483496aac6" -> null
+      - maxversions = 5 -> null
+      - name        = "TF E2E Secret 393cc3bf" -> null
+      - value       = (sensitive value) -> null
+    }
+
+  # bahriya_ssh_keypair.main will be destroyed
+  - resource "bahriya_ssh_keypair" "main" {
+      - algorithm    = "ssh-ed25519" -> null
+      - billable     = true -> null
+      - comment      = "e2e-393cc3bf@bahriya.test" -> null
+      - handle       = "ssh-393cc3bf" -> null
+      - id           = "7e0d8ca8-63f7-4609-8cec-8ad171900a57" -> null
+      - keyid        = "SHA256:94PWBpX4Hk27rwQBxs4I5lfe3ZiMAnFPvgYTQnSrENs" -> null
+      - maxversions  = 5 -> null
+      - name         = "TF E2E SSH Keypair 393cc3bf" -> null
+      - organisation = "7d35e320-2291-4e65-8be6-ce0cf9019916" -> null
+      - privatekey   = (sensitive value) -> null
+      - publickey    = (sensitive value) -> null
+    }
+
+  # bahriya_tls_bundle.main will be destroyed
+  - resource "bahriya_tls_bundle" "main" {
+      - algorithm    = "RSA" -> null
+      - billable     = true -> null
+      - ca           = <<-EOT
+            -----BEGIN CERTIFICATE-----
+            MIIDQTCCAimgAwIBAgIUWIsX6gWY+Ty6eKOwcEa7CxJ11p8wDQYJKoZIhvcNAQEL
+            BQAwMDEYMBYGA1UEAwwPQmFocml5YSBUZXN0IENBMRQwEgYDVQQKDAtCYWhyaXlh
+            IEUyRTAeFw0yNjA3MjcwNzAyMDNaFw0yNzA3MjcwNzAyMDNaMDAxGDAWBgNVBAMM
+            D0JhaHJpeWEgVGVzdCBDQTEUMBIGA1UECgwLQmFocml5YSBFMkUwggEiMA0GCSqG
+            SIb3DQEBAQUAA4IBDwAwggEKAoIBAQCcSYFlu3PvETlk0jaKggwzWrOEimfrCrL/
+            LrPBJ4KSbKDMfQDemUP+Y8HubRXaJiU17vH1Md/dGreJ/n8IZCMrOALaqeTiCUZV
+            Pgd8QshSTjjwirjzTaWHnVGDapMx9MmQLLHDiJq80e6M50tbi/iE1zvQtoB6AVH/
+            croi+zRi6AwIt8J3MZR21MLiDMqHLjxlBlvO0RiVWO+zVH0tV9ghX5R/JLMElVJI
+            fW6ThYZO3MCYkm8kdDX+76MeTC9ILtllDJgVA0F7f+Qi5gXaAXEtXqF4lfOLJTlR
+            ckuUP0Xg4ir0hUZKFOhBiMV0SKHYJPe/+ZUUD+ZU8f/8w6l7V1XDAgMBAAGjUzBR
+            MB0GA1UdDgQWBBSfrADVrTRhQnA/aSQld8P4tnHaejAfBgNVHSMEGDAWgBSfrADV
+            rTRhQnA/aSQld8P4tnHaejAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUA
+            A4IBAQCQ/PRxwAnAF3tAmgsRQQEWPXTE0ccroge36/FbX1UI7X3sevMydpyU6wtg
+            XOsa8t7ra8dwqvO3TJHlPcxC1vS/TDqkERXFJHg8a4tilXNg4S96Ux1PTWNsOz2u
+            +YgrUgXF1Lv40PqHSZlO6YWQAI9yh6T3M8U32cg63RShN3Xnqa1+TBm49E7QxKGF
+            8V+jgh+cAw1zWHlqPuUXO9AKDN+CEhbNXP6V8EJ7o1Vr+4BaXlSgkwhHY6s73FWs
+            02ZunRU/3st78nKrVWr4gTN+psMS6FV8V+cpDUJxP4tboF2NuHzFboxEx0VByv/f
+            XiuN+2cFFVFqZxr7N9r6J+JS0FFS
+            -----END CERTIFICATE-----
+        EOT -> null
+      - cert         = <<-EOT
+            -----BEGIN CERTIFICATE-----
+            MIIDOjCCAiKgAwIBAgIUJ/1r/WiYo80DX3EKEum/iPE+HewwDQYJKoZIhvcNAQEL
+            BQAwMDEYMBYGA1UEAwwPQmFocml5YSBUZXN0IENBMRQwEgYDVQQKDAtCYWhyaXlh
+            IEUyRTAeFw0yNjA3MjcwNzAyMDNaFw0yNzA3MjcwNzAyMDNaMDoxIjAgBgNVBAMM
+            GWUyZS0zOTNjYzNiZi5iYWhyaXlhLnRlc3QxFDASBgNVBAoMC0JhaHJpeWEgRTJF
+            MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAw7+alO7FBJihOOmxPDdK
+            +vS+ijEGn7TSbPIPKmF3P3l3KRJPgMcNeXAA/fIMzXMGMSKyekYWpg+jcDXK9zd7
+            U/fCBFdJE/kKHB6askMBhVcmg41yLUiF49iCilIvAcvL0vYItvGKb7Wt36XBghaw
+            1mYy/QHwfT3tZggxhqZBZcuKM0Wyx7zhHtqhZLFCIXzybZPMlLpVWEPPb9SU6X/J
+            YNLzqcwiRcv9SKdBwW8Pj8j8+WbchT4O3JU+6DcZTc9zuPM8I/AnVIliZsHzcsOx
+            2t5r52Lt6oTvL+uiygIo0oNeLMXl+Y+/3e0Skml3lxSE7EKCAUxDeDc2yS7mxaNF
+            PwIDAQABo0IwQDAdBgNVHQ4EFgQUBtDGt6qHswi65n3GoICtqoFw6SIwHwYDVR0j
+            BBgwFoAUn6wA1a00YUJwP2kkJXfD+LZx2nowDQYJKoZIhvcNAQELBQADggEBAEU6
+            yB9eL8wpmrSFRzKTUXWQ4ym3dxT4e/vVOLoVu2cJWuXG56sVvVCDUg4GC8/6Frg8
+            9s8QB+1VuPyvfAB4pESqys1f7shCaiucdRg5ZmZU+7BrQGOhbT/U0XWNQv/2SqGU
+            +jFB0M77XSxU9xpAGbjA7mdCAi3HYQK0afWe63PFWCp3QipS+gYooKd1jEQqgrkl
+            gCNlRCrZdYbyS6KZeP6nAYoN+ab0g2lA6iWQxJHQzLnThCz1Qmi0tGzB8v4PXU5P
+            3XDGzkfUwoJEAuPxtkHcR5Zl7oR9XQJVNIPsFfR+A76m8uGZrN+7Y96riNMnVRYA
+            ioQ6IPd5aNoFKiagFxw=
+            -----END CERTIFICATE-----
+        EOT -> null
+      - fingerprint  = "SHA256:6C:43:F0:4A:B0:EE:1B:4C:43:3C:C3:C4:B5:F5:B1:E5:49:30:CD:D7:02:35:DE:3A:37:9F:DD:5E:54:3D:F0:26:" -> null
+      - handle       = "tls-393cc3bf" -> null
+      - id           = "af7522c6-14ba-47ad-95a6-a5e03d28cf4f" -> null
+      - issuer       = "CN=Bahriya Test CA, O=Bahriya E2E" -> null
+      - key          = (sensitive value) -> null
+      - keybits      = 2048 -> null
+      - maxversions  = 5 -> null
+      - name         = "TF E2E TLS Bundle 393cc3bf" -> null
+      - organisation = "7d35e320-2291-4e65-8be6-ce0cf9019916" -> null
+      - subject      = "CN=e2e-393cc3bf.bahriya.test, O=Bahriya E2E" -> null
+    }
+
+  # bahriya_x509_cert.main will be destroyed
+  - resource "bahriya_x509_cert" "main" {
+      - algorithm    = "RSA" -> null
+      - billable     = true -> null
+      - cert         = <<-EOT
+            -----BEGIN CERTIFICATE-----
+            MIIDXzCCAkegAwIBAgIUBnAOMNWPlOBpPleACrpoGA8DBtcwDQYJKoZIhvcNAQEL
+            BQAwPzEnMCUGA1UEAwweZTJlLXg1MDktMzkzY2MzYmYuYmFocml5YS50ZXN0MRQw
+            EgYDVQQKDAtCYWhyaXlhIEUyRTAeFw0yNjA3MjcwNzAyMDNaFw0yNzA3MjcwNzAy
+            MDNaMD8xJzAlBgNVBAMMHmUyZS14NTA5LTM5M2NjM2JmLmJhaHJpeWEudGVzdDEU
+            MBIGA1UECgwLQmFocml5YSBFMkUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEK
+            AoIBAQDDbL73XE6wjtSBdOz+aaxUFvHO/9fhUzSuadFUMsrrs9ZpT07QDnVVFoxN
+            s/eD4ZYum7z3GZw8G4jCvNQMjmNh5FJx+SVB0ihSz2abpofhZSKD096YdAjMYIxN
+            /+mmIQ/5vykK9gr8RxfAkuMOxBPbKXqEZfUhtLWn6bWVyQPS+Fk9aerke+7uFjSY
+            yl2ZG6XUrWI5DWslKBWQYosLbsLmGJocM2Bpwu42VL1kT8jxwV1diAZwbCfA6LP3
+            0EmGP0hG9k6Fe8eUB/csB8F9hhpFkmSJFzW4bUK0iEL0HgqyGDeT95c2DtiK3IZq
+            7wPWGep2WBopWZQM4rvushnP1cp9AgMBAAGjUzBRMB0GA1UdDgQWBBQFithTLT/s
+            5MO1ZLKpLCeT8+NVwTAfBgNVHSMEGDAWgBQFithTLT/s5MO1ZLKpLCeT8+NVwTAP
+            BgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQA4kF+30+wA9T+YcraF
+            KQQ6t50gAL+JTsnflTxyNcXbAyFscr+RsDgjC8OlPVBzhixyMdVkLuGw6vVO0Jpf
+            WuxwmhBG3M6ZpIqModKQlV/dP0BsR7MgLdLhHtkwoOFOwAKX/chJMOF5zIwPmK9W
+            dVbWup4F+k3oFfUo76PKnnb3DAte1A/UUODUbapPLnULYNCfVnIX6QTG7Hwv0b9/
+            PqT0NJQxMG9wp/Vjm8nQ1cpdMRpg9oPei4gazP0FGRTMreJYVBqJ8lPk/hd68yZI
+            MOBhJU7OWGj1m/0/7pSUoMoh8QOeGq3fLz1/UFzo8bLvJntpEgXsUycaQbpHm+CD
+            nVOL
+            -----END CERTIFICATE-----
+        EOT -> null
+      - fingerprint  = "SHA256:4F:39:ED:1D:BE:AF:B8:EF:C3:84:55:82:44:EC:21:76:8C:3A:04:E4:F5:75:E3:E4:1D:C2:EE:E8:61:15:D2:A0:" -> null
+      - handle       = "x509-393cc3bf" -> null
+      - id           = "fb1641f4-30c1-4cb3-aef3-ff8274a426b3" -> null
+      - issuer       = "CN=e2e-x509-393cc3bf.bahriya.test, O=Bahriya E2E" -> null
+      - maxversions  = 5 -> null
+      - name         = "TF E2E X509 Cert 393cc3bf" -> null
+      - organisation = "7d35e320-2291-4e65-8be6-ce0cf9019916" -> null
+      - subject      = "CN=e2e-x509-393cc3bf.bahriya.test, O=Bahriya E2E" -> null
+    }
+
+  # bahriya_yaml_config.main will be destroyed
+  - resource "bahriya_yaml_config" "main" {
+      - billable     = true -> null
+      - content      = <<-EOT
+            service:
+              name: e2e-393cc3bf
+              replicas: 1
+              features:
+                - alpha
+                - beta
+        EOT -> null
+      - handle       = "yaml-393cc3bf" -> null
+      - id           = "e357a49b-f250-46ec-b74a-b8a09144afa6" -> null
+      - maxversions  = 5 -> null
+      - name         = "TF E2E YAML Config 393cc3bf" -> null
+      - organisation = "7d35e320-2291-4e65-8be6-ce0cf9019916" -> null
+    }
+
+Plan: 0 to add, 0 to change, 33 to destroy.
+
+Changes to Outputs:
+  - active_regions          = [
+      - "falkenstein-1",
+      - "helsinki-1",
+      - "virginia-1",
+      - "singapore-1",
+    ] -> null
+  - cron_container_status   = "running" -> null
+  - memcached_id            = "92e37ee3-83e5-4e3a-8932-3aef99e83a3d" -> null
+  - memcached_status        = "running" -> null
+  - network_policy_id       = "7cdf9ca6-ab4c-455a-ac7d-447b43509016" -> null
+  - project_id              = "806c0674-bea3-41a4-a4e5-3eec113fd0f5" -> null
+  - registry_id             = "1c646ad5-015c-4620-93e7-ac9fcc5210e6" -> null
+  - secret_id               = "1b85df69-e4e0-477b-844d-d0483496aac6" -> null
+  - suffix                  = "393cc3bf" -> null
+  - web_container_id        = "fee4544b-0a09-4df7-90ec-d30068f01724" -> null
+  - web_container_status    = "running" -> null
+  - worker_container_status = "running" -> null
+bahriya_project_registry_attachment.main: Destroying... [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5:reg-393cc3bf]
+bahriya_path_rule.admin: Destroying... [id=08f21d42-d34a-4db1-9b8c-318a6dc932f9]
+bahriya_memcached.cache: Destroying... [id=92e37ee3-83e5-4e3a-8932-3aef99e83a3d]
+bahriya_path_rule.webhook: Destroying... [id=1b8abb87-2e94-49b5-aad6-4854d90edeb0]
+bahriya_container.worker: Destroying... [id=6ff32517-8b63-404e-92ef-0e9508982c2f]
+bahriya_container.cron: Destroying... [id=955aa379-6262-4786-8f79-15f1b0f2da71]
+bahriya_project_registry_attachment.main: Destruction complete after 1s
+bahriya_registry.main: Destroying... [id=1c646ad5-015c-4620-93e7-ac9fcc5210e6]
+bahriya_path_rule.admin: Destruction complete after 1s
+bahriya_path_rule.webhook: Destruction complete after 2s
+bahriya_container.web: Destroying... [id=fee4544b-0a09-4df7-90ec-d30068f01724]
+bahriya_registry.main: Destruction complete after 1s
+bahriya_memcached.cache: Still destroying... [id=92e37ee3-83e5-4e3a-8932-3aef99e83a3d, 00m10s elapsed]
+bahriya_container.worker: Still destroying... [id=6ff32517-8b63-404e-92ef-0e9508982c2f, 00m10s elapsed]
+bahriya_container.cron: Still destroying... [id=955aa379-6262-4786-8f79-15f1b0f2da71, 00m10s elapsed]
+bahriya_container.web: Still destroying... [id=fee4544b-0a09-4df7-90ec-d30068f01724, 00m10s elapsed]
+bahriya_container.cron: Still destroying... [id=955aa379-6262-4786-8f79-15f1b0f2da71, 00m20s elapsed]
+bahriya_memcached.cache: Still destroying... [id=92e37ee3-83e5-4e3a-8932-3aef99e83a3d, 00m20s elapsed]
+bahriya_container.worker: Still destroying... [id=6ff32517-8b63-404e-92ef-0e9508982c2f, 00m20s elapsed]
+bahriya_container.web: Still destroying... [id=fee4544b-0a09-4df7-90ec-d30068f01724, 00m20s elapsed]
+bahriya_container.cron: Still destroying... [id=955aa379-6262-4786-8f79-15f1b0f2da71, 00m30s elapsed]
+bahriya_container.worker: Still destroying... [id=6ff32517-8b63-404e-92ef-0e9508982c2f, 00m30s elapsed]
+bahriya_memcached.cache: Still destroying... [id=92e37ee3-83e5-4e3a-8932-3aef99e83a3d, 00m30s elapsed]
+bahriya_container.web: Still destroying... [id=fee4544b-0a09-4df7-90ec-d30068f01724, 00m30s elapsed]
+bahriya_container.worker: Still destroying... [id=6ff32517-8b63-404e-92ef-0e9508982c2f, 00m40s elapsed]
+bahriya_container.cron: Still destroying... [id=955aa379-6262-4786-8f79-15f1b0f2da71, 00m40s elapsed]
+bahriya_memcached.cache: Still destroying... [id=92e37ee3-83e5-4e3a-8932-3aef99e83a3d, 00m40s elapsed]
+bahriya_container.web: Still destroying... [id=fee4544b-0a09-4df7-90ec-d30068f01724, 00m40s elapsed]
+bahriya_memcached.cache: Still destroying... [id=92e37ee3-83e5-4e3a-8932-3aef99e83a3d, 00m50s elapsed]
+bahriya_container.worker: Still destroying... [id=6ff32517-8b63-404e-92ef-0e9508982c2f, 00m50s elapsed]
+bahriya_container.cron: Still destroying... [id=955aa379-6262-4786-8f79-15f1b0f2da71, 00m50s elapsed]
+bahriya_container.web: Still destroying... [id=fee4544b-0a09-4df7-90ec-d30068f01724, 00m50s elapsed]
+bahriya_container.cron: Still destroying... [id=955aa379-6262-4786-8f79-15f1b0f2da71, 01m00s elapsed]
+bahriya_memcached.cache: Still destroying... [id=92e37ee3-83e5-4e3a-8932-3aef99e83a3d, 01m00s elapsed]
+bahriya_container.worker: Still destroying... [id=6ff32517-8b63-404e-92ef-0e9508982c2f, 01m00s elapsed]
+bahriya_container.web: Still destroying... [id=fee4544b-0a09-4df7-90ec-d30068f01724, 01m00s elapsed]
+bahriya_container.worker: Still destroying... [id=6ff32517-8b63-404e-92ef-0e9508982c2f, 01m10s elapsed]
+bahriya_container.cron: Still destroying... [id=955aa379-6262-4786-8f79-15f1b0f2da71, 01m10s elapsed]
+bahriya_memcached.cache: Still destroying... [id=92e37ee3-83e5-4e3a-8932-3aef99e83a3d, 01m10s elapsed]
+bahriya_memcached.cache: Destruction complete after 1m11s
+bahriya_container.web: Still destroying... [id=fee4544b-0a09-4df7-90ec-d30068f01724, 01m10s elapsed]
+bahriya_container.cron: Still destroying... [id=955aa379-6262-4786-8f79-15f1b0f2da71, 01m20s elapsed]
+bahriya_container.worker: Still destroying... [id=6ff32517-8b63-404e-92ef-0e9508982c2f, 01m20s elapsed]
+bahriya_container.worker: Destruction complete after 1m22s
+bahriya_container.web: Still destroying... [id=fee4544b-0a09-4df7-90ec-d30068f01724, 01m20s elapsed]
+bahriya_container.cron: Destruction complete after 1m22s
+bahriya_container.web: Destruction complete after 1m21s
+bahriya_project_gpg_keypair_attachment.main: Destroying... [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5:gpg-393cc3bf]
+bahriya_project_secret_attachment.main: Destroying... [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5:sec-393cc3bf]
+bahriya_project_ssh_keypair_attachment.main: Destroying... [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5:ssh-393cc3bf]
+bahriya_project_x509_cert_attachment.main: Destroying... [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5:x509-393cc3bf]
+bahriya_project_plain_config_attachment.main: Destroying... [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5:plain-393cc3bf]
+bahriya_project_encryption_key_attachment.main: Destroying... [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5:enc-393cc3bf]
+bahriya_project_tls_bundle_attachment.main: Destroying... [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5:tls-393cc3bf]
+bahriya_project_yaml_config_attachment.main: Destroying... [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5:yaml-393cc3bf]
+bahriya_project_network_policy_attachment.main: Destroying... [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5:netpol-393cc3bf]
+bahriya_project_json_config_attachment.main: Destroying... [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5:json-393cc3bf]
+bahriya_project_yaml_config_attachment.main: Destruction complete after 1s
+bahriya_project_ssh_keypair_attachment.main: Destruction complete after 1s
+bahriya_project_env_file_attachment.main: Destroying... [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5:env-393cc3bf]
+bahriya_project_json_config_attachment.main: Destruction complete after 1s
+bahriya_network_policy.podscoped: Destroying... [id=eb48b8da-5168-4d7d-87e6-b5f5ea227afb]
+bahriya_yaml_config.main: Destroying... [id=e357a49b-f250-46ec-b74a-b8a09144afa6]
+bahriya_project_gpg_keypair_attachment.main: Destruction complete after 1s
+bahriya_ssh_keypair.main: Destroying... [id=7e0d8ca8-63f7-4609-8cec-8ad171900a57]
+bahriya_project_tls_bundle_attachment.main: Destruction complete after 1s
+bahriya_project_network_policy_attachment.main: Destruction complete after 1s
+bahriya_project_secret_attachment.main: Destruction complete after 1s
+bahriya_json_config.main: Destroying... [id=e5a070fb-08b4-4566-8035-f2f8434a7eff]
+bahriya_gpg_keypair.main: Destroying... [id=e488714d-a011-4fd6-af6a-fc5bf5b28bc7]
+bahriya_tls_bundle.main: Destroying... [id=af7522c6-14ba-47ad-95a6-a5e03d28cf4f]
+bahriya_network_policy.main: Destroying... [id=7cdf9ca6-ab4c-455a-ac7d-447b43509016]
+bahriya_project_encryption_key_attachment.main: Destruction complete after 1s
+bahriya_secret.main: Destroying... [id=1b85df69-e4e0-477b-844d-d0483496aac6]
+bahriya_project_env_file_attachment.main: Destruction complete after 1s
+bahriya_encryption_key.main: Destroying... [id=c33db5ed-de1f-4203-a54e-9bc3e9941e98]
+bahriya_project_x509_cert_attachment.main: Destruction complete after 2s
+bahriya_project_plain_config_attachment.main: Destruction complete after 2s
+bahriya_x509_cert.main: Destroying... [id=fb1641f4-30c1-4cb3-aef3-ff8274a426b3]
+bahriya_env_file.main: Destroying... [id=9a1b2aa2-be0f-491e-9cef-be099680f9be]
+bahriya_ssh_keypair.main: Destruction complete after 1s
+bahriya_plain_config.main: Destroying... [id=3c392d51-6210-4d58-b284-1b66efa3aa84]
+bahriya_json_config.main: Destruction complete after 1s
+bahriya_project.e2e: Destroying... [id=806c0674-bea3-41a4-a4e5-3eec113fd0f5]
+bahriya_network_policy.main: Destruction complete after 1s
+bahriya_project.peer: Destroying... [id=d44bae3f-6ddf-4021-a639-8d7c6b8fe975]
+bahriya_gpg_keypair.main: Destruction complete after 1s
+bahriya_yaml_config.main: Destruction complete after 1s
+bahriya_tls_bundle.main: Destruction complete after 1s
+bahriya_encryption_key.main: Destruction complete after 0s
+bahriya_env_file.main: Destruction complete after 0s
+bahriya_plain_config.main: Destruction complete after 0s
+bahriya_project.e2e: Destruction complete after 0s
+bahriya_secret.main: Destruction complete after 2s
+bahriya_x509_cert.main: Destruction complete after 1s
+bahriya_project.peer: Destruction complete after 1s
+
+Error: Delete failed
+
+bahriya api error 400 BAD REQUEST: "A network policy attached to a project or
+deployable cannot be deleted."
