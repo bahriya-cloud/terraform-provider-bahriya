@@ -3,3 +3,4 @@ fixtures/
 .terraform.lock.hcl
 terraform.tfstate*
 crash.log
+*.log
