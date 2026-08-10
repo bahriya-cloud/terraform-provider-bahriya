@@ -39,7 +39,7 @@ resource "bahriya_project" "global" {
 
 - `handle` (String) - Unique lowercase handle. Immutable — changing this forces recreation. Handles are **not released** on delete (soft-delete).
 - `name` (String) - Display name.
-- `regions` (List of String) - Active regions. At least one required.
+- `regions` (List of String) - Regions this project may deploy into. At least one is required.
 
 ### Optional
 

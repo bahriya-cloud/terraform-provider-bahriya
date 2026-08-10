@@ -71,6 +71,7 @@ func (r *projectResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 			"regions": schema.ListAttribute{
 				ElementType: types.StringType,
 				Required:    true,
+				Description: "Regions this project may deploy into. At least one is required.",
 			},
 			"users": schema.ListAttribute{
 				ElementType: types.StringType,
