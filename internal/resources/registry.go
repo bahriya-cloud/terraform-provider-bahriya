@@ -39,5 +39,6 @@ func All() []func() resource.Resource {
 		NewPathRuleResource,
 		NewRoleResource,
 		NewResourceGrantResource,
+		NewBillingDetailsResource,
 	}
 }
