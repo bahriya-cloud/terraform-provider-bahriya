@@ -29,7 +29,11 @@ type rawProperty struct {
 	ReadOnly    bool         `yaml:"readOnly,omitempty"`
 	Description string       `yaml:"description,omitempty"`
 	Default     any          `yaml:"default,omitempty"`
-	Extensions  map[string]any
+	// Inline object shape — populated when an array's items (or the property
+	// itself) declares properties directly instead of via $ref.
+	Properties map[string]rawProperty `yaml:"properties,omitempty"`
+	Required   []string               `yaml:"required,omitempty"`
+	Extensions map[string]any
 }
 
 func (p *rawProperty) UnmarshalYAML(node *yaml.Node) error {
@@ -147,6 +151,11 @@ func parseResource(specPath string, descriptor resourceDescriptor) (*Resource, e
 		return attrs[i].TfName < attrs[j].TfName
 	})
 
+	noun := descriptor.Noun
+	if noun == "" {
+		noun = descriptor.Name
+	}
+
 	return &Resource{
 		Name:                   descriptor.Name,
 		GoName:                 descriptor.GoName,
@@ -164,6 +173,7 @@ func parseResource(specPath string, descriptor resourceDescriptor) (*Resource, e
 		ConfirmDelete:          descriptor.ConfirmDelete,
 		DeleteConflictHint:     descriptor.DeleteConflictHint,
 		OmitOrganisationInBody: descriptor.OmitOrganisationInBody,
+		Noun:                   noun,
 		Attributes:             attrs,
 	}, nil
 }
@@ -180,12 +190,29 @@ func resolveAttrType(p rawProperty, schemas map[string]rawSchema) (string, []Nes
 		return "int64", nil
 	case "boolean":
 		return "bool", nil
+	case "object":
+		// Free-form map (no declared properties), e.g. the Valkey config
+		// allowlist. Modelled as a map of strings — the API normalises
+		// numeric strings to the declared key types server-side.
+		if len(p.Properties) == 0 {
+			return "map_string", nil
+		}
+		return "", nil
 	case "array":
 		if p.Items == nil {
 			return "", nil
 		}
-		// Plain array of primitives.
 		if p.Items.Ref == "" {
+			// Inline object items (declared directly rather than via $ref),
+			// e.g. Valkey hostnames.
+			if primitiveType(p.Items.Type) == "object" && len(p.Items.Properties) > 0 {
+				fields := parseNestedFields(rawSchema{Required: p.Items.Required, Properties: p.Items.Properties})
+				if len(fields) == 0 {
+					return "", nil
+				}
+				return "list_nested", fields
+			}
+			// Plain array of primitives.
 			inner := primitiveType(p.Items.Type)
 			switch inner {
 			case "string":
@@ -379,6 +406,9 @@ type resourceDescriptor struct {
 	TerminatedStatus       string
 	SensitiveFields        []string
 	SkipFields             []string
+	// Noun is how prose in generated diagnostics refers to one of these
+	// (e.g. "instance" for datastores). Defaults to Name.
+	Noun string
 }
 
 var descriptors = map[string]resourceDescriptor{
@@ -431,6 +461,25 @@ var descriptors = map[string]resourceDescriptor{
 		URLItem:           "/organisations/%s/memcached/%s",
 		HandleURL:         "/organisations/%s/memcache/%s",
 		HandlePathName:    "memcache",
+		Noun:              "instance",
+		HasStatus:         true,
+		ReadyStatus:       "running",
+		TerminatingStatus: "terminating",
+		TerminatedStatus:  "terminated",
+	},
+	"valkey": {
+		Name:       "valkey",
+		GoName:     "Valkey",
+		SchemaName: "Valkey",
+		URLBase:    "/organisations/%s/valkey",
+		URLItem:    "/organisations/%s/valkey/%s",
+		// The handle-exists route is deliberately /valkey-handle/{handle} —
+		// /valkey/{handle} would collide with /valkey/{vid} (SR-2026-004).
+		HandleURL:         "/organisations/%s/valkey-handle/%s",
+		HandlePathName:    "valkey-handle",
+		CollectionKey:     "valkey",
+		SensitiveFields:   []string{"password"},
+		Noun:              "instance",
 		HasStatus:         true,
 		ReadyStatus:       "running",
 		TerminatingStatus: "terminating",

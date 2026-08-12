@@ -7,6 +7,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+{{- if .HasMapString }}
+	"strconv"
+{{- end }}
 {{- if .HasStatus }}
 	"time"
 {{- end }}
@@ -21,6 +24,9 @@ import (
 {{- end }}
 {{- if .NeedsListPlanModifier }}
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
+{{- end }}
+{{- if .NeedsMapPlanModifier }}
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 {{- end }}
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -106,7 +112,7 @@ func (r *{{ .Name }}Resource) Schema(_ context.Context, _ resource.SchemaRequest
 			},
 {{- else }}
 			"{{ .TfName }}": {{ .SchemaType }}{
-{{- if eq .Type "list_string" }}
+{{- if or (eq .Type "list_string") (eq .Type "map_string") }}
 				ElementType: types.StringType,
 {{- else if eq .Type "list_integer" }}
 				ElementType: types.Int64Type,
@@ -142,6 +148,10 @@ func (r *{{ .Name }}Resource) Schema(_ context.Context, _ resource.SchemaRequest
 {{- else if and (or .Computed .Optional) (eq .Type "int64") }}
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
+				},
+{{- else if and (or .Computed .Optional) (eq .Type "map_string") }}
+				PlanModifiers: []planmodifier.Map{
+					mapplanmodifier.UseStateForUnknown(),
 				},
 {{- end }}
 			},
@@ -228,18 +238,39 @@ func (r *{{ .Name }}Resource) Create(ctx context.Context, req resource.CreateReq
 		Timeout:  createTimeout,
 	})
 	if werr != nil {
-		// Persist whatever state we can read so `terraform destroy` can clean
-		// the partially-created resource. Without this the ID is lost on
-		// Create failure and the resource leaks.
-		if partial, d := r.fetch(ctx, id); !d.HasError() {
+		// The {{ .Noun }} WAS created — the POST returned its id, so the handle is
+		// now permanently taken. It merely didn't reach "{{ .ReadyStatus }}" within the wait
+		// (still provisioning, or its deploy errored). Do NOT return an error here:
+		// an error taints the resource, and Terraform would then destroy + recreate
+		// it on the next apply — which fails with 409 because the immutable handle
+		// cannot be reused, wedging the whole configuration. Instead persist the
+		// resource with its real (non-running) status and WARN. A later `apply`
+		// re-reads the status (a slow deploy may since have come up); if it stays
+		// "error", the operator investigates and terminates it explicitly. Either
+		// way the handle is never orphaned behind a taint.
+		partial, d := r.fetch(ctx, id)
+		if d.HasError() {
+			// Created but unreadable (rare) — surface it so the id isn't lost silently.
+			resp.Diagnostics.Append(d...)
+			resp.Diagnostics.AddError("{{ .GoName }} created but could not be read back", werr.Error())
+			return
+		}
 {{- if .HasSensitiveFields }}
 {{- range .SensitiveAttributes }}
-			partial.{{ .GoName }} = plan.{{ .GoName }}
+		partial.{{ .GoName }} = plan.{{ .GoName }}
 {{- end }}
 {{- end }}
-			resp.Diagnostics.Append(resp.State.Set(ctx, partial)...)
-		}
-		resp.Diagnostics.AddError("Resource did not reach ready status", werr.Error())
+		resp.Diagnostics.Append(resp.State.Set(ctx, partial)...)
+		resp.Diagnostics.AddWarning(
+			"{{ .GoName }} created but not yet {{ .ReadyStatus }}",
+			fmt.Sprintf(
+				"{{ .GoName }} %q was created but did not reach \"{{ .ReadyStatus }}\" within %s (last status %q). "+
+					"It is saved to state; run `terraform apply` again to re-check once the deploy settles. "+
+					"If it stays in \"error\", investigate the deploy and terminate the {{ .Noun }} explicitly — it "+
+					"is not auto-replaced, because the handle is immutable and cannot be reused.",
+				handle, createTimeout, partial.Status.ValueString(),
+			),
+		)
 		return
 	}
 {{- end }}
@@ -305,13 +336,15 @@ func (r *{{ .Name }}Resource) Update(ctx context.Context, req resource.UpdateReq
 	body["organisation"] = r.client.OrganisationID()
 {{- end }}
 
-	_, status, err := r.client.Do(ctx, http.MethodPut, fmt.Sprintf("{{ .URLItem }}", r.client.OrganisationID(), state.ID.ValueString()), body)
+	data, status, err := r.client.Do(ctx, http.MethodPut, fmt.Sprintf("{{ .URLItem }}", r.client.OrganisationID(), state.ID.ValueString()), body)
 	if err != nil {
 		resp.Diagnostics.AddError("Update failed", err.Error())
 		return
 	}
 	if status != http.StatusOK {
-		resp.Diagnostics.AddError("Unexpected status from Update", fmt.Sprintf("HTTP %d", status))
+		// Surface the API's message body (e.g. a 409 explaining a network policy is
+		// already project-attached) so the user can act on it, not just the code.
+		resp.Diagnostics.AddError("Unexpected status from Update", fmt.Sprintf("HTTP %d: %s", status, string(data)))
 		return
 	}
 {{- if .HasStatus }}
@@ -543,6 +576,12 @@ func planTo{{ .GoName }}Payload(ctx context.Context, m *{{ .Name }}Model) (map[s
 	}{{- if .Optional }} else {
 		out["{{ .APIName }}"] = []int64{}
 	}{{- end }}
+{{- else if eq .Type "map_string" }}
+	if !m.{{ .GoName }}.IsNull() && !m.{{ .GoName }}.IsUnknown() {
+		kv := map[string]string{}
+		diags.Append(m.{{ .GoName }}.ElementsAs(ctx, &kv, false)...)
+		out["{{ .APIName }}"] = kv
+	}
 {{- else if eq .Type "list_nested" }}
 	if !m.{{ .GoName }}.IsNull() && !m.{{ .GoName }}.IsUnknown() {
 		var nested []{{ $.Name }}{{ .GoName }}Model
@@ -629,6 +668,28 @@ func apiTo{{ .GoName }}Model(raw map[string]any) {{ .Name }}Model {
 		m.{{ .GoName }} = listVal
 	} else {
 		m.{{ .GoName }} = types.ListNull(types.Int64Type)
+	}
+{{- else if eq .Type "map_string" }}
+	if kv, ok := raw["{{ .APIName }}"].(map[string]any); ok {
+		elements := map[string]attr.Value{}
+		for k, v := range kv {
+			switch t := v.(type) {
+			case string:
+				elements[k] = types.StringValue(t)
+			case float64:
+				// API-normalised integer values round-trip as their canonical
+				// string form so state matches what the user configured.
+				elements[k] = types.StringValue(strconv.FormatInt(int64(t), 10))
+			case bool:
+				elements[k] = types.StringValue(strconv.FormatBool(t))
+			default:
+				elements[k] = types.StringValue(fmt.Sprintf("%v", t))
+			}
+		}
+		mapVal, _ := types.MapValue(types.StringType, elements)
+		m.{{ .GoName }} = mapVal
+	} else {
+		m.{{ .GoName }} = types.MapNull(types.StringType)
 	}
 {{- else if eq .Type "list_nested" }}
 	if items, ok := raw["{{ .APIName }}"].([]any); ok {

@@ -116,6 +116,7 @@ func TestPlural(t *testing.T) {
 		{"registry", "registries"},
 		{"secret", "secrets"},
 		{"memcached", "memcached"},
+		{"valkey", "valkey"},
 		{"container", "containers"},
 		{"network_policy", "networkpolicies"},
 	}
@@ -158,6 +159,8 @@ func TestResolveAttrType_Primitives(t *testing.T) {
 		{"array of strings", rawProperty{Type: "array", Items: &rawProperty{Type: "string"}}, "list_string"},
 		{"array of integers", rawProperty{Type: "array", Items: &rawProperty{Type: "integer"}}, "list_integer"},
 		{"array no items", rawProperty{Type: "array"}, ""},
+		{"free-form object", rawProperty{Type: "object"}, "map_string"},
+		{"nullable free-form object", rawProperty{Type: []any{"object", "null"}}, "map_string"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -207,6 +210,29 @@ func TestResolveAttrType_NestedRef(t *testing.T) {
 	}
 	if !hostFound {
 		t.Error("hostname field not found in nested fields")
+	}
+}
+
+func TestResolveAttrType_NestedInline(t *testing.T) {
+	prop := rawProperty{
+		Type: "array",
+		Items: &rawProperty{
+			Type:     "object",
+			Required: []string{"hostname"},
+			Properties: map[string]rawProperty{
+				"hostname": {Type: "string"},
+			},
+		},
+	}
+	typ, nested := resolveAttrType(prop, map[string]rawSchema{})
+	if typ != "list_nested" {
+		t.Fatalf("expected list_nested, got %q", typ)
+	}
+	if len(nested) != 1 {
+		t.Fatalf("expected 1 nested field, got %d", len(nested))
+	}
+	if nested[0].APIName != "hostname" || !nested[0].Required || nested[0].Type != "string" {
+		t.Errorf("unexpected nested field: %+v", nested[0])
 	}
 }
 

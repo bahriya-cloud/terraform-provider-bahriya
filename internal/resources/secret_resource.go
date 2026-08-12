@@ -203,13 +203,15 @@ func (r *secretResource) Update(ctx context.Context, req resource.UpdateRequest,
 		return
 	}
 
-	_, status, err := r.client.Do(ctx, http.MethodPut, fmt.Sprintf("/organisations/%s/secrets/%s", r.client.OrganisationID(), state.ID.ValueString()), body)
+	data, status, err := r.client.Do(ctx, http.MethodPut, fmt.Sprintf("/organisations/%s/secrets/%s", r.client.OrganisationID(), state.ID.ValueString()), body)
 	if err != nil {
 		resp.Diagnostics.AddError("Update failed", err.Error())
 		return
 	}
 	if status != http.StatusOK {
-		resp.Diagnostics.AddError("Unexpected status from Update", fmt.Sprintf("HTTP %d", status))
+		// Surface the API's message body (e.g. a 409 explaining a network policy is
+		// already project-attached) so the user can act on it, not just the code.
+		resp.Diagnostics.AddError("Unexpected status from Update", fmt.Sprintf("HTTP %d: %s", status, string(data)))
 		return
 	}
 

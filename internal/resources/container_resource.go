@@ -226,6 +226,7 @@ func (r *containerResource) Schema(_ context.Context, _ resource.SchemaRequest, 
 			"activeregions": schema.ListAttribute{
 				ElementType: types.StringType,
 				Required:    true,
+				Description: "Regions this container deploys into. At least one is required.",
 			},
 			"image": schema.StringAttribute{
 				Required: true,

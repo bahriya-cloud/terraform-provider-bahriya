@@ -76,6 +76,7 @@ func (r *memcachedResource) Schema(_ context.Context, _ resource.SchemaRequest, 
 			"activeregions": schema.ListAttribute{
 				ElementType: types.StringType,
 				Required:    true,
+				Description: "Regions this instance deploys into. At least one is required.",
 			},
 			"memorymb": schema.Int64Attribute{
 				Required: true,
@@ -231,7 +232,7 @@ func (r *memcachedResource) Create(ctx context.Context, req resource.CreateReque
 		Timeout:  createTimeout,
 	})
 	if werr != nil {
-		// The memcached WAS created — the POST returned its id, so the handle is
+		// The instance WAS created — the POST returned its id, so the handle is
 		// now permanently taken. It merely didn't reach "running" within the wait
 		// (still provisioning, or its deploy errored). Do NOT return an error here:
 		// an error taints the resource, and Terraform would then destroy + recreate

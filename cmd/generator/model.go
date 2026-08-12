@@ -46,7 +46,10 @@ type Resource struct {
 	// key but the Registry and Secret DTOs reject it (400 "Unexpected key
 	// organisation"). Conversely Project *requires* it, so this is opt-in per type.
 	OmitOrganisationInBody bool
-	Attributes             []Attribute
+	// Noun is how prose in generated diagnostics refers to one of these
+	// (e.g. "instance" for datastores). Defaults to Name.
+	Noun       string
+	Attributes []Attribute
 }
 
 func (r Resource) FlatResponse() bool { return r.CollectionKey == "" }
@@ -75,6 +78,24 @@ func (r Resource) EffectiveDeleteURL() string {
 func (r Resource) NeedsListPlanModifier() bool {
 	for _, a := range r.Attributes {
 		if (a.Type == "list_string" || a.Type == "list_integer" || a.Type == "list_nested") && (a.Computed || a.Optional) {
+			return true
+		}
+	}
+	return false
+}
+
+func (r Resource) NeedsMapPlanModifier() bool {
+	for _, a := range r.Attributes {
+		if a.Type == "map_string" && (a.Computed || a.Optional) {
+			return true
+		}
+	}
+	return false
+}
+
+func (r Resource) HasMapString() bool {
+	for _, a := range r.Attributes {
+		if a.Type == "map_string" {
 			return true
 		}
 	}
@@ -130,7 +151,7 @@ func (r Resource) NestedAttributes() []Attribute {
 
 func (r Resource) NeedsAttrImport() bool {
 	for _, a := range r.Attributes {
-		if a.Type == "list_string" || a.Type == "list_integer" || a.Type == "list_nested" {
+		if a.Type == "list_string" || a.Type == "list_integer" || a.Type == "list_nested" || a.Type == "map_string" {
 			return true
 		}
 	}
@@ -150,7 +171,7 @@ type Attribute struct {
 	TfName          string
 	APIName         string
 	GoName          string
-	Type            string // "string", "int64", "bool", "list_string", "list_integer", "list_nested"
+	Type            string // "string", "int64", "bool", "list_string", "list_integer", "list_nested", "map_string"
 	Required        bool
 	Optional        bool
 	Computed        bool
@@ -184,6 +205,8 @@ func (a Attribute) TfsdkType() string {
 		return "types.Bool"
 	case "list_string", "list_integer", "list_nested":
 		return "types.List"
+	case "map_string":
+		return "types.Map"
 	default:
 		return "types.String"
 	}
@@ -201,6 +224,8 @@ func (a Attribute) SchemaType() string {
 		return "schema.ListAttribute"
 	case "list_nested":
 		return "schema.ListNestedAttribute"
+	case "map_string":
+		return "schema.MapAttribute"
 	default:
 		return "schema.StringAttribute"
 	}
