@@ -25,7 +25,7 @@ Every resource in this provider has a matching [Terraform knowledgebase guide](h
 
 The provider authenticates with a **personal access token** (PAT):
 
-1. Sign in to the [Bahriya console](https://app.bahriya.cloud).
+1. Sign in to the [Bahriya console](https://console.bahriya.cloud).
 2. Open your profile, then **Tokens**.
 3. Click **Create token** and copy the `pat_...` value.
 

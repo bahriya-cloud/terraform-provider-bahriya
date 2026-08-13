@@ -158,7 +158,7 @@ provider "bahriya" {
 
 The provider uses Bahriya **personal access tokens** (PATs):
 
-1. Sign in to the console at <https://app.bahriya.cloud>.
+1. Sign in to the console at <https://console.bahriya.cloud>.
 2. Open your profile, then **Tokens**.
 3. Click **Create token**, copy the `pat_...` value.
 
