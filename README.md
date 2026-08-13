@@ -1,13 +1,41 @@
 # terraform-provider-bahriya
 
-The official Terraform provider for [Bahriya](https://bahriya.cloud) — manage every Bahriya resource declaratively.
+The official Terraform provider for [Bahriya](https://bahriya.cloud) — manage every Bahriya resource declaratively, from your first container to a multi-region production estate.
 
-> **Status:** pre-release. Not yet published to the Terraform registry. Track progress on Nextcloud Deck card #928.
+> **Status:** published to the Terraform Registry as [`bahriya-cloud/bahriya`](https://registry.terraform.io/providers/bahriya-cloud/bahriya).
+
+## What is Bahriya?
+
+[Bahriya](https://bahriya.cloud) is a container cloud with a simple contract: bring a container image, pick your regions, and the platform runs it — load balancing, TLS, health checks, autoscaling, a secrets vault and managed datastores included rather than bolted on. Everything the console can do, this provider can do in HCL, so your whole estate lives in version control.
+
+**Explore the platform:**
+
+| Product | What it gives you |
+| ------- | ----------------- |
+| [HTTP Containers](https://bahriya.cloud/product/containers) | Deploy an image, get a TLS-terminated, autoscaling, multi-region service with custom hostnames. |
+| [Workers](https://bahriya.cloud/product/workers) | Long-running background processes — queue consumers, stream processors — without ingress. |
+| [Cron Jobs](https://bahriya.cloud/product/cronjobs) | Scheduled containers on a cron expression you control. |
+| [Managed Valkey](https://bahriya.cloud/product/valkey) | The Redis-compatible, open-source in-memory datastore — single, highly available or sharded. |
+| [Managed Memcached](https://bahriya.cloud/product/memcached) | Zero-ceremony caching next to your containers. |
+| [Vault](https://bahriya.cloud/product/vault) | Secrets, TLS bundles, SSH/GPG keypairs and encryption keys — versioned, rotatable, mountable. |
+| [Configs](https://bahriya.cloud/product/configs) | Env files and YAML/JSON/plain config files, attached to projects and mounted into containers. |
+| [Network Policies](https://bahriya.cloud/product/network-policies) | Declare which workloads may talk to what, ingress and egress. |
+| [Volume Storage](https://bahriya.cloud/product/volume-storage) | Persistent volumes for stateful workloads. |
+| [Reis CLI](https://bahriya.cloud/product/cli) | The same platform from your terminal — flags or YAML, ideal alongside Terraform in CI. |
+| [Terraform](https://bahriya.cloud/product/terraform) | This provider's product page — why infrastructure-as-code is a first-class citizen on Bahriya. |
+
+**Learn and stay current:**
+
+- [Terraform knowledgebase](https://bahriya.cloud/knowledgebase/terraform) — a per-resource guide with a complete, working deploy example for everything in this provider.
+- [Getting started](https://bahriya.cloud/knowledgebase/getting-started) and [quickstarts](https://bahriya.cloud/knowledgebase/quickstarts) — from zero to a running service.
+- [The full knowledgebase](https://bahriya.cloud/knowledgebase) — topologies, networking, vault, billing, migrations and more.
+- [The blog](https://bahriya.cloud/blog) — launch announcements and the developer series.
 
 ---
 
 ## Table of contents
 
+- [What is Bahriya?](#what-is-bahriya)
 - [Installation](#installation)
 - [Quickstart](#quickstart)
 - [Provider configuration](#provider-configuration)
@@ -26,22 +54,20 @@ The official Terraform provider for [Bahriya](https://bahriya.cloud) — manage 
 
 ## Installation
 
-### Once published (target state)
+From the [Terraform Registry](https://registry.terraform.io/providers/bahriya-cloud/bahriya):
 
 ```hcl
 terraform {
   required_providers {
     bahriya = {
       source  = "bahriya-cloud/bahriya"
-      version = "~> 0.1"
+      version = "~> 0.3"
     }
   }
 }
 ```
 
-### Currently — from source
-
-See [Building from source](#building-from-source) and [Local development](#local-development) below.
+To build and run from source instead, see [Building from source](#building-from-source) and [Local development](#local-development) below.
 
 ## Quickstart
 
@@ -160,6 +186,11 @@ export BAHRIYA_ORGANISATION_ID="65cc42f1-..."
 | `bahriya_json_config`     | JSON config file, mounted into containers as a file.                      | Yes          |
 | `bahriya_plain_config`    | Arbitrary text config file, mounted into containers as a file.            | Yes          |
 | `bahriya_network_policy`  | Ingress/egress network policy, attachable to projects and workloads.      | Yes          |
+| `bahriya_valkey`          | Managed Valkey instance — cache or persistent store; single, HA or sharded. | Pending    |
+| `bahriya_path_rule`       | Path-scoped HTTP control on a container: basic auth, rate limit, IP allow/deny. | Pending  |
+| `bahriya_billing_details` | The organisation's billing identity printed on invoices (singleton).       | Yes          |
+| `bahriya_role`            | Custom organisation role — a named set of permission grants.               | Yes          |
+| `bahriya_resource_grant`  | Shares a specific resource instance with an org member (instance ACL).     | Yes          |
 
 Each vault/config item also has a corresponding `bahriya_project_<type>_attachment` resource that binds an item to a project. Once attached, the item can be referenced from a `bahriya_container` block to mount it inside the container.
 
