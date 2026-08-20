@@ -283,6 +283,22 @@ resource "bahriya_memcached" "cache" {
 }
 
 # ===========================================================================
+# Valkey deployable — single tier keeps the example inside a default project
+# quota. authenabled is deliberately omitted: the platform default is true,
+# so the instance must come up requiring its generated password.
+# ===========================================================================
+
+resource "bahriya_valkey" "kv" {
+  handle        = "kv-${local.suffix}"
+  name          = "TF E2E Valkey ${local.suffix}"
+  tier          = "single"
+  purpose       = "cache"
+  memorymb      = 256
+  activeregions = [local.region]
+  project       = bahriya_project.e2e.id
+}
+
+# ===========================================================================
 # HTTP container — exercises every container-side attachment, a persistent
 # volume, env vars, a secret env var, a hostname and a network policy.
 # Storage forbids autoscaling, so keep autoscalingminreplicas = 1 and no max.

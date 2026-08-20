@@ -186,8 +186,8 @@ export BAHRIYA_ORGANISATION_ID="65cc42f1-..."
 | `bahriya_json_config`     | JSON config file, mounted into containers as a file.                      | Yes          |
 | `bahriya_plain_config`    | Arbitrary text config file, mounted into containers as a file.            | Yes          |
 | `bahriya_network_policy`  | Ingress/egress network policy, attachable to projects and workloads.      | Yes          |
-| `bahriya_valkey`          | Managed Valkey instance — cache or persistent store; single, HA or sharded. | Pending    |
-| `bahriya_path_rule`       | Path-scoped HTTP control on a container: basic auth, rate limit, IP allow/deny. | Pending  |
+| `bahriya_valkey`          | Managed Valkey instance — cache or persistent store; single, HA or sharded. | Yes        |
+| `bahriya_path_rule`       | Path-scoped HTTP control on a container: basic auth, rate limit, IP allow/deny. | Yes      |
 | `bahriya_billing_details` | The organisation's billing identity printed on invoices (singleton).       | Yes          |
 | `bahriya_role`            | Custom organisation role — a named set of permission grants.               | Yes          |
 | `bahriya_resource_grant`  | Shares a specific resource instance with an org member (instance ACL).     | Yes          |
@@ -202,9 +202,9 @@ The `bahriya_organisation` and `bahriya_regions` data sources are also E2E verif
 
 `examples/e2e-vault-configs/` is the comprehensive E2E: in a single `apply`/`destroy` it
 exercises every resource above plus both data sources — registry + secret and all
-vault/config items with their project attachments, a network policy, memcached, and HTTP +
-worker + cronjob containers wired to the full set of mounts, env vars, secret env vars,
-persistent storage and path rules. Run `./gen-fixtures.sh` (once) to mint crypto fixtures and
+vault/config items with their project attachments, a network policy, memcached, a
+single-tier valkey, and HTTP + worker + cronjob containers wired to the full set of
+mounts, env vars, secret env vars, persistent storage and path rules. Run `./gen-fixtures.sh` (once) to mint crypto fixtures and
 a fresh handle suffix, then `terraform apply`.
 
 > **Secret-sync timing.** A container that consumes a secret (via `secretsenvvar`) or an env

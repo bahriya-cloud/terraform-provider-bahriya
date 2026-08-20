@@ -55,7 +55,7 @@ func TestBillingDetailsLiveRoundTrip(t *testing.T) {
 		"billingentitytype":  "company",
 		"addressline1":       "Acceptance Street 1",
 		"addressline2":       nil,
-		"addresscity":        "Sharjah",
+		"addresscity":        "Dubai",
 		"addressstate":       nil,
 		"addresspostcode":    nil,
 		"addresscountry":     "ae", // the API upper-cases

@@ -230,11 +230,11 @@ func (r *valkeyResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				Computed: true,
 			},
 			"nodes": schema.Int64Attribute{
-				Computed:    true,
+				Computed: true,
+				// No UseStateForUnknown: the count changes on update (tier,
+				// size or shards growth) — pinning the prior value in the plan
+				// would make such applies fail as inconsistent.
 				Description: "Derived node count per region for the current tier, size and shards.",
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"organisation": schema.StringAttribute{
 				Computed: true,
@@ -249,10 +249,10 @@ func (r *valkeyResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				},
 			},
 			"status": schema.StringAttribute{
+				// No UseStateForUnknown: status legitimately moves on update
+				// (error → provisioning → running); pinning the prior value in
+				// the plan would make recovery applies fail as inconsistent.
 				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 	}
@@ -349,7 +349,7 @@ func (r *valkeyResource) Create(ctx context.Context, req resource.CreateRequest,
 			resp.Diagnostics.AddError("Valkey created but could not be read back", werr.Error())
 			return
 		}
-		partial.Password = plan.Password
+		partial.Password = knownPassword(plan.Password, types.StringNull())
 		resp.Diagnostics.Append(resp.State.Set(ctx, partial)...)
 		resp.Diagnostics.AddWarning(
 			"Valkey created but not yet running",
@@ -369,7 +369,7 @@ func (r *valkeyResource) Create(ctx context.Context, req resource.CreateRequest,
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	state.Password = plan.Password
+	state.Password = knownPassword(plan.Password, types.StringNull())
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
@@ -444,7 +444,27 @@ func (r *valkeyResource) Update(ctx context.Context, req resource.UpdateRequest,
 		Timeout:  updateTimeout,
 	})
 	if werr != nil {
-		resp.Diagnostics.AddError("Resource did not settle after Update", werr.Error())
+		// Mirror Create: the PUT was accepted, so the change IS in flight — a
+		// slow converge must not fail the apply. Persist the real (non-running)
+		// state and WARN; a later apply re-reads the status once the deploy
+		// settles. Erroring here would leave state stale and re-issue the same
+		// PUT on every retry for no benefit.
+		partial, d := r.fetch(ctx, state.ID.ValueString())
+		if d.HasError() {
+			resp.Diagnostics.Append(d...)
+			resp.Diagnostics.AddError("Valkey updated but could not be read back", werr.Error())
+			return
+		}
+		partial.Password = knownPassword(plan.Password, state.Password)
+		resp.Diagnostics.Append(resp.State.Set(ctx, partial)...)
+		resp.Diagnostics.AddWarning(
+			"Valkey updated but not yet running",
+			fmt.Sprintf(
+				"The update was accepted but the instance did not reach \"running\" within %s (last status %q). "+
+					"It is saved to state; run `terraform apply` again to re-check once the deploy settles.",
+				updateTimeout, partial.Status.ValueString(),
+			),
+		)
 		return
 	}
 
@@ -453,8 +473,21 @@ func (r *valkeyResource) Update(ctx context.Context, req resource.UpdateRequest,
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	fresh.Password = plan.Password
+	fresh.Password = knownPassword(plan.Password, state.Password)
 	resp.Diagnostics.Append(resp.State.Set(ctx, fresh)...)
+}
+
+// knownPassword resolves the password to persist after an apply. The
+// attribute is Optional+Computed with no plan modifier, so whenever the
+// practitioner leaves it out of config the framework plans it as UNKNOWN on
+// any diff — and unknown values must never be written to final state (the
+// API never returns the password, so there is nothing to read back either).
+// Fall back to the prior value: null on create, the previous state on update.
+func knownPassword(planned, prior types.String) types.String {
+	if planned.IsUnknown() {
+		return prior
+	}
+	return planned
 }
 
 func (r *valkeyResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
@@ -519,19 +552,9 @@ func (r *valkeyResource) fetch(ctx context.Context, id string) (valkeyModel, dia
 		diags.AddError("Fetch failed", err.Error())
 		return valkeyModel{}, diags
 	}
-	var envelope map[string]any
-	if err := json.Unmarshal(data, &envelope); err != nil {
+	var raw map[string]any
+	if err := json.Unmarshal(data, &raw); err != nil {
 		diags.AddError("Decode fetch response failed", err.Error())
-		return valkeyModel{}, diags
-	}
-	items, ok := envelope["valkey"].([]any)
-	if !ok || len(items) == 0 {
-		diags.AddError("not_found", "resource was deleted out-of-band")
-		return valkeyModel{}, diags
-	}
-	raw, ok := items[0].(map[string]any)
-	if !ok {
-		diags.AddError("Decode fetch response failed", "unexpected item shape")
 		return valkeyModel{}, diags
 	}
 	return apiToValkeyModel(raw), diags
@@ -542,17 +565,9 @@ func (r *valkeyResource) fetchRaw(ctx context.Context, id string) (map[string]an
 	if err != nil {
 		return nil, err
 	}
-	var envelope map[string]any
-	if err := json.Unmarshal(data, &envelope); err != nil {
+	var raw map[string]any
+	if err := json.Unmarshal(data, &raw); err != nil {
 		return nil, err
-	}
-	items, ok := envelope["valkey"].([]any)
-	if !ok || len(items) == 0 {
-		return nil, fmt.Errorf("resource not found in collection")
-	}
-	raw, ok := items[0].(map[string]any)
-	if !ok {
-		return nil, fmt.Errorf("unexpected item shape")
 	}
 	return raw, nil
 }
@@ -587,15 +602,14 @@ func planToValkeyPayload(ctx context.Context, m *valkeyModel) (map[string]any, d
 	} else {
 		out["allowedips"] = []string{}
 	}
+	// Omitted when unset so the API contract default applies (authenabled
+	// defaults to TRUE server-side — forcing false here silently created
+	// unauthenticated instances).
 	if !m.Authenabled.IsNull() && !m.Authenabled.IsUnknown() {
 		out["authenabled"] = m.Authenabled.ValueBool()
-	} else {
-		out["authenabled"] = false
 	}
 	if !m.Backupenabled.IsNull() && !m.Backupenabled.IsUnknown() {
 		out["backupenabled"] = m.Backupenabled.ValueBool()
-	} else {
-		out["backupenabled"] = false
 	}
 	if !m.Backupschedule.IsNull() && !m.Backupschedule.IsUnknown() {
 		out["backupschedule"] = m.Backupschedule.ValueString()
@@ -610,8 +624,6 @@ func planToValkeyPayload(ctx context.Context, m *valkeyModel) (map[string]any, d
 	}
 	if !m.Externalenabled.IsNull() && !m.Externalenabled.IsUnknown() {
 		out["externalenabled"] = m.Externalenabled.ValueBool()
-	} else {
-		out["externalenabled"] = false
 	}
 	if !m.Hostnames.IsNull() && !m.Hostnames.IsUnknown() {
 		var nested []valkeyHostnamesModel
@@ -658,8 +670,6 @@ func planToValkeyPayload(ctx context.Context, m *valkeyModel) (map[string]any, d
 	}
 	if !m.Tlsenabled.IsNull() && !m.Tlsenabled.IsUnknown() {
 		out["tlsenabled"] = m.Tlsenabled.ValueBool()
-	} else {
-		out["tlsenabled"] = false
 	}
 	return out, diags
 }

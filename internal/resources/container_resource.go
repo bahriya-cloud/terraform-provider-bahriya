@@ -920,10 +920,10 @@ func (r *containerResource) Schema(_ context.Context, _ resource.SchemaRequest, 
 				},
 			},
 			"status": schema.StringAttribute{
+				// No UseStateForUnknown: status legitimately moves on update
+				// (error → provisioning → running); pinning the prior value in
+				// the plan would make recovery applies fail as inconsistent.
 				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 	}
@@ -1112,7 +1112,25 @@ func (r *containerResource) Update(ctx context.Context, req resource.UpdateReque
 		Timeout:  updateTimeout,
 	})
 	if werr != nil {
-		resp.Diagnostics.AddError("Resource did not settle after Update", werr.Error())
+		// Mirror Create: the PUT was accepted, so the change IS in flight — a
+		// slow converge must not fail the apply. Persist the real (non-running)
+		// state and WARN; a later apply re-reads the status once the deploy
+		// settles.
+		partial, d := r.fetch(ctx, state.ID.ValueString())
+		if d.HasError() {
+			resp.Diagnostics.Append(d...)
+			resp.Diagnostics.AddError("Container updated but could not be read back", werr.Error())
+			return
+		}
+		resp.Diagnostics.Append(resp.State.Set(ctx, partial)...)
+		resp.Diagnostics.AddWarning(
+			"Container updated but not yet running",
+			fmt.Sprintf(
+				"The update was accepted but the resource did not reach \"running\" within %s (last status %q). "+
+					"It is saved to state; run `terraform apply` again to re-check once the deploy settles.",
+				updateTimeout, partial.Status.ValueString(),
+			),
+		)
 		return
 	}
 

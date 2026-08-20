@@ -23,10 +23,10 @@ resource "bahriya_billing_details" "this" {
   legal_name  = "Acme Trading LLC"
   email       = "accounts@acme.example"
 
-  address_line1 = "Office 402, Al Majaz Tower"
+  address_line1 = "Office 402"
   address_line2 = "Corniche Street"
-  city          = "Sharjah"
-  state         = "Sharjah"
+  city          = "Dubai"
+  state         = "Dubai"
   country       = "AE"
 
   tax_id      = "100123456789003"
