@@ -181,6 +181,46 @@ type Attribute struct {
 	Nested          []NestedField // populated when Type == "list_nested"
 }
 
+// volatileAttributes are server-derived values that legitimately CHANGE on an
+// update, so their prior value must never be pinned into the plan.
+//
+// UseStateForUnknown tells Terraform "this computed value will not change", and
+// for most computed attributes that holds. It does not hold for these:
+//
+//   - status  moves on every update (running → provisioning → running, and
+//     error → provisioning → running on a recovery apply).
+//   - nodes   is derived from tier/size/shards, so it moves the moment any of
+//     those grow.
+//
+// Pinning either makes the apply fail as "Provider produced inconsistent result
+// after apply" — the plan promised the old value and the API returned a new one.
+// A recovery apply against an errored resource is exactly when you least want
+// that, which is why this is encoded here rather than hand-patched after each
+// regeneration.
+var volatileAttributes = map[string]bool{
+	"status": true,
+	"nodes":  true,
+}
+
+// PinnableComputed reports whether UseStateForUnknown is safe for this
+// attribute. Volatile attributes are excluded; see volatileAttributes.
+func (a Attribute) PinnableComputed() bool {
+	return !volatileAttributes[a.TfName]
+}
+
+// VolatileReason is the one-line explanation emitted in place of the plan
+// modifier, so the generated file records WHY the modifier is absent instead of
+// looking like an oversight someone should "fix".
+func (a Attribute) VolatileReason() string {
+	switch a.TfName {
+	case "status":
+		return "status legitimately moves on update (error -> provisioning -> running); pinning the prior value would make recovery applies fail as inconsistent."
+	case "nodes":
+		return "the count changes on update (tier, size or shards growth); pinning the prior value would make such applies fail as inconsistent."
+	}
+	return "this value is server-derived and changes on update."
+}
+
 type NestedField struct {
 	TfName   string
 	APIName  string

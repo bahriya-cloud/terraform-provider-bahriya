@@ -173,7 +173,7 @@ func (r *registryResource) Create(ctx context.Context, req resource.CreateReques
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	state.Password = plan.Password
+	state.Password = knownValue(plan.Password, types.StringNull())
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
@@ -235,7 +235,7 @@ func (r *registryResource) Update(ctx context.Context, req resource.UpdateReques
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	fresh.Password = plan.Password
+	fresh.Password = knownValue(plan.Password, state.Password)
 	resp.Diagnostics.Append(resp.State.Set(ctx, fresh)...)
 }
 

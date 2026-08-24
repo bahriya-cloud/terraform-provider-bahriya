@@ -106,12 +106,17 @@ resource "bahriya_container" "nightly" {
 }
 ```
 
-### Choosing How the Health Check Probes
+### Choosing the Container Protocol
 
-`healthcheckscheme` decides how the platform probes the container. The default,
-`http`, sends a GET to `healthcheckpath`. Use `https` when the container
-terminates TLS on its own listening port, and `tcp` when it does not speak HTTP
-at all — a TCP probe only checks the port accepts a connection, so
+`protocol` declares what the container speaks on its port. It governs **both**
+the health probe and the ingress upstream — which is why it is one setting and
+not two. Setting only the probe would leave a TLS container reporting healthy
+while the gateway still spoke plain HTTP to it, and every external request would
+fail.
+
+The default, `http`, sends a GET to `healthcheckpath`. Use `https` when the
+container terminates TLS on its own listening port, and `tcp` when it does not
+speak HTTP at all — a TCP probe only checks the port accepts a connection, so
 `healthcheckpath` is not used.
 
 ```hcl
@@ -123,7 +128,7 @@ resource "bahriya_container" "secure_api" {
   image             = "ghcr.io/org/secure-api:2.0.0"
   containerport     = "8443"
   healthcheckpath   = "/healthz"
-  healthcheckscheme = "https"
+  protocol          = "https"
   mincpu            = "100"
   minmemory         = "128"
   activeregions     = ["falkenstein-1"]
@@ -136,7 +141,7 @@ resource "bahriya_container" "queue_bridge" {
   name              = "Queue Bridge"
   image             = "registry.example.com/team/bridge:1.4.2"
   containerport     = "9000"
-  healthcheckscheme = "tcp"
+  protocol          = "tcp"
   mincpu            = "50"
   minmemory         = "128"
   activeregions     = ["falkenstein-1"]
@@ -185,7 +190,7 @@ resource "bahriya_container" "api" {
 - `type` (String) - Container type: `http` (default), `worker`, or `cronjob`.
 - `containerport` (String) - Port the container listens on. **Required for HTTP containers** — deploy will fail without it.
 - `healthcheckpath` (String) - Health check endpoint path. **Required for HTTP containers** — the platform probes this path to decide if the container is healthy.
-- `healthcheckscheme` (String) - How the health check probes the container: `http` (default), `https` or `tcp`. `http` sends a GET to `healthcheckpath`. `https` sends the same GET over TLS, for a container terminating TLS on its own listening port; the certificate is not verified. `tcp` only checks the port accepts a connection and ignores `healthcheckpath` entirely — use it for a workload that does not speak HTTP.
+- `protocol` (String) - The protocol the container speaks on its port: `http` (default), `https` or `tcp`. Governs **both** how the platform health-probes the container and how external traffic is delivered to it. `https` sends the probe over TLS (the certificate is not verified) and annotates the Service with `konghq.com/protocol: https` so the gateway speaks HTTPS upstream. `tcp` only checks the port accepts a connection and ignores `healthcheckpath`.
 - `project` (String) - Project UUID. Changing this forces recreation.
 - `registry` (String) - Registry handle for private images.
 - `autoscalingminreplicas` (String) - Minimum replicas.

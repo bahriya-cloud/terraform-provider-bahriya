@@ -111,9 +111,7 @@ func (r *memcachedResource) Schema(_ context.Context, _ resource.SchemaRequest, 
 			"nodes": schema.Int64Attribute{
 				Optional: true,
 				Computed: true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
+				// No UseStateForUnknown: the count changes on update (tier, size or shards growth); pinning the prior value would make such applies fail as inconsistent.
 			},
 			"project": schema.StringAttribute{
 				Optional: true,
@@ -149,10 +147,8 @@ func (r *memcachedResource) Schema(_ context.Context, _ resource.SchemaRequest, 
 				},
 			},
 			"status": schema.StringAttribute{
-				// No UseStateForUnknown: status legitimately moves on update
-				// (error → provisioning → running); pinning the prior value in
-				// the plan would make recovery applies fail as inconsistent.
 				Computed: true,
+				// No UseStateForUnknown: status legitimately moves on update (error -> provisioning -> running); pinning the prior value would make recovery applies fail as inconsistent.
 			},
 		},
 	}
@@ -341,10 +337,11 @@ func (r *memcachedResource) Update(ctx context.Context, req resource.UpdateReque
 		Timeout:  updateTimeout,
 	})
 	if werr != nil {
-		// Mirror Create: the PUT was accepted, so the change IS in flight — a
-		// slow converge must not fail the apply. Persist the real (non-running)
-		// state and WARN; a later apply re-reads the status once the deploy
-		// settles.
+		// Mirror Create: the PUT was accepted, so the change IS in flight. A slow
+		// converge must not fail the apply — erroring here leaves state stale and
+		// re-issues the same PUT on every retry for no benefit. Persist the real
+		// (non-running) state and WARN; a later apply re-reads the status once the
+		// deploy settles.
 		partial, d := r.fetch(ctx, state.ID.ValueString())
 		if d.HasError() {
 			resp.Diagnostics.Append(d...)
@@ -355,7 +352,7 @@ func (r *memcachedResource) Update(ctx context.Context, req resource.UpdateReque
 		resp.Diagnostics.AddWarning(
 			"Memcached updated but not yet running",
 			fmt.Sprintf(
-				"The update was accepted but the resource did not reach \"running\" within %s (last status %q). "+
+				"The update was accepted but the instance did not reach \"running\" within %s (last status %q). "+
 					"It is saved to state; run `terraform apply` again to re-check once the deploy settles.",
 				updateTimeout, partial.Status.ValueString(),
 			),

@@ -340,3 +340,48 @@ func TestIsCreateOnly(t *testing.T) {
 		t.Error("expected isCreateOnly=false with nil extensions")
 	}
 }
+
+// The three decisions below were previously hand-patched into the GENERATED
+// files after every run — files whose first line reads "DO NOT EDIT". Each
+// regeneration silently reverted them, reintroducing real bugs. They now live
+// in the generator, and these tests stop them regressing again.
+
+func TestAttribute_PinnableComputed_ExcludesVolatileAttributes(t *testing.T) {
+	// UseStateForUnknown promises Terraform the value will not change. For
+	// `status` and `nodes` that promise is false, and breaking it fails the
+	// apply with "Provider produced inconsistent result after apply" — most
+	// painfully on a recovery apply against an errored resource.
+	for _, name := range []string{"status", "nodes"} {
+		if (Attribute{TfName: name}).PinnableComputed() {
+			t.Errorf("%q must not be pinned with UseStateForUnknown", name)
+		}
+		if (Attribute{TfName: name}).VolatileReason() == "" {
+			t.Errorf("%q needs a reason so the generated file explains the omission", name)
+		}
+	}
+
+	// Everything else keeps the modifier — it is what stops perpetual diffs.
+	for _, name := range []string{"id", "handle", "organisation", "created"} {
+		if !(Attribute{TfName: name}).PinnableComputed() {
+			t.Errorf("%q should still be pinned with UseStateForUnknown", name)
+		}
+	}
+}
+
+func TestResourceDescriptors_CollectionKeyMatchesTheSpecShape(t *testing.T) {
+	// CollectionKey makes the generated fetch() look for a named array in the
+	// GET-one response. Only set it where the API actually returns one:
+	// /projects/{pid} returns a ProjectsResponseBody wrapper, while
+	// /valkey/{vid} returns a bare Valkey. Setting it for valkey made every
+	// read fail as "deleted out-of-band".
+	wantCollection := map[string]string{
+		"project": "projects",
+	}
+
+	for name, d := range descriptors {
+		want := wantCollection[name]
+		if d.CollectionKey != want {
+			t.Errorf("descriptor %q: CollectionKey = %q, want %q", name, d.CollectionKey, want)
+		}
+	}
+}

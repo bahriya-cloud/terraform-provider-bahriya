@@ -136,7 +136,7 @@ func (r *valkeyResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 			"backupschedule": schema.StringAttribute{
 				Optional:    true,
 				Computed:    true,
-				Description: "Backup cron schedule. Retention is fixed at 7 daily snapshots.",
+				Description: "Backup cron schedule. Retention is fixed at seven days of snapshots.",
 			},
 			"config": schema.MapAttribute{
 				ElementType: types.StringType,
@@ -230,11 +230,9 @@ func (r *valkeyResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				Computed: true,
 			},
 			"nodes": schema.Int64Attribute{
-				Computed: true,
-				// No UseStateForUnknown: the count changes on update (tier,
-				// size or shards growth) — pinning the prior value in the plan
-				// would make such applies fail as inconsistent.
+				Computed:    true,
 				Description: "Derived node count per region for the current tier, size and shards.",
+				// No UseStateForUnknown: the count changes on update (tier, size or shards growth); pinning the prior value would make such applies fail as inconsistent.
 			},
 			"organisation": schema.StringAttribute{
 				Computed: true,
@@ -249,10 +247,8 @@ func (r *valkeyResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				},
 			},
 			"status": schema.StringAttribute{
-				// No UseStateForUnknown: status legitimately moves on update
-				// (error → provisioning → running); pinning the prior value in
-				// the plan would make recovery applies fail as inconsistent.
 				Computed: true,
+				// No UseStateForUnknown: status legitimately moves on update (error -> provisioning -> running); pinning the prior value would make recovery applies fail as inconsistent.
 			},
 		},
 	}
@@ -349,7 +345,7 @@ func (r *valkeyResource) Create(ctx context.Context, req resource.CreateRequest,
 			resp.Diagnostics.AddError("Valkey created but could not be read back", werr.Error())
 			return
 		}
-		partial.Password = knownPassword(plan.Password, types.StringNull())
+		partial.Password = knownValue(plan.Password, types.StringNull())
 		resp.Diagnostics.Append(resp.State.Set(ctx, partial)...)
 		resp.Diagnostics.AddWarning(
 			"Valkey created but not yet running",
@@ -369,7 +365,7 @@ func (r *valkeyResource) Create(ctx context.Context, req resource.CreateRequest,
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	state.Password = knownPassword(plan.Password, types.StringNull())
+	state.Password = knownValue(plan.Password, types.StringNull())
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
@@ -444,18 +440,18 @@ func (r *valkeyResource) Update(ctx context.Context, req resource.UpdateRequest,
 		Timeout:  updateTimeout,
 	})
 	if werr != nil {
-		// Mirror Create: the PUT was accepted, so the change IS in flight — a
-		// slow converge must not fail the apply. Persist the real (non-running)
-		// state and WARN; a later apply re-reads the status once the deploy
-		// settles. Erroring here would leave state stale and re-issue the same
-		// PUT on every retry for no benefit.
+		// Mirror Create: the PUT was accepted, so the change IS in flight. A slow
+		// converge must not fail the apply — erroring here leaves state stale and
+		// re-issues the same PUT on every retry for no benefit. Persist the real
+		// (non-running) state and WARN; a later apply re-reads the status once the
+		// deploy settles.
 		partial, d := r.fetch(ctx, state.ID.ValueString())
 		if d.HasError() {
 			resp.Diagnostics.Append(d...)
 			resp.Diagnostics.AddError("Valkey updated but could not be read back", werr.Error())
 			return
 		}
-		partial.Password = knownPassword(plan.Password, state.Password)
+		partial.Password = knownValue(plan.Password, state.Password)
 		resp.Diagnostics.Append(resp.State.Set(ctx, partial)...)
 		resp.Diagnostics.AddWarning(
 			"Valkey updated but not yet running",
@@ -473,21 +469,8 @@ func (r *valkeyResource) Update(ctx context.Context, req resource.UpdateRequest,
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	fresh.Password = knownPassword(plan.Password, state.Password)
+	fresh.Password = knownValue(plan.Password, state.Password)
 	resp.Diagnostics.Append(resp.State.Set(ctx, fresh)...)
-}
-
-// knownPassword resolves the password to persist after an apply. The
-// attribute is Optional+Computed with no plan modifier, so whenever the
-// practitioner leaves it out of config the framework plans it as UNKNOWN on
-// any diff — and unknown values must never be written to final state (the
-// API never returns the password, so there is nothing to read back either).
-// Fall back to the prior value: null on create, the previous state on update.
-func knownPassword(planned, prior types.String) types.String {
-	if planned.IsUnknown() {
-		return prior
-	}
-	return planned
 }
 
 func (r *valkeyResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
@@ -602,12 +585,23 @@ func planToValkeyPayload(ctx context.Context, m *valkeyModel) (map[string]any, d
 	} else {
 		out["allowedips"] = []string{}
 	}
-	// Omitted when unset so the API contract default applies (authenabled
-	// defaults to TRUE server-side — forcing false here silently created
-	// unauthenticated instances).
+	// Unset booleans are OMITTED, never sent as false. These attributes are
+	// Optional+Computed, so "absent from config" plans as UNKNOWN — which means
+	// "leave it alone", not "set it to false". Sending false here clobbered any
+	// value set outside Terraform on every apply, and where the API default is
+	// true it inverted the contract outright: valkey `authenabled` defaults to
+	// true server-side, so forcing false created UNAUTHENTICATED instances.
+	// An explicit `= false` in config still sends false — it is not unknown.
 	if !m.Authenabled.IsNull() && !m.Authenabled.IsUnknown() {
 		out["authenabled"] = m.Authenabled.ValueBool()
 	}
+	// Unset booleans are OMITTED, never sent as false. These attributes are
+	// Optional+Computed, so "absent from config" plans as UNKNOWN — which means
+	// "leave it alone", not "set it to false". Sending false here clobbered any
+	// value set outside Terraform on every apply, and where the API default is
+	// true it inverted the contract outright: valkey `authenabled` defaults to
+	// true server-side, so forcing false created UNAUTHENTICATED instances.
+	// An explicit `= false` in config still sends false — it is not unknown.
 	if !m.Backupenabled.IsNull() && !m.Backupenabled.IsUnknown() {
 		out["backupenabled"] = m.Backupenabled.ValueBool()
 	}
@@ -622,6 +616,13 @@ func planToValkeyPayload(ctx context.Context, m *valkeyModel) (map[string]any, d
 	if !m.Defaulthostname.IsNull() && !m.Defaulthostname.IsUnknown() {
 		out["defaulthostname"] = m.Defaulthostname.ValueString()
 	}
+	// Unset booleans are OMITTED, never sent as false. These attributes are
+	// Optional+Computed, so "absent from config" plans as UNKNOWN — which means
+	// "leave it alone", not "set it to false". Sending false here clobbered any
+	// value set outside Terraform on every apply, and where the API default is
+	// true it inverted the contract outright: valkey `authenabled` defaults to
+	// true server-side, so forcing false created UNAUTHENTICATED instances.
+	// An explicit `= false` in config still sends false — it is not unknown.
 	if !m.Externalenabled.IsNull() && !m.Externalenabled.IsUnknown() {
 		out["externalenabled"] = m.Externalenabled.ValueBool()
 	}
@@ -668,6 +669,13 @@ func planToValkeyPayload(ctx context.Context, m *valkeyModel) (map[string]any, d
 	if !m.Tlsbundle.IsNull() && !m.Tlsbundle.IsUnknown() {
 		out["tlsbundle"] = m.Tlsbundle.ValueString()
 	}
+	// Unset booleans are OMITTED, never sent as false. These attributes are
+	// Optional+Computed, so "absent from config" plans as UNKNOWN — which means
+	// "leave it alone", not "set it to false". Sending false here clobbered any
+	// value set outside Terraform on every apply, and where the API default is
+	// true it inverted the contract outright: valkey `authenabled` defaults to
+	// true server-side, so forcing false created UNAUTHENTICATED instances.
+	// An explicit `= false` in config still sends false — it is not unknown.
 	if !m.Tlsenabled.IsNull() && !m.Tlsenabled.IsUnknown() {
 		out["tlsenabled"] = m.Tlsenabled.ValueBool()
 	}

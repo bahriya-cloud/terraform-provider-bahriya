@@ -69,19 +69,27 @@ func TestPlanToValkeyPayloadSendsExplicitBooleans(t *testing.T) {
 	}
 }
 
-func TestKnownPasswordFallsBackWhenPlanUnknown(t *testing.T) {
+func TestKnownValueFallsBackWhenPlanUnknown(t *testing.T) {
+	// Sensitive attributes are Optional+Computed with no plan modifier, so the
+	// framework plans them UNKNOWN whenever they are absent from config — and an
+	// unknown value must never reach final state. The API never returns them, so
+	// there is nothing to read back either; the prior value is the only answer.
+	//
+	// Generated code applies this to EVERY sensitive attribute (valkey password,
+	// tls_bundle key, gpg/ssh private keys, ...), not just the password it was
+	// first written for.
 	prior := types.StringValue("kept-from-state")
-	if got := knownPassword(types.StringUnknown(), prior); !got.Equal(prior) {
+	if got := knownValue(types.StringUnknown(), prior); !got.Equal(prior) {
 		t.Errorf("unknown plan must fall back to prior, got %v", got)
 	}
-	if got := knownPassword(types.StringUnknown(), types.StringNull()); !got.IsNull() {
+	if got := knownValue(types.StringUnknown(), types.StringNull()); !got.IsNull() {
 		t.Errorf("unknown plan with null prior must be null, got %v", got)
 	}
 	explicit := types.StringValue("user-set")
-	if got := knownPassword(explicit, prior); !got.Equal(explicit) {
+	if got := knownValue(explicit, prior); !got.Equal(explicit) {
 		t.Errorf("explicit plan value must win, got %v", got)
 	}
-	if got := knownPassword(types.StringNull(), prior); !got.IsNull() {
+	if got := knownValue(types.StringNull(), prior); !got.IsNull() {
 		t.Errorf("explicitly null plan must stay null, got %v", got)
 	}
 }

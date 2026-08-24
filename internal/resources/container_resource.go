@@ -68,7 +68,6 @@ type containerModel struct {
 	Failedjobshistorylimit          types.Int64  `tfsdk:"failedjobshistorylimit"`
 	Gpgkeypairs                     types.List   `tfsdk:"gpgkeypairs"`
 	Healthcheckpath                 types.String `tfsdk:"healthcheckpath"`
-	Healthcheckscheme               types.String `tfsdk:"healthcheckscheme"`
 	Hostnames                       types.List   `tfsdk:"hostnames"`
 	Initjobs                        types.List   `tfsdk:"initjobs"`
 	Ipblacklist                     types.List   `tfsdk:"ipblacklist"`
@@ -86,6 +85,7 @@ type containerModel struct {
 	Projectname                     types.String `tfsdk:"projectname"`
 	Prometheuspath                  types.String `tfsdk:"prometheuspath"`
 	Prometheusport                  types.String `tfsdk:"prometheusport"`
+	Protocol                        types.String `tfsdk:"protocol"`
 	Proxycacheallowforcecacheheader types.Bool   `tfsdk:"proxycacheallowforcecacheheader"`
 	Proxycachecontenttypes          types.List   `tfsdk:"proxycachecontenttypes"`
 	Proxycacheenabled               types.Bool   `tfsdk:"proxycacheenabled"`
@@ -439,11 +439,6 @@ func (r *containerResource) Schema(_ context.Context, _ resource.SchemaRequest, 
 				Computed:    true,
 				Description: "Health check endpoint path. Required for HTTP containers, optional for workers.",
 			},
-			"healthcheckscheme": schema.StringAttribute{
-				Optional:    true,
-				Computed:    true,
-				Description: "How the health check probes the container. `http` sends a GET to the health check path — the default, and what every container did before this field existed. `https` sends the same GET over TLS, for a container that terminates TLS on its own listening port. `tcp` only checks that the port accepts a connection and ignores the health check path entirely — use it for a workload that does not speak HTTP.",
-			},
 			"hostnames": schema.ListNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
@@ -636,6 +631,11 @@ func (r *containerResource) Schema(_ context.Context, _ resource.SchemaRequest, 
 				Optional:    true,
 				Computed:    true,
 				Description: "Port exposing Prometheus metrics. Enables automatic scraping when set. Not applicable to cron jobs.",
+			},
+			"protocol": schema.StringAttribute{
+				Optional:    true,
+				Computed:    true,
+				Description: "The protocol this container speaks on its port. Governs BOTH how the platform health-probes it and how external traffic is delivered to it. `http` is the default. `https` is for a container that terminates TLS on its own listening port — the probe is sent over TLS (the certificate is not verified) and the ingress is told to speak HTTPS upstream. `tcp` probes only that the port accepts a connection and ignores the health check path; it suits a workload that does not speak HTTP.",
 			},
 			"proxycacheallowforcecacheheader": schema.BoolAttribute{
 				Optional:    true,
@@ -927,10 +927,8 @@ func (r *containerResource) Schema(_ context.Context, _ resource.SchemaRequest, 
 				},
 			},
 			"status": schema.StringAttribute{
-				// No UseStateForUnknown: status legitimately moves on update
-				// (error → provisioning → running); pinning the prior value in
-				// the plan would make recovery applies fail as inconsistent.
 				Computed: true,
+				// No UseStateForUnknown: status legitimately moves on update (error -> provisioning -> running); pinning the prior value would make recovery applies fail as inconsistent.
 			},
 		},
 	}
@@ -1119,10 +1117,11 @@ func (r *containerResource) Update(ctx context.Context, req resource.UpdateReque
 		Timeout:  updateTimeout,
 	})
 	if werr != nil {
-		// Mirror Create: the PUT was accepted, so the change IS in flight — a
-		// slow converge must not fail the apply. Persist the real (non-running)
-		// state and WARN; a later apply re-reads the status once the deploy
-		// settles.
+		// Mirror Create: the PUT was accepted, so the change IS in flight. A slow
+		// converge must not fail the apply — erroring here leaves state stale and
+		// re-issues the same PUT on every retry for no benefit. Persist the real
+		// (non-running) state and WARN; a later apply re-reads the status once the
+		// deploy settles.
 		partial, d := r.fetch(ctx, state.ID.ValueString())
 		if d.HasError() {
 			resp.Diagnostics.Append(d...)
@@ -1133,7 +1132,7 @@ func (r *containerResource) Update(ctx context.Context, req resource.UpdateReque
 		resp.Diagnostics.AddWarning(
 			"Container updated but not yet running",
 			fmt.Sprintf(
-				"The update was accepted but the resource did not reach \"running\" within %s (last status %q). "+
+				"The update was accepted but the container did not reach \"running\" within %s (last status %q). "+
 					"It is saved to state; run `terraform apply` again to re-check once the deploy settles.",
 				updateTimeout, partial.Status.ValueString(),
 			),
@@ -1264,10 +1263,15 @@ func planToContainerPayload(ctx context.Context, m *containerModel) (map[string]
 	} else {
 		out["args"] = []string{}
 	}
+	// Unset booleans are OMITTED, never sent as false. These attributes are
+	// Optional+Computed, so "absent from config" plans as UNKNOWN — which means
+	// "leave it alone", not "set it to false". Sending false here clobbered any
+	// value set outside Terraform on every apply, and where the API default is
+	// true it inverted the contract outright: valkey `authenabled` defaults to
+	// true server-side, so forcing false created UNAUTHENTICATED instances.
+	// An explicit `= false` in config still sends false — it is not unknown.
 	if !m.Autoscalingenabled.IsNull() && !m.Autoscalingenabled.IsUnknown() {
 		out["autoscalingenabled"] = m.Autoscalingenabled.ValueBool()
-	} else {
-		out["autoscalingenabled"] = false
 	}
 	if !m.Autoscalingmaxreplicas.IsNull() && !m.Autoscalingmaxreplicas.IsUnknown() {
 		out["autoscalingmaxreplicas"] = m.Autoscalingmaxreplicas.ValueString()
@@ -1302,10 +1306,15 @@ func planToContainerPayload(ctx context.Context, m *containerModel) (map[string]
 	} else {
 		out["basicauthcredentials"] = []map[string]any{}
 	}
+	// Unset booleans are OMITTED, never sent as false. These attributes are
+	// Optional+Computed, so "absent from config" plans as UNKNOWN — which means
+	// "leave it alone", not "set it to false". Sending false here clobbered any
+	// value set outside Terraform on every apply, and where the API default is
+	// true it inverted the contract outright: valkey `authenabled` defaults to
+	// true server-side, so forcing false created UNAUTHENTICATED instances.
+	// An explicit `= false` in config still sends false — it is not unknown.
 	if !m.Basicauthenabled.IsNull() && !m.Basicauthenabled.IsUnknown() {
 		out["basicauthenabled"] = m.Basicauthenabled.ValueBool()
-	} else {
-		out["basicauthenabled"] = false
 	}
 	if !m.Bootstraptime.IsNull() && !m.Bootstraptime.IsUnknown() {
 		out["bootstraptime"] = m.Bootstraptime.ValueInt64()
@@ -1329,10 +1338,15 @@ func planToContainerPayload(ctx context.Context, m *containerModel) (map[string]
 	if !m.Defaulthostname.IsNull() && !m.Defaulthostname.IsUnknown() {
 		out["defaulthostname"] = m.Defaulthostname.ValueString()
 	}
+	// Unset booleans are OMITTED, never sent as false. These attributes are
+	// Optional+Computed, so "absent from config" plans as UNKNOWN — which means
+	// "leave it alone", not "set it to false". Sending false here clobbered any
+	// value set outside Terraform on every apply, and where the API default is
+	// true it inverted the contract outright: valkey `authenabled` defaults to
+	// true server-side, so forcing false created UNAUTHENTICATED instances.
+	// An explicit `= false` in config still sends false — it is not unknown.
 	if !m.Dnsfailoverenabled.IsNull() && !m.Dnsfailoverenabled.IsUnknown() {
 		out["dnsfailoverenabled"] = m.Dnsfailoverenabled.ValueBool()
-	} else {
-		out["dnsfailoverenabled"] = false
 	}
 	if !m.Dnsttl.IsNull() && !m.Dnsttl.IsUnknown() {
 		out["dnsttl"] = m.Dnsttl.ValueInt64()
@@ -1376,10 +1390,15 @@ func planToContainerPayload(ctx context.Context, m *containerModel) (map[string]
 	if !m.Ephemeralstoragegb.IsNull() && !m.Ephemeralstoragegb.IsUnknown() {
 		out["ephemeralstoragegb"] = m.Ephemeralstoragegb.ValueInt64()
 	}
+	// Unset booleans are OMITTED, never sent as false. These attributes are
+	// Optional+Computed, so "absent from config" plans as UNKNOWN — which means
+	// "leave it alone", not "set it to false". Sending false here clobbered any
+	// value set outside Terraform on every apply, and where the API default is
+	// true it inverted the contract outright: valkey `authenabled` defaults to
+	// true server-side, so forcing false created UNAUTHENTICATED instances.
+	// An explicit `= false` in config still sends false — it is not unknown.
 	if !m.Externalnetworkingenabled.IsNull() && !m.Externalnetworkingenabled.IsUnknown() {
 		out["externalnetworkingenabled"] = m.Externalnetworkingenabled.ValueBool()
-	} else {
-		out["externalnetworkingenabled"] = false
 	}
 	if !m.Failedjobshistorylimit.IsNull() && !m.Failedjobshistorylimit.IsUnknown() {
 		out["failedjobshistorylimit"] = m.Failedjobshistorylimit.ValueInt64()
@@ -1404,9 +1423,6 @@ func planToContainerPayload(ctx context.Context, m *containerModel) (map[string]
 	}
 	if !m.Healthcheckpath.IsNull() && !m.Healthcheckpath.IsUnknown() {
 		out["healthcheckpath"] = m.Healthcheckpath.ValueString()
-	}
-	if !m.Healthcheckscheme.IsNull() && !m.Healthcheckscheme.IsUnknown() {
-		out["healthcheckscheme"] = m.Healthcheckscheme.ValueString()
 	}
 	if !m.Hostnames.IsNull() && !m.Hostnames.IsUnknown() {
 		var nested []containerHostnamesModel
@@ -1470,10 +1486,15 @@ func planToContainerPayload(ctx context.Context, m *containerModel) (map[string]
 	} else {
 		out["ipblacklist"] = []string{}
 	}
+	// Unset booleans are OMITTED, never sent as false. These attributes are
+	// Optional+Computed, so "absent from config" plans as UNKNOWN — which means
+	// "leave it alone", not "set it to false". Sending false here clobbered any
+	// value set outside Terraform on every apply, and where the API default is
+	// true it inverted the contract outright: valkey `authenabled` defaults to
+	// true server-side, so forcing false created UNAUTHENTICATED instances.
+	// An explicit `= false` in config still sends false — it is not unknown.
 	if !m.Ipblacklistenabled.IsNull() && !m.Ipblacklistenabled.IsUnknown() {
 		out["ipblacklistenabled"] = m.Ipblacklistenabled.ValueBool()
-	} else {
-		out["ipblacklistenabled"] = false
 	}
 	if !m.Ipwhitelist.IsNull() && !m.Ipwhitelist.IsUnknown() {
 		var items []string
@@ -1482,10 +1503,15 @@ func planToContainerPayload(ctx context.Context, m *containerModel) (map[string]
 	} else {
 		out["ipwhitelist"] = []string{}
 	}
+	// Unset booleans are OMITTED, never sent as false. These attributes are
+	// Optional+Computed, so "absent from config" plans as UNKNOWN — which means
+	// "leave it alone", not "set it to false". Sending false here clobbered any
+	// value set outside Terraform on every apply, and where the API default is
+	// true it inverted the contract outright: valkey `authenabled` defaults to
+	// true server-side, so forcing false created UNAUTHENTICATED instances.
+	// An explicit `= false` in config still sends false — it is not unknown.
 	if !m.Ipwhitelistenabled.IsNull() && !m.Ipwhitelistenabled.IsUnknown() {
 		out["ipwhitelistenabled"] = m.Ipwhitelistenabled.ValueBool()
-	} else {
-		out["ipwhitelistenabled"] = false
 	}
 	if !m.Jsonconfigs.IsNull() && !m.Jsonconfigs.IsUnknown() {
 		var nested []containerJsonconfigsModel
@@ -1587,10 +1613,18 @@ func planToContainerPayload(ctx context.Context, m *containerModel) (map[string]
 	if !m.Prometheusport.IsNull() && !m.Prometheusport.IsUnknown() {
 		out["prometheusport"] = m.Prometheusport.ValueString()
 	}
+	if !m.Protocol.IsNull() && !m.Protocol.IsUnknown() {
+		out["protocol"] = m.Protocol.ValueString()
+	}
+	// Unset booleans are OMITTED, never sent as false. These attributes are
+	// Optional+Computed, so "absent from config" plans as UNKNOWN — which means
+	// "leave it alone", not "set it to false". Sending false here clobbered any
+	// value set outside Terraform on every apply, and where the API default is
+	// true it inverted the contract outright: valkey `authenabled` defaults to
+	// true server-side, so forcing false created UNAUTHENTICATED instances.
+	// An explicit `= false` in config still sends false — it is not unknown.
 	if !m.Proxycacheallowforcecacheheader.IsNull() && !m.Proxycacheallowforcecacheheader.IsUnknown() {
 		out["proxycacheallowforcecacheheader"] = m.Proxycacheallowforcecacheheader.ValueBool()
-	} else {
-		out["proxycacheallowforcecacheheader"] = false
 	}
 	if !m.Proxycachecontenttypes.IsNull() && !m.Proxycachecontenttypes.IsUnknown() {
 		var items []string
@@ -1599,15 +1633,25 @@ func planToContainerPayload(ctx context.Context, m *containerModel) (map[string]
 	} else {
 		out["proxycachecontenttypes"] = []string{}
 	}
+	// Unset booleans are OMITTED, never sent as false. These attributes are
+	// Optional+Computed, so "absent from config" plans as UNKNOWN — which means
+	// "leave it alone", not "set it to false". Sending false here clobbered any
+	// value set outside Terraform on every apply, and where the API default is
+	// true it inverted the contract outright: valkey `authenabled` defaults to
+	// true server-side, so forcing false created UNAUTHENTICATED instances.
+	// An explicit `= false` in config still sends false — it is not unknown.
 	if !m.Proxycacheenabled.IsNull() && !m.Proxycacheenabled.IsUnknown() {
 		out["proxycacheenabled"] = m.Proxycacheenabled.ValueBool()
-	} else {
-		out["proxycacheenabled"] = false
 	}
+	// Unset booleans are OMITTED, never sent as false. These attributes are
+	// Optional+Computed, so "absent from config" plans as UNKNOWN — which means
+	// "leave it alone", not "set it to false". Sending false here clobbered any
+	// value set outside Terraform on every apply, and where the API default is
+	// true it inverted the contract outright: valkey `authenabled` defaults to
+	// true server-side, so forcing false created UNAUTHENTICATED instances.
+	// An explicit `= false` in config still sends false — it is not unknown.
 	if !m.Proxycachehonorcachecontrol.IsNull() && !m.Proxycachehonorcachecontrol.IsUnknown() {
 		out["proxycachehonorcachecontrol"] = m.Proxycachehonorcachecontrol.ValueBool()
-	} else {
-		out["proxycachehonorcachecontrol"] = false
 	}
 	if !m.Proxycachemaxitemsizemb.IsNull() && !m.Proxycachemaxitemsizemb.IsUnknown() {
 		out["proxycachemaxitemsizemb"] = m.Proxycachemaxitemsizemb.ValueInt64()
@@ -1659,10 +1703,15 @@ func planToContainerPayload(ctx context.Context, m *containerModel) (map[string]
 	} else {
 		out["proxycachevaryqueryparams"] = []string{}
 	}
+	// Unset booleans are OMITTED, never sent as false. These attributes are
+	// Optional+Computed, so "absent from config" plans as UNKNOWN — which means
+	// "leave it alone", not "set it to false". Sending false here clobbered any
+	// value set outside Terraform on every apply, and where the API default is
+	// true it inverted the contract outright: valkey `authenabled` defaults to
+	// true server-side, so forcing false created UNAUTHENTICATED instances.
+	// An explicit `= false` in config still sends false — it is not unknown.
 	if !m.Ratelimitingenabled.IsNull() && !m.Ratelimitingenabled.IsUnknown() {
 		out["ratelimitingenabled"] = m.Ratelimitingenabled.ValueBool()
-	} else {
-		out["ratelimitingenabled"] = false
 	}
 	if !m.Ratelimitingrequestsperhour.IsNull() && !m.Ratelimitingrequestsperhour.IsUnknown() {
 		out["ratelimitingrequestsperhour"] = m.Ratelimitingrequestsperhour.ValueInt64()
@@ -1721,10 +1770,15 @@ func planToContainerPayload(ctx context.Context, m *containerModel) (map[string]
 	if !m.Successfuljobshistorylimit.IsNull() && !m.Successfuljobshistorylimit.IsUnknown() {
 		out["successfuljobshistorylimit"] = m.Successfuljobshistorylimit.ValueInt64()
 	}
+	// Unset booleans are OMITTED, never sent as false. These attributes are
+	// Optional+Computed, so "absent from config" plans as UNKNOWN — which means
+	// "leave it alone", not "set it to false". Sending false here clobbered any
+	// value set outside Terraform on every apply, and where the API default is
+	// true it inverted the contract outright: valkey `authenabled` defaults to
+	// true server-side, so forcing false created UNAUTHENTICATED instances.
+	// An explicit `= false` in config still sends false — it is not unknown.
 	if !m.Suspended.IsNull() && !m.Suspended.IsUnknown() {
 		out["suspended"] = m.Suspended.ValueBool()
-	} else {
-		out["suspended"] = false
 	}
 	if !m.Timezone.IsNull() && !m.Timezone.IsUnknown() {
 		out["timezone"] = m.Timezone.ValueString()
@@ -2054,11 +2108,6 @@ func apiToContainerModel(raw map[string]any) containerModel {
 	} else {
 		m.Healthcheckpath = types.StringNull()
 	}
-	if v, ok := raw["healthcheckscheme"].(string); ok {
-		m.Healthcheckscheme = types.StringValue(v)
-	} else {
-		m.Healthcheckscheme = types.StringNull()
-	}
 	if items, ok := raw["hostnames"].([]any); ok {
 		elements := make([]attr.Value, 0, len(items))
 		for _, it := range items {
@@ -2322,6 +2371,11 @@ func apiToContainerModel(raw map[string]any) containerModel {
 		m.Prometheusport = types.StringValue(v)
 	} else {
 		m.Prometheusport = types.StringNull()
+	}
+	if v, ok := raw["protocol"].(string); ok {
+		m.Protocol = types.StringValue(v)
+	} else {
+		m.Protocol = types.StringNull()
 	}
 	if v, ok := raw["proxycacheallowforcecacheheader"].(bool); ok {
 		m.Proxycacheallowforcecacheheader = types.BoolValue(v)
@@ -2903,9 +2957,6 @@ func containerModelsEqual(a, b containerModel) bool {
 	if !a.Healthcheckpath.Equal(b.Healthcheckpath) {
 		return false
 	}
-	if !a.Healthcheckscheme.Equal(b.Healthcheckscheme) {
-		return false
-	}
 	if !a.Hostnames.Equal(b.Hostnames) {
 		return false
 	}
@@ -2955,6 +3006,9 @@ func containerModelsEqual(a, b containerModel) bool {
 		return false
 	}
 	if !a.Prometheusport.Equal(b.Prometheusport) {
+		return false
+	}
+	if !a.Protocol.Equal(b.Protocol) {
 		return false
 	}
 	if !a.Proxycacheallowforcecacheheader.Equal(b.Proxycacheallowforcecacheheader) {

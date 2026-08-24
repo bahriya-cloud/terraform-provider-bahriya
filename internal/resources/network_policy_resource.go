@@ -346,10 +346,15 @@ func planToNetworkPolicyPayload(ctx context.Context, m *network_policyModel) (ma
 	} else {
 		out["ingresspeers"] = []string{}
 	}
+	// Unset booleans are OMITTED, never sent as false. These attributes are
+	// Optional+Computed, so "absent from config" plans as UNKNOWN — which means
+	// "leave it alone", not "set it to false". Sending false here clobbered any
+	// value set outside Terraform on every apply, and where the API default is
+	// true it inverted the contract outright: valkey `authenabled` defaults to
+	// true server-side, so forcing false created UNAUTHENTICATED instances.
+	// An explicit `= false` in config still sends false — it is not unknown.
 	if !m.L7enabled.IsNull() && !m.L7enabled.IsUnknown() {
 		out["l7enabled"] = m.L7enabled.ValueBool()
-	} else {
-		out["l7enabled"] = false
 	}
 	if !m.Ports.IsNull() && !m.Ports.IsUnknown() {
 		var nested []network_policyPortsModel

@@ -137,6 +137,8 @@ func (r *{{ .Name }}Resource) Schema(_ context.Context, _ resource.SchemaRequest
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
+{{- else if not .PinnableComputed }}
+				// No UseStateForUnknown: {{ .VolatileReason }}
 {{- else if and .Computed (eq .Type "string") }}
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
@@ -257,7 +259,7 @@ func (r *{{ .Name }}Resource) Create(ctx context.Context, req resource.CreateReq
 		}
 {{- if .HasSensitiveFields }}
 {{- range .SensitiveAttributes }}
-		partial.{{ .GoName }} = plan.{{ .GoName }}
+		partial.{{ .GoName }} = knownValue(plan.{{ .GoName }}, types.StringNull())
 {{- end }}
 {{- end }}
 		resp.Diagnostics.Append(resp.State.Set(ctx, partial)...)
@@ -282,7 +284,7 @@ func (r *{{ .Name }}Resource) Create(ctx context.Context, req resource.CreateReq
 	}
 {{- if .HasSensitiveFields }}
 {{- range .SensitiveAttributes }}
-	state.{{ .GoName }} = plan.{{ .GoName }}
+	state.{{ .GoName }} = knownValue(plan.{{ .GoName }}, types.StringNull())
 {{- end }}
 {{- end }}
 
@@ -366,7 +368,31 @@ func (r *{{ .Name }}Resource) Update(ctx context.Context, req resource.UpdateReq
 		Timeout:  updateTimeout,
 	})
 	if werr != nil {
-		resp.Diagnostics.AddError("Resource did not settle after Update", werr.Error())
+		// Mirror Create: the PUT was accepted, so the change IS in flight. A slow
+		// converge must not fail the apply — erroring here leaves state stale and
+		// re-issues the same PUT on every retry for no benefit. Persist the real
+		// (non-{{ .ReadyStatus }}) state and WARN; a later apply re-reads the status once the
+		// deploy settles.
+		partial, d := r.fetch(ctx, state.ID.ValueString())
+		if d.HasError() {
+			resp.Diagnostics.Append(d...)
+			resp.Diagnostics.AddError("{{ .GoName }} updated but could not be read back", werr.Error())
+			return
+		}
+{{- if .HasSensitiveFields }}
+{{- range .SensitiveAttributes }}
+		partial.{{ .GoName }} = knownValue(plan.{{ .GoName }}, state.{{ .GoName }})
+{{- end }}
+{{- end }}
+		resp.Diagnostics.Append(resp.State.Set(ctx, partial)...)
+		resp.Diagnostics.AddWarning(
+			"{{ .GoName }} updated but not yet {{ .ReadyStatus }}",
+			fmt.Sprintf(
+				"The update was accepted but the {{ .Noun }} did not reach \"{{ .ReadyStatus }}\" within %s (last status %q). "+
+					"It is saved to state; run `terraform apply` again to re-check once the deploy settles.",
+				updateTimeout, partial.Status.ValueString(),
+			),
+		)
 		return
 	}
 {{- end }}
@@ -378,7 +404,7 @@ func (r *{{ .Name }}Resource) Update(ctx context.Context, req resource.UpdateReq
 	}
 {{- if .HasSensitiveFields }}
 {{- range .SensitiveAttributes }}
-	fresh.{{ .GoName }} = plan.{{ .GoName }}
+	fresh.{{ .GoName }} = knownValue(plan.{{ .GoName }}, state.{{ .GoName }})
 {{- end }}
 {{- end }}
 	resp.Diagnostics.Append(resp.State.Set(ctx, fresh)...)
@@ -555,11 +581,16 @@ func planTo{{ .GoName }}Payload(ctx context.Context, m *{{ .Name }}Model) (map[s
 		out["{{ .APIName }}"] = m.{{ .GoName }}.ValueInt64()
 	}
 {{- else if eq .Type "bool" }}
+	// Unset booleans are OMITTED, never sent as false. These attributes are
+	// Optional+Computed, so "absent from config" plans as UNKNOWN — which means
+	// "leave it alone", not "set it to false". Sending false here clobbered any
+	// value set outside Terraform on every apply, and where the API default is
+	// true it inverted the contract outright: valkey `authenabled` defaults to
+	// true server-side, so forcing false created UNAUTHENTICATED instances.
+	// An explicit `= false` in config still sends false — it is not unknown.
 	if !m.{{ .GoName }}.IsNull() && !m.{{ .GoName }}.IsUnknown() {
 		out["{{ .APIName }}"] = m.{{ .GoName }}.ValueBool()
-	}{{- if .Optional }} else {
-		out["{{ .APIName }}"] = false
-	}{{- end }}
+	}
 {{- else if eq .Type "list_string" }}
 	if !m.{{ .GoName }}.IsNull() && !m.{{ .GoName }}.IsUnknown() {
 		var items []string

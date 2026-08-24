@@ -158,7 +158,7 @@ func (r *secretResource) Create(ctx context.Context, req resource.CreateRequest,
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	state.Value = plan.Value
+	state.Value = knownValue(plan.Value, types.StringNull())
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
@@ -220,7 +220,7 @@ func (r *secretResource) Update(ctx context.Context, req resource.UpdateRequest,
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	fresh.Value = plan.Value
+	fresh.Value = knownValue(plan.Value, state.Value)
 	resp.Diagnostics.Append(resp.State.Set(ctx, fresh)...)
 }
 

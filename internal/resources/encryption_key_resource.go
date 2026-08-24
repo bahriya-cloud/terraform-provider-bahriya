@@ -187,7 +187,7 @@ func (r *encryption_keyResource) Create(ctx context.Context, req resource.Create
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	state.Key = plan.Key
+	state.Key = knownValue(plan.Key, types.StringNull())
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
@@ -250,7 +250,7 @@ func (r *encryption_keyResource) Update(ctx context.Context, req resource.Update
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	fresh.Key = plan.Key
+	fresh.Key = knownValue(plan.Key, state.Key)
 	resp.Diagnostics.Append(resp.State.Set(ctx, fresh)...)
 }
 

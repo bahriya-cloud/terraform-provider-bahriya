@@ -475,9 +475,14 @@ var descriptors = map[string]resourceDescriptor{
 		URLItem:    "/organisations/%s/valkey/%s",
 		// The handle-exists route is deliberately /valkey-handle/{handle} —
 		// /valkey/{handle} would collide with /valkey/{vid} (SR-2026-004).
-		HandleURL:         "/organisations/%s/valkey-handle/%s",
-		HandlePathName:    "valkey-handle",
-		CollectionKey:     "valkey",
+		HandleURL:      "/organisations/%s/valkey-handle/%s",
+		HandlePathName: "valkey-handle",
+		// No CollectionKey: GET /valkey/{vid} returns a bare Valkey object
+		// (spec: data -> $ref Valkey), unlike projects whose GET-one returns a
+		// ProjectsResponseBody list wrapper. Declaring one here made the
+		// generated fetch() look for an "valkey" array that is never there, so
+		// every read failed as "deleted out-of-band". It was hand-patched out of
+		// the generated file and silently reintroduced by each regeneration.
 		SensitiveFields:   []string{"password"},
 		Noun:              "instance",
 		HasStatus:         true,

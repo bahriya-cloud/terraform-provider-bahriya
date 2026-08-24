@@ -209,8 +209,8 @@ func (r *gpg_keypairResource) Create(ctx context.Context, req resource.CreateReq
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	state.Privatekey = plan.Privatekey
-	state.Publickey = plan.Publickey
+	state.Privatekey = knownValue(plan.Privatekey, types.StringNull())
+	state.Publickey = knownValue(plan.Publickey, types.StringNull())
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
@@ -274,8 +274,8 @@ func (r *gpg_keypairResource) Update(ctx context.Context, req resource.UpdateReq
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	fresh.Privatekey = plan.Privatekey
-	fresh.Publickey = plan.Publickey
+	fresh.Privatekey = knownValue(plan.Privatekey, state.Privatekey)
+	fresh.Publickey = knownValue(plan.Publickey, state.Publickey)
 	resp.Diagnostics.Append(resp.State.Set(ctx, fresh)...)
 }
 
