@@ -68,6 +68,7 @@ type containerModel struct {
 	Failedjobshistorylimit          types.Int64  `tfsdk:"failedjobshistorylimit"`
 	Gpgkeypairs                     types.List   `tfsdk:"gpgkeypairs"`
 	Healthcheckpath                 types.String `tfsdk:"healthcheckpath"`
+	Healthcheckscheme               types.String `tfsdk:"healthcheckscheme"`
 	Hostnames                       types.List   `tfsdk:"hostnames"`
 	Initjobs                        types.List   `tfsdk:"initjobs"`
 	Ipblacklist                     types.List   `tfsdk:"ipblacklist"`
@@ -229,7 +230,8 @@ func (r *containerResource) Schema(_ context.Context, _ resource.SchemaRequest, 
 				Description: "Regions this container deploys into. At least one is required.",
 			},
 			"image": schema.StringAttribute{
-				Required: true,
+				Required:    true,
+				Description: "The container image to deploy, including the registry host when it is not Docker Hub. An explicit tag or digest is required — an untagged reference is rejected.",
 			},
 			"mincpu": schema.StringAttribute{
 				Required: true,
@@ -436,6 +438,11 @@ func (r *containerResource) Schema(_ context.Context, _ resource.SchemaRequest, 
 				Optional:    true,
 				Computed:    true,
 				Description: "Health check endpoint path. Required for HTTP containers, optional for workers.",
+			},
+			"healthcheckscheme": schema.StringAttribute{
+				Optional:    true,
+				Computed:    true,
+				Description: "How the health check probes the container. `http` sends a GET to the health check path — the default, and what every container did before this field existed. `https` sends the same GET over TLS, for a container that terminates TLS on its own listening port. `tcp` only checks that the port accepts a connection and ignores the health check path entirely — use it for a workload that does not speak HTTP.",
 			},
 			"hostnames": schema.ListNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -1398,6 +1405,9 @@ func planToContainerPayload(ctx context.Context, m *containerModel) (map[string]
 	if !m.Healthcheckpath.IsNull() && !m.Healthcheckpath.IsUnknown() {
 		out["healthcheckpath"] = m.Healthcheckpath.ValueString()
 	}
+	if !m.Healthcheckscheme.IsNull() && !m.Healthcheckscheme.IsUnknown() {
+		out["healthcheckscheme"] = m.Healthcheckscheme.ValueString()
+	}
 	if !m.Hostnames.IsNull() && !m.Hostnames.IsUnknown() {
 		var nested []containerHostnamesModel
 		diags.Append(m.Hostnames.ElementsAs(ctx, &nested, false)...)
@@ -2043,6 +2053,11 @@ func apiToContainerModel(raw map[string]any) containerModel {
 		m.Healthcheckpath = types.StringValue(v)
 	} else {
 		m.Healthcheckpath = types.StringNull()
+	}
+	if v, ok := raw["healthcheckscheme"].(string); ok {
+		m.Healthcheckscheme = types.StringValue(v)
+	} else {
+		m.Healthcheckscheme = types.StringNull()
 	}
 	if items, ok := raw["hostnames"].([]any); ok {
 		elements := make([]attr.Value, 0, len(items))
@@ -2886,6 +2901,9 @@ func containerModelsEqual(a, b containerModel) bool {
 		return false
 	}
 	if !a.Healthcheckpath.Equal(b.Healthcheckpath) {
+		return false
+	}
+	if !a.Healthcheckscheme.Equal(b.Healthcheckscheme) {
 		return false
 	}
 	if !a.Hostnames.Equal(b.Hostnames) {

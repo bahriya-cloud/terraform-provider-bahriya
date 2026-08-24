@@ -106,6 +106,44 @@ resource "bahriya_container" "nightly" {
 }
 ```
 
+### Choosing How the Health Check Probes
+
+`healthcheckscheme` decides how the platform probes the container. The default,
+`http`, sends a GET to `healthcheckpath`. Use `https` when the container
+terminates TLS on its own listening port, and `tcp` when it does not speak HTTP
+at all — a TCP probe only checks the port accepts a connection, so
+`healthcheckpath` is not used.
+
+```hcl
+# Terminates TLS itself — probe over HTTPS. The certificate is not verified,
+# so a self-signed one is fine.
+resource "bahriya_container" "secure_api" {
+  handle            = "secure-api"
+  name              = "Secure API"
+  image             = "ghcr.io/org/secure-api:2.0.0"
+  containerport     = "8443"
+  healthcheckpath   = "/healthz"
+  healthcheckscheme = "https"
+  mincpu            = "100"
+  minmemory         = "128"
+  activeregions     = ["falkenstein-1"]
+  project           = bahriya_project.web.id
+}
+
+# Speaks a binary protocol, not HTTP — probe the port only.
+resource "bahriya_container" "queue_bridge" {
+  handle            = "queue-bridge"
+  name              = "Queue Bridge"
+  image             = "registry.example.com/team/bridge:1.4.2"
+  containerport     = "9000"
+  healthcheckscheme = "tcp"
+  mincpu            = "50"
+  minmemory         = "128"
+  activeregions     = ["falkenstein-1"]
+  project           = bahriya_project.web.id
+}
+```
+
 ### With Rate Limiting and IP Rules
 
 ```hcl
@@ -137,7 +175,7 @@ resource "bahriya_container" "api" {
 
 - `handle` (String) - Unique lowercase handle. Immutable — changing this forces recreation. Handles are **not released** on delete (soft-delete).
 - `name` (String) - Display name.
-- `image` (String) - Container image reference including tag.
+- `image` (String) - Container image reference. An explicit tag or digest is **required** — an untagged reference is rejected, because the deployment would render an unpullable image.
 - `mincpu` (String) - Minimum CPU in millicores.
 - `minmemory` (String) - Minimum memory in megabytes.
 - `activeregions` (List of String) - Active regions. At least one required.
@@ -147,6 +185,7 @@ resource "bahriya_container" "api" {
 - `type` (String) - Container type: `http` (default), `worker`, or `cronjob`.
 - `containerport` (String) - Port the container listens on. **Required for HTTP containers** — deploy will fail without it.
 - `healthcheckpath` (String) - Health check endpoint path. **Required for HTTP containers** — the platform probes this path to decide if the container is healthy.
+- `healthcheckscheme` (String) - How the health check probes the container: `http` (default), `https` or `tcp`. `http` sends a GET to `healthcheckpath`. `https` sends the same GET over TLS, for a container terminating TLS on its own listening port; the certificate is not verified. `tcp` only checks the port accepts a connection and ignores `healthcheckpath` entirely — use it for a workload that does not speak HTTP.
 - `project` (String) - Project UUID. Changing this forces recreation.
 - `registry` (String) - Registry handle for private images.
 - `autoscalingminreplicas` (String) - Minimum replicas.
@@ -268,7 +307,7 @@ Basic auth credentials (up to 10). HTTP containers only.
 Init jobs that run to completion before the main container starts. HTTP containers only.
 
 - `handle` (String, Required) - Init job handle.
-- `image` (String, Required) - Container image.
+- `image` (String, Required) - Container image. An explicit tag or digest is required, as for the parent container.
 - `command` (List of String, Optional) - Override ENTRYPOINT.
 - `args` (List of String, Optional) - Override CMD arguments.
 - `mincpu` (String, Optional) - CPU in millicores.
