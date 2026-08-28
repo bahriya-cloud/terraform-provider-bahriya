@@ -204,15 +204,29 @@ func (r *tls_bundleResource) Create(ctx context.Context, req resource.CreateRequ
 		resp.Diagnostics.AddError("Create failed", err.Error())
 		return
 	}
+	if status == http.StatusConflict {
+		// A refusal on project resource limits is the one 409 with a structured body, and it is
+		// the one a practitioner can act on: it says which ceiling, in which region, and by how
+		// much. Rendering it as raw JSON next to "Unexpected status" would bury that.
+		if verdict := client.DecodeQuotaRefusal(data); verdict != nil {
+			resp.Diagnostics.AddError("Project resource limits exceeded", client.QuotaDetail(verdict))
+			return
+		}
+	}
 	if status != http.StatusCreated {
 		resp.Diagnostics.AddError("Unexpected status from Create", fmt.Sprintf("HTTP %d: %s", status, string(data)))
 		return
 	}
 
-	var id string
-	if err := json.Unmarshal(data, &id); err != nil {
+	id, verdict, err := client.DecodeWrite(data)
+	if err != nil {
 		resp.Diagnostics.AddError("Decode created id failed", err.Error())
 		return
+	}
+	if warning := client.QuotaWarning(verdict); warning != "" {
+		// Applied, and running. It may still be unable to reach the replica count the
+		// configuration asks for, which nothing else in the plan or state would ever reveal.
+		resp.Diagnostics.AddWarning("Scaling limited by project resource limits", warning)
 	}
 
 	state, diags := r.fetch(ctx, id)

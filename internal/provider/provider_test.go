@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/provider"
@@ -52,13 +53,42 @@ func TestProvider_Resources_NotEmpty(t *testing.T) {
 }
 
 func TestProvider_DataSources_NotEmpty(t *testing.T) {
+	// The expected SET, not a count. A bare count fails on every addition with a message that says
+	// only that the number moved, which tells the next person nothing about whether the change was
+	// intended — so the reflex is to bump the number, and the check stops meaning anything.
+	want := map[string]bool{
+		"bahriya_organisation":  true,
+		"bahriya_region":        true,
+		"bahriya_regions":       true,
+		"bahriya_project_quota": true,
+	}
+
 	p := &bahriyaProvider{}
 	dataSources := p.DataSources(context.Background())
 	if len(dataSources) == 0 {
 		t.Fatal("expected at least one data source")
 	}
-	if len(dataSources) != 3 {
-		t.Fatalf("expected 3 data sources, got %d", len(dataSources))
+
+	got := map[string]bool{}
+	for _, newDataSource := range dataSources {
+		var resp datasource.MetadataResponse
+		newDataSource().Metadata(
+			context.Background(),
+			datasource.MetadataRequest{ProviderTypeName: "bahriya"},
+			&resp,
+		)
+		got[resp.TypeName] = true
+	}
+
+	for name := range want {
+		if !got[name] {
+			t.Errorf("data source %q is registered nowhere — add it to datasources.All()", name)
+		}
+	}
+	for name := range got {
+		if !want[name] {
+			t.Errorf("data source %q is new; add it to this test and to docs/data-sources/", name)
+		}
 	}
 }
 

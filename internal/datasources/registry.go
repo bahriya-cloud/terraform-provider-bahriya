@@ -7,5 +7,6 @@ func All() []func() datasource.DataSource {
 		NewOrganisationDataSource,
 		NewRegionDataSource,
 		NewRegionsDataSource,
+		NewProjectQuotaDataSource,
 	}
 }
