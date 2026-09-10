@@ -33,16 +33,20 @@ type projectResource struct {
 }
 
 type projectModel struct {
-	ID                 types.String `tfsdk:"id"`
-	Handle             types.String `tfsdk:"handle"`
-	Name               types.String `tfsdk:"name"`
-	Regions            types.List   `tfsdk:"regions"`
-	Users              types.List   `tfsdk:"users"`
-	Organisation       types.String `tfsdk:"organisation"`
-	Quotalimitcpu      types.String `tfsdk:"quotalimitcpu"`
-	Quotalimitmemory   types.String `tfsdk:"quotalimitmemory"`
-	Quotarequestcpu    types.String `tfsdk:"quotarequestcpu"`
-	Quotarequestmemory types.String `tfsdk:"quotarequestmemory"`
+	ID                          types.String `tfsdk:"id"`
+	Handle                      types.String `tfsdk:"handle"`
+	Name                        types.String `tfsdk:"name"`
+	Regions                     types.List   `tfsdk:"regions"`
+	Users                       types.List   `tfsdk:"users"`
+	Effectivequotalimitcpu      types.String `tfsdk:"effectivequotalimitcpu"`
+	Effectivequotalimitmemory   types.String `tfsdk:"effectivequotalimitmemory"`
+	Effectivequotarequestcpu    types.String `tfsdk:"effectivequotarequestcpu"`
+	Effectivequotarequestmemory types.String `tfsdk:"effectivequotarequestmemory"`
+	Organisation                types.String `tfsdk:"organisation"`
+	Quotalimitcpu               types.String `tfsdk:"quotalimitcpu"`
+	Quotalimitmemory            types.String `tfsdk:"quotalimitmemory"`
+	Quotarequestcpu             types.String `tfsdk:"quotarequestcpu"`
+	Quotarequestmemory          types.String `tfsdk:"quotarequestmemory"`
 }
 
 func (r *projectResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -79,6 +83,34 @@ func (r *projectResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				Computed:    true,
 				PlanModifiers: []planmodifier.List{
 					listplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"effectivequotalimitcpu": schema.StringAttribute{
+				Computed:    true,
+				Description: "Namespace CPU limit quota in force, platform default resolved.",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"effectivequotalimitmemory": schema.StringAttribute{
+				Computed:    true,
+				Description: "Namespace memory limit quota in force, platform default resolved.",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"effectivequotarequestcpu": schema.StringAttribute{
+				Computed:    true,
+				Description: "Namespace CPU request quota in force, platform default resolved.",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"effectivequotarequestmemory": schema.StringAttribute{
+				Computed:    true,
+				Description: "Namespace memory request quota in force, platform default resolved.",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"organisation": schema.StringAttribute{
@@ -380,6 +412,26 @@ func apiToProjectModel(raw map[string]any) projectModel {
 		m.Users = listVal
 	} else {
 		m.Users = types.ListNull(types.StringType)
+	}
+	if v, ok := raw["effectivequotalimitcpu"].(string); ok {
+		m.Effectivequotalimitcpu = types.StringValue(v)
+	} else {
+		m.Effectivequotalimitcpu = types.StringNull()
+	}
+	if v, ok := raw["effectivequotalimitmemory"].(string); ok {
+		m.Effectivequotalimitmemory = types.StringValue(v)
+	} else {
+		m.Effectivequotalimitmemory = types.StringNull()
+	}
+	if v, ok := raw["effectivequotarequestcpu"].(string); ok {
+		m.Effectivequotarequestcpu = types.StringValue(v)
+	} else {
+		m.Effectivequotarequestcpu = types.StringNull()
+	}
+	if v, ok := raw["effectivequotarequestmemory"].(string); ok {
+		m.Effectivequotarequestmemory = types.StringValue(v)
+	} else {
+		m.Effectivequotarequestmemory = types.StringNull()
 	}
 	if v, ok := raw["organisation"].(string); ok {
 		m.Organisation = types.StringValue(v)
