@@ -38,34 +38,36 @@ type valkeyResource struct {
 }
 
 type valkeyModel struct {
-	ID              types.String `tfsdk:"id"`
-	Handle          types.String `tfsdk:"handle"`
-	Activeregions   types.List   `tfsdk:"activeregions"`
-	Memorymb        types.Int64  `tfsdk:"memorymb"`
-	Name            types.String `tfsdk:"name"`
-	Purpose         types.String `tfsdk:"purpose"`
-	Tier            types.String `tfsdk:"tier"`
-	Allowedips      types.List   `tfsdk:"allowedips"`
-	Authenabled     types.Bool   `tfsdk:"authenabled"`
-	Backupenabled   types.Bool   `tfsdk:"backupenabled"`
-	Backupschedule  types.String `tfsdk:"backupschedule"`
-	Config          types.Map    `tfsdk:"config"`
-	Defaulthostname types.String `tfsdk:"defaulthostname"`
-	Externalenabled types.Bool   `tfsdk:"externalenabled"`
-	Hostnames       types.List   `tfsdk:"hostnames"`
-	Maxmemorypolicy types.String `tfsdk:"maxmemorypolicy"`
-	Networkpolicies types.List   `tfsdk:"networkpolicies"`
-	Password        types.String `tfsdk:"password"`
-	Project         types.String `tfsdk:"project"`
-	Shards          types.Int64  `tfsdk:"shards"`
-	Size            types.String `tfsdk:"size"`
-	Storagegb       types.Int64  `tfsdk:"storagegb"`
-	Tlsbundle       types.String `tfsdk:"tlsbundle"`
-	Tlsenabled      types.Bool   `tfsdk:"tlsenabled"`
-	Nodes           types.Int64  `tfsdk:"nodes"`
-	Organisation    types.String `tfsdk:"organisation"`
-	Projectname     types.String `tfsdk:"projectname"`
-	Status          types.String `tfsdk:"status"`
+	ID               types.String `tfsdk:"id"`
+	Handle           types.String `tfsdk:"handle"`
+	Activeregions    types.List   `tfsdk:"activeregions"`
+	Memorymb         types.Int64  `tfsdk:"memorymb"`
+	Name             types.String `tfsdk:"name"`
+	Purpose          types.String `tfsdk:"purpose"`
+	Tier             types.String `tfsdk:"tier"`
+	Allowedips       types.List   `tfsdk:"allowedips"`
+	Authenabled      types.Bool   `tfsdk:"authenabled"`
+	Backupenabled    types.Bool   `tfsdk:"backupenabled"`
+	Backupschedule   types.String `tfsdk:"backupschedule"`
+	Config           types.Map    `tfsdk:"config"`
+	Defaulthostname  types.String `tfsdk:"defaulthostname"`
+	Externalenabled  types.Bool   `tfsdk:"externalenabled"`
+	Hostnames        types.List   `tfsdk:"hostnames"`
+	Maxmemorypolicy  types.String `tfsdk:"maxmemorypolicy"`
+	Networkpolicies  types.List   `tfsdk:"networkpolicies"`
+	Password         types.String `tfsdk:"password"`
+	Project          types.String `tfsdk:"project"`
+	Shards           types.Int64  `tfsdk:"shards"`
+	Size             types.String `tfsdk:"size"`
+	Storagegb        types.Int64  `tfsdk:"storagegb"`
+	Tlsbundle        types.String `tfsdk:"tlsbundle"`
+	Tlsenabled       types.Bool   `tfsdk:"tlsenabled"`
+	Tlsvalidityyears types.Int64  `tfsdk:"tlsvalidityyears"`
+	Authsecret       types.String `tfsdk:"authsecret"`
+	Nodes            types.Int64  `tfsdk:"nodes"`
+	Organisation     types.String `tfsdk:"organisation"`
+	Projectname      types.String `tfsdk:"projectname"`
+	Status           types.String `tfsdk:"status"`
 }
 
 type valkeyHostnamesModel struct {
@@ -190,7 +192,7 @@ func (r *valkeyResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				Optional:    true,
 				Computed:    true,
 				Sensitive:   true,
-				Description: "Optional. Omitted on create, the platform generates one. Never returned; use the credentials endpoint to reveal it once.",
+				Description: "Optional. Omitted on create, the platform generates one. Stored as a platform-managed secret in your vault (see authsecret), billed like any secret. Sending a different password rotates it; resending the current one changes nothing. Never returned; use the credentials endpoint to reveal it.",
 			},
 			"project": schema.StringAttribute{
 				Optional: true,
@@ -228,6 +230,21 @@ func (r *valkeyResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 			"tlsenabled": schema.BoolAttribute{
 				Optional: true,
 				Computed: true,
+			},
+			"tlsvalidityyears": schema.Int64Attribute{
+				Optional:    true,
+				Computed:    true,
+				Description: "Lifetime in years of the server certificate the platform issues when TLS is on with no customer bundle: 1, 3, 5 or 10. Renewed automatically 30 days before expiry, and reissued when changed, always signed by the same 30-year CA, so a saved CA certificate keeps verifying the server. Ignored for a customer bundle.",
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"authsecret": schema.StringAttribute{
+				Computed:    true,
+				Description: "Handle of the platform-managed vault secret holding the auth password. Null while auth is off; turning auth off releases it.",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"nodes": schema.Int64Attribute{
 				Computed:    true,
@@ -693,6 +710,9 @@ func planToValkeyPayload(ctx context.Context, m *valkeyModel) (map[string]any, d
 	if !m.Tlsenabled.IsNull() && !m.Tlsenabled.IsUnknown() {
 		out["tlsenabled"] = m.Tlsenabled.ValueBool()
 	}
+	if !m.Tlsvalidityyears.IsNull() && !m.Tlsvalidityyears.IsUnknown() {
+		out["tlsvalidityyears"] = m.Tlsvalidityyears.ValueInt64()
+	}
 	return out, diags
 }
 
@@ -869,6 +889,16 @@ func apiToValkeyModel(raw map[string]any) valkeyModel {
 	} else {
 		m.Tlsenabled = types.BoolNull()
 	}
+	if v, ok := raw["tlsvalidityyears"].(float64); ok {
+		m.Tlsvalidityyears = types.Int64Value(int64(v))
+	} else {
+		m.Tlsvalidityyears = types.Int64Null()
+	}
+	if v, ok := raw["authsecret"].(string); ok {
+		m.Authsecret = types.StringValue(v)
+	} else {
+		m.Authsecret = types.StringNull()
+	}
 	if v, ok := raw["nodes"].(float64); ok {
 		m.Nodes = types.Int64Value(int64(v))
 	} else {
@@ -970,6 +1000,9 @@ func valkeyModelsEqual(a, b valkeyModel) bool {
 		return false
 	}
 	if !a.Tlsenabled.Equal(b.Tlsenabled) {
+		return false
+	}
+	if !a.Tlsvalidityyears.Equal(b.Tlsvalidityyears) {
 		return false
 	}
 	return true

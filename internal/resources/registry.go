@@ -13,6 +13,7 @@ func All() []func() resource.Resource {
 		NewSecretResource,
 		NewMemcachedResource,
 		NewValkeyResource,
+		NewMysqlResource,
 		NewContainerResource,
 		NewTLSBundleResource,
 		NewX509CertResource,

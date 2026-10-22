@@ -490,6 +490,34 @@ var descriptors = map[string]resourceDescriptor{
 		TerminatingStatus: "terminating",
 		TerminatedStatus:  "terminated",
 	},
+	"mysql": {
+		Name:       "mysql",
+		GoName:     "Mysql",
+		SchemaName: "Mysql",
+		URLBase:    "/organisations/%s/mysql",
+		URLItem:    "/organisations/%s/mysql/%s",
+		// /mysql-handle/{handle}, like valkey: /mysql/{handle} would collide
+		// with /mysql/{mid} (SR-2026-008).
+		HandleURL:      "/organisations/%s/mysql-handle/%s",
+		HandlePathName: "mysql-handle",
+		// No CollectionKey: GET /mysql/{mid} returns a bare Mysql object.
+		// No SensitiveFields: database passwords are platform-generated and
+		// never part of the resource — they are revealed through the
+		// credentials endpoint, not stored in state.
+		// The restore-target read fields stay out of Terraform: restore has no
+		// Terraform surface (ADR 2026-10-05, like valkey's 2026-08-13 ADR) —
+		// it is driven from the console, the admin app and Reis.
+		SkipFields: []string{
+			"restoreof", "restoreofhandle", "restorekind", "restoretargetat",
+			"restoredatabase", "restorestatus", "restorefinishedat", "restoreerror",
+			"restoretargets",
+		},
+		Noun:              "instance",
+		HasStatus:         true,
+		ReadyStatus:       "running",
+		TerminatingStatus: "terminating",
+		TerminatedStatus:  "terminated",
+	},
 	"container": {
 		Name:              "container",
 		GoName:            "Container",

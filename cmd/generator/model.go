@@ -111,6 +111,18 @@ func (r Resource) NeedsInt64PlanModifier() bool {
 	return false
 }
 
+// NeedsBoolPlanModifier reports whether any boolean attribute is create-only
+// (x-createOnly → RequiresReplace), which needs the bool-typed modifier — a
+// []planmodifier.String on a BoolAttribute does not compile.
+func (r Resource) NeedsBoolPlanModifier() bool {
+	for _, a := range r.Attributes {
+		if a.Type == "bool" && a.RequiresReplace {
+			return true
+		}
+	}
+	return false
+}
+
 func (r Resource) HasSensitiveFields() bool {
 	for _, a := range r.Attributes {
 		if a.Sensitive {

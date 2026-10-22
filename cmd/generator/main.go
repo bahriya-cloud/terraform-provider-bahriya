@@ -13,7 +13,7 @@ func main() {
 	outputDir := flag.String("out", "internal/resources", "directory to write generated resource files to")
 	flag.Parse()
 
-	targets := []string{"project", "registry", "secret", "memcached", "valkey", "container", "tls_bundle", "x509_cert", "gpg_keypair", "ssh_keypair", "encryption_key", "env_file", "yaml_config", "json_config", "plain_config", "network_policy"}
+	targets := []string{"project", "registry", "secret", "memcached", "valkey", "mysql", "container", "tls_bundle", "x509_cert", "gpg_keypair", "ssh_keypair", "encryption_key", "env_file", "yaml_config", "json_config", "plain_config", "network_policy"}
 
 	// Per-type project attachment resources (bahriya_project_<type>_attachment).
 	// These are thin CRD-only resources hitting /projects/{pid}/attach/{type}/{handle}.
@@ -80,6 +80,8 @@ func plural(s string) string {
 		return "memcached"
 	case "valkey":
 		return "valkey"
+	case "mysql":
+		return "mysql"
 	case "registry":
 		return "registries"
 	case "tls_bundle":

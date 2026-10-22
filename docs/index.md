@@ -15,7 +15,7 @@ The Bahriya provider lets you manage infrastructure on [Bahriya Cloud](https://b
 
 - [HTTP Containers](https://bahriya.cloud/product/containers) — TLS-terminated, autoscaling, multi-region services with custom hostnames.
 - [Workers](https://bahriya.cloud/product/workers) and [Cron Jobs](https://bahriya.cloud/product/cronjobs) — background and scheduled containers.
-- [Managed Valkey](https://bahriya.cloud/product/valkey) — the Redis-compatible, open-source in-memory datastore — and [Managed Memcached](https://bahriya.cloud/product/memcached).
+- [Managed MySQL](https://bahriya.cloud/product/mysql) — databases with per-database users, backups and point-in-time recovery; [Managed Valkey](https://bahriya.cloud/product/valkey) — the Redis-compatible, open-source in-memory datastore — and [Managed Memcached](https://bahriya.cloud/product/memcached).
 - [Vault](https://bahriya.cloud/product/vault) and [Configs](https://bahriya.cloud/product/configs) — secrets, TLS bundles, keypairs, encryption keys and config files, versioned and mountable.
 - [Network Policies](https://bahriya.cloud/product/network-policies) and [Volume Storage](https://bahriya.cloud/product/volume-storage) — traffic control and persistence.
 

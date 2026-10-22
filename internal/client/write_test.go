@@ -112,3 +112,39 @@ func TestQuotaWarningIsEmptyWhenThereIsNothingToAdvise(t *testing.T) {
 		t.Fatalf("expected no warning for a nil verdict, got %q", w)
 	}
 }
+
+// An empty attainablereplicas arrives as `[]` from a PHP encoder. It must decode as "nothing to
+// report", not fail the write — the resource was already created when this response came back.
+func TestDecodeWriteAcceptsAnEmptyReplicaListFromTheApi(t *testing.T) {
+	body := []byte(`{"id":"065df92e-4e46-436a-a0a0-aaaaaaaaaaaa","quota":{"blocked":false,"message":"","warning":"","breaches":[],"warnings":[],"attainablereplicas":[]}}`)
+
+	id, verdict, err := DecodeWrite(body)
+	if err != nil {
+		t.Fatalf("an empty replica list must not fail the write: %v", err)
+	}
+	if id != "065df92e-4e46-436a-a0a0-aaaaaaaaaaaa" {
+		t.Fatalf("id = %q", id)
+	}
+	if verdict == nil || len(verdict.AttainableReplicas) != 0 {
+		t.Fatalf("expected an empty replica map, got %+v", verdict)
+	}
+}
+
+func TestDecodeWriteReadsAPopulatedReplicaObject(t *testing.T) {
+	body := []byte(`{"id":"abc","quota":{"blocked":false,"warnings":[],"breaches":[],"attainablereplicas":{"falkenstein-1":5}}}`)
+
+	_, verdict, err := DecodeWrite(body)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if verdict.AttainableReplicas["falkenstein-1"] != 5 {
+		t.Fatalf("attainablereplicas = %v", verdict.AttainableReplicas)
+	}
+}
+
+func TestDecodeQuotaRefusalAcceptsAnEmptyReplicaList(t *testing.T) {
+	v := DecodeQuotaRefusal([]byte(`{"blocked":true,"message":"exceeds the resource limits","breaches":[{"region":"falkenstein-1"}],"warnings":[],"attainablereplicas":[]}`))
+	if v == nil || !v.Blocked {
+		t.Fatalf("a 409 refusal with an empty replica list must still decode, got %+v", v)
+	}
+}

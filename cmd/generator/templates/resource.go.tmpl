@@ -19,6 +19,9 @@ import (
 {{- end }}
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+{{- if .NeedsBoolPlanModifier }}
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+{{- end }}
 {{- if .NeedsInt64PlanModifier }}
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 {{- end }}
@@ -133,7 +136,11 @@ func (r *{{ .Name }}Resource) Schema(_ context.Context, _ resource.SchemaRequest
 {{- if .Description }}
 				Description: {{ printf "%q" .Description }},
 {{- end }}
-{{- if .RequiresReplace }}
+{{- if and .RequiresReplace (eq .Type "bool") }}
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.RequiresReplace(),
+				},
+{{- else if .RequiresReplace }}
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},

@@ -117,6 +117,7 @@ func TestPlural(t *testing.T) {
 		{"secret", "secrets"},
 		{"memcached", "memcached"},
 		{"valkey", "valkey"},
+		{"mysql", "mysql"},
 		{"container", "containers"},
 		{"network_policy", "networkpolicies"},
 	}
@@ -290,6 +291,24 @@ func TestResource_NeedsListPlanModifier(t *testing.T) {
 	}}
 	if r2.NeedsListPlanModifier() {
 		t.Error("expected NeedsListPlanModifier=false for Required-only list")
+	}
+}
+
+func TestResource_NeedsBoolPlanModifier(t *testing.T) {
+	// A create-only boolean (mysql encryptionenabled) needs the bool-typed
+	// RequiresReplace; a []planmodifier.String on a BoolAttribute won't compile.
+	r := Resource{Attributes: []Attribute{
+		{TfName: "encryptionenabled", Type: "bool", Optional: true, RequiresReplace: true},
+	}}
+	if !r.NeedsBoolPlanModifier() {
+		t.Error("expected NeedsBoolPlanModifier=true for a create-only bool")
+	}
+	r2 := Resource{Attributes: []Attribute{
+		{TfName: "tlsenabled", Type: "bool", Optional: true},
+		{TfName: "tier", Type: "string", Required: true, RequiresReplace: true},
+	}}
+	if r2.NeedsBoolPlanModifier() {
+		t.Error("expected NeedsBoolPlanModifier=false without a create-only bool")
 	}
 }
 

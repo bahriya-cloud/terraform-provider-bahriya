@@ -8,5 +8,6 @@ func All() []func() datasource.DataSource {
 		NewRegionDataSource,
 		NewRegionsDataSource,
 		NewProjectQuotaDataSource,
+		NewTlsBundleDataSource,
 	}
 }

@@ -47,8 +47,8 @@ func TestProvider_Resources_NotEmpty(t *testing.T) {
 	if len(resources) == 0 {
 		t.Fatal("expected at least one resource")
 	}
-	if len(resources) != 32 {
-		t.Fatalf("expected 32 resources, got %d", len(resources))
+	if len(resources) != 33 {
+		t.Fatalf("expected 33 resources, got %d", len(resources))
 	}
 }
 
@@ -61,6 +61,7 @@ func TestProvider_DataSources_NotEmpty(t *testing.T) {
 		"bahriya_region":        true,
 		"bahriya_regions":       true,
 		"bahriya_project_quota": true,
+		"bahriya_tls_bundle":    true,
 	}
 
 	p := &bahriyaProvider{}

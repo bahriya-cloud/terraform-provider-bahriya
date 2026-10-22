@@ -26,12 +26,35 @@ type QuotaBreach struct {
 // alongside the new id, where it may still report that the workload cannot grow to the size it was
 // configured for.
 type QuotaVerdict struct {
-	Blocked            bool           `json:"blocked"`
-	Message            string         `json:"message"`
-	Warning            string         `json:"warning"`
-	Breaches           []QuotaBreach  `json:"breaches"`
-	Warnings           []QuotaBreach  `json:"warnings"`
-	AttainableReplicas map[string]int `json:"attainablereplicas"`
+	Blocked            bool          `json:"blocked"`
+	Message            string        `json:"message"`
+	Warning            string        `json:"warning"`
+	Breaches           []QuotaBreach `json:"breaches"`
+	Warnings           []QuotaBreach `json:"warnings"`
+	AttainableReplicas ReplicaMap    `json:"attainablereplicas"`
+}
+
+// ReplicaMap is region => replicas reachable there.
+//
+// The API's contract is a JSON object, but an EMPTY one has been serialised as `[]` — PHP encodes
+// an empty array as a list — and decoding that into a plain map[string]int failed the whole write
+// response. Every create of a quota-checked resource (containers, datastores) then errored after
+// the resource had been created, stranding it outside state. An empty list is read as an empty
+// map; anything else must be the object the contract describes.
+type ReplicaMap map[string]int
+
+func (m *ReplicaMap) UnmarshalJSON(data []byte) error {
+	trimmed := strings.TrimSpace(string(data))
+	if trimmed == "[]" || trimmed == "null" {
+		*m = ReplicaMap{}
+		return nil
+	}
+	var decoded map[string]int
+	if err := json.Unmarshal(data, &decoded); err != nil {
+		return err
+	}
+	*m = decoded
+	return nil
 }
 
 // writeResult is the body of a successful write to a resource that consumes project capacity.

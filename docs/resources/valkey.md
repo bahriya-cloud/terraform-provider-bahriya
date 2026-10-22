@@ -16,7 +16,7 @@ Two axes shape an instance:
 
 Creating a Valkey instance is asynchronous — the provider waits up to 20 minutes for the instance to reach `running` status. Destroying waits up to 20 minutes for `terminated` status. If a create does not settle in time, the instance is saved to state with its current status and a warning; run `terraform apply` again to re-check.
 
-The connection password is never returned by the API. Set one explicitly with `password`, or omit it and reveal the generated password once from the console.
+The connection password is never returned by the API. Set one explicitly with `password`, or omit it and reveal the generated password from the console. The password is kept as a platform-managed secret in your vault (named in `authsecret`) and is billed like any other secret. Changing `password` rotates it on the running instance; turning `authenabled` off releases the secret, and turning it back on issues a new password.
 
 ## Example Usage
 
@@ -78,7 +78,7 @@ resource "bahriya_valkey" "shared" {
 }
 ```
 
-With `tlsenabled = true` and no `tlsbundle`, the platform issues and manages a TLS bundle in your vault. To serve your own bundle instead, set `tlsbundle` to its handle — it must cover every hostname the instance answers to, and the API returns a 400 listing any missing names.
+With `tlsenabled = true` and no `tlsbundle`, the platform issues and manages a TLS bundle in your vault. Its server certificate lasts `tlsvalidityyears` (1, 3, 5 or 10; 3 by default) and is renewed automatically 30 days before it expires, always signed by the same CA, so a CA certificate your clients saved keeps working. To serve your own bundle instead, set `tlsbundle` to its handle — it must cover every hostname the instance answers to, and the API returns a 400 listing any missing names.
 
 ### Sharded Cluster with Configuration Tuning
 
@@ -129,9 +129,10 @@ Nested items (`hostnames`) are Attributes Lists — assign them with attribute s
 - `maxmemorypolicy` (String) - Eviction policy. Defaults from purpose (`cache` = allkeys-lru, `store` = noeviction) and remains freely settable.
 - `config` (Map of String) - Allowlisted Valkey configuration keys (`tcp-keepalive`, `timeout`, `tcp-backlog`, `databases`, `loglevel`). Unknown keys are rejected naming the key. Values are given as strings; numeric values are normalised server-side.
 - `authenabled` (Boolean) - Require the connection password (default true).
-- `password` (String, Sensitive) - Optional. Omitted on create, the platform generates one. Never returned; reveal it once from the console.
+- `password` (String, Sensitive) - Optional. Omitted on create, the platform generates one. Stored as a platform-managed secret in your vault (see `authsecret`), billed like any secret. A different value rotates it; resending the current one changes nothing. Never returned; reveal it from the console.
 - `tlsenabled` (Boolean) - Serve TLS (default false).
 - `tlsbundle` (String) - Handle of a customer TLS bundle to serve. Omitted with TLS enabled, the platform issues and manages a bundle in your vault. A supplied bundle must cover every hostname the instance answers to; a 400 lists any missing names.
+- `tlsvalidityyears` (Number) - Lifetime in years of the server certificate the platform issues when TLS is on with no customer bundle: 1, 3, 5 or 10. Renewed automatically 30 days before expiry, and reissued when changed, always signed by the same 30-year CA, so a saved CA certificate keeps verifying the server. Ignored for a customer bundle.
 - `defaulthostname` (String) - Server-generated default hostname label. Omitted on create, the platform assigns one; immutable thereafter. Only required up front when supplying a customer `tlsbundle`, so SAN coverage can be validated.
 - `externalenabled` (Boolean) - Expose the instance at the platform edge on port 6379. Requires TLS, auth and a non-empty IP allowlist.
 - `allowedips` (List of String) - CIDR allowlist for external access. Required non-empty while external is enabled.
@@ -147,6 +148,7 @@ Nested items (`hostnames`) are Attributes Lists — assign them with attribute s
 - `nodes` (Number) - Derived node count per region for the current tier, size and shards.
 - `organisation` (String) - Organisation UUID.
 - `projectname` (String) - Project display name.
+- `authsecret` (String) - Handle of the platform-managed vault secret holding the auth password. Null while auth is off; turning auth off releases it.
 
 <a id="nestedatt--hostnames"></a>
 #### Nested Schema for `hostnames` (Attributes List)
