@@ -45,6 +45,7 @@ resource "bahriya_gpg_keypair" "signing" {
 - `managedbyresourcetype` (String) - Type of the managing resource, if any.
 - `organisation` (String) - Organisation UUID.
 - `uid` (String) - The primary UID on the key.
+- `versioncount` (Number) - How many versions are kept, the current one included.
 
 ## Import
 

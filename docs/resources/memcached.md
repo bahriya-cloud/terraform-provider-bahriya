@@ -66,6 +66,7 @@ resource "bahriya_memcached" "api_cache" {
 - `organisation` (String) - Organisation UUID.
 - `projectname` (String) - Project display name.
 - `managedbycontainer` (String) - When set, this instance is managed by a container's proxy cache feature and cannot be modified directly.
+- `managedbycontainername` (String) - The name of the container in managedbycontainer, so a client can show it without a second lookup.
 
 ## Import
 

@@ -40,9 +40,11 @@ type registryModel struct {
 	Username              types.String `tfsdk:"username"`
 	Maxversions           types.Int64  `tfsdk:"maxversions"`
 	Billable              types.Bool   `tfsdk:"billable"`
+	Currentversion        types.Int64  `tfsdk:"currentversion"`
 	Currentversionid      types.String `tfsdk:"currentversionid"`
 	Managedbyresourceid   types.String `tfsdk:"managedbyresourceid"`
 	Managedbyresourcetype types.String `tfsdk:"managedbyresourcetype"`
+	Versioncount          types.Int64  `tfsdk:"versioncount"`
 }
 
 func (r *registryResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -88,6 +90,10 @@ func (r *registryResource) Schema(_ context.Context, _ resource.SchemaRequest, r
 			"billable": schema.BoolAttribute{
 				Computed: true,
 			},
+			"currentversion": schema.Int64Attribute{
+				Computed: true,
+				// No UseStateForUnknown: an update of the material is a rotation, which moves this; pinning the prior value would make such applies fail as inconsistent.
+			},
 			"currentversionid": schema.StringAttribute{
 				Computed: true,
 				PlanModifiers: []planmodifier.String{
@@ -105,6 +111,10 @@ func (r *registryResource) Schema(_ context.Context, _ resource.SchemaRequest, r
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
+			},
+			"versioncount": schema.Int64Attribute{
+				Computed: true,
+				// No UseStateForUnknown: an update of the material is a rotation, which moves this; pinning the prior value would make such applies fail as inconsistent.
 			},
 		},
 	}
@@ -356,6 +366,11 @@ func apiToRegistryModel(raw map[string]any) registryModel {
 	} else {
 		m.Billable = types.BoolNull()
 	}
+	if v, ok := raw["currentversion"].(float64); ok {
+		m.Currentversion = types.Int64Value(int64(v))
+	} else {
+		m.Currentversion = types.Int64Null()
+	}
 	if v, ok := raw["currentversionid"].(string); ok {
 		m.Currentversionid = types.StringValue(v)
 	} else {
@@ -370,6 +385,11 @@ func apiToRegistryModel(raw map[string]any) registryModel {
 		m.Managedbyresourcetype = types.StringValue(v)
 	} else {
 		m.Managedbyresourcetype = types.StringNull()
+	}
+	if v, ok := raw["versioncount"].(float64); ok {
+		m.Versioncount = types.Int64Value(int64(v))
+	} else {
+		m.Versioncount = types.Int64Null()
 	}
 	return m
 }

@@ -38,8 +38,10 @@ type secretModel struct {
 	Value                 types.String `tfsdk:"value"`
 	Maxversions           types.Int64  `tfsdk:"maxversions"`
 	Billable              types.Bool   `tfsdk:"billable"`
+	Currentversion        types.Int64  `tfsdk:"currentversion"`
 	Managedbyresourceid   types.String `tfsdk:"managedbyresourceid"`
 	Managedbyresourcetype types.String `tfsdk:"managedbyresourcetype"`
+	Versioncount          types.Int64  `tfsdk:"versioncount"`
 }
 
 func (r *secretResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -79,6 +81,10 @@ func (r *secretResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 			"billable": schema.BoolAttribute{
 				Computed: true,
 			},
+			"currentversion": schema.Int64Attribute{
+				Computed: true,
+				// No UseStateForUnknown: an update of the material is a rotation, which moves this; pinning the prior value would make such applies fail as inconsistent.
+			},
 			"managedbyresourceid": schema.StringAttribute{
 				Computed: true,
 				PlanModifiers: []planmodifier.String{
@@ -90,6 +96,10 @@ func (r *secretResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
+			},
+			"versioncount": schema.Int64Attribute{
+				Computed: true,
+				// No UseStateForUnknown: an update of the material is a rotation, which moves this; pinning the prior value would make such applies fail as inconsistent.
 			},
 		},
 	}
@@ -325,6 +335,11 @@ func apiToSecretModel(raw map[string]any) secretModel {
 	} else {
 		m.Billable = types.BoolNull()
 	}
+	if v, ok := raw["currentversion"].(float64); ok {
+		m.Currentversion = types.Int64Value(int64(v))
+	} else {
+		m.Currentversion = types.Int64Null()
+	}
 	if v, ok := raw["managedbyresourceid"].(string); ok {
 		m.Managedbyresourceid = types.StringValue(v)
 	} else {
@@ -334,6 +349,11 @@ func apiToSecretModel(raw map[string]any) secretModel {
 		m.Managedbyresourcetype = types.StringValue(v)
 	} else {
 		m.Managedbyresourcetype = types.StringNull()
+	}
+	if v, ok := raw["versioncount"].(float64); ok {
+		m.Versioncount = types.Int64Value(int64(v))
+	} else {
+		m.Versioncount = types.Int64Null()
 	}
 	return m
 }

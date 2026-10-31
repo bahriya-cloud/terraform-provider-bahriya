@@ -71,10 +71,20 @@ resource "bahriya_container" "api" {
 - `username` (String) - Registry username.
 - `password` (String, Sensitive) - Registry password or access token.
 
+### Optional
+
+- `maxversions` (Number) - Maximum number of historical versions to retain.
+
 ### Read-Only
 
 - `id` (String) - Registry UUID.
+- `billable` (Boolean) - Whether this registry is billable.
+- `currentversion` (Number) - The currently active version number.
+- `currentversionid` (String) - UUID of the currently active version.
+- `managedbyresourceid` (String) - UUID of the managing resource, if any.
+- `managedbyresourcetype` (String) - Type of the managing resource, if any.
 - `organisation` (String) - Organisation UUID.
+- `versioncount` (Number) - How many versions are kept, the current one included.
 
 ## Import
 

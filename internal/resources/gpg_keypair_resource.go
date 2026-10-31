@@ -47,6 +47,7 @@ type gpg_keypairModel struct {
 	Managedbyresourcetype types.String `tfsdk:"managedbyresourcetype"`
 	Organisation          types.String `tfsdk:"organisation"`
 	Uid                   types.String `tfsdk:"uid"`
+	Versioncount          types.Int64  `tfsdk:"versioncount"`
 }
 
 func (r *gpg_keypairResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -101,9 +102,7 @@ func (r *gpg_keypairResource) Schema(_ context.Context, _ resource.SchemaRequest
 			},
 			"currentversion": schema.Int64Attribute{
 				Computed: true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
+				// No UseStateForUnknown: an update of the material is a rotation, which moves this; pinning the prior value would make such applies fail as inconsistent.
 			},
 			"keybits": schema.Int64Attribute{
 				Computed: true,
@@ -140,6 +139,10 @@ func (r *gpg_keypairResource) Schema(_ context.Context, _ resource.SchemaRequest
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
+			},
+			"versioncount": schema.Int64Attribute{
+				Computed: true,
+				// No UseStateForUnknown: an update of the material is a rotation, which moves this; pinning the prior value would make such applies fail as inconsistent.
 			},
 		},
 	}
@@ -427,6 +430,11 @@ func apiToGpgKeypairModel(raw map[string]any) gpg_keypairModel {
 		m.Uid = types.StringValue(v)
 	} else {
 		m.Uid = types.StringNull()
+	}
+	if v, ok := raw["versioncount"].(float64); ok {
+		m.Versioncount = types.Int64Value(int64(v))
+	} else {
+		m.Versioncount = types.Int64Null()
 	}
 	return m
 }

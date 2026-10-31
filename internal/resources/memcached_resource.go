@@ -36,21 +36,22 @@ type memcachedResource struct {
 }
 
 type memcachedModel struct {
-	ID                 types.String `tfsdk:"id"`
-	Handle             types.String `tfsdk:"handle"`
-	Activeregions      types.List   `tfsdk:"activeregions"`
-	Memorymb           types.Int64  `tfsdk:"memorymb"`
-	Name               types.String `tfsdk:"name"`
-	Maxconnections     types.Int64  `tfsdk:"maxconnections"`
-	Maxitemsizemb      types.Int64  `tfsdk:"maxitemsizemb"`
-	Networkpolicies    types.List   `tfsdk:"networkpolicies"`
-	Nodes              types.Int64  `tfsdk:"nodes"`
-	Project            types.String `tfsdk:"project"`
-	Threads            types.Int64  `tfsdk:"threads"`
-	Managedbycontainer types.String `tfsdk:"managedbycontainer"`
-	Organisation       types.String `tfsdk:"organisation"`
-	Projectname        types.String `tfsdk:"projectname"`
-	Status             types.String `tfsdk:"status"`
+	ID                     types.String `tfsdk:"id"`
+	Handle                 types.String `tfsdk:"handle"`
+	Activeregions          types.List   `tfsdk:"activeregions"`
+	Memorymb               types.Int64  `tfsdk:"memorymb"`
+	Name                   types.String `tfsdk:"name"`
+	Maxconnections         types.Int64  `tfsdk:"maxconnections"`
+	Maxitemsizemb          types.Int64  `tfsdk:"maxitemsizemb"`
+	Networkpolicies        types.List   `tfsdk:"networkpolicies"`
+	Nodes                  types.Int64  `tfsdk:"nodes"`
+	Project                types.String `tfsdk:"project"`
+	Threads                types.Int64  `tfsdk:"threads"`
+	Managedbycontainer     types.String `tfsdk:"managedbycontainer"`
+	Managedbycontainername types.String `tfsdk:"managedbycontainername"`
+	Organisation           types.String `tfsdk:"organisation"`
+	Projectname            types.String `tfsdk:"projectname"`
+	Status                 types.String `tfsdk:"status"`
 }
 
 func (r *memcachedResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -130,6 +131,13 @@ func (r *memcachedResource) Schema(_ context.Context, _ resource.SchemaRequest, 
 			"managedbycontainer": schema.StringAttribute{
 				Computed:    true,
 				Description: "When set, this memcached instance is managed by the named container (proxy cache feature) and cannot be modified directly.",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"managedbycontainername": schema.StringAttribute{
+				Computed:    true,
+				Description: "The name of the container in managedbycontainer, so a client can show it without a second lookup.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -581,6 +589,11 @@ func apiToMemcachedModel(raw map[string]any) memcachedModel {
 		m.Managedbycontainer = types.StringValue(v)
 	} else {
 		m.Managedbycontainer = types.StringNull()
+	}
+	if v, ok := raw["managedbycontainername"].(string); ok {
+		m.Managedbycontainername = types.StringValue(v)
+	} else {
+		m.Managedbycontainername = types.StringNull()
 	}
 	if v, ok := raw["organisation"].(string); ok {
 		m.Organisation = types.StringValue(v)

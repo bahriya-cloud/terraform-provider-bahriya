@@ -42,6 +42,7 @@ type yaml_configModel struct {
 	Managedbyresourceid   types.String `tfsdk:"managedbyresourceid"`
 	Managedbyresourcetype types.String `tfsdk:"managedbyresourcetype"`
 	Organisation          types.String `tfsdk:"organisation"`
+	Versioncount          types.Int64  `tfsdk:"versioncount"`
 }
 
 func (r *yaml_configResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -84,9 +85,7 @@ func (r *yaml_configResource) Schema(_ context.Context, _ resource.SchemaRequest
 			},
 			"currentversion": schema.Int64Attribute{
 				Computed: true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
+				// No UseStateForUnknown: an update of the material is a rotation, which moves this; pinning the prior value would make such applies fail as inconsistent.
 			},
 			"managedbyresourceid": schema.StringAttribute{
 				Computed: true,
@@ -105,6 +104,10 @@ func (r *yaml_configResource) Schema(_ context.Context, _ resource.SchemaRequest
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
+			},
+			"versioncount": schema.Int64Attribute{
+				Computed: true,
+				// No UseStateForUnknown: an update of the material is a rotation, which moves this; pinning the prior value would make such applies fail as inconsistent.
 			},
 		},
 	}
@@ -358,6 +361,11 @@ func apiToYAMLConfigModel(raw map[string]any) yaml_configModel {
 		m.Organisation = types.StringValue(v)
 	} else {
 		m.Organisation = types.StringNull()
+	}
+	if v, ok := raw["versioncount"].(float64); ok {
+		m.Versioncount = types.Int64Value(int64(v))
+	} else {
+		m.Versioncount = types.Int64Null()
 	}
 	return m
 }

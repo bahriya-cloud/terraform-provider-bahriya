@@ -203,6 +203,8 @@ type Attribute struct {
 //     error → provisioning → running on a recovery apply).
 //   - nodes   is derived from tier/size/shards, so it moves the moment any of
 //     those grow.
+//   - currentversion and versioncount (versioned vault and config items) move
+//     on every rotation, which is what an update of the material is.
 //
 // Pinning either makes the apply fail as "Provider produced inconsistent result
 // after apply" — the plan promised the old value and the API returned a new one.
@@ -210,8 +212,10 @@ type Attribute struct {
 // that, which is why this is encoded here rather than hand-patched after each
 // regeneration.
 var volatileAttributes = map[string]bool{
-	"status": true,
-	"nodes":  true,
+	"status":         true,
+	"nodes":          true,
+	"currentversion": true,
+	"versioncount":   true,
 }
 
 // PinnableComputed reports whether UseStateForUnknown is safe for this
@@ -229,6 +233,8 @@ func (a Attribute) VolatileReason() string {
 		return "status legitimately moves on update (error -> provisioning -> running); pinning the prior value would make recovery applies fail as inconsistent."
 	case "nodes":
 		return "the count changes on update (tier, size or shards growth); pinning the prior value would make such applies fail as inconsistent."
+	case "currentversion", "versioncount":
+		return "an update of the material is a rotation, which moves this; pinning the prior value would make such applies fail as inconsistent."
 	}
 	return "this value is server-derived and changes on update."
 }

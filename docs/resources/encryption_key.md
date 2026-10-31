@@ -42,6 +42,7 @@ resource "bahriya_encryption_key" "tokens" {
 - `managedbyresourceid` (String) - UUID of the managing resource, if any.
 - `managedbyresourcetype` (String) - Type of the managing resource, if any.
 - `organisation` (String) - Organisation UUID.
+- `versioncount` (Number) - How many versions are kept, the current one included.
 
 ## Import
 

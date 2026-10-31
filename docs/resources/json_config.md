@@ -47,6 +47,7 @@ resource "bahriya_json_config" "app" {
 - `managedbyresourceid` (String) - UUID of the managing resource, if any.
 - `managedbyresourcetype` (String) - Type of the managing resource, if any.
 - `organisation` (String) - Organisation UUID.
+- `versioncount` (Number) - How many versions are kept, the current one included.
 
 ## Import
 

@@ -370,7 +370,7 @@ func TestAttribute_PinnableComputed_ExcludesVolatileAttributes(t *testing.T) {
 	// `status` and `nodes` that promise is false, and breaking it fails the
 	// apply with "Provider produced inconsistent result after apply" — most
 	// painfully on a recovery apply against an errored resource.
-	for _, name := range []string{"status", "nodes"} {
+	for _, name := range []string{"status", "nodes", "currentversion", "versioncount"} {
 		if (Attribute{TfName: name}).PinnableComputed() {
 			t.Errorf("%q must not be pinned with UseStateForUnknown", name)
 		}

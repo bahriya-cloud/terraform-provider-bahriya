@@ -47,10 +47,19 @@ resource "bahriya_container" "api" {
 - `name` (String) - Display name.
 - `value` (String, Sensitive) - The secret value. Encrypted at rest. The API returns a masked sentinel on read; the provider preserves the real value from your Terraform state.
 
+### Optional
+
+- `maxversions` (Number) - Maximum number of historical versions to retain.
+
 ### Read-Only
 
 - `id` (String) - Secret UUID.
+- `billable` (Boolean) - Whether this secret is billable.
+- `currentversion` (Number) - The currently active version number.
+- `managedbyresourceid` (String) - UUID of the managing resource, if any.
+- `managedbyresourcetype` (String) - Type of the managing resource, if any.
 - `organisation` (String) - Organisation UUID.
+- `versioncount` (Number) - How many versions are kept, the current one included.
 
 ## Import
 

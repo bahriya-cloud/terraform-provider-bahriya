@@ -48,6 +48,7 @@ resource "bahriya_tls_bundle" "edge" {
 - `managedbyresourcetype` (String) - Type of the managing resource, if any.
 - `organisation` (String) - Organisation UUID.
 - `subject` (String) - Certificate subject DN.
+- `versioncount` (Number) - How many versions are kept, the current one included.
 
 ## Import
 
