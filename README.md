@@ -61,7 +61,7 @@ terraform {
   required_providers {
     bahriya = {
       source  = "bahriya-cloud/bahriya"
-      version = "~> 0.3"
+      version = "~> 0.4"
     }
   }
 }
