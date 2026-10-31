@@ -20,27 +20,28 @@ resource "bahriya_role" "deployer" {
   name        = "Deployer"
   description = "Manage containers; read-only on credentials."
 
-  permissions {
-    level      = "project"
-    resource   = "deployables_container_http"
-    permission = "create"
-  }
-  permissions {
-    level      = "project"
-    resource   = "deployables_container_http"
-    permission = "update"
-  }
-  permissions {
-    level      = "project"
-    resource   = "deployables_container_http"
-    permission = "delete"
-  }
-
-  permissions {
-    level      = "organisation"
-    resource   = "attachables_registries"
-    permission = "read"
-  }
+  permissions = [
+    {
+      level      = "project"
+      resource   = "deployables_container_http"
+      permission = "create"
+    },
+    {
+      level      = "project"
+      resource   = "deployables_container_http"
+      permission = "update"
+    },
+    {
+      level      = "project"
+      resource   = "deployables_container_http"
+      permission = "delete"
+    },
+    {
+      level      = "organisation"
+      resource   = "attachables_registries"
+      permission = "read"
+    },
+  ]
 }
 ```
 
@@ -49,7 +50,7 @@ resource "bahriya_role" "deployer" {
 ### Required
 
 - `name` (String) Human-readable role name.
-- `permissions` (Block List, min: 1) The permission grants that make up the role. Each block has:
+- `permissions` (Attributes List) The permission grants that make up the role. Each item has:
   - `level` (String, required) Scope of the grant: `organisation` or `project`.
   - `resource` (String, required) Resource kind, e.g. `deployables_container_http`, `deployables_memcached`, `attachables_registries`, `billing`, `user`.
   - `permission` (String, required) One of `create`, `read`, `update`, `delete`.

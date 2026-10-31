@@ -43,8 +43,6 @@ resource "bahriya_project" "global" {
 
 ### Optional
 
-- `registries` (List of String) - Registry handles in this project.
-- `secrets` (List of String) - Secret handles in this project.
 - `users` (List of String) - User IDs in this project.
 
 ### Read-Only

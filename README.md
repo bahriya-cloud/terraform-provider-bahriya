@@ -350,19 +350,19 @@ terraform import bahriya_container.api 065df92e-4e46-436a-a0a0-aaaaaaaaaaaa
 
 Registry `password` and secret `value` are marked sensitive. The API returns masked sentinels on read; the provider preserves the real value from your Terraform state.
 
-Vault item content fields (`bahriya_tls_bundle.key`, `bahriya_gpg_keypair.private_key` / `.public_key`, `bahriya_ssh_keypair.private_key` / `.public_key`, `bahriya_encryption_key.key`) are also sensitive and follow the same masking pattern.
+Vault item content fields (`bahriya_tls_bundle.key`, `bahriya_gpg_keypair.privatekey` / `.publickey`, `bahriya_ssh_keypair.privatekey` / `.publickey`, `bahriya_encryption_key.key`) are also sensitive and follow the same masking pattern.
 
 ### Removing a nested attachment block must be explicit
 
-Container nested-list attributes (`tls_bundles`, `x509_certs`, `gpg_keypairs`, `ssh_keypairs`, `encryption_keys`, `env_files`, `yaml_configs`, `json_configs`, `plain_configs`, `persistentvolumes`, `hostnames`, `initjobs`, `secretsenvvar`, `newenvvar`) are `Optional+Computed` with the `UseStateForUnknown` plan modifier — needed for stable plans against the API's PUT-replace semantics. As a consequence, **omitting a block in your `.tf` does NOT remove the attachment**; the prior state value is re-injected silently.
+Container nested-list attributes (`tlsbundles`, `x509certs`, `gpgkeypairs`, `sshkeypairs`, `encryptionkeys`, `envfiles`, `yamlconfigs`, `jsonconfigs`, `plainconfigs`, `persistentvolumes`, `hostnames`, `initjobs`, `secretsenvvar`, `newenvvar`) are `Optional+Computed` with the `UseStateForUnknown` plan modifier — needed for stable plans against the API's PUT-replace semantics. As a consequence, **omitting a block in your `.tf` does NOT remove the attachment**; the prior state value is re-injected silently.
 
 To remove a vault/config attachment from a container, set the block to an explicit empty list:
 
 ```hcl
 resource "bahriya_container" "api" {
   # ...
-  json_configs = []   # explicit removal — works
-  # plain_configs    # omitting — does NOT remove; prior list is preserved
+  jsonconfigs = []   # explicit removal — works
+  # plainconfigs    # omitting — does NOT remove; prior list is preserved
 }
 ```
 

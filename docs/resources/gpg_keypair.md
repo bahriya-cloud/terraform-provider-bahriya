@@ -13,10 +13,10 @@ Manages a Bahriya GPG keypair. Both keys are stored ASCII-armored. The private k
 
 ```hcl
 resource "bahriya_gpg_keypair" "signing" {
-  handle      = "release-signing"
-  name        = "Release Signing Key"
-  public_key  = file("${path.module}/signing.pub.asc")
-  private_key = file("${path.module}/signing.sec.asc")
+  handle     = "release-signing"
+  name       = "Release Signing Key"
+  publickey  = file("${path.module}/signing.pub.asc")
+  privatekey = file("${path.module}/signing.sec.asc")
 }
 ```
 
@@ -26,8 +26,8 @@ resource "bahriya_gpg_keypair" "signing" {
 
 - `handle` (String) - DNS-1123 compliant: lowercase alphanumeric and hyphens only. Immutable — changing forces recreation.
 - `name` (String) - Display name.
-- `public_key` (String, Sensitive) - ASCII-armored PGP public key.
-- `private_key` (String, Sensitive) - ASCII-armored PGP private key. Never returned on read.
+- `publickey` (String, Sensitive) - ASCII-armored PGP public key.
+- `privatekey` (String, Sensitive) - ASCII-armored PGP private key. Never returned on read.
 
 ### Optional
 
@@ -39,8 +39,8 @@ resource "bahriya_gpg_keypair" "signing" {
 - `algorithm` (String) - Key algorithm (RSA, EdDSA, etc.).
 - `billable` (Boolean) - Whether this keypair is billable.
 - `currentversion` (Number) - The currently active version number.
-- `key_bits` (Number) - Key length in bits.
-- `key_id` (String) - The PGP key id.
+- `keybits` (Number) - Key length in bits.
+- `keyid` (String) - The PGP key id.
 - `managedbyresourceid` (String) - UUID of the managing resource, if any.
 - `managedbyresourcetype` (String) - Type of the managing resource, if any.
 - `organisation` (String) - Organisation UUID.
@@ -53,4 +53,4 @@ resource "bahriya_gpg_keypair" "signing" {
 terraform import bahriya_gpg_keypair.signing 065df92e-4e46-436a-a0a0-aaaaaaaaaaaa
 ```
 
-~> **Note:** Keys are never returned by the API. After importing, you must set `public_key` and `private_key` in configuration; the provider preserves the values from Terraform state.
+~> **Note:** Keys are never returned by the API. After importing, you must set `publickey` and `privatekey` in configuration; the provider preserves the values from Terraform state.

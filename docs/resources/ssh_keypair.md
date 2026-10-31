@@ -13,10 +13,10 @@ Manages a Bahriya SSH keypair. The private key is PEM-encoded and the public key
 
 ```hcl
 resource "bahriya_ssh_keypair" "deploy" {
-  handle      = "deploy"
-  name        = "Deploy Key"
-  public_key  = file("${path.module}/deploy.pub")
-  private_key = file("${path.module}/deploy")
+  handle     = "deploy"
+  name       = "Deploy Key"
+  publickey  = file("${path.module}/deploy.pub")
+  privatekey = file("${path.module}/deploy")
 }
 ```
 
@@ -26,8 +26,8 @@ resource "bahriya_ssh_keypair" "deploy" {
 
 - `handle` (String) - DNS-1123 compliant: lowercase alphanumeric and hyphens only. Immutable — changing forces recreation.
 - `name` (String) - Display name.
-- `public_key` (String, Sensitive) - SSH public key line (algorithm base64 comment).
-- `private_key` (String, Sensitive) - PEM-encoded private key. Never returned on read.
+- `publickey` (String, Sensitive) - SSH public key line (algorithm base64 comment).
+- `privatekey` (String, Sensitive) - PEM-encoded private key. Never returned on read.
 
 ### Optional
 
@@ -40,8 +40,8 @@ resource "bahriya_ssh_keypair" "deploy" {
 - `billable` (Boolean) - Whether this keypair is billable.
 - `comment` (String) - The comment portion of the public key line, if present.
 - `currentversion` (Number) - The currently active version number.
-- `key_bits` (Number) - Key length in bits.
-- `key_id` (String) - The SSH key fingerprint.
+- `keybits` (Number) - Key length in bits.
+- `keyid` (String) - The SSH key fingerprint.
 - `managedbyresourceid` (String) - UUID of the managing resource, if any.
 - `managedbyresourcetype` (String) - Type of the managing resource, if any.
 - `organisation` (String) - Organisation UUID.
@@ -53,4 +53,4 @@ resource "bahriya_ssh_keypair" "deploy" {
 terraform import bahriya_ssh_keypair.deploy 065df92e-4e46-436a-a0a0-aaaaaaaaaaaa
 ```
 
-~> **Note:** Keys are never returned by the API. After importing, you must set `public_key` and `private_key` in configuration; the provider preserves the values from Terraform state.
+~> **Note:** Keys are never returned by the API. After importing, you must set `publickey` and `privatekey` in configuration; the provider preserves the values from Terraform state.

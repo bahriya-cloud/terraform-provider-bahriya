@@ -41,7 +41,7 @@ resource "bahriya_env_file" "api" {
 - `id` (String) - Env file UUID.
 - `billable` (Boolean) - Whether this env file is billable.
 - `currentversion` (Number) - The currently active version number.
-- `entry_count` (Number) - Number of KEY=VALUE entries parsed from the content.
+- `entrycount` (Number) - Number of KEY=VALUE entries parsed from the content.
 - `managedbyresourceid` (String) - UUID of the managing resource, if any.
 - `managedbyresourcetype` (String) - Type of the managing resource, if any.
 - `organisation` (String) - Organisation UUID.
