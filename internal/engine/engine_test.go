@@ -322,6 +322,48 @@ resource "bahriya_mysql" "m" {
 	}
 }
 
+// R16: an omitted field without a default keeps its current value, and an
+// explicit empty list clears it (v0.x cleared on omission; the upgrade guide
+// says so). Nested list items map through their aliases with their defaults.
+func TestNetworkPolicyListsFollowR16(t *testing.T) {
+	api := newFakeAPI(t)
+	cfg := func(egress string) string {
+		return fmt.Sprintf(`
+resource "bahriya_network_policy" "n" {
+  name          = "Web tier"
+  handle        = "web-tier"
+  ingress_peers = ["frontend"]
+  ports         = [{ port = 443 }]
+%s
+}`, egress)
+	}
+	tfresource.UnitTest(t, tfresource.TestCase{
+		ProtoV6ProviderFactories: factories(api),
+		Steps: []tfresource.TestStep{
+			{
+				Config: cfg(`  egress_cidrs = ["10.0.0.0/8"]`),
+				Check: tfresource.ComposeAggregateTestCheckFunc(
+					tfresource.TestCheckResourceAttr("bahriya_network_policy.n", "ports.0.protocol", "TCP"),
+					tfresource.TestCheckResourceAttr("bahriya_network_policy.n", "egress_cidrs.0", "10.0.0.0/8"),
+				),
+			},
+			{
+				Config: cfg(""),
+				Check:  tfresource.TestCheckResourceAttr("bahriya_network_policy.n", "egress_cidrs.0", "10.0.0.0/8"),
+			},
+			{
+				Config: cfg(`  egress_cidrs = []`),
+				Check:  tfresource.TestCheckResourceAttr("bahriya_network_policy.n", "egress_cidrs.#", "0"),
+			},
+		},
+	})
+	body := api.created["network_policy"]
+	ports, _ := body.Get("ports")
+	if bmap.Encode(ports) != `[{"port":443,"protocol":"TCP"}]` {
+		t.Errorf("ports sent as %s, want the item default applied", bmap.Encode(ports))
+	}
+}
+
 // A project reads through its list wrapper and is deleted with confirmName.
 func TestProjectWrapperAndConfirmDelete(t *testing.T) {
 	api := newFakeAPI(t)

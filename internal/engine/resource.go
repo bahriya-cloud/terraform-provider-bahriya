@@ -40,10 +40,11 @@ var (
 	_ resource.ResourceWithValidateConfig = (*Resource)(nil)
 )
 
-// New returns the constructor for a kind's resource. It panics when the kind
-// is missing from the embedded schema or its schema cannot be built: both are
-// build-time faults that the engine tests catch.
-func New(name string) func() resource.Resource {
+// NewResource is a kind's resource with its generated schema (the files
+// cmd/generator writes in internal/resources). It panics when the kind has no
+// descriptor or is missing from the embedded resource-schema.json: build-time
+// faults the generated-schema drift test catches.
+func NewResource(name string, s schema.Schema) resource.Resource {
 	desc, ok := Descriptors[name]
 	if !ok {
 		panic("engine: no descriptor for " + name)
@@ -52,13 +53,35 @@ func New(name string) func() resource.Resource {
 	if k == nil {
 		panic("engine: no kind " + name + " in resource-schema.json")
 	}
-	s, err := BuildSchema(k, desc.description())
+	return &Resource{desc: desc, kind: k, schema: s}
+}
+
+// New returns the constructor for a kind's resource with its schema built at
+// runtime, for tests and the generator.
+func New(name string) func() resource.Resource {
+	s, err := KindSchema(name)
 	if err != nil {
-		panic(fmt.Sprintf("engine: schema for %s: %v", name, err))
+		panic(err.Error())
 	}
-	return func() resource.Resource {
-		return &Resource{desc: desc, kind: k, schema: s}
+	return func() resource.Resource { return NewResource(name, s) }
+}
+
+// KindSchema builds a kind's schema with its resource description.
+func KindSchema(name string) (schema.Schema, error) {
+	desc, ok := Descriptors[name]
+	if !ok {
+		return schema.Schema{}, fmt.Errorf("engine: no descriptor for %s", name)
 	}
+	k := bmap.Embedded().Kind(name)
+	if k == nil {
+		return schema.Schema{}, fmt.Errorf("engine: no kind %s in resource-schema.json", name)
+	}
+	return BuildSchema(k, desc.description())
+}
+
+// Description is a kind's resource description, for cmd/generator.
+func Description(name string) string {
+	return Descriptors[name].description()
 }
 
 func (r *Resource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {

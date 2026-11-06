@@ -23,6 +23,24 @@ import (
 // the fix is a metadata change (an alias or a group), never a rename here.
 var ReservedRootNames = []string{"connection", "count", "depends_on", "for_each", "lifecycle", "provider", "provisioner"}
 
+// Attr is one attribute of a kind's Terraform schema, independent of the
+// framework types: BuildSchema turns it into a schema.Attribute at runtime and
+// cmd/generator renders it as Go source. One tree, so the two cannot differ.
+type Attr struct {
+	Name string
+	// Type is string, int64, float64, bool, list, map, object (a group or a
+	// timestamp) or list_object (a list of nested objects).
+	Type string
+	// ElemType is the element type of a list or map: string or int64.
+	ElemType                                string
+	Required, Optional, Computed, Sensitive bool
+	Description                             string
+	StringEnum                              []string
+	IntEnum                                 []int64
+	// Children are an object's or list_object's attributes, in YAML order.
+	Children []*Attr
+}
+
 // node is one level of the YAML shape: a group, or the root.
 type node struct {
 	children map[string]*node
@@ -34,26 +52,25 @@ func newNode() *node {
 	return &node{children: map[string]*node{}, leaves: map[string]*bmap.Field{}}
 }
 
-// BuildSchema derives a kind's Terraform schema from its metadata (R1, R14):
-//   - a group is a SingleNestedAttribute, a list of objects a
-//     ListNestedAttribute (attribute syntax, never blocks);
-//   - env and secret maps and free-form objects are Map(String);
+// Attributes derives a kind's schema tree from its metadata (R1, R14):
+//   - a group is an object (SingleNestedAttribute), a list of objects a
+//     list_object (ListNestedAttribute: attribute syntax, never blocks);
+//   - env and secret maps and free-form objects are maps of strings;
+//   - a timestamp is the API's TimeResponse object, as in state mode;
 //   - readOnly and displayReadOnly fields are Computed;
 //   - a writable field is Required when required with no default, otherwise
-//     Optional+Computed.
+//     Optional+Computed. A group with a Required member is Required.
 //
 // Defaults are not schema Defaults: the resolver applies them (R9) and the
-// description says "Defaults to X". Implications and sensitive values are
-// resolved there too.
-func BuildSchema(k *bmap.Kind, description string) (schema.Schema, error) {
+// description says "Defaults to X".
+func Attributes(k *bmap.Kind) ([]*Attr, error) {
 	for _, name := range ReservedRootNames {
 		for _, f := range k.Fields {
 			if strings.Split(f.Path, ".")[0] == name {
-				return schema.Schema{}, fmt.Errorf("%s: %q is reserved by Terraform at the top level of a resource (field %s)", k.Name, name, f.Name)
+				return nil, fmt.Errorf("%s: %q is reserved by Terraform at the top level of a resource (field %s)", k.Name, name, f.Name)
 			}
 		}
 	}
-
 	root := newNode()
 	for _, f := range k.YAMLOrder() {
 		segments := strings.Split(f.Path, ".")
@@ -71,50 +88,41 @@ func BuildSchema(k *bmap.Kind, description string) (schema.Schema, error) {
 		n.leaves[leaf] = f
 		n.order = append(n.order, leaf)
 	}
-	attrs, _, err := buildAttributes(k, root)
-	if err != nil {
-		return schema.Schema{}, err
-	}
-	return schema.Schema{Description: description, MarkdownDescription: description, Attributes: attrs}, nil
+	attrs, _, err := nodeAttrs(k, root)
+	return attrs, err
 }
 
-// buildAttributes returns the attributes of a node and whether any is Required.
-// A group with a Required member is itself Required.
-func buildAttributes(k *bmap.Kind, n *node) (map[string]schema.Attribute, bool, error) {
-	attrs := map[string]schema.Attribute{}
+func nodeAttrs(k *bmap.Kind, n *node) ([]*Attr, bool, error) {
+	var attrs []*Attr
+	seen := map[string]bool{}
 	anyRequired := false
 	for _, name := range n.order {
+		if seen[name] {
+			continue
+		}
+		seen[name] = true
 		if child, ok := n.children[name]; ok {
-			if _, done := attrs[name]; done {
-				continue
-			}
-			childAttrs, required, err := buildAttributes(k, child)
+			children, required, err := nodeAttrs(k, child)
 			if err != nil {
 				return nil, false, fmt.Errorf("%s.%w", name, err)
 			}
-			attrs[name] = schema.SingleNestedAttribute{
-				Attributes: childAttrs,
-				Required:   required,
-				Optional:   !required,
-				Computed:   !required,
-			}
+			attrs = append(attrs, &Attr{Name: name, Type: "object", Required: required, Optional: !required, Computed: !required, Children: children})
 			anyRequired = anyRequired || required
 			continue
 		}
-		f := n.leaves[name]
-		attr, required, err := leafAttribute(k, f, !k.IsWritable(f))
+		a, err := leaf(k, name, n.leaves[name], !k.IsWritable(n.leaves[name]))
 		if err != nil {
 			return nil, false, fmt.Errorf("%s: %w", name, err)
 		}
-		attrs[name] = attr
-		anyRequired = anyRequired || required
+		attrs = append(attrs, a)
+		anyRequired = anyRequired || a.Required
 	}
 	return attrs, anyRequired, nil
 }
 
-// hasDefault is true when the field has a spec default, at the kind level or
-// on its descriptor (list items carry theirs on the descriptor).
-func hasDefault(k *bmap.Kind, f *bmap.Field) (any, bool) {
+// fieldDefault is the field's spec default, at the kind level or on its
+// descriptor (list items carry theirs on the descriptor).
+func fieldDefault(k *bmap.Kind, f *bmap.Field) (any, bool) {
 	if k != nil {
 		if v, ok := k.Defaults.Get(f.Name); ok {
 			return v, true
@@ -129,7 +137,7 @@ func hasDefault(k *bmap.Kind, f *bmap.Field) (any, bool) {
 // describe is the attribute description: the spec's, plus the default.
 func describe(k *bmap.Kind, f *bmap.Field) string {
 	text := strings.TrimSpace(f.Desc.Description)
-	if def, ok := hasDefault(k, f); ok && def != nil && !isEmptyCollection(def) {
+	if def, ok := fieldDefault(k, f); ok && def != nil && !isEmptyCollection(def) {
 		if text != "" && !strings.HasSuffix(text, ".") {
 			text += "."
 		}
@@ -148,104 +156,131 @@ func isEmptyCollection(v any) bool {
 	return false
 }
 
-// leafAttribute builds one field's attribute. k is nil inside list items,
-// whose defaults sit on the descriptor.
-func leafAttribute(k *bmap.Kind, f *bmap.Field, readOnly bool) (schema.Attribute, bool, error) {
+// leaf builds one field's attribute. k is nil inside list items.
+func leaf(k *bmap.Kind, name string, f *bmap.Field, readOnly bool) (*Attr, error) {
 	d := f.Desc
-	_, defaulted := hasDefault(k, f)
-	required := !readOnly && d.Required && !defaulted
-	optional := !readOnly && !required
-	computed := !required
-	sensitive := d.Sensitive || d.WriteOnly || d.Masked != ""
-	desc := describe(k, f)
+	_, defaulted := fieldDefault(k, f)
+	a := &Attr{Name: name, Description: describe(k, f)}
+	a.Required = !readOnly && d.Required && !defaulted
+	a.Optional = !readOnly && !a.Required
+	a.Computed = !a.Required
+	a.Sensitive = d.Sensitive || d.WriteOnly || d.Masked != ""
 
 	if f.Transform == "envVarMap" || f.Transform == "secretMap" || d.Freeform {
-		return schema.MapAttribute{ElementType: types.StringType, Required: required, Optional: optional, Computed: computed, Sensitive: sensitive, Description: desc, MarkdownDescription: desc}, required, nil
+		a.Type, a.ElemType = "map", "string"
+		return a, nil
 	}
 	switch d.Type {
 	case "timestamp":
 		// The API's TimeResponse, kept as-is in state mode (the state-mode
-		// fixtures hold it as this object). Timestamps are always read-only.
-		return schema.SingleNestedAttribute{
-			Attributes: map[string]schema.Attribute{
-				"date":         schema.StringAttribute{Computed: true},
-				"timezonetype": schema.Int64Attribute{Computed: true},
-				"timezone":     schema.StringAttribute{Computed: true},
-			},
-			Computed: true, Description: desc, MarkdownDescription: desc,
-		}, false, nil
+		// fixtures hold this object). Timestamps are always read-only.
+		a.Type, a.Required, a.Optional, a.Computed, a.Sensitive = "object", false, false, true, false
+		a.Children = []*Attr{
+			{Name: "date", Type: "string", Computed: true},
+			{Name: "timezonetype", Type: "int64", Computed: true},
+			{Name: "timezone", Type: "string", Computed: true},
+		}
 	case "string":
-		return schema.StringAttribute{Required: required, Optional: optional, Computed: computed, Sensitive: sensitive, Description: desc, MarkdownDescription: desc, Validators: stringEnum(d, readOnly)}, required, nil
+		a.Type = "string"
+		if !readOnly {
+			for _, v := range d.Enum {
+				if s, ok := v.(string); ok {
+					a.StringEnum = append(a.StringEnum, s)
+				}
+			}
+			sort.Strings(a.StringEnum)
+		}
 	case "integer":
-		return schema.Int64Attribute{Required: required, Optional: optional, Computed: computed, Sensitive: sensitive, Description: desc, MarkdownDescription: desc, Validators: intEnum(d, readOnly)}, required, nil
+		a.Type = "int64"
+		if !readOnly {
+			for _, v := range d.Enum {
+				switch n := v.(type) {
+				case int64:
+					a.IntEnum = append(a.IntEnum, n)
+				case float64:
+					a.IntEnum = append(a.IntEnum, int64(n))
+				}
+			}
+			sort.Slice(a.IntEnum, func(i, j int) bool { return a.IntEnum[i] < a.IntEnum[j] })
+		}
 	case "number":
-		return schema.Float64Attribute{Required: required, Optional: optional, Computed: computed, Sensitive: sensitive, Description: desc, MarkdownDescription: desc}, required, nil
+		a.Type = "float64"
 	case "boolean":
-		return schema.BoolAttribute{Required: required, Optional: optional, Computed: computed, Sensitive: sensitive, Description: desc, MarkdownDescription: desc}, required, nil
+		a.Type = "bool"
 	case "array":
 		if len(f.Item) > 0 {
-			itemAttrs := map[string]schema.Attribute{}
+			a.Type, a.Sensitive = "list_object", false
 			for _, item := range f.Item {
-				a, _, err := leafAttribute(nil, item, readOnly || item.Desc.ReadOnly)
+				child, err := leaf(nil, item.Path, item, readOnly || item.Desc.ReadOnly)
 				if err != nil {
-					return nil, false, fmt.Errorf("%s: %w", item.Path, err)
+					return nil, fmt.Errorf("%s: %w", item.Path, err)
 				}
-				itemAttrs[item.Path] = a
+				a.Children = append(a.Children, child)
 			}
-			return schema.ListNestedAttribute{
-				NestedObject: schema.NestedAttributeObject{Attributes: itemAttrs},
-				Required:     required, Optional: optional, Computed: computed,
-				Description: desc, MarkdownDescription: desc,
-			}, required, nil
+			sort.Slice(a.Children, func(i, j int) bool { return a.Children[i].Name < a.Children[j].Name })
+			return a, nil
 		}
+		a.Type = "list"
 		switch d.ItemsType {
 		case "string", "":
-			return schema.ListAttribute{ElementType: types.StringType, Required: required, Optional: optional, Computed: computed, Sensitive: sensitive, Description: desc, MarkdownDescription: desc}, required, nil
+			a.ElemType = "string"
 		case "integer":
-			return schema.ListAttribute{ElementType: types.Int64Type, Required: required, Optional: optional, Computed: computed, Sensitive: sensitive, Description: desc, MarkdownDescription: desc}, required, nil
+			a.ElemType = "int64"
+		default:
+			return nil, fmt.Errorf("unsupported list of %s", d.ItemsType)
 		}
+	default:
+		return nil, fmt.Errorf("unsupported type %s", d.Type)
 	}
-	return nil, false, fmt.Errorf("unsupported type %s (items %s)", d.Type, d.ItemsType)
+	return a, nil
 }
 
-// stringEnum validates a writable string enum (OneOf). Read-only fields are
-// never validated: the API owns their values.
-func stringEnum(d *bmap.Descriptor, readOnly bool) []validator.String {
-	if readOnly || len(d.Enum) == 0 {
-		return nil
+// BuildSchema is the kind's framework schema.
+func BuildSchema(k *bmap.Kind, description string) (schema.Schema, error) {
+	attrs, err := Attributes(k)
+	if err != nil {
+		return schema.Schema{}, err
 	}
-	var values []string
-	for _, v := range d.Enum {
-		if s, ok := v.(string); ok {
-			values = append(values, s)
-		}
-	}
-	if len(values) == 0 {
-		return nil
-	}
-	sort.Strings(values)
-	return []validator.String{stringvalidator.OneOf(values...)}
+	return schema.Schema{Description: description, MarkdownDescription: description, Attributes: frameworkAttrs(attrs)}, nil
 }
 
-// intEnum validates a writable integer enum (OneOf).
-func intEnum(d *bmap.Descriptor, readOnly bool) []validator.Int64 {
-	if readOnly || len(d.Enum) == 0 {
-		return nil
+func frameworkAttrs(attrs []*Attr) map[string]schema.Attribute {
+	out := make(map[string]schema.Attribute, len(attrs))
+	for _, a := range attrs {
+		out[a.Name] = a.framework()
 	}
-	var values []int64
-	for _, v := range d.Enum {
-		switch n := v.(type) {
-		case int64:
-			values = append(values, n)
-		case int:
-			values = append(values, int64(n))
-		case float64:
-			values = append(values, int64(n))
+	return out
+}
+
+func (a *Attr) framework() schema.Attribute {
+	switch a.Type {
+	case "string":
+		var v []validator.String
+		if len(a.StringEnum) > 0 {
+			v = []validator.String{stringvalidator.OneOf(a.StringEnum...)}
 		}
+		return schema.StringAttribute{Required: a.Required, Optional: a.Optional, Computed: a.Computed, Sensitive: a.Sensitive, Description: a.Description, MarkdownDescription: a.Description, Validators: v}
+	case "int64":
+		var v []validator.Int64
+		if len(a.IntEnum) > 0 {
+			v = []validator.Int64{int64validator.OneOf(a.IntEnum...)}
+		}
+		return schema.Int64Attribute{Required: a.Required, Optional: a.Optional, Computed: a.Computed, Sensitive: a.Sensitive, Description: a.Description, MarkdownDescription: a.Description, Validators: v}
+	case "float64":
+		return schema.Float64Attribute{Required: a.Required, Optional: a.Optional, Computed: a.Computed, Sensitive: a.Sensitive, Description: a.Description, MarkdownDescription: a.Description}
+	case "bool":
+		return schema.BoolAttribute{Required: a.Required, Optional: a.Optional, Computed: a.Computed, Sensitive: a.Sensitive, Description: a.Description, MarkdownDescription: a.Description}
+	case "list":
+		if a.ElemType == "int64" {
+			return schema.ListAttribute{ElementType: types.Int64Type, Required: a.Required, Optional: a.Optional, Computed: a.Computed, Sensitive: a.Sensitive, Description: a.Description, MarkdownDescription: a.Description}
+		}
+		return schema.ListAttribute{ElementType: types.StringType, Required: a.Required, Optional: a.Optional, Computed: a.Computed, Sensitive: a.Sensitive, Description: a.Description, MarkdownDescription: a.Description}
+	case "map":
+		return schema.MapAttribute{ElementType: types.StringType, Required: a.Required, Optional: a.Optional, Computed: a.Computed, Sensitive: a.Sensitive, Description: a.Description, MarkdownDescription: a.Description}
+	case "object":
+		return schema.SingleNestedAttribute{Attributes: frameworkAttrs(a.Children), Required: a.Required, Optional: a.Optional, Computed: a.Computed, Description: a.Description, MarkdownDescription: a.Description}
+	case "list_object":
+		return schema.ListNestedAttribute{NestedObject: schema.NestedAttributeObject{Attributes: frameworkAttrs(a.Children)}, Required: a.Required, Optional: a.Optional, Computed: a.Computed, Description: a.Description, MarkdownDescription: a.Description}
 	}
-	if len(values) == 0 {
-		return nil
-	}
-	sort.Slice(values, func(i, j int) bool { return values[i] < values[j] })
-	return []validator.Int64{int64validator.OneOf(values...)}
+	panic("engine: unknown attribute type " + a.Type)
 }

@@ -5,7 +5,6 @@ package resources
 import "github.com/hashicorp/terraform-plugin-framework/resource"
 
 // All returns the set of resource constructors for the Bahriya provider.
-// Append to this slice as new resources are generated.
 func All() []func() resource.Resource {
 	return []func() resource.Resource{
 		NewProjectResource,
@@ -37,7 +36,7 @@ func All() []func() resource.Resource {
 		NewProjectJSONConfigAttachmentResource,
 		NewProjectPlainConfigAttachmentResource,
 		NewProjectNetworkPolicyAttachmentResource,
-		// Hand-written resources — preserved via handWrittenResources in cmd/generator/main.go.
+		// Hand-written resources — listed in handWritten in cmd/generator/main.go.
 		NewPathRuleResource,
 		NewRoleResource,
 		NewResourceGrantResource,

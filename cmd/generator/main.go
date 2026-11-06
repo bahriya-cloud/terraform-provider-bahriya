@@ -1,3 +1,8 @@
+// Command generator writes the provider's generated resource files from the
+// embedded resource-schema.json (internal/bmap): one file per kind holding its
+// schema and the engine constructor, the 12 project attachment resources, and
+// the registry. Run it through `make generate`, which first copies the
+// package's resource-schema.json into internal/bmap.
 package main
 
 import (
@@ -8,111 +13,84 @@ import (
 	"path/filepath"
 )
 
+// kinds are the engine-served resources, in registry order, with the Go name
+// their constructor uses.
+var kinds = []struct{ Name, GoName string }{
+	{"project", "Project"},
+	{"registry", "Registry"},
+	{"secret", "Secret"},
+	{"memcached", "Memcached"},
+	{"valkey", "Valkey"},
+	{"mysql", "Mysql"},
+	{"container", "Container"},
+	{"tls_bundle", "TLSBundle"},
+	{"x509_cert", "X509Cert"},
+	{"gpg_keypair", "GpgKeypair"},
+	{"ssh_keypair", "SSHKeypair"},
+	{"encryption_key", "EncryptionKey"},
+	{"env_file", "EnvFile"},
+	{"yaml_config", "YAMLConfig"},
+	{"json_config", "JSONConfig"},
+	{"plain_config", "PlainConfig"},
+	{"network_policy", "NetworkPolicy"},
+}
+
+// attachments are the per-type project attachment resources
+// (bahriya_project_<type>_attachment): thin create/read/delete resources on
+// /projects/{pid}/attach/{type}/{handle}.
+var attachments = []string{"registry", "secret", "tls_bundle", "x509_cert", "gpg_keypair", "ssh_keypair", "encryption_key", "env_file", "yaml_config", "json_config", "plain_config", "network_policy"}
+
+// handWritten are constructors implemented in their own files that the
+// registry must still list.
+var handWritten = []string{"NewPathRuleResource", "NewRoleResource", "NewResourceGrantResource", "NewBillingDetailsResource"}
+
 func main() {
-	specDir := flag.String("spec", "../packages/bahriya-openapi/specs/v1", "directory containing OpenAPI YAML specs")
 	outputDir := flag.String("out", "internal/resources", "directory to write generated resource files to")
 	flag.Parse()
-
-	targets := []string{"project", "registry", "secret", "memcached", "valkey", "mysql", "container", "tls_bundle", "x509_cert", "gpg_keypair", "ssh_keypair", "encryption_key", "env_file", "yaml_config", "json_config", "plain_config", "network_policy"}
-
-	// Per-type project attachment resources (bahriya_project_<type>_attachment).
-	// These are thin CRD-only resources hitting /projects/{pid}/attach/{type}/{handle}.
-	attachmentTargets := []string{"registry", "secret", "tls_bundle", "x509_cert", "gpg_keypair", "ssh_keypair", "encryption_key", "env_file", "yaml_config", "json_config", "plain_config", "network_policy"}
-
-	// Hand-written resources that the generator can't emit but still need to
-	// land in the All() registry. These are constructors implemented in their
-	// own *_resource.go file; we just inject the symbol name here.
-	handWrittenResources := []string{"NewPathRuleResource", "NewRoleResource", "NewResourceGrantResource", "NewBillingDetailsResource"}
-
-	if err := run(*specDir, *outputDir, targets, attachmentTargets, handWrittenResources); err != nil {
+	if err := run(*outputDir); err != nil {
 		log.Fatal(err)
 	}
 }
 
-func run(specDir, outputDir string, targets, attachmentTargets, handWrittenResources []string) error {
+func run(outputDir string) error {
 	if err := os.MkdirAll(outputDir, 0o755); err != nil {
 		return fmt.Errorf("ensure output dir: %w", err)
 	}
-
-	for _, name := range targets {
-		desc, ok := descriptors[name]
-		if !ok {
-			return fmt.Errorf("no descriptor for resource %q", name)
-		}
-		specPath := filepath.Join(specDir, plural(name)+".yaml")
-		res, err := parseResource(specPath, desc)
+	for _, k := range kinds {
+		src, err := kindFile(k.Name, k.GoName)
 		if err != nil {
 			return err
 		}
-		if err := render(res, outputDir); err != nil {
+		if err := writeGo(filepath.Join(outputDir, k.Name+"_resource.go"), src); err != nil {
 			return err
 		}
-		fmt.Printf("generated %s_resource.go (%d attributes)\n", res.Name, len(res.Attributes))
+		fmt.Printf("generated %s_resource.go\n", k.Name)
 	}
-
-	for _, name := range attachmentTargets {
-		desc, ok := descriptors[name]
-		if !ok {
-			return fmt.Errorf("no descriptor for attachment resource %q", name)
+	for _, name := range attachments {
+		src, err := attachmentFile(AttachmentResource{Name: name, GoName: goName(name), APIType: apiSlug(name)})
+		if err != nil {
+			return err
 		}
-		att := AttachmentResource{
-			Name:    name,
-			GoName:  desc.GoName,
-			APIType: apiSlug(name),
-		}
-		if err := renderAttachment(att, outputDir); err != nil {
+		if err := writeGo(filepath.Join(outputDir, "project_"+name+"_attachment_resource.go"), src); err != nil {
 			return err
 		}
 		fmt.Printf("generated project_%s_attachment_resource.go\n", name)
 	}
-
-	if err := writeRegistry(outputDir, targets, attachmentTargets, handWrittenResources); err != nil {
-		return err
-	}
-	return nil
+	return writeGo(filepath.Join(outputDir, "registry.go"), registryFile())
 }
 
-// plural maps a resource name to its OpenAPI spec filename (without .yaml).
-// Spec files are flat-lowercase (tlsbundles.yaml, x509certs.yaml).
-func plural(s string) string {
-	switch s {
-	case "memcached":
-		return "memcached"
-	case "valkey":
-		return "valkey"
-	case "mysql":
-		return "mysql"
-	case "registry":
-		return "registries"
-	case "tls_bundle":
-		return "tlsbundles"
-	case "x509_cert":
-		return "x509certs"
-	case "gpg_keypair":
-		return "gpgkeypairs"
-	case "ssh_keypair":
-		return "sshkeypairs"
-	case "encryption_key":
-		return "encryptionkeys"
-	case "env_file":
-		return "envfiles"
-	case "yaml_config":
-		return "yamlconfigs"
-	case "json_config":
-		return "jsonconfigs"
-	case "plain_config":
-		return "plainconfigs"
-	case "network_policy":
-		return "networkpolicies"
+func goName(name string) string {
+	for _, k := range kinds {
+		if k.Name == name {
+			return k.GoName
+		}
 	}
-	return s + "s"
+	panic("generator: no Go name for " + name)
 }
 
-// apiSlug maps a resource name to the URL path segment AND envelope key used
-// by the project-attachments API (POST/DELETE /projects/{pid}/attach/{slug}/{handle}
-// and GET /projects/{pid}/attachments returning {slug: [...]}).
-// The API uses snake_case for multi-word types and single-word plurals for
-// existing one-word types (registries, secrets).
+// apiSlug is the URL path segment of the project-attachments API
+// (POST/DELETE /projects/{pid}/attach/{slug}/{handle}): snake_case plurals,
+// with single-word plurals for registries and secrets.
 func apiSlug(s string) string {
 	switch s {
 	case "registry":
@@ -123,41 +101,4 @@ func apiSlug(s string) string {
 		return "network_policies"
 	}
 	return s + "s"
-}
-
-// writeRegistry emits internal/resources/registry.go which exposes a
-// Resources() slice the provider can plug into framework wiring.
-func writeRegistry(outputDir string, names, attachmentNames, handWritten []string) error {
-	const tmpl = `// Code generated by cmd/generator. DO NOT EDIT.
-
-package resources
-
-import "github.com/hashicorp/terraform-plugin-framework/resource"
-
-// All returns the set of resource constructors for the Bahriya provider.
-// Append to this slice as new resources are generated.
-func All() []func() resource.Resource {
-	return []func() resource.Resource{
-%s	}
-}
-`
-	var body string
-	for _, n := range names {
-		body += fmt.Sprintf("\t\tNew%sResource,\n", pascalCase(n))
-	}
-	for _, n := range attachmentNames {
-		desc, ok := descriptors[n]
-		if !ok {
-			return fmt.Errorf("no descriptor for attachment registry entry %q", n)
-		}
-		body += fmt.Sprintf("\t\tNewProject%sAttachmentResource,\n", desc.GoName)
-	}
-	if len(handWritten) > 0 {
-		body += "\t\t// Hand-written resources — preserved via handWrittenResources in cmd/generator/main.go.\n"
-		for _, n := range handWritten {
-			body += fmt.Sprintf("\t\t%s,\n", n)
-		}
-	}
-	out := fmt.Sprintf(tmpl, body)
-	return os.WriteFile(filepath.Join(outputDir, "registry.go"), []byte(out), 0o644)
 }

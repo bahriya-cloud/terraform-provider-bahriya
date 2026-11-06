@@ -23,9 +23,10 @@ vet:
 
 SPEC_DIR ?= ../packages/bahriya-openapi/specs/v1
 
+# The generator reads the embedded resource-schema.json, so copy it in first.
 generate:
-	go run ./cmd/generator -spec $(SPEC_DIR) -out internal/resources
 	cp $(SPEC_DIR)/../resource-schema.json internal/bmap/resource-schema.json
+	go run ./cmd/generator -out internal/resources
 
 verify: generate
 	@if ! git diff --exit-code -- internal/resources internal/datasources internal/bmap/resource-schema.json 2>/dev/null; then \
