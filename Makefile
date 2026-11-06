@@ -9,8 +9,9 @@ INSTALL_DIR   := $(HOME)/.terraform.d/plugins/registry.terraform.io/bahriya/bahr
 build:
 	go build -o bin/$(PROVIDER_NAME) ./cmd/$(PROVIDER_NAME)
 
+# ./... includes cmd/generator, whose test checks internal/resources is current.
 test:
-	go test ./internal/...
+	go test ./...
 
 tidy:
 	go mod tidy
