@@ -188,7 +188,11 @@ type Attribute struct {
 	Optional        bool
 	Computed        bool
 	RequiresReplace bool
-	Sensitive       bool
+	// CreateOnly (x-createOnly) also refuses the replacement while the handle
+	// stays the same: a terminated item keeps its handle, so the replacement
+	// would terminate it and then fail "Handle already in use".
+	CreateOnly bool
+	Sensitive  bool
 	// RotateOnly refuses a change at plan time: the API changes it only by
 	// rotation (resourceDescriptor.RotateOnlyFields).
 	RotateOnly bool

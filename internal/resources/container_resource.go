@@ -616,6 +616,7 @@ func (r *containerResource) Schema(_ context.Context, _ resource.SchemaRequest, 
 				Computed: true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
+					newHandleRequired("container", "container"),
 				},
 			},
 			"projectname": schema.StringAttribute{

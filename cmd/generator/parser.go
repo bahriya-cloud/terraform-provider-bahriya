@@ -154,6 +154,7 @@ func parseResource(specPath string, descriptor resourceDescriptor) (*Resource, e
 		}
 		if prop.isCreateOnly() {
 			attr.RequiresReplace = true
+			attr.CreateOnly = true
 		}
 		attr.RotateOnly = rotateOnlySet[apiName]
 		attr.Immutable = immutableSet[apiName]

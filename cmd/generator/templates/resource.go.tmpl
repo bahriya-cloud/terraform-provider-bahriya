@@ -136,7 +136,17 @@ func (r *{{ .Name }}Resource) Schema(_ context.Context, _ resource.SchemaRequest
 {{- if .Description }}
 				Description: {{ printf "%q" .Description }},
 {{- end }}
-{{- if and .RequiresReplace (eq .Type "bool") }}
+{{- if and .CreateOnly (eq .Type "bool") }}
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.RequiresReplace(),
+					newHandleRequiredBool({{ printf "%q" $.Name }}, {{ printf "%q" $.Noun }}),
+				},
+{{- else if .CreateOnly }}
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+					newHandleRequired({{ printf "%q" $.Name }}, {{ printf "%q" $.Noun }}),
+				},
+{{- else if and .RequiresReplace (eq .Type "bool") }}
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.RequiresReplace(),
 				},

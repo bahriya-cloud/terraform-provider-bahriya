@@ -111,6 +111,7 @@ func (r *valkeyResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				Description: "Sets the defaults bundle: cache = no persistence, allkeys-lru; store = RDB+AOF persistence, noeviction, storage required. Immutable after creation.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
+					newHandleRequired("valkey", "instance"),
 				},
 			},
 			"tier": schema.StringAttribute{
@@ -199,6 +200,7 @@ func (r *valkeyResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				Computed: true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
+					newHandleRequired("valkey", "instance"),
 				},
 			},
 			"shards": schema.Int64Attribute{

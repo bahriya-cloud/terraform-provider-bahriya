@@ -146,6 +146,7 @@ func (r *mysqlResource) Schema(_ context.Context, _ resource.SchemaRequest, resp
 				Description: "Product tier. single = one node, restarts from disk. replicated = a primary plus asynchronous read replicas. ha = Group Replication with automatic failover. Immutable after creation.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
+					newHandleRequired("mysql", "instance"),
 				},
 			},
 			"allowedips": schema.ListAttribute{
@@ -195,6 +196,7 @@ func (r *mysqlResource) Schema(_ context.Context, _ resource.SchemaRequest, resp
 				Description: "Encrypt data at rest with MySQL InnoDB encryption: every table, the redo and undo logs and the binary logs, under platform-generated and platform-managed keys (escrowed in your vault as keyringkey). Decided at creation and immutable thereafter - there is no online migration between the two states.",
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.RequiresReplace(),
+					newHandleRequiredBool("mysql", "instance"),
 				},
 			},
 			"externalenabled": schema.BoolAttribute{
@@ -231,6 +233,7 @@ func (r *mysqlResource) Schema(_ context.Context, _ resource.SchemaRequest, resp
 				Computed: true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
+					newHandleRequired("mysql", "instance"),
 				},
 			},
 			"replicas": schema.Int64Attribute{
@@ -265,6 +268,7 @@ func (r *mysqlResource) Schema(_ context.Context, _ resource.SchemaRequest, resp
 				Description: "Add-on: encrypt every volume of the instance (data, binary logs, temporary files) at the storage layer, on top of encryptionenabled. The passphrase is platform-generated and platform-managed, kept in your vault as lukskey. Billed separately. Decided at creation and immutable thereafter.",
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.RequiresReplace(),
+					newHandleRequiredBool("mysql", "instance"),
 				},
 			},
 			"databasesecrets": schema.ListAttribute{

@@ -119,6 +119,7 @@ func (r *memcachedResource) Schema(_ context.Context, _ resource.SchemaRequest, 
 				Computed: true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
+					newHandleRequired("memcached", "instance"),
 				},
 			},
 			"threads": schema.Int64Attribute{
