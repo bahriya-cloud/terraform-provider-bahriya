@@ -75,9 +75,35 @@ func (a *fakeAPI) now() *bmap.Map {
 }
 
 // route finds the descriptor and id for a path: base, item, rotate, delete.
+// Kinds with a URL parent are matched first: their paths extend another
+// kind's (/containers/{cid}/pathrules), so map order must not decide.
 func (a *fakeAPI) route(p string) (d Descriptor, id, action string, ok bool) {
+	ordered := make([]Descriptor, 0, len(Descriptors))
 	for _, desc := range Descriptors {
-		base := fmt.Sprintf(desc.URLBase, fakeOrg)
+		if desc.Parent != "" {
+			ordered = append([]Descriptor{desc}, ordered...)
+		} else {
+			ordered = append(ordered, desc)
+		}
+	}
+	for _, desc := range ordered {
+		base := ""
+		if desc.Parent != "" {
+			// /organisations/{org}/containers/{cid}/pathrules[/{id}]: the parent
+			// id is any single segment.
+			prefix, suffix, _ := strings.Cut(fmt.Sprintf(desc.URLBase, fakeOrg, "\x00"), "\x00")
+			rest, ok := strings.CutPrefix(p, prefix)
+			if !ok {
+				continue
+			}
+			parent, tail, _ := strings.Cut(rest, "/")
+			if !strings.HasPrefix("/"+tail, suffix) {
+				continue
+			}
+			base = prefix + parent + suffix
+		} else {
+			base = fmt.Sprintf(desc.URLBase, fakeOrg)
+		}
 		switch {
 		case p == base:
 			return desc, "", "base", true
@@ -236,7 +262,7 @@ func (a *fakeAPI) serve(w http.ResponseWriter, req *http.Request) {
 		record.Set("rotatedat", a.now())
 		a.reply(w, 200, bmap.MapOf("id", id))
 
-	case req.Method == d.deleteMethod() && req.URL.Path == fmt.Sprintf(d.deleteURL(), fakeOrg, id):
+	case req.Method == d.deleteMethod() && ((d.DeleteURL == "" && action == "item") || (d.DeleteURL != "" && req.URL.Path == fmt.Sprintf(d.deleteURL(), fakeOrg, id))):
 		record, found := a.items[d.Name][id]
 		if !found {
 			a.reply(w, 404, "Not found.")

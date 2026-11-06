@@ -1,16 +1,23 @@
 package engine
 
+import "fmt"
+
 // Descriptor holds a kind's API routing facts: where it lives, how it is
 // deleted and whether it has an asynchronous status. These are facts about
 // the console API's endpoints, not mapping facts, so they live here rather
 // than in resource-schema.json (which holds every mapping fact, CLAUDE.md).
 // Moved over unchanged from the v0.x generator's descriptors.
 type Descriptor struct {
-	// Name is the Terraform type suffix and the kind in resource-schema.json.
+	// Name is the kind in resource-schema.json. The Terraform type suffix is
+	// the kind's TypeName (its x-terraform-type, or this name).
 	Name string
-	// URLBase and URLItem are printf patterns: organisation id, then item id.
+	// URLBase and URLItem are printf patterns: organisation id, then the
+	// parent's id when Parent is set, then item id.
 	URLBase string
 	URLItem string
+	// Parent is the API name of the kind's URL parent (x-parent), if any: a
+	// path rule lives under its container.
+	Parent string
 	// HandlePath is the handle-exists route segment: GET
 	// /organisations/{org}/{HandlePath}/{handle}.
 	HandlePath string
@@ -60,6 +67,22 @@ func (d Descriptor) deleteURL() string {
 		return d.DeleteURL
 	}
 	return d.URLItem
+}
+
+// base is the collection URL; parent is ignored for a kind without one.
+func (d Descriptor) base(org, parent string) string {
+	if d.Parent != "" {
+		return fmt.Sprintf(d.URLBase, org, parent)
+	}
+	return fmt.Sprintf(d.URLBase, org)
+}
+
+// item formats an item URL pattern (URLItem, a delete URL).
+func (d Descriptor) item(pattern, org, parent, id string) string {
+	if d.Parent != "" {
+		return fmt.Sprintf(pattern, org, parent, id)
+	}
+	return fmt.Sprintf(pattern, org, id)
 }
 
 // asyncStatus fills the status lifecycle every asynchronous kind shares.
@@ -157,6 +180,15 @@ var Descriptors = map[string]Descriptor{
 	"yaml_config":    vault("yaml_config"),
 	"json_config":    vault("json_config"),
 	"plain_config":   vault("plain_config"),
+	// A path rule lives under its container, has no status, and is deleted by
+	// marking it removed: its handle is unique among active rules only, so a
+	// replacement can reuse it.
+	"pathrule": {
+		Name:    "pathrule",
+		URLBase: "/organisations/%s/containers/%s/pathrules",
+		URLItem: "/organisations/%s/containers/%s/pathrules/%s",
+		Parent:  "container",
+	},
 	"network_policy": {
 		Name:             "network_policy",
 		URLBase:          "/organisations/%s/network_policies",

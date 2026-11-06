@@ -20,9 +20,7 @@ func TestGeneratedSchemasMatchTheEngine(t *testing.T) {
 			continue // attachments and hand-written resources
 		}
 		served++
-		var meta resource.MetadataResponse
-		r.Metadata(context.Background(), resource.MetadataRequest{ProviderTypeName: "bahriya"}, &meta)
-		name := meta.TypeName[len("bahriya_"):]
+		name := r.KindName()
 
 		var got resource.SchemaResponse
 		r.Schema(context.Background(), resource.SchemaRequest{}, &got)

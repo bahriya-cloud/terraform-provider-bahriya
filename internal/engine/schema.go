@@ -165,6 +165,10 @@ func leaf(k *bmap.Kind, name string, f *bmap.Field, readOnly bool) (*Attr, error
 	a.Optional = !readOnly && !a.Required
 	a.Computed = !a.Required
 	a.Sensitive = d.Sensitive || d.WriteOnly || d.Masked != ""
+	if d.Parent {
+		// The URL parent: read-only in the body, but Terraform must be given it.
+		a.Required, a.Optional, a.Computed = true, false, false
+	}
 
 	if f.Transform == "envVarMap" || f.Transform == "secretMap" || d.Freeform {
 		a.Type, a.ElemType = "map", "string"

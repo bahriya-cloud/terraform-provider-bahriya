@@ -68,24 +68,44 @@ func New(name string) func() resource.Resource {
 
 // KindSchema builds a kind's schema with its resource description.
 func KindSchema(name string) (schema.Schema, error) {
-	desc, ok := Descriptors[name]
-	if !ok {
+	if _, ok := Descriptors[name]; !ok {
 		return schema.Schema{}, fmt.Errorf("engine: no descriptor for %s", name)
 	}
 	k := bmap.Embedded().Kind(name)
 	if k == nil {
 		return schema.Schema{}, fmt.Errorf("engine: no kind %s in resource-schema.json", name)
 	}
-	return BuildSchema(k, desc.description())
+	return BuildSchema(k, Description(name))
 }
 
 // Description is a kind's resource description, for cmd/generator.
 func Description(name string) string {
+	if k := bmap.Embedded().Kind(name); k != nil {
+		return "Manages a Bahriya " + k.TypeName() + "."
+	}
 	return Descriptors[name].description()
 }
 
 func (r *Resource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_" + r.desc.Name
+	resp.TypeName = req.ProviderTypeName + "_" + r.kind.TypeName()
+}
+
+// KindName is the kind in resource-schema.json (pathrule for bahriya_path_rule).
+func (r *Resource) KindName() string {
+	return r.desc.Name
+}
+
+// parentOf is the URL parent's id from a plan or state record ("" when the
+// kind has none).
+func (r *Resource) parentOf(record *bmap.Map) string {
+	if r.desc.Parent == "" {
+		return ""
+	}
+	v, _ := record.Get(r.desc.Parent)
+	if v == nil || tfval.IsUnknown(v) {
+		return ""
+	}
+	return fmt.Sprint(v)
 }
 
 func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
@@ -229,11 +249,24 @@ func (r *Resource) ModifyPlan(ctx context.Context, req resource.ModifyPlanReques
 		}
 		planned.Set(f.Name, value)
 	}
+	// The URL parent comes from the configuration: read-only in the body, but required.
+	var configured *bmap.Map
+	if r.desc.Parent != "" {
+		if configured, err = r.kind.FromState(cfg); err != nil {
+			resp.Diagnostics.AddError("Invalid configuration", err.Error())
+			return
+		}
+	}
 	for _, f := range r.kind.Fields {
 		if r.kind.IsWritable(f) {
 			continue
 		}
 		priorValue, hasPrior := prior.Get(f.Name)
+		if f.Desc.Parent {
+			v, _ := configured.Get(f.Name)
+			planned.Set(f.Name, v)
+			continue
+		}
 		if prior == nil || !hasPrior || (f.Desc.Volatile && changed) {
 			planned.Set(f.Name, tfval.Unknown)
 		} else {
@@ -267,6 +300,10 @@ func (r *Resource) ModifyPlan(ctx context.Context, req resource.ModifyPlanReques
 				fmt.Sprintf("%s is fixed when a %s is created; to use another value, create a new %s and move its attachments.", f.Path, r.desc.Name, r.desc.Name))
 		case f.Name == "handle":
 			resp.RequiresReplace = append(resp.RequiresReplace, attrPath(f.Path))
+		case f.Desc.Parent:
+			// Another parent is another item. Replacing is safe here: a path rule
+			// holds no data, has no dependants, and its handle is reusable once removed.
+			resp.RequiresReplace = append(resp.RequiresReplace, attrPath(f.Path))
 		case f.Desc.CreateOnly && newHandle:
 			resp.RequiresReplace = append(resp.RequiresReplace, attrPath(f.Path))
 		case f.Desc.CreateOnly:
@@ -291,6 +328,7 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 	}
 	payload := r.payload(plan, false)
 	org := r.client.OrganisationID()
+	parent := r.parentOf(plan)
 
 	if handle, _ := payload.Get("handle"); handle != nil && r.desc.HandlePath != "" {
 		exists, err := r.client.HandleExists(ctx, r.desc.HandlePath, fmt.Sprint(handle))
@@ -305,7 +343,7 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 		}
 	}
 
-	data, status, err := r.client.Do(ctx, http.MethodPost, fmt.Sprintf(r.desc.URLBase, org), payload)
+	data, status, err := r.client.Do(ctx, http.MethodPost, r.desc.base(org, parent), payload)
 	if status == http.StatusConflict {
 		// A refusal on project resource limits is the one 409 with a structured body,
 		// and the one a practitioner can act on: which ceiling, in which region, by how much.
@@ -334,7 +372,7 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 	}
 
 	if r.desc.HasStatus {
-		if record, werr := r.waitReady(ctx, id); werr != nil {
+		if record, werr := r.waitReady(ctx, parent, id); werr != nil {
 			// The item WAS created: its handle is now taken for good. Returning an error
 			// would taint it, and the replace on the next apply would fail with 409 on the
 			// immutable handle, wedging the configuration. Save it with its real status
@@ -355,7 +393,7 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 		}
 	}
 
-	record, diags := r.fetch(ctx, id)
+	record, diags := r.fetch(ctx, parent, id)
 	if resp.Diagnostics.Append(diags...); diags.HasError() {
 		return
 	}
@@ -369,7 +407,7 @@ func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 		return
 	}
 	id, _ := prior.Get("id")
-	record, diags := r.fetch(ctx, fmt.Sprint(id))
+	record, diags := r.fetch(ctx, r.parentOf(prior), fmt.Sprint(id))
 	if diags.HasError() {
 		if notFound(diags) {
 			resp.State.RemoveResource(ctx)
@@ -394,6 +432,7 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	}
 	id := fmt.Sprint(mustGet(prior, "id"))
 	org := r.client.OrganisationID()
+	parent := r.parentOf(prior)
 
 	rotate, update := false, false
 	for _, f := range r.kind.Fields {
@@ -413,7 +452,7 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	}
 
 	if update {
-		data, status, err := r.client.Do(ctx, http.MethodPut, fmt.Sprintf(r.desc.URLItem, org, id), r.payload(plan, true))
+		data, status, err := r.client.Do(ctx, http.MethodPut, r.desc.item(r.desc.URLItem, org, parent, id), r.payload(plan, true))
 		if err != nil {
 			// The API's message (a 409 explaining a policy is already attached, say)
 			// is what the practitioner acts on, so surface it, not just the code.
@@ -435,14 +474,14 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 				body.Set(f.Name, v)
 			}
 		}
-		if _, _, err := r.client.Do(ctx, http.MethodPost, fmt.Sprintf(r.desc.URLItem, org, id)+"/rotate", body); err != nil {
+		if _, _, err := r.client.Do(ctx, http.MethodPost, r.desc.item(r.desc.URLItem, org, parent, id)+"/rotate", body); err != nil {
 			resp.Diagnostics.AddError("Rotation failed", err.Error())
 			return
 		}
 	}
 
 	if r.desc.HasStatus && (update || rotate) {
-		if record, werr := r.waitReady(ctx, id); werr != nil {
+		if record, werr := r.waitReady(ctx, parent, id); werr != nil {
 			if record == nil {
 				resp.Diagnostics.AddError(fmt.Sprintf("The %s was updated but could not be read back", r.desc.noun()), werr.Error())
 				return
@@ -457,7 +496,7 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 		}
 	}
 
-	record, diags := r.fetch(ctx, id)
+	record, diags := r.fetch(ctx, parent, id)
 	if resp.Diagnostics.Append(diags...); diags.HasError() {
 		return
 	}
@@ -472,14 +511,15 @@ func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp 
 	}
 	id := fmt.Sprint(mustGet(prior, "id"))
 	org := r.client.OrganisationID()
-	target := fmt.Sprintf(r.desc.deleteURL(), org, id)
+	parent := r.parentOf(prior)
+	target := r.desc.item(r.desc.deleteURL(), org, parent, id)
 
 	if r.desc.HasStatus {
 		// Terminated already (torn down out of band, or an interrupted destroy that has
 		// since finished): nothing to do. Terminating already: re-issuing the terminate
 		// 4xxs ("cannot be terminated from its current state"), so only wait.
 		skip := false
-		if record, diags := r.fetch(ctx, id); !diags.HasError() {
+		if record, diags := r.fetch(ctx, parent, id); !diags.HasError() {
 			switch s, _ := record.Get("status"); s {
 			case r.desc.TerminatedStatus:
 				return
@@ -494,7 +534,7 @@ func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp 
 			}
 		}
 		_, werr := lifecycle.WaitForStatus(ctx, func(ctx context.Context) (string, error) {
-			record, diags := r.fetch(ctx, id)
+			record, diags := r.fetch(ctx, parent, id)
 			if diags.HasError() {
 				return r.desc.TerminatedStatus, nil
 			}
@@ -522,8 +562,21 @@ func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp 
 	}
 }
 
+// ImportState takes the item's id, or "<parent id>:<id>" for a kind with a URL
+// parent (a path rule: "<container id>:<path rule id>", as in v0.x).
 func (r *Resource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), req.ID)...)
+	if r.desc.Parent == "" {
+		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), req.ID)...)
+		return
+	}
+	parts := strings.SplitN(req.ID, ":", 2)
+	if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
+		resp.Diagnostics.AddError("Invalid import ID", fmt.Sprintf("Import IDs for bahriya_%s look like '<%s id>:<id>'.", r.kind.TypeName(), r.desc.Parent))
+		return
+	}
+	parentPath := attrPath(r.kind.Field(r.desc.Parent).Path)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, parentPath, parts[0])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), parts[1])...)
 }
 
 // ------------------------------------------------------------------ API
@@ -548,10 +601,29 @@ func (r *Resource) payload(plan *bmap.Map, update bool) *bmap.Map {
 	return out
 }
 
-// fetch GETs one item. A 404, or an empty list wrapper, is a "not_found" error.
-func (r *Resource) fetch(ctx context.Context, id string) (*bmap.Map, diag.Diagnostics) {
+// fetch GETs one item. A 404, an empty list wrapper, or an item marked removed
+// is a "not_found" error. A kind with a URL parent gets the parent's id set on
+// the record, since the API addresses the item by it.
+func (r *Resource) fetch(ctx context.Context, parent, id string) (*bmap.Map, diag.Diagnostics) {
+	record, diags := r.get(ctx, parent, id)
+	if diags.HasError() {
+		return nil, diags
+	}
+	if removed, _ := record.Get("removedat"); removed != nil {
+		diags.AddError("not_found", "resource was removed")
+		return nil, diags
+	}
+	if r.desc.Parent != "" && parent != "" {
+		if v, _ := record.Get(r.desc.Parent); v == nil {
+			record.Set(r.desc.Parent, parent)
+		}
+	}
+	return record, diags
+}
+
+func (r *Resource) get(ctx context.Context, parent, id string) (*bmap.Map, diag.Diagnostics) {
 	var diags diag.Diagnostics
-	data, status, err := r.client.Do(ctx, http.MethodGet, fmt.Sprintf(r.desc.URLItem, r.client.OrganisationID(), id), nil)
+	data, status, err := r.client.Do(ctx, http.MethodGet, r.desc.item(r.desc.URLItem, r.client.OrganisationID(), parent, id), nil)
 	if err != nil {
 		if status == http.StatusNotFound {
 			diags.AddError("not_found", "resource was deleted out-of-band")
@@ -587,10 +659,10 @@ func (r *Resource) fetch(ctx context.Context, id string) (*bmap.Map, diag.Diagno
 
 // waitReady polls until the item reaches ReadyStatus. On a timeout or the
 // "error" status it returns the last record it read, if any, with the error.
-func (r *Resource) waitReady(ctx context.Context, id string) (*bmap.Map, error) {
+func (r *Resource) waitReady(ctx context.Context, parent, id string) (*bmap.Map, error) {
 	var last *bmap.Map
 	_, werr := lifecycle.WaitForStatus(ctx, func(ctx context.Context) (string, error) {
-		record, diags := r.fetch(ctx, id)
+		record, diags := r.fetch(ctx, parent, id)
 		if diags.HasError() {
 			return "", errors.New("fetch error during wait")
 		}
@@ -599,7 +671,7 @@ func (r *Resource) waitReady(ctx context.Context, id string) (*bmap.Map, error) 
 		return fmt.Sprint(s), nil
 	}, lifecycle.WaitOptions{Target: r.desc.ReadyStatus, Terminal: []string{"error"}, Timeout: asyncTimeout})
 	if werr != nil {
-		if record, diags := r.fetch(ctx, id); !diags.HasError() {
+		if record, diags := r.fetch(ctx, parent, id); !diags.HasError() {
 			last = record
 		}
 		return last, werr

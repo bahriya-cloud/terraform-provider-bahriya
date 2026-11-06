@@ -15,9 +15,7 @@ import (
 // pendingHCL are kinds with hcl fixtures whose resource is not yet on the v1
 // shape, with the card that moves it. The list fails once a kind is served by
 // the engine, so it cannot outlive the work.
-var pendingHCL = map[string]string{
-	"pathrule": "path_rule moves onto the engine in TF v1 card 9 (#2250)",
-}
+var pendingHCL = map[string]string{}
 
 // RULES.md section 8: every hcl conformance case is valid Terraform for the
 // v1 schema. Each case is validated with `terraform validate` against this

@@ -33,6 +33,8 @@ var kinds = []struct{ Name, GoName string }{
 	{"json_config", "JSONConfig"},
 	{"plain_config", "PlainConfig"},
 	{"network_policy", "NetworkPolicy"},
+	// bahriya_path_rule (x-terraform-type), under its container (x-parent).
+	{"pathrule", "PathRule"},
 }
 
 // attachments are the per-type project attachment resources
@@ -42,7 +44,7 @@ var attachments = []string{"registry", "secret", "tls_bundle", "x509_cert", "gpg
 
 // handWritten are constructors implemented in their own files that the
 // registry must still list.
-var handWritten = []string{"NewPathRuleResource", "NewRoleResource", "NewResourceGrantResource", "NewBillingDetailsResource"}
+var handWritten = []string{"NewRoleResource", "NewResourceGrantResource", "NewBillingDetailsResource"}
 
 func main() {
 	outputDir := flag.String("out", "internal/resources", "directory to write generated resource files to")

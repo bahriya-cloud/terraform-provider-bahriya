@@ -17,6 +17,7 @@ import (
 	tfresource "github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/knownvalue"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-plugin-testing/tfjsonpath"
 )
 
@@ -408,6 +409,65 @@ resource "bahriya_container" "c" {
 	body := api.created["container"]
 	if enabled, _ := body.Get("basicauthenabled"); enabled != true {
 		t.Errorf("x-implies must send basicauthenabled true, got %v", enabled)
+	}
+}
+
+// A path rule is bahriya_path_rule (x-terraform-type), lives under its
+// container (x-parent): the container is required, addresses every request,
+// is never sent in the body, and changing it replaces the rule. Import takes
+// "<container id>:<id>".
+func TestPathRuleUnderItsContainer(t *testing.T) {
+	api := newFakeAPI(t)
+	const a, b = "aaaaaaaa-0000-4000-8000-00000000000a", "bbbbbbbb-0000-4000-8000-00000000000b"
+	cfg := func(container, path string) string {
+		return fmt.Sprintf(`
+resource "bahriya_path_rule" "r" {
+  container = %q
+  handle    = "admin"
+  path      = %q
+  security = {
+    rate_limiting = {
+      enabled    = true
+      per_minute = 60
+    }
+  }
+}`, container, path)
+	}
+	tfresource.UnitTest(t, tfresource.TestCase{
+		ProtoV6ProviderFactories: factories(api),
+		Steps: []tfresource.TestStep{
+			{
+				Config: cfg(a, "/admin"),
+				Check: tfresource.ComposeAggregateTestCheckFunc(
+					tfresource.TestCheckResourceAttr("bahriya_path_rule.r", "container", a),
+					tfresource.TestCheckResourceAttr("bahriya_path_rule.r", "security.rate_limiting.per_minute", "60"),
+				),
+			},
+			{Config: cfg(a, "/admin/v2")},
+			{
+				Config: cfg(b, "/admin/v2"),
+				ConfigPlanChecks: tfresource.ConfigPlanChecks{PreApply: []plancheck.PlanCheck{
+					plancheck.ExpectResourceAction("bahriya_path_rule.r", plancheck.ResourceActionDestroyBeforeCreate),
+				}},
+			},
+			{
+				ResourceName: "bahriya_path_rule.r",
+				ImportState:  true,
+				ImportStateIdFunc: func(s *terraform.State) (string, error) {
+					return b + ":" + s.RootModule().Resources["bahriya_path_rule.r"].Primary.ID, nil
+				},
+				ImportStateVerify: true,
+			},
+		},
+	})
+	if body := api.created["pathrule"]; body.Has("container") {
+		t.Errorf("the parent must never be in the body, got %s", bmap.Encode(body))
+	}
+	if puts := api.Calls("PUT /organisations/" + fakeOrg + "/containers/" + a + "/pathrules/"); len(puts) != 1 {
+		t.Errorf("want 1 PUT under container a, got %v", puts)
+	}
+	if posts := api.Calls("POST /organisations/" + fakeOrg + "/containers/" + b + "/pathrules"); len(posts) != 1 {
+		t.Errorf("want the replacement created under container b, got %v", posts)
 	}
 }
 
