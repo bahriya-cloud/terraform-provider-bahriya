@@ -234,18 +234,19 @@ func (r *{{ .Name }}Resource) Create(ctx context.Context, req resource.CreateReq
 {{- end }}
 
 	data, status, err := r.client.Do(ctx, http.MethodPost, fmt.Sprintf("{{ .URLBase }}", r.client.OrganisationID()), body)
-	if err != nil {
-		resp.Diagnostics.AddError("Create failed", err.Error())
-		return
-	}
 	if status == http.StatusConflict {
 		// A refusal on project resource limits is the one 409 with a structured body, and it is
 		// the one a practitioner can act on: it says which ceiling, in which region, and by how
-		// much. Rendering it as raw JSON next to "Unexpected status" would bury that.
+		// much. The client returns an error for every 4xx (with the body in data), so this is
+		// checked before that error, or it would read as "Create failed" with the raw JSON.
 		if verdict := client.DecodeQuotaRefusal(data); verdict != nil {
 			resp.Diagnostics.AddError("Project resource limits exceeded", client.QuotaDetail(verdict))
 			return
 		}
+	}
+	if err != nil {
+		resp.Diagnostics.AddError("Create failed", err.Error())
+		return
 	}
 	if status != http.StatusCreated {
 		resp.Diagnostics.AddError("Unexpected status from Create", fmt.Sprintf("HTTP %d: %s", status, string(data)))
