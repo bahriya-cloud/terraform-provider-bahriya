@@ -70,8 +70,14 @@ type Descriptor struct {
 	// InputDeprecated marks a read-only field clients once wrote, to no
 	// effect; setting it records a deprecation (R3).
 	InputDeprecated bool
-	Description     string
-	ItemsType       string
+	// RotateOnly marks versioned material that only POST …/rotate changes;
+	// an update ignores it (x-rotate-only).
+	RotateOnly bool
+	// Immutable marks a field fixed at creation that neither an update nor a
+	// rotation changes (x-immutable).
+	Immutable   bool
+	Description string
+	ItemsType   string
 }
 
 var embedded *Schema
@@ -222,6 +228,8 @@ func parseDescriptor(m *Map) *Descriptor {
 	d.ItemKey, _ = mapGet(m, "itemKey").(string)
 	d.Freeform, _ = mapGet(m, "freeform").(bool)
 	d.InputDeprecated, _ = mapGet(m, "inputDeprecated").(bool)
+	d.RotateOnly, _ = mapGet(m, "rotateOnly").(bool)
+	d.Immutable, _ = mapGet(m, "immutable").(bool)
 	d.Description, _ = mapGet(m, "description").(string)
 	d.ItemsType, _ = mapGet(asMap(mapGet(m, "items")), "type").(string)
 	return d
