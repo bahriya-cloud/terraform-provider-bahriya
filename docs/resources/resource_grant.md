@@ -19,10 +19,10 @@ Because the API has no in-place update for a grant, changing any attribute (incl
 
 ```hcl
 resource "bahriya_resource_grant" "share_api_container" {
-  touser       = "5f9c1a2b-3d4e-4f60-8a1b-2c3d4e5f6071"
-  resourcetype = "deployables_container_http"
-  resourceid   = bahriya_container.api.id
-  permissions  = ["read", "update"]
+  to_user       = "5f9c1a2b-3d4e-4f60-8a1b-2c3d4e5f6071"
+  resource_type = "deployables_container_http"
+  resource_id   = bahriya_container.api.id
+  permissions   = ["read", "update"]
 }
 ```
 
@@ -30,10 +30,10 @@ resource "bahriya_resource_grant" "share_api_container" {
 
 ```hcl
 resource "bahriya_resource_grant" "share_registry" {
-  touser       = var.contractor_user_id
-  resourcetype = "attachables_registries"
-  resourceid   = bahriya_registry.ghcr.id
-  permissions  = ["read"]
+  to_user       = var.contractor_user_id
+  resource_type = "attachables_registries"
+  resource_id   = bahriya_registry.ghcr.id
+  permissions   = ["read"]
 }
 ```
 
@@ -41,19 +41,19 @@ resource "bahriya_resource_grant" "share_registry" {
 
 ### Required
 
-- `touser` (String) UUID of the member to share with. Must already be a member of the organisation. Changing it replaces the grant.
-- `resourcetype` (String) Resource kind, e.g. `deployables_container_http`, `attachables_registries`. Changing it replaces the grant.
-- `resourceid` (String) UUID of the specific instance to share. Changing it replaces the grant.
+- `to_user` (String) UUID of the member to share with. Must already be a member of the organisation. Changing it replaces the grant.
+- `resource_type` (String) Resource kind, e.g. `deployables_container_http`, `attachables_registries`. Changing it replaces the grant.
+- `resource_id` (String) UUID of the specific instance to share. Changing it replaces the grant.
 - `permissions` (Set of String) Permissions to grant on the instance: any of `create`, `read`, `update`, `delete`. Changing the set replaces the grant.
 
 ### Read-Only
 
-- `id` (String) Synthetic identifier: `<resourcetype>|<resourceid>|<touser>`.
+- `id` (String) Synthetic identifier: `<resource_type>|<resource_id>|<to_user>`.
 - `grant_ids` (List of String) The individual grant rows backing this share (one per permission).
 
 ## Import
 
-Resource grants can be imported using the composite id `<resourcetype>|<resourceid>|<touser>`:
+Resource grants can be imported using the composite id `<resource_type>|<resource_id>|<to_user>`:
 
 ```bash
 terraform import bahriya_resource_grant.share_registry \

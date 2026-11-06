@@ -27,10 +27,37 @@ import (
 // forces replacement; a permission change revokes and re-creates.
 
 var (
-	_ resource.Resource                = &resourceGrantResource{}
-	_ resource.ResourceWithConfigure   = &resourceGrantResource{}
-	_ resource.ResourceWithImportState = &resourceGrantResource{}
+	_ resource.Resource                 = &resourceGrantResource{}
+	_ resource.ResourceWithConfigure    = &resourceGrantResource{}
+	_ resource.ResourceWithImportState  = &resourceGrantResource{}
+	_ resource.ResourceWithUpgradeState = &resourceGrantResource{}
 )
+
+// UpgradeState moves v0.x state (touser, resourcetype, resourceid) to the v1
+// names (to_user, resource_type, resource_id) without a replacement.
+func (r *resourceGrantResource) UpgradeState(ctx context.Context) map[int64]resource.StateUpgrader {
+	v0 := schema.Schema{Attributes: map[string]schema.Attribute{
+		"id":           schema.StringAttribute{Computed: true},
+		"touser":       schema.StringAttribute{Required: true},
+		"resourcetype": schema.StringAttribute{Required: true},
+		"resourceid":   schema.StringAttribute{Required: true},
+		"permissions":  schema.SetAttribute{Required: true, ElementType: types.StringType},
+		"grant_ids":    schema.ListAttribute{Computed: true, ElementType: types.StringType},
+	}}
+	return map[int64]resource.StateUpgrader{
+		0: {
+			PriorSchema: &v0,
+			StateUpgrader: func(ctx context.Context, req resource.UpgradeStateRequest, resp *resource.UpgradeStateResponse) {
+				var prior resourceGrantModelV0
+				resp.Diagnostics.Append(req.State.Get(ctx, &prior)...)
+				if resp.Diagnostics.HasError() {
+					return
+				}
+				resp.Diagnostics.Append(resp.State.Set(ctx, resourceGrantModel(prior))...)
+			},
+		},
+	}
+}
 
 func NewResourceGrantResource() resource.Resource {
 	return &resourceGrantResource{}
@@ -41,6 +68,16 @@ type resourceGrantResource struct {
 }
 
 type resourceGrantModel struct {
+	ID           types.String `tfsdk:"id"`
+	Touser       types.String `tfsdk:"to_user"`
+	Resourcetype types.String `tfsdk:"resource_type"`
+	Resourceid   types.String `tfsdk:"resource_id"`
+	Permissions  types.Set    `tfsdk:"permissions"`
+	GrantIds     types.List   `tfsdk:"grant_ids"`
+}
+
+// resourceGrantModelV0 is the v0.x state: the API names (TF v1 #2250).
+type resourceGrantModelV0 struct {
 	ID           types.String `tfsdk:"id"`
 	Touser       types.String `tfsdk:"touser"`
 	Resourcetype types.String `tfsdk:"resourcetype"`
@@ -55,30 +92,31 @@ func (r *resourceGrantResource) Metadata(_ context.Context, req resource.Metadat
 
 func (r *resourceGrantResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		Version:     1,
 		Description: "Shares a specific resource instance with an organisation member (a user-level instance ACL). Additive — only widens the member's access to that one instance.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:    true,
-				Description: "Synthetic identifier: '<resourcetype>|<resourceid>|<touser>'.",
+				Description: "Synthetic identifier: '<resource_type>|<resource_id>|<to_user>'.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"touser": schema.StringAttribute{
+			"to_user": schema.StringAttribute{
 				Required:    true,
 				Description: "ID (UUID) of the member to share with. Must already be a member of the organisation.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"resourcetype": schema.StringAttribute{
+			"resource_type": schema.StringAttribute{
 				Required:    true,
 				Description: "Resource kind, e.g. deployables_container_http, attachables_registries.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"resourceid": schema.StringAttribute{
+			"resource_id": schema.StringAttribute{
 				Required:    true,
 				Description: "ID (UUID) of the specific instance to share.",
 				PlanModifiers: []planmodifier.String{
@@ -200,12 +238,12 @@ func (r *resourceGrantResource) Delete(ctx context.Context, req resource.DeleteR
 func (r *resourceGrantResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	parts := strings.SplitN(req.ID, "|", 3)
 	if len(parts) != 3 || parts[0] == "" || parts[1] == "" || parts[2] == "" {
-		resp.Diagnostics.AddError("Invalid import ID", "Resource grant import IDs must look like '<resourcetype>|<resourceid>|<touser>'.")
+		resp.Diagnostics.AddError("Invalid import ID", "Resource grant import IDs must look like '<resource_type>|<resource_id>|<to_user>'.")
 		return
 	}
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, schemaPath("resourcetype"), parts[0])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, schemaPath("resourceid"), parts[1])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, schemaPath("touser"), parts[2])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, schemaPath("resource_type"), parts[0])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, schemaPath("resource_id"), parts[1])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, schemaPath("to_user"), parts[2])...)
 }
 
 // read lists the grants on an instance and reconstructs the state for one member.
