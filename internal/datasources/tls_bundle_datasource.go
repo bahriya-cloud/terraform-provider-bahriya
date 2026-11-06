@@ -40,7 +40,7 @@ type tlsBundleModel struct {
 	Subject     types.String `tfsdk:"subject"`
 	Issuer      types.String `tfsdk:"issuer"`
 	Fingerprint types.String `tfsdk:"fingerprint"`
-	NotAfter    types.String `tfsdk:"notafter"`
+	NotAfter    types.String `tfsdk:"expires"`
 	Managed     types.Bool   `tfsdk:"managed"`
 }
 
@@ -84,7 +84,8 @@ func (d *tlsBundleDataSource) Schema(_ context.Context, _ datasource.SchemaReque
 				Description: "Certificate fingerprint.",
 				Computed:    true,
 			},
-			"notafter": schema.StringAttribute{
+			// The resource's alias for the API's notafter (TF v1 #2250).
+			"expires": schema.StringAttribute{
 				Description: "Certificate expiry time.",
 				Computed:    true,
 			},

@@ -53,5 +53,5 @@ output "orders_ca" {
 - `subject` (String) - Certificate subject.
 - `issuer` (String) - Certificate issuer.
 - `fingerprint` (String) - Certificate fingerprint.
-- `notafter` (String) - Certificate expiry time.
+- `expires` (String) - Certificate expiry time.
 - `managed` (Boolean) - Whether the platform manages the bundle on behalf of a resource (for example a MySQL or Valkey instance).

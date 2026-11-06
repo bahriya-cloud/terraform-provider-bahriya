@@ -27,7 +27,7 @@ func TestTlsBundleDataSource_Schema(t *testing.T) {
 	if !ok || !handle.Required {
 		t.Fatal("handle must be a required string attribute")
 	}
-	for _, name := range []string{"id", "name", "ca", "cert", "subject", "issuer", "fingerprint", "notafter", "managed"} {
+	for _, name := range []string{"id", "name", "ca", "cert", "subject", "issuer", "fingerprint", "expires", "managed"} {
 		attr, ok := resp.Schema.Attributes[name]
 		if !ok {
 			t.Errorf("expected attribute %q in schema", name)
