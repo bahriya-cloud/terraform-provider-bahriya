@@ -78,11 +78,17 @@ func (r *gpg_keypairResource) Schema(_ context.Context, _ resource.SchemaRequest
 				Required:    true,
 				Sensitive:   true,
 				Description: "ASCII-armored PGP private key. Never returned on read.",
+				PlanModifiers: []planmodifier.String{
+					rotateOnly("gpg_keypair"),
+				},
 			},
 			"publickey": schema.StringAttribute{
 				Required:    true,
 				Sensitive:   true,
 				Description: "ASCII-armored PGP public key.",
+				PlanModifiers: []planmodifier.String{
+					rotateOnly("gpg_keypair"),
+				},
 			},
 			"maxversions": schema.Int64Attribute{
 				Optional: true,

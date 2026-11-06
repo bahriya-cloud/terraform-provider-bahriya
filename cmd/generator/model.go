@@ -189,8 +189,14 @@ type Attribute struct {
 	Computed        bool
 	RequiresReplace bool
 	Sensitive       bool
-	Description     string
-	Nested          []NestedField // populated when Type == "list_nested"
+	// RotateOnly refuses a change at plan time: the API changes it only by
+	// rotation (resourceDescriptor.RotateOnlyFields).
+	RotateOnly bool
+	// Immutable refuses a change at plan time: fixed when the item is
+	// created (resourceDescriptor.ImmutableFields).
+	Immutable   bool
+	Description string
+	Nested      []NestedField // populated when Type == "list_nested"
 }
 
 // volatileAttributes are server-derived values that legitimately CHANGE on an

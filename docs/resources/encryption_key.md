@@ -20,6 +20,12 @@ resource "bahriya_encryption_key" "tokens" {
 }
 ```
 
+## Changing the key
+
+A new key is a rotation, which this provider version does not perform. Changing `key` fails at plan time with "Rotation is not supported by this provider version". Rotate the key with `reis encryption_key:rotate` or in the console, then set the new value in your configuration. Renaming (`name`) is applied in place. Terraform provider v1 rotates the material for you.
+
+`format` is fixed when a key is created. Changing it fails at plan time; to use another format, create a new key and move its attachments.
+
 ## Schema
 
 ### Required

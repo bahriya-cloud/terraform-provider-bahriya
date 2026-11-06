@@ -70,6 +70,9 @@ func (r *env_fileResource) Schema(_ context.Context, _ resource.SchemaRequest, r
 			"content": schema.StringAttribute{
 				Required:    true,
 				Description: "KEY=VALUE pairs, one per line. Comment lines (#) and blank lines are allowed.",
+				PlanModifiers: []planmodifier.String{
+					rotateOnly("env_file"),
+				},
 			},
 			"name": schema.StringAttribute{
 				Required: true,

@@ -20,6 +20,10 @@ resource "bahriya_ssh_keypair" "deploy" {
 }
 ```
 
+## Changing the keys
+
+A new keypair is a rotation, which this provider version does not perform. Changing `publickey` or `privatekey` fails at plan time with "Rotation is not supported by this provider version". Rotate the keypair with `reis ssh_keypair:rotate` or in the console, then set the new values in your configuration. Renaming (`name`) is applied in place. Terraform provider v1 rotates the material for you.
+
 ## Schema
 
 ### Required

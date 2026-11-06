@@ -144,6 +144,14 @@ func (r *{{ .Name }}Resource) Schema(_ context.Context, _ resource.SchemaRequest
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
+{{- else if .RotateOnly }}
+				PlanModifiers: []planmodifier.String{
+					rotateOnly({{ printf "%q" $.HandlePathName }}),
+				},
+{{- else if .Immutable }}
+				PlanModifiers: []planmodifier.String{
+					fixedAtCreation({{ printf "%q" $.HandlePathName }}),
+				},
 {{- else if not .PinnableComputed }}
 				// No UseStateForUnknown: {{ .VolatileReason }}
 {{- else if and .Computed (eq .Type "string") }}

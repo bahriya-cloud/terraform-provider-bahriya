@@ -19,6 +19,10 @@ resource "bahriya_x509_cert" "client_ca" {
 }
 ```
 
+## Changing the certificate
+
+A new certificate is a rotation, which this provider version does not perform. Changing `cert` fails at plan time with "Rotation is not supported by this provider version". Rotate the certificate with `reis x509_cert:rotate` or in the console, then set the new value in your configuration. Renaming (`name`) is applied in place. Terraform provider v1 rotates the material for you.
+
 ## Schema
 
 ### Required

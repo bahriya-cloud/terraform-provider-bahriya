@@ -70,6 +70,9 @@ func (r *plain_configResource) Schema(_ context.Context, _ resource.SchemaReques
 			"content": schema.StringAttribute{
 				Required:    true,
 				Description: "Arbitrary text content.",
+				PlanModifiers: []planmodifier.String{
+					rotateOnly("plain_config"),
+				},
 			},
 			"name": schema.StringAttribute{
 				Required: true,

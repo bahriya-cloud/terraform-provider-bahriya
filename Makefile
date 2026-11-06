@@ -21,6 +21,12 @@ fmt:
 vet:
 	go vet ./...
 
+# The 0.4.x line is generated from bahriya/openapi commit 7dd8aaf, the spec
+# v0.4.0 was built from (regenerating from it reproduces v0.4.0 exactly). A
+# later spec changes unrelated attributes (maxcpu, project users, maxversions,
+# …), so pass SPEC_DIR pointing at an export of that commit:
+#   git -C ../packages/bahriya-openapi archive 7dd8aaf specs | tar -x -C /tmp/openapi-7dd8aaf
+#   make generate SPEC_DIR=/tmp/openapi-7dd8aaf/specs/v1
 SPEC_DIR ?= ../packages/bahriya-openapi/specs/v1
 
 generate:

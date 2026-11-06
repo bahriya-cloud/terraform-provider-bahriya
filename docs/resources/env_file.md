@@ -24,6 +24,10 @@ resource "bahriya_env_file" "api" {
 }
 ```
 
+## Changing the content
+
+New content is a rotation, which this provider version does not perform. Changing `content` fails at plan time with "Rotation is not supported by this provider version". Rotate the env file with `reis env_file:rotate` or in the console, then set the new content in your configuration. Renaming (`name`) is applied in place. Terraform provider v1 rotates the content for you.
+
 ## Schema
 
 ### Required

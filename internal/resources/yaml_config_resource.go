@@ -69,6 +69,9 @@ func (r *yaml_configResource) Schema(_ context.Context, _ resource.SchemaRequest
 			"content": schema.StringAttribute{
 				Required:    true,
 				Description: "Valid YAML content.",
+				PlanModifiers: []planmodifier.String{
+					rotateOnly("yaml_config"),
+				},
 			},
 			"name": schema.StringAttribute{
 				Required: true,

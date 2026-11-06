@@ -73,6 +73,9 @@ func (r *x509_certResource) Schema(_ context.Context, _ resource.SchemaRequest, 
 			"cert": schema.StringAttribute{
 				Required:    true,
 				Description: "PEM-encoded x509 certificate.",
+				PlanModifiers: []planmodifier.String{
+					rotateOnly("x509_cert"),
+				},
 			},
 			"name": schema.StringAttribute{
 				Required: true,

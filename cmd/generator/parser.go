@@ -105,6 +105,22 @@ func parseResource(specPath string, descriptor resourceDescriptor) (*Resource, e
 		skipSet[f] = true
 	}
 
+	rotateOnlySet := map[string]bool{}
+	for _, f := range descriptor.RotateOnlyFields {
+		if _, ok := rs.Properties[f]; !ok {
+			return nil, fmt.Errorf("%s: rotate-only field %q is not a property of %s", specPath, f, descriptor.SchemaName)
+		}
+		rotateOnlySet[f] = true
+	}
+
+	immutableSet := map[string]bool{}
+	for _, f := range descriptor.ImmutableFields {
+		if _, ok := rs.Properties[f]; !ok {
+			return nil, fmt.Errorf("%s: immutable field %q is not a property of %s", specPath, f, descriptor.SchemaName)
+		}
+		immutableSet[f] = true
+	}
+
 	attrs := make([]Attribute, 0, len(rs.Properties))
 	for apiName, prop := range rs.Properties {
 		if skipSet[apiName] {
@@ -139,6 +155,8 @@ func parseResource(specPath string, descriptor resourceDescriptor) (*Resource, e
 		if prop.isCreateOnly() {
 			attr.RequiresReplace = true
 		}
+		attr.RotateOnly = rotateOnlySet[apiName]
+		attr.Immutable = immutableSet[apiName]
 
 		attrs = append(attrs, attr)
 	}
@@ -406,6 +424,18 @@ type resourceDescriptor struct {
 	TerminatedStatus       string
 	SensitiveFields        []string
 	SkipFields             []string
+	// RotateOnlyFields are the material of a versioned item whose update
+	// (PUT) only renames: the API changes them only through POST …/rotate, so
+	// a change in configuration cannot be applied (#2620). The generated
+	// schema refuses such a change at plan time. Provider v1 reads this fact
+	// from the spec (x-rotate-only) and rotates; the 0.4.x line is generated
+	// from a spec that predates that extension, so the fields are listed here.
+	RotateOnlyFields []string
+	// ImmutableFields are fixed when the item is created and cannot be
+	// changed afterwards, by update or rotation; the schema refuses a change at
+	// plan time rather than replacing the item, which would destroy its
+	// attachments. v1 reads this from the spec (x-immutable).
+	ImmutableFields []string
 	// Noun is how prose in generated diagnostics refers to one of these
 	// (e.g. "instance" for datastores). Defaults to Name.
 	Noun string
@@ -534,89 +564,99 @@ var descriptors = map[string]resourceDescriptor{
 		TerminatedStatus:  "terminated",
 	},
 	"tls_bundle": {
-		Name:            "tls_bundle",
-		GoName:          "TLSBundle",
-		SchemaName:      "TlsBundle",
-		URLBase:         "/organisations/%s/tls_bundles",
-		URLItem:         "/organisations/%s/tls_bundles/%s",
-		HandleURL:       "/organisations/%s/tls_bundle/%s",
-		HandlePathName:  "tls_bundle",
-		SensitiveFields: []string{"key"},
+		Name:             "tls_bundle",
+		GoName:           "TLSBundle",
+		SchemaName:       "TlsBundle",
+		URLBase:          "/organisations/%s/tls_bundles",
+		URLItem:          "/organisations/%s/tls_bundles/%s",
+		HandleURL:        "/organisations/%s/tls_bundle/%s",
+		HandlePathName:   "tls_bundle",
+		SensitiveFields:  []string{"key"},
+		RotateOnlyFields: []string{"ca", "cert", "key"},
 	},
 	"x509_cert": {
-		Name:           "x509_cert",
-		GoName:         "X509Cert",
-		SchemaName:     "X509Cert",
-		URLBase:        "/organisations/%s/x509_certs",
-		URLItem:        "/organisations/%s/x509_certs/%s",
-		HandleURL:      "/organisations/%s/x509_cert/%s",
-		HandlePathName: "x509_cert",
+		Name:             "x509_cert",
+		GoName:           "X509Cert",
+		SchemaName:       "X509Cert",
+		URLBase:          "/organisations/%s/x509_certs",
+		URLItem:          "/organisations/%s/x509_certs/%s",
+		HandleURL:        "/organisations/%s/x509_cert/%s",
+		HandlePathName:   "x509_cert",
+		RotateOnlyFields: []string{"cert"},
 	},
 	"gpg_keypair": {
-		Name:            "gpg_keypair",
-		GoName:          "GpgKeypair",
-		SchemaName:      "GpgKeypair",
-		URLBase:         "/organisations/%s/gpg_keypairs",
-		URLItem:         "/organisations/%s/gpg_keypairs/%s",
-		HandleURL:       "/organisations/%s/gpg_keypair/%s",
-		HandlePathName:  "gpg_keypair",
-		SensitiveFields: []string{"publickey", "privatekey"},
+		Name:             "gpg_keypair",
+		GoName:           "GpgKeypair",
+		SchemaName:       "GpgKeypair",
+		URLBase:          "/organisations/%s/gpg_keypairs",
+		URLItem:          "/organisations/%s/gpg_keypairs/%s",
+		HandleURL:        "/organisations/%s/gpg_keypair/%s",
+		HandlePathName:   "gpg_keypair",
+		SensitiveFields:  []string{"publickey", "privatekey"},
+		RotateOnlyFields: []string{"publickey", "privatekey"},
 	},
 	"ssh_keypair": {
-		Name:            "ssh_keypair",
-		GoName:          "SSHKeypair",
-		SchemaName:      "SshKeypair",
-		URLBase:         "/organisations/%s/ssh_keypairs",
-		URLItem:         "/organisations/%s/ssh_keypairs/%s",
-		HandleURL:       "/organisations/%s/ssh_keypair/%s",
-		HandlePathName:  "ssh_keypair",
-		SensitiveFields: []string{"publickey", "privatekey"},
+		Name:             "ssh_keypair",
+		GoName:           "SSHKeypair",
+		SchemaName:       "SshKeypair",
+		URLBase:          "/organisations/%s/ssh_keypairs",
+		URLItem:          "/organisations/%s/ssh_keypairs/%s",
+		HandleURL:        "/organisations/%s/ssh_keypair/%s",
+		HandlePathName:   "ssh_keypair",
+		SensitiveFields:  []string{"publickey", "privatekey"},
+		RotateOnlyFields: []string{"publickey", "privatekey"},
 	},
 	"encryption_key": {
-		Name:            "encryption_key",
-		GoName:          "EncryptionKey",
-		SchemaName:      "EncryptionKey",
-		URLBase:         "/organisations/%s/encryption_keys",
-		URLItem:         "/organisations/%s/encryption_keys/%s",
-		HandleURL:       "/organisations/%s/encryption_key/%s",
-		HandlePathName:  "encryption_key",
-		SensitiveFields: []string{"key"},
+		Name:             "encryption_key",
+		GoName:           "EncryptionKey",
+		SchemaName:       "EncryptionKey",
+		URLBase:          "/organisations/%s/encryption_keys",
+		URLItem:          "/organisations/%s/encryption_keys/%s",
+		HandleURL:        "/organisations/%s/encryption_key/%s",
+		HandlePathName:   "encryption_key",
+		SensitiveFields:  []string{"key"},
+		RotateOnlyFields: []string{"key"},
+		ImmutableFields:  []string{"format"},
 	},
 	"env_file": {
-		Name:           "env_file",
-		GoName:         "EnvFile",
-		SchemaName:     "EnvFile",
-		URLBase:        "/organisations/%s/env_files",
-		URLItem:        "/organisations/%s/env_files/%s",
-		HandleURL:      "/organisations/%s/env_file/%s",
-		HandlePathName: "env_file",
+		Name:             "env_file",
+		GoName:           "EnvFile",
+		SchemaName:       "EnvFile",
+		URLBase:          "/organisations/%s/env_files",
+		URLItem:          "/organisations/%s/env_files/%s",
+		HandleURL:        "/organisations/%s/env_file/%s",
+		HandlePathName:   "env_file",
+		RotateOnlyFields: []string{"content"},
 	},
 	"yaml_config": {
-		Name:           "yaml_config",
-		GoName:         "YAMLConfig",
-		SchemaName:     "YamlConfig",
-		URLBase:        "/organisations/%s/yaml_configs",
-		URLItem:        "/organisations/%s/yaml_configs/%s",
-		HandleURL:      "/organisations/%s/yaml_config/%s",
-		HandlePathName: "yaml_config",
+		Name:             "yaml_config",
+		GoName:           "YAMLConfig",
+		SchemaName:       "YamlConfig",
+		URLBase:          "/organisations/%s/yaml_configs",
+		URLItem:          "/organisations/%s/yaml_configs/%s",
+		HandleURL:        "/organisations/%s/yaml_config/%s",
+		HandlePathName:   "yaml_config",
+		RotateOnlyFields: []string{"content"},
 	},
 	"json_config": {
-		Name:           "json_config",
-		GoName:         "JSONConfig",
-		SchemaName:     "JsonConfig",
-		URLBase:        "/organisations/%s/json_configs",
-		URLItem:        "/organisations/%s/json_configs/%s",
-		HandleURL:      "/organisations/%s/json_config/%s",
-		HandlePathName: "json_config",
+		Name:             "json_config",
+		GoName:           "JSONConfig",
+		SchemaName:       "JsonConfig",
+		URLBase:          "/organisations/%s/json_configs",
+		URLItem:          "/organisations/%s/json_configs/%s",
+		HandleURL:        "/organisations/%s/json_config/%s",
+		HandlePathName:   "json_config",
+		RotateOnlyFields: []string{"content"},
 	},
 	"plain_config": {
-		Name:           "plain_config",
-		GoName:         "PlainConfig",
-		SchemaName:     "PlainConfig",
-		URLBase:        "/organisations/%s/plain_configs",
-		URLItem:        "/organisations/%s/plain_configs/%s",
-		HandleURL:      "/organisations/%s/plain_config/%s",
-		HandlePathName: "plain_config",
+		Name:             "plain_config",
+		GoName:           "PlainConfig",
+		SchemaName:       "PlainConfig",
+		URLBase:          "/organisations/%s/plain_configs",
+		URLItem:          "/organisations/%s/plain_configs/%s",
+		HandleURL:        "/organisations/%s/plain_config/%s",
+		HandlePathName:   "plain_config",
+		RotateOnlyFields: []string{"content"},
 	},
 	"network_policy": {
 		Name:           "network_policy",

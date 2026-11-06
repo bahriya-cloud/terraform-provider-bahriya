@@ -21,6 +21,10 @@ resource "bahriya_tls_bundle" "edge" {
 }
 ```
 
+## Changing the certificate or key
+
+A new certificate or key is a rotation, which this provider version does not perform. Changing `ca`, `cert` or `key` fails at plan time with "Rotation is not supported by this provider version". Rotate the bundle with `reis tls_bundle:rotate` or in the console, then set the new values in your configuration. Renaming (`name`) is applied in place. Terraform provider v1 rotates the material for you.
+
 ## Schema
 
 ### Required

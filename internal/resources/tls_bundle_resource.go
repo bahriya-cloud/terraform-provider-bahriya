@@ -76,15 +76,24 @@ func (r *tls_bundleResource) Schema(_ context.Context, _ resource.SchemaRequest,
 			"ca": schema.StringAttribute{
 				Required:    true,
 				Description: "PEM-encoded CA certificate.",
+				PlanModifiers: []planmodifier.String{
+					rotateOnly("tls_bundle"),
+				},
 			},
 			"cert": schema.StringAttribute{
 				Required:    true,
 				Description: "PEM-encoded server certificate.",
+				PlanModifiers: []planmodifier.String{
+					rotateOnly("tls_bundle"),
+				},
 			},
 			"key": schema.StringAttribute{
 				Required:    true,
 				Sensitive:   true,
 				Description: "PEM-encoded private key. Never returned on read.",
+				PlanModifiers: []planmodifier.String{
+					rotateOnly("tls_bundle"),
+				},
 			},
 			"name": schema.StringAttribute{
 				Required: true,

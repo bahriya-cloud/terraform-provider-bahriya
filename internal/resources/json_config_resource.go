@@ -69,6 +69,9 @@ func (r *json_configResource) Schema(_ context.Context, _ resource.SchemaRequest
 			"content": schema.StringAttribute{
 				Required:    true,
 				Description: "Valid JSON content.",
+				PlanModifiers: []planmodifier.String{
+					rotateOnly("json_config"),
+				},
 			},
 			"name": schema.StringAttribute{
 				Required: true,

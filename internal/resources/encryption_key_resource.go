@@ -71,11 +71,17 @@ func (r *encryption_keyResource) Schema(_ context.Context, _ resource.SchemaRequ
 			"format": schema.StringAttribute{
 				Required:    true,
 				Description: "Key encoding format: base64, hex, or raw.",
+				PlanModifiers: []planmodifier.String{
+					fixedAtCreation("encryption_key"),
+				},
 			},
 			"key": schema.StringAttribute{
 				Required:    true,
 				Sensitive:   true,
 				Description: "The raw encryption key (base64 or hex encoded). Never returned on read.",
+				PlanModifiers: []planmodifier.String{
+					rotateOnly("encryption_key"),
+				},
 			},
 			"name": schema.StringAttribute{
 				Required: true,

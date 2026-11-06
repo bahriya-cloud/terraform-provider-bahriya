@@ -144,8 +144,8 @@ Nested items (`databases`, `hostnames`) are Attributes Lists — assign them wit
 - `externalenabled` (Boolean) - Expose the instance at the platform edge on an allocated port. Requires TLS and a non-empty IP allowlist.
 - `allowedips` (List of String) - CIDR allowlist for external access. Required non-empty while external is enabled.
 - `hostnames` (Attributes List) - Custom hostnames. A custom hostname is a vanity CNAME to the per-region default hostname - connections still use the allocated port. (see [below for nested schema](#nestedatt--hostnames))
-- `clientenabled` (Boolean) - Run the phpMyAdmin web client at pma-<defaulthostname>.<region>... over HTTPS, restricted to the IP allowlist. Intended for temporary access - it switches off automatically when the TTL lapses.
-- `clientttlhours` (Number) - Hours until the phpMyAdmin client switches off automatically. Defaults to 24 when the client is enabled without one.
+- `clientenabled` (Boolean) - Run the phpMyAdmin web client at pma-<defaulthostname>.<region>... over HTTPS, restricted to the IP allowlist. Intended for temporary access: its time limit is shown, so set `clientenabled = false` when you are done.
+- `clientttlhours` (Number) - The phpMyAdmin client's time limit in hours. Defaults to 24 when the client is enabled without one.
 - `backupschedule` (String) - Dump cron schedule. Backups are always on for MySQL - only the schedule is tunable. Omitted, the platform default applies.
 - `networkpolicies` (List of String) - Network policies narrowed to this MySQL instance, referenced by handle.
 

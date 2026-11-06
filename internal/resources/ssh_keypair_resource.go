@@ -78,11 +78,17 @@ func (r *ssh_keypairResource) Schema(_ context.Context, _ resource.SchemaRequest
 				Required:    true,
 				Sensitive:   true,
 				Description: "PEM-encoded private key. Never returned on read.",
+				PlanModifiers: []planmodifier.String{
+					rotateOnly("ssh_keypair"),
+				},
 			},
 			"publickey": schema.StringAttribute{
 				Required:    true,
 				Sensitive:   true,
 				Description: "SSH public key line (algorithm base64 comment).",
+				PlanModifiers: []planmodifier.String{
+					rotateOnly("ssh_keypair"),
+				},
 			},
 			"maxversions": schema.Int64Attribute{
 				Optional: true,
