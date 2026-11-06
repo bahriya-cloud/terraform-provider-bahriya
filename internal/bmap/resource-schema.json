@@ -1,0 +1,5309 @@
+{
+    "container": {
+        "aliases": {
+            "workload.image": {
+                "field": "image",
+                "group": "workload",
+                "cast": "string"
+            },
+            "workload.registry": {
+                "field": "registry",
+                "group": "workload",
+                "cast": "string"
+            },
+            "networking.default_hostname": {
+                "field": "defaulthostname",
+                "group": "networking",
+                "cast": "string"
+            },
+            "networking.vanity_hostname": {
+                "field": "vanityhostname",
+                "group": "networking",
+                "cast": "string"
+            },
+            "networking.domains": {
+                "field": "hostnames",
+                "group": "networking",
+                "item": {
+                    "hostname": {
+                        "field": "hostname",
+                        "cast": "string"
+                    },
+                    "wwwredirect": {
+                        "field": "wwwredirect"
+                    }
+                }
+            },
+            "networking.custom_dns_mode": {
+                "field": "customdnsmode",
+                "group": "networking",
+                "cast": "string"
+            },
+            "networking.dns_ttl": {
+                "field": "dnsttl",
+                "group": "networking"
+            },
+            "networking.dns_failover": {
+                "field": "dnsfailoverenabled",
+                "group": "networking"
+            },
+            "networking.external": {
+                "field": "externalnetworkingenabled",
+                "group": "networking"
+            },
+            "workload.port": {
+                "field": "containerport",
+                "group": "workload",
+                "cast": "string"
+            },
+            "workload.healthcheck": {
+                "field": "healthcheckpath",
+                "group": "workload",
+                "cast": "string"
+            },
+            "observability.prometheus_port": {
+                "field": "prometheusport",
+                "group": "observability",
+                "cast": "string"
+            },
+            "observability.prometheus_path": {
+                "field": "prometheuspath",
+                "group": "observability",
+                "cast": "string"
+            },
+            "workload.bootstrap_time": {
+                "field": "bootstraptime",
+                "group": "workload"
+            },
+            "scaling.autoscaling": {
+                "field": "autoscalingenabled",
+                "group": "scaling"
+            },
+            "scaling.replicas": {
+                "field": "autoscalingminreplicas",
+                "group": "scaling",
+                "cast": "string"
+            },
+            "scaling.max_replicas": {
+                "field": "autoscalingmaxreplicas",
+                "group": "scaling",
+                "implies": {
+                    "autoscalingenabled": true
+                },
+                "cast": "string"
+            },
+            "scaling.target_cpu": {
+                "field": "autoscalingtargetcpu",
+                "group": "scaling",
+                "cast": "string"
+            },
+            "scaling.target_memory": {
+                "field": "autoscalingtargetmemory",
+                "group": "scaling",
+                "cast": "string"
+            },
+            "workload.env": {
+                "field": "newenvvar",
+                "group": "workload",
+                "transform": "envVarMap",
+                "item": {
+                    "key": {
+                        "field": "key",
+                        "cast": "string"
+                    },
+                    "value": {
+                        "field": "value",
+                        "cast": "string"
+                    }
+                }
+            },
+            "workload.secrets": {
+                "field": "secretsenvvar",
+                "group": "workload",
+                "transform": "secretMap",
+                "item": {
+                    "secret": {
+                        "field": "secret",
+                        "cast": "string"
+                    },
+                    "name": {
+                        "field": "name",
+                        "cast": "string"
+                    }
+                }
+            },
+            "workload.cpu": {
+                "field": "mincpu",
+                "group": "workload",
+                "cast": "string"
+            },
+            "workload.max_cpu": {
+                "field": "maxcpu",
+                "group": "workload",
+                "cast": "string"
+            },
+            "workload.memory": {
+                "field": "minmemory",
+                "group": "workload",
+                "cast": "string"
+            },
+            "workload.max_memory": {
+                "field": "maxmemory",
+                "group": "workload",
+                "cast": "string"
+            },
+            "regions": {
+                "field": "activeregions"
+            },
+            "security.rate_limiting.enabled": {
+                "field": "ratelimitingenabled",
+                "group": "security.rate_limiting"
+            },
+            "security.rate_limiting.per_minute": {
+                "field": "ratelimitingrequestsperminute",
+                "group": "security.rate_limiting"
+            },
+            "security.rate_limiting.per_hour": {
+                "field": "ratelimitingrequestsperhour",
+                "group": "security.rate_limiting"
+            },
+            "security.rate_limiting.per_second": {
+                "field": "ratelimitingrequestspersecond",
+                "group": "security.rate_limiting"
+            },
+            "security.ip_allowlist.enabled": {
+                "field": "ipwhitelistenabled",
+                "group": "security.ip_allowlist"
+            },
+            "security.ip_allowlist.ips": {
+                "field": "ipwhitelist",
+                "group": "security.ip_allowlist"
+            },
+            "security.ip_denylist.enabled": {
+                "field": "ipblacklistenabled",
+                "group": "security.ip_denylist"
+            },
+            "security.ip_denylist.ips": {
+                "field": "ipblacklist",
+                "group": "security.ip_denylist"
+            },
+            "security.basic_auth_enabled": {
+                "field": "basicauthenabled",
+                "group": "security"
+            },
+            "security.basic_auth": {
+                "field": "basicauthcredentials",
+                "group": "security",
+                "implies": {
+                    "basicauthenabled": true
+                },
+                "item": {
+                    "username": {
+                        "field": "username",
+                        "cast": "string"
+                    },
+                    "password": {
+                        "field": "password",
+                        "cast": "string"
+                    }
+                }
+            },
+            "schedule.schedule": {
+                "field": "schedule",
+                "group": "schedule",
+                "cast": "string"
+            },
+            "schedule.tz": {
+                "field": "timezone",
+                "group": "schedule",
+                "cast": "string"
+            },
+            "schedule.concurrency": {
+                "field": "concurrencypolicy",
+                "group": "schedule",
+                "cast": "string"
+            },
+            "schedule.successful_history": {
+                "field": "successfuljobshistorylimit",
+                "group": "schedule"
+            },
+            "schedule.failed_history": {
+                "field": "failedjobshistorylimit",
+                "group": "schedule"
+            },
+            "schedule.starting_deadline": {
+                "field": "startingdeadlineseconds",
+                "group": "schedule"
+            },
+            "schedule.backoff_limit": {
+                "field": "backofflimit",
+                "group": "schedule"
+            },
+            "schedule.active_deadline": {
+                "field": "activedeadlineseconds",
+                "group": "schedule"
+            },
+            "schedule.ttl_seconds": {
+                "field": "ttlsecondsafterfinished",
+                "group": "schedule"
+            },
+            "schedule.suspended": {
+                "field": "suspended",
+                "group": "schedule"
+            },
+            "workload.command": {
+                "field": "command",
+                "group": "workload"
+            },
+            "workload.args": {
+                "field": "args",
+                "group": "workload"
+            },
+            "proxy_cache.enabled": {
+                "field": "proxycacheenabled",
+                "group": "proxy_cache"
+            },
+            "proxy_cache.variant": {
+                "field": "proxycachevariant",
+                "group": "proxy_cache",
+                "implies": {
+                    "proxycacheenabled": true
+                },
+                "cast": "string"
+            },
+            "proxy_cache.size_mb": {
+                "field": "proxycachesizemb",
+                "group": "proxy_cache",
+                "implies": {
+                    "proxycacheenabled": true
+                }
+            },
+            "proxy_cache.max_item_size_mb": {
+                "field": "proxycachemaxitemsizemb",
+                "group": "proxy_cache",
+                "implies": {
+                    "proxycacheenabled": true
+                }
+            },
+            "proxy_cache.cache_ttl": {
+                "field": "proxycachettl",
+                "group": "proxy_cache",
+                "implies": {
+                    "proxycacheenabled": true
+                }
+            },
+            "proxy_cache.storage_ttl": {
+                "field": "proxycachestoragettl",
+                "group": "proxy_cache",
+                "implies": {
+                    "proxycacheenabled": true
+                }
+            },
+            "proxy_cache.honor_cache_control": {
+                "field": "proxycachehonorcachecontrol",
+                "group": "proxy_cache",
+                "implies": {
+                    "proxycacheenabled": true
+                }
+            },
+            "proxy_cache.allow_force_cache_header": {
+                "field": "proxycacheallowforcecacheheader",
+                "group": "proxy_cache",
+                "implies": {
+                    "proxycacheenabled": true
+                }
+            },
+            "proxy_cache.methods": {
+                "field": "proxycacherequestmethods",
+                "group": "proxy_cache",
+                "implies": {
+                    "proxycacheenabled": true
+                }
+            },
+            "proxy_cache.response_codes": {
+                "field": "proxycacheresponsecodes",
+                "group": "proxy_cache",
+                "implies": {
+                    "proxycacheenabled": true
+                }
+            },
+            "proxy_cache.content_types": {
+                "field": "proxycachecontenttypes",
+                "group": "proxy_cache",
+                "implies": {
+                    "proxycacheenabled": true
+                }
+            },
+            "proxy_cache.vary_headers": {
+                "field": "proxycachevaryheaders",
+                "group": "proxy_cache",
+                "implies": {
+                    "proxycacheenabled": true
+                }
+            },
+            "proxy_cache.vary_query_params": {
+                "field": "proxycachevaryqueryparams",
+                "group": "proxy_cache",
+                "implies": {
+                    "proxycacheenabled": true
+                }
+            },
+            "proxy_cache.vary_body_json_fields": {
+                "field": "proxycachevarybodyjsonfields",
+                "group": "proxy_cache",
+                "implies": {
+                    "proxycacheenabled": true
+                }
+            },
+            "proxy_cache.memcached": {
+                "field": "proxycachememcached",
+                "group": "proxy_cache",
+                "cast": "string"
+            },
+            "storage.ephemeral_storage_gb": {
+                "field": "ephemeralstoragegb",
+                "group": "storage"
+            },
+            "storage.persistent_volumes": {
+                "field": "persistentvolumes",
+                "group": "storage",
+                "item": {
+                    "handle": {
+                        "field": "handle",
+                        "cast": "string"
+                    },
+                    "mount_path": {
+                        "field": "mountpath",
+                        "cast": "string"
+                    },
+                    "size_gb": {
+                        "field": "sizegb"
+                    }
+                }
+            },
+            "init_jobs": {
+                "field": "initjobs",
+                "legacyPath": "lifecycle.init_jobs",
+                "item": {
+                    "handle": {
+                        "field": "handle",
+                        "cast": "string"
+                    },
+                    "image": {
+                        "field": "image",
+                        "cast": "string"
+                    },
+                    "registry": {
+                        "field": "registry",
+                        "cast": "string"
+                    },
+                    "command": {
+                        "field": "command"
+                    },
+                    "args": {
+                        "field": "args"
+                    },
+                    "env": {
+                        "field": "newenvvar",
+                        "transform": "envVarMap",
+                        "item": {
+                            "key": {
+                                "field": "key",
+                                "cast": "string"
+                            },
+                            "value": {
+                                "field": "value",
+                                "cast": "string"
+                            }
+                        }
+                    },
+                    "secrets": {
+                        "field": "secretsenvvar",
+                        "transform": "secretMap",
+                        "item": {
+                            "secret": {
+                                "field": "secret",
+                                "cast": "string"
+                            },
+                            "name": {
+                                "field": "name",
+                                "cast": "string"
+                            }
+                        }
+                    },
+                    "volumes": {
+                        "field": "volumemounts",
+                        "item": {
+                            "handle": {
+                                "field": "handle",
+                                "cast": "string"
+                            },
+                            "mount_path": {
+                                "field": "mountpath",
+                                "cast": "string"
+                            }
+                        }
+                    },
+                    "cpu": {
+                        "field": "mincpu",
+                        "cast": "string"
+                    },
+                    "memory": {
+                        "field": "minmemory",
+                        "cast": "string"
+                    }
+                }
+            },
+            "networking.network_policies": {
+                "field": "networkpolicies",
+                "group": "networking"
+            },
+            "vault.tls_bundles": {
+                "field": "tlsbundles",
+                "group": "vault",
+                "item": {
+                    "handle": {
+                        "field": "handle",
+                        "cast": "string"
+                    },
+                    "mount_path": {
+                        "field": "mountpath",
+                        "cast": "string"
+                    }
+                }
+            },
+            "vault.x509_certs": {
+                "field": "x509certs",
+                "group": "vault",
+                "item": {
+                    "handle": {
+                        "field": "handle",
+                        "cast": "string"
+                    },
+                    "mount_path": {
+                        "field": "mountpath",
+                        "cast": "string"
+                    }
+                }
+            },
+            "vault.gpg_keypairs": {
+                "field": "gpgkeypairs",
+                "group": "vault",
+                "item": {
+                    "handle": {
+                        "field": "handle",
+                        "cast": "string"
+                    },
+                    "mount_path": {
+                        "field": "mountpath",
+                        "cast": "string"
+                    }
+                }
+            },
+            "vault.ssh_keypairs": {
+                "field": "sshkeypairs",
+                "group": "vault",
+                "item": {
+                    "handle": {
+                        "field": "handle",
+                        "cast": "string"
+                    },
+                    "mount_path": {
+                        "field": "mountpath",
+                        "cast": "string"
+                    }
+                }
+            },
+            "vault.encryption_keys": {
+                "field": "encryptionkeys",
+                "group": "vault",
+                "item": {
+                    "handle": {
+                        "field": "handle",
+                        "cast": "string"
+                    },
+                    "mount_path": {
+                        "field": "mountpath",
+                        "cast": "string"
+                    }
+                }
+            },
+            "configs.env_files": {
+                "field": "envfiles",
+                "group": "configs",
+                "item": {
+                    "handle": {
+                        "field": "handle",
+                        "cast": "string"
+                    },
+                    "injection_method": {
+                        "field": "injectionmethod",
+                        "cast": "string"
+                    }
+                }
+            },
+            "configs.yaml_configs": {
+                "field": "yamlconfigs",
+                "group": "configs",
+                "item": {
+                    "handle": {
+                        "field": "handle",
+                        "cast": "string"
+                    },
+                    "mount_path": {
+                        "field": "mountpath",
+                        "cast": "string"
+                    }
+                }
+            },
+            "configs.json_configs": {
+                "field": "jsonconfigs",
+                "group": "configs",
+                "item": {
+                    "handle": {
+                        "field": "handle",
+                        "cast": "string"
+                    },
+                    "mount_path": {
+                        "field": "mountpath",
+                        "cast": "string"
+                    }
+                }
+            },
+            "configs.plain_configs": {
+                "field": "plainconfigs",
+                "group": "configs",
+                "item": {
+                    "handle": {
+                        "field": "handle",
+                        "cast": "string"
+                    },
+                    "mount_path": {
+                        "field": "mountpath",
+                        "cast": "string"
+                    }
+                }
+            },
+            "workload.protocol": {
+                "field": "protocol",
+                "group": "workload",
+                "cast": "string"
+            }
+        },
+        "readOnly": [
+            "id",
+            "maxcpu",
+            "maxmemory",
+            "projectname",
+            "organisation",
+            "created",
+            "updated",
+            "status",
+            "restartedat",
+            "proxycachememcached"
+        ],
+        "displayReadOnly": [],
+        "groupOrder": [
+            "workload",
+            "scaling",
+            "storage",
+            "networking",
+            "observability",
+            "security",
+            "proxy_cache",
+            "schedule",
+            "vault",
+            "configs"
+        ],
+        "defaults": {
+            "hostnames": [],
+            "dnsfailoverenabled": false,
+            "externalnetworkingenabled": false,
+            "autoscalingenabled": false,
+            "autoscalingminreplicas": "1",
+            "newenvvar": [],
+            "secretsenvvar": [],
+            "ratelimitingenabled": false,
+            "ipwhitelistenabled": false,
+            "ipblacklistenabled": false,
+            "type": "http",
+            "basicauthenabled": false,
+            "timezone": "UTC",
+            "concurrencypolicy": "Forbid",
+            "successfuljobshistorylimit": 3,
+            "failedjobshistorylimit": 3,
+            "backofflimit": 3,
+            "ttlsecondsafterfinished": 3600,
+            "suspended": false,
+            "proxycacheenabled": false,
+            "proxycachevariant": "post_ratelimit",
+            "proxycachettl": 300,
+            "proxycachehonorcachecontrol": true,
+            "proxycacheallowforcecacheheader": false,
+            "ephemeralstoragegb": 3,
+            "initjobs": [],
+            "networkpolicies": [],
+            "tlsbundles": [],
+            "x509certs": [],
+            "gpgkeypairs": [],
+            "sshkeypairs": [],
+            "encryptionkeys": [],
+            "envfiles": [],
+            "yamlconfigs": [],
+            "jsonconfigs": [],
+            "plainconfigs": [],
+            "protocol": "http"
+        },
+        "properties": {
+            "id": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "name": {
+                "type": "string",
+                "nullable": false,
+                "required": true
+            },
+            "handle": {
+                "type": "string",
+                "nullable": false,
+                "required": true
+            },
+            "image": {
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "description": "The container image to deploy, including the registry host when it is not Docker Hub. An explicit tag or digest is required \u2014 an untagged reference is rejected."
+            },
+            "registry": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "reference": "registry"
+            },
+            "defaulthostname": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Host alias used to build per-region default hostnames (e.g. mamluk-123.helsinki-1.x.on.bahriya.app)"
+            },
+            "vanityhostname": {
+                "type": "string",
+                "nullable": true,
+                "required": false
+            },
+            "hostnames": {
+                "type": "array",
+                "nullable": false,
+                "required": true,
+                "description": "Custom hostnames attached to this container. Up to a configurable maximum (default 5). The first hostname is included; each additional hostname is billed via the extra_custom_hostname SKU.",
+                "default": [],
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "hostname": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true,
+                            "description": "Custom hostname (FQDN). Customer is responsible for pointing a CNAME at the container CNAME target. Lowercased and trimmed server-side."
+                        },
+                        "wwwredirect": {
+                            "type": "boolean",
+                            "nullable": false,
+                            "required": false,
+                            "description": "Redirect www.{hostname} to {hostname}. Only valid when the hostname is an apex (e.g. example.com, not www.example.com or sub.example.com).",
+                            "default": false
+                        }
+                    }
+                },
+                "itemKey": "hostname"
+            },
+            "customdnsmode": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "enum": [
+                    "none",
+                    "round-robin",
+                    "geo"
+                ]
+            },
+            "dnsttl": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "description": "DNS TTL in seconds for vanity (rr/geo) records. Null uses provider default (300s). Region-specific CNAMEs in the containers zone use a separate platform-wide TTL.",
+                "enum": [
+                    60,
+                    300,
+                    600,
+                    1800,
+                    3600,
+                    10800,
+                    21600,
+                    43200,
+                    86400,
+                    604800
+                ]
+            },
+            "dnsfailoverenabled": {
+                "type": "boolean",
+                "nullable": false,
+                "required": false,
+                "description": "Enable DNS failover for this container.",
+                "default": false
+            },
+            "externalnetworkingenabled": {
+                "type": "boolean",
+                "nullable": false,
+                "required": false,
+                "description": "Expose this container externally via ingress. When false, the container is only reachable within the project namespace. Console UI defaults this to true for HTTP containers (toggle starts ON, user can flip off); Reis CLI and Terraform default to false so an omitted-from-IaC field cannot silently provision external DNS.",
+                "default": false
+            },
+            "containerport": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Port the container listens on. Required for HTTP containers, optional for workers."
+            },
+            "healthcheckpath": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Health check endpoint path. Required for HTTP containers, optional for workers."
+            },
+            "prometheusport": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Port exposing Prometheus metrics. Enables automatic scraping when set. Not applicable to cron jobs."
+            },
+            "prometheuspath": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Path to Prometheus metrics endpoint. Defaults to /metrics if not specified. Requires prometheus port to be set."
+            },
+            "bootstraptime": {
+                "type": "integer",
+                "nullable": false,
+                "required": false,
+                "description": "Expected application bootstrap time in seconds. Used to configure startup probe timing."
+            },
+            "autoscalingenabled": {
+                "type": "boolean",
+                "nullable": false,
+                "required": true,
+                "default": false
+            },
+            "autoscalingminreplicas": {
+                "type": "string",
+                "nullable": true,
+                "required": true,
+                "default": "1"
+            },
+            "autoscalingmaxreplicas": {
+                "type": "string",
+                "nullable": true,
+                "required": false
+            },
+            "autoscalingtargetcpu": {
+                "type": "string",
+                "nullable": true,
+                "required": false
+            },
+            "autoscalingtargetmemory": {
+                "type": "string",
+                "nullable": true,
+                "required": false
+            },
+            "newenvvar": {
+                "type": "array",
+                "nullable": false,
+                "required": true,
+                "default": [],
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "key": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true
+                        },
+                        "value": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true
+                        }
+                    }
+                }
+            },
+            "secretsenvvar": {
+                "type": "array",
+                "nullable": false,
+                "required": true,
+                "default": [],
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "secret": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true,
+                            "description": "Handle of the secret to bind"
+                        },
+                        "name": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true,
+                            "description": "Env var name the secret value is bound to inside the container"
+                        }
+                    }
+                }
+            },
+            "mincpu": {
+                "type": "string",
+                "nullable": false,
+                "required": true
+            },
+            "maxcpu": {
+                "type": "string",
+                "nullable": false,
+                "required": false,
+                "description": "Server-computed: request x limit_multiplier (config). Not accepted from clients.",
+                "readOnly": true,
+                "volatile": true
+            },
+            "minmemory": {
+                "type": "string",
+                "nullable": false,
+                "required": true
+            },
+            "maxmemory": {
+                "type": "string",
+                "nullable": false,
+                "required": false,
+                "description": "Server-computed: request x limit_multiplier (config). Not accepted from clients.",
+                "readOnly": true,
+                "volatile": true
+            },
+            "project": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "createOnly": true,
+                "reference": "project"
+            },
+            "projectname": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "activeregions": {
+                "type": "array",
+                "nullable": false,
+                "required": true,
+                "description": "Regions this container deploys into. At least one is required.",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "organisation": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "created": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "updated": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "status": {
+                "type": "string",
+                "nullable": false,
+                "required": false,
+                "enum": [
+                    "provisioning",
+                    "running",
+                    "terminating",
+                    "terminated",
+                    "error"
+                ],
+                "readOnly": true,
+                "volatile": true
+            },
+            "ratelimitingenabled": {
+                "type": "boolean",
+                "nullable": false,
+                "required": false,
+                "description": "Enable Kong rate limiting by IP for this container.",
+                "default": false
+            },
+            "ratelimitingrequestsperminute": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "description": "Max requests per minute per IP (requires ratelimitingenabled)."
+            },
+            "ratelimitingrequestsperhour": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "description": "Max requests per hour per IP (requires ratelimitingenabled)."
+            },
+            "ratelimitingrequestspersecond": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "description": "Max requests per second per IP (requires ratelimitingenabled)."
+            },
+            "ipwhitelistenabled": {
+                "type": "boolean",
+                "nullable": false,
+                "required": false,
+                "description": "Enable IP allow-list. Only IPs in the list can access the container.",
+                "default": false
+            },
+            "ipwhitelist": {
+                "type": "array",
+                "nullable": true,
+                "required": false,
+                "items": {
+                    "type": "string"
+                }
+            },
+            "ipblacklistenabled": {
+                "type": "boolean",
+                "nullable": false,
+                "required": false,
+                "description": "Enable IP deny-list. IPs in the list are blocked.",
+                "default": false
+            },
+            "ipblacklist": {
+                "type": "array",
+                "nullable": true,
+                "required": false,
+                "items": {
+                    "type": "string"
+                }
+            },
+            "type": {
+                "type": "string",
+                "nullable": false,
+                "required": false,
+                "description": "Container type. HTTP containers get ingress/networking; workers run continuously without external access; cron jobs run on a schedule.",
+                "enum": [
+                    "http",
+                    "worker",
+                    "cronjob"
+                ],
+                "default": "http"
+            },
+            "restartedat": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "basicauthenabled": {
+                "type": "boolean",
+                "nullable": false,
+                "required": false,
+                "description": "Enable Kong HTTP basic authentication on the container ingress. HTTP containers only.",
+                "default": false
+            },
+            "basicauthcredentials": {
+                "type": "array",
+                "nullable": true,
+                "required": false,
+                "description": "Up to 10 basic auth credentials (username/password). Passwords are AES-encrypted at rest and never returned in plaintext; send the masked sentinel to preserve an existing password.",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "username": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true,
+                            "description": "Basic auth username. 1-128 chars, alphanumeric plus . _ -. Globally unique across all containers \u2014 the console UI prefixes with the container handle (e.g. `mywebsite-alice`) to keep usernames container-scoped."
+                        },
+                        "password": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true,
+                            "description": "Plaintext password on write; returned as the masked sentinel \"value-hidden-for-your-own-good\" on read. Sending the sentinel preserves the existing stored password.",
+                            "sensitive": true,
+                            "masked": "value-hidden-for-your-own-good"
+                        }
+                    }
+                },
+                "itemKey": "username"
+            },
+            "schedule": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "5-field cron expression. Required for cron jobs."
+            },
+            "timezone": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "IANA timezone the schedule fires in. Defaults to UTC. Rendered into Kubernetes CronJob spec.timeZone so the schedule fires in this timezone regardless of which region the cron job runs in.",
+                "default": "UTC"
+            },
+            "concurrencypolicy": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Behaviour when a previous execution is still running at the next fire time.",
+                "enum": [
+                    "Allow",
+                    "Forbid",
+                    "Replace"
+                ],
+                "default": "Forbid"
+            },
+            "successfuljobshistorylimit": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "description": "How many successful run records the cluster keeps. Older runs are pruned automatically.",
+                "default": 3
+            },
+            "failedjobshistorylimit": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "description": "How many failed run records the cluster keeps. Older runs are pruned automatically.",
+                "default": 3
+            },
+            "startingdeadlineseconds": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "description": "If a scheduled run is missed by more than this many seconds, skip it. Null means catch-up indefinitely."
+            },
+            "backofflimit": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "description": "Number of retries before a run is considered failed.",
+                "default": 3
+            },
+            "activedeadlineseconds": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "description": "Max wall-time in seconds a single run may take before being killed. Null means no limit."
+            },
+            "ttlsecondsafterfinished": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "description": "Seconds after run completion to keep the pod for log inspection before cleanup.",
+                "default": 3600
+            },
+            "suspended": {
+                "type": "boolean",
+                "nullable": false,
+                "required": false,
+                "description": "Pause scheduling without deleting the cron job. No new runs while suspended.",
+                "default": false
+            },
+            "command": {
+                "type": "array",
+                "nullable": true,
+                "required": false,
+                "description": "Override the container image CMD entrypoint.",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "args": {
+                "type": "array",
+                "nullable": true,
+                "required": false,
+                "description": "Override the container image CMD arguments.",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "proxycacheenabled": {
+                "type": "boolean",
+                "nullable": false,
+                "required": false,
+                "description": "Enable Kong proxy cache backed by a managed memcached cluster. HTTP containers only.",
+                "default": false
+            },
+            "proxycachevariant": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Pre-rate-limit serves cache hits without consuming a rate-limit token. Post-rate-limit counts every request, hit or miss.",
+                "enum": [
+                    "pre_ratelimit",
+                    "post_ratelimit"
+                ],
+                "default": "post_ratelimit"
+            },
+            "proxycachesizemb": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "description": "Total cache cluster size in MB. Must be a multiple of 256. Split evenly across 3 nodes at deploy time (floor(size/3) per node), so values not divisible by 3 are rounded down to the nearest multiple of 3 \u2014 e.g. 1024 provisions and bills as 1023 (3 \u00d7 341). Pick a multiple of 768 (768, 1536, 2304, 3072, \u2026) for an exact round-trip."
+            },
+            "proxycachemaxitemsizemb": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "description": "Memcached -I value. Max size of any single cached item. Must be <= size/3."
+            },
+            "proxycachettl": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "description": "Seconds the plugin serves the cached entry.",
+                "default": 300
+            },
+            "proxycachestoragettl": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "description": "Seconds memcached keeps the entry. Must be >= cache_ttl when set."
+            },
+            "proxycachehonorcachecontrol": {
+                "type": "boolean",
+                "nullable": true,
+                "required": false,
+                "description": "Honour RFC 7234 Cache-Control directives from upstream.",
+                "default": true
+            },
+            "proxycacheallowforcecacheheader": {
+                "type": "boolean",
+                "nullable": true,
+                "required": false,
+                "description": "Allow clients to send X-Proxy-Cache-Memcached-Force: true to bypass request-method/Cache-Control checks.",
+                "default": false
+            },
+            "proxycacherequestmethods": {
+                "type": "array",
+                "nullable": true,
+                "required": false,
+                "description": "HTTP methods eligible for caching.",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "proxycacheresponsecodes": {
+                "type": "array",
+                "nullable": true,
+                "required": false,
+                "description": "Response status codes eligible for caching.",
+                "items": {
+                    "type": "integer"
+                }
+            },
+            "proxycachecontenttypes": {
+                "type": "array",
+                "nullable": true,
+                "required": false,
+                "description": "Response content types eligible for caching (exact match).",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "proxycachevaryheaders": {
+                "type": "array",
+                "nullable": true,
+                "required": false,
+                "description": "Request headers that contribute to the cache key.",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "proxycachevaryqueryparams": {
+                "type": "array",
+                "nullable": true,
+                "required": false,
+                "description": "Query params that contribute to the cache key. Null = all params.",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "proxycachevarybodyjsonfields": {
+                "type": "array",
+                "nullable": true,
+                "required": false,
+                "description": "JSON body fields that contribute to the cache key (scalar values only).",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "proxycachememcached": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "ID of the managed memcached instance backing the proxy cache.",
+                "readOnly": true,
+                "volatile": true
+            },
+            "ephemeralstoragegb": {
+                "type": "integer",
+                "nullable": false,
+                "required": false,
+                "description": "Ephemeral storage in GB per pod. First 3GB included free; each additional GB billed at the ephemeral rate. The maximum is platform-configurable (see GET /console/v1/services/containers).",
+                "default": 3
+            },
+            "persistentvolumes": {
+                "type": "array",
+                "nullable": true,
+                "required": false,
+                "description": "Persistent volumes attached to the container. Each replica gets its own copy of every volume. Containers with persistent volumes cannot use autoscaling.",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "handle": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true,
+                            "description": "Stable handle for the volume, unique within the container."
+                        },
+                        "mountpath": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true,
+                            "description": "Absolute mount path inside the container, unique within the container."
+                        },
+                        "sizegb": {
+                            "type": "integer",
+                            "nullable": false,
+                            "required": true,
+                            "description": "Volume size in GB. Each replica gets its own copy at this size. The per-volume maximum is platform-configurable (see GET /console/v1/services/containers)."
+                        }
+                    }
+                },
+                "itemKey": "handle"
+            },
+            "initjobs": {
+                "type": "array",
+                "nullable": false,
+                "required": false,
+                "description": "Init jobs that run to completion before the main container starts. HTTP containers only. Up to a configurable maximum (default 3). Init jobs run within the main container's reserved CPU and memory and are not billed separately.",
+                "default": [],
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "handle": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true,
+                            "description": "Short identifier for this init job. Unique within the container. Used to address logs and events."
+                        },
+                        "image": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true,
+                            "description": "Container image for the init job. An explicit tag or digest is required \u2014 an untagged reference is rejected."
+                        },
+                        "registry": {
+                            "type": "string",
+                            "nullable": true,
+                            "required": false,
+                            "description": "Optional private registry id. Must belong to the same project as the parent container."
+                        },
+                        "command": {
+                            "type": "array",
+                            "nullable": true,
+                            "required": false,
+                            "description": "Override the image ENTRYPOINT \u2014 one token per array entry. Use the same conventions as cron/worker: `[/bin/sh, -c]` for shell-style commands, or a direct exec form like `[./migrate]`. Null leaves the image entrypoint untouched.",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "args": {
+                            "type": "array",
+                            "nullable": true,
+                            "required": false,
+                            "description": "Override the image CMD arguments. Trimmed per-element; empty entries dropped.",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "newenvvar": {
+                            "type": "array",
+                            "nullable": true,
+                            "required": false,
+                            "description": "Environment variables for the init job (same shape as the main container).",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "key": {
+                                        "type": "string",
+                                        "nullable": false,
+                                        "required": true
+                                    },
+                                    "value": {
+                                        "type": "string",
+                                        "nullable": false,
+                                        "required": true
+                                    }
+                                }
+                            }
+                        },
+                        "secretsenvvar": {
+                            "type": "array",
+                            "nullable": true,
+                            "required": false,
+                            "description": "Project secrets exposed as env vars for the init job.",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "secret": {
+                                        "type": "string",
+                                        "nullable": false,
+                                        "required": true,
+                                        "description": "Handle of the secret to bind"
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "nullable": false,
+                                        "required": true,
+                                        "description": "Env var name the secret value is bound to inside the container"
+                                    }
+                                }
+                            }
+                        },
+                        "volumemounts": {
+                            "type": "array",
+                            "nullable": true,
+                            "required": false,
+                            "description": "Volumes from the parent container to mount in this init job. Defaults to none \u2014 opt-in per volume.",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "handle": {
+                                        "type": "string",
+                                        "nullable": false,
+                                        "required": true,
+                                        "description": "Handle of a persistent or ephemeral volume defined on the parent container."
+                                    },
+                                    "mountpath": {
+                                        "type": "string",
+                                        "nullable": false,
+                                        "required": true,
+                                        "description": "Mount path inside the init job container. Defaults to the parent container's mount path; can be overridden per init job."
+                                    }
+                                }
+                            }
+                        },
+                        "mincpu": {
+                            "type": "string",
+                            "nullable": true,
+                            "required": false,
+                            "description": "Optional CPU request override (millicores). Cannot exceed the parent container's `mincpu` \u2014 init jobs share the main container's reserved capacity and are not billed separately. Leave blank to inherit. The UI no longer exposes this knob; kept for Terraform / Reis CLI users who already wire it."
+                        },
+                        "minmemory": {
+                            "type": "string",
+                            "nullable": true,
+                            "required": false,
+                            "description": "Optional memory request override (MB). Cannot exceed the parent container's `minmemory` \u2014 init jobs share the main container's reserved capacity and are not billed separately. Leave blank to inherit. The UI no longer exposes this knob; kept for Terraform / Reis CLI users who already wire it."
+                        }
+                    }
+                },
+                "itemKey": "handle"
+            },
+            "networkpolicies": {
+                "type": "array",
+                "nullable": false,
+                "required": false,
+                "description": "Network policies narrowed to this container, referenced by handle. When a policy is listed here it applies to only this container's pods instead of the whole project.",
+                "default": [],
+                "items": {
+                    "type": "string"
+                }
+            },
+            "tlsbundles": {
+                "type": "array",
+                "nullable": false,
+                "required": false,
+                "description": "TLS bundles attached to this container. Each entry references a project-attached tls_bundle by handle and specifies the mount path. Rendered as a Kubernetes Secret volume mount.",
+                "default": [],
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "handle": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true,
+                            "description": "Handle of the vault/config item attached to the project."
+                        },
+                        "mountpath": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true,
+                            "description": "Absolute mount path inside the container where the item is rendered."
+                        }
+                    }
+                },
+                "itemKey": "handle"
+            },
+            "x509certs": {
+                "type": "array",
+                "nullable": false,
+                "required": false,
+                "description": "x509 certificates attached to this container, mounted as files.",
+                "default": [],
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "handle": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true,
+                            "description": "Handle of the vault/config item attached to the project."
+                        },
+                        "mountpath": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true,
+                            "description": "Absolute mount path inside the container where the item is rendered."
+                        }
+                    }
+                },
+                "itemKey": "handle"
+            },
+            "gpgkeypairs": {
+                "type": "array",
+                "nullable": false,
+                "required": false,
+                "description": "GPG keypairs attached to this container, mounted as files.",
+                "default": [],
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "handle": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true,
+                            "description": "Handle of the vault/config item attached to the project."
+                        },
+                        "mountpath": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true,
+                            "description": "Absolute mount path inside the container where the item is rendered."
+                        }
+                    }
+                },
+                "itemKey": "handle"
+            },
+            "sshkeypairs": {
+                "type": "array",
+                "nullable": false,
+                "required": false,
+                "description": "SSH keypairs attached to this container, mounted as files.",
+                "default": [],
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "handle": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true,
+                            "description": "Handle of the vault/config item attached to the project."
+                        },
+                        "mountpath": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true,
+                            "description": "Absolute mount path inside the container where the item is rendered."
+                        }
+                    }
+                },
+                "itemKey": "handle"
+            },
+            "encryptionkeys": {
+                "type": "array",
+                "nullable": false,
+                "required": false,
+                "description": "Encryption keys attached to this container, mounted as files. Env-var injection is not supported for encryption keys.",
+                "default": [],
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "handle": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true,
+                            "description": "Handle of the vault/config item attached to the project."
+                        },
+                        "mountpath": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true,
+                            "description": "Absolute mount path inside the container where the item is rendered."
+                        }
+                    }
+                },
+                "itemKey": "handle"
+            },
+            "envfiles": {
+                "type": "array",
+                "nullable": false,
+                "required": false,
+                "description": "Env-files attached to this container. Entries are injected as environment variables via envFrom.",
+                "default": [],
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "handle": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true,
+                            "description": "Handle of the env-file attached to the project."
+                        },
+                        "injectionmethod": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": false,
+                            "description": "How the env-file entries are injected into the container.",
+                            "enum": [
+                                "envFrom"
+                            ],
+                            "default": "envFrom"
+                        }
+                    }
+                },
+                "itemKey": "handle"
+            },
+            "yamlconfigs": {
+                "type": "array",
+                "nullable": false,
+                "required": false,
+                "description": "YAML configs attached to this container, mounted as files via a ConfigMap volume.",
+                "default": [],
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "handle": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true,
+                            "description": "Handle of the vault/config item attached to the project."
+                        },
+                        "mountpath": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true,
+                            "description": "Absolute mount path inside the container where the item is rendered."
+                        }
+                    }
+                },
+                "itemKey": "handle"
+            },
+            "jsonconfigs": {
+                "type": "array",
+                "nullable": false,
+                "required": false,
+                "description": "JSON configs attached to this container, mounted as files via a ConfigMap volume.",
+                "default": [],
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "handle": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true,
+                            "description": "Handle of the vault/config item attached to the project."
+                        },
+                        "mountpath": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true,
+                            "description": "Absolute mount path inside the container where the item is rendered."
+                        }
+                    }
+                },
+                "itemKey": "handle"
+            },
+            "plainconfigs": {
+                "type": "array",
+                "nullable": false,
+                "required": false,
+                "description": "Plain-text configs attached to this container, mounted as files via a ConfigMap volume.",
+                "default": [],
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "handle": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true,
+                            "description": "Handle of the vault/config item attached to the project."
+                        },
+                        "mountpath": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true,
+                            "description": "Absolute mount path inside the container where the item is rendered."
+                        }
+                    }
+                },
+                "itemKey": "handle"
+            },
+            "protocol": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "The protocol this container speaks on its port. Governs BOTH how the platform health-probes it and how external traffic is delivered to it. `http` is the default. `https` is for a container that terminates TLS on its own listening port \u2014 the probe is sent over TLS (the certificate is not verified) and the ingress is told to speak HTTPS upstream. `tcp` probes only that the port accepts a connection and ignores the health check path; it suits a workload that does not speak HTTP.",
+                "enum": [
+                    "http",
+                    "https",
+                    "tcp"
+                ],
+                "default": "http"
+            }
+        }
+    },
+    "memcached": {
+        "aliases": {
+            "tuning.memory": {
+                "field": "memorymb",
+                "group": "tuning"
+            },
+            "tuning.max_connections": {
+                "field": "maxconnections",
+                "group": "tuning"
+            },
+            "tuning.threads": {
+                "field": "threads",
+                "group": "tuning"
+            },
+            "tuning.max_item_size_mb": {
+                "field": "maxitemsizemb",
+                "group": "tuning"
+            },
+            "topology.nodes": {
+                "field": "nodes",
+                "group": "topology"
+            },
+            "regions": {
+                "field": "activeregions"
+            },
+            "network_policies": {
+                "field": "networkpolicies"
+            }
+        },
+        "readOnly": [
+            "id",
+            "projectname",
+            "organisation",
+            "created",
+            "updated",
+            "status",
+            "managedbycontainer",
+            "managedbycontainername"
+        ],
+        "displayReadOnly": [],
+        "groupOrder": [
+            "tuning",
+            "topology"
+        ],
+        "defaults": {
+            "maxconnections": 1024,
+            "threads": 4,
+            "maxitemsizemb": 1,
+            "nodes": 1,
+            "networkpolicies": []
+        },
+        "properties": {
+            "id": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "name": {
+                "type": "string",
+                "nullable": false,
+                "required": true
+            },
+            "handle": {
+                "type": "string",
+                "nullable": false,
+                "required": true
+            },
+            "memorymb": {
+                "type": "integer",
+                "nullable": false,
+                "required": true
+            },
+            "maxconnections": {
+                "type": "integer",
+                "nullable": false,
+                "required": false,
+                "default": 1024
+            },
+            "threads": {
+                "type": "integer",
+                "nullable": false,
+                "required": false,
+                "default": 4
+            },
+            "maxitemsizemb": {
+                "type": "integer",
+                "nullable": false,
+                "required": false,
+                "description": "Maximum item size in MB (memcached -I flag)",
+                "default": 1
+            },
+            "nodes": {
+                "type": "integer",
+                "nullable": false,
+                "required": false,
+                "default": 1
+            },
+            "activeregions": {
+                "type": "array",
+                "nullable": false,
+                "required": true,
+                "description": "Regions this instance deploys into. At least one is required.",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "networkpolicies": {
+                "type": "array",
+                "nullable": false,
+                "required": false,
+                "description": "Network policies narrowed to this memcached instance, referenced by handle.",
+                "default": [],
+                "items": {
+                    "type": "string"
+                }
+            },
+            "project": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "createOnly": true,
+                "reference": "project"
+            },
+            "projectname": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "organisation": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "created": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "updated": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "status": {
+                "type": "string",
+                "nullable": false,
+                "required": false,
+                "enum": [
+                    "provisioning",
+                    "running",
+                    "terminating",
+                    "terminated",
+                    "suspended",
+                    "error"
+                ],
+                "readOnly": true,
+                "volatile": true
+            },
+            "managedbycontainer": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "When set, this memcached instance is managed by the named container (proxy cache feature) and cannot be modified directly.",
+                "readOnly": true
+            },
+            "managedbycontainername": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "The name of the container in managedbycontainer, so a client can show it without a second lookup.",
+                "readOnly": true
+            }
+        }
+    },
+    "valkey": {
+        "aliases": {
+            "memory": {
+                "field": "memorymb"
+            },
+            "topology.size": {
+                "field": "size",
+                "group": "topology",
+                "cast": "string"
+            },
+            "topology.shards": {
+                "field": "shards",
+                "group": "topology"
+            },
+            "tuning.maxmemory_policy": {
+                "field": "maxmemorypolicy",
+                "group": "tuning",
+                "cast": "string"
+            },
+            "tuning.config": {
+                "field": "config",
+                "group": "tuning"
+            },
+            "persistence.storage": {
+                "field": "storagegb",
+                "group": "persistence"
+            },
+            "security.auth": {
+                "field": "authenabled",
+                "group": "security"
+            },
+            "security.password": {
+                "field": "password",
+                "group": "security",
+                "cast": "string"
+            },
+            "security.tls": {
+                "field": "tlsenabled",
+                "group": "security"
+            },
+            "security.tls_bundle": {
+                "field": "tlsbundle",
+                "group": "security",
+                "cast": "string"
+            },
+            "security.tls_validity_years": {
+                "field": "tlsvalidityyears",
+                "group": "security"
+            },
+            "default_hostname": {
+                "field": "defaulthostname",
+                "cast": "string"
+            },
+            "exposure.hostnames": {
+                "field": "hostnames",
+                "group": "exposure",
+                "item": {
+                    "hostname": {
+                        "field": "hostname",
+                        "cast": "string"
+                    }
+                }
+            },
+            "exposure.external": {
+                "field": "externalenabled",
+                "group": "exposure"
+            },
+            "exposure.allowed_ips": {
+                "field": "allowedips",
+                "group": "exposure"
+            },
+            "backup.backup": {
+                "field": "backupenabled",
+                "group": "backup"
+            },
+            "backup.backup_schedule": {
+                "field": "backupschedule",
+                "group": "backup",
+                "cast": "string"
+            },
+            "regions": {
+                "field": "activeregions"
+            },
+            "networking.network_policies": {
+                "field": "networkpolicies",
+                "group": "networking"
+            },
+            "auth_secret": {
+                "field": "authsecret",
+                "cast": "string"
+            }
+        },
+        "readOnly": [
+            "id",
+            "projectname",
+            "authsecret",
+            "organisation",
+            "nodes",
+            "created",
+            "updated",
+            "status"
+        ],
+        "displayReadOnly": [],
+        "groupOrder": [
+            "topology",
+            "security",
+            "exposure",
+            "persistence",
+            "backup",
+            "tuning",
+            "networking"
+        ],
+        "defaults": {
+            "authenabled": true,
+            "tlsenabled": false,
+            "tlsvalidityyears": 3,
+            "hostnames": [],
+            "externalenabled": false,
+            "backupenabled": false,
+            "networkpolicies": []
+        },
+        "properties": {
+            "id": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "name": {
+                "type": "string",
+                "nullable": false,
+                "required": true
+            },
+            "handle": {
+                "type": "string",
+                "nullable": false,
+                "required": true
+            },
+            "tier": {
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "description": "Product tier. single = one node, restarts from disk. ha = Sentinel topology, needs a Sentinel-aware client driver. sharded = cluster topology, needs a cluster-aware client driver.",
+                "enum": [
+                    "single",
+                    "ha",
+                    "sharded"
+                ]
+            },
+            "purpose": {
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "description": "Sets the defaults bundle: cache = no persistence, allkeys-lru; store = RDB+AOF persistence, noeviction, storage required. Immutable after creation.",
+                "enum": [
+                    "cache",
+                    "store"
+                ],
+                "createOnly": true
+            },
+            "memorymb": {
+                "type": "integer",
+                "nullable": false,
+                "required": true,
+                "description": "Memory per node in MB. Billed per node."
+            },
+            "size": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Size axis for the ha and sharded tiers (standard is the default). Not applicable to single.",
+                "enum": [
+                    "standard",
+                    "hardened"
+                ]
+            },
+            "shards": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "description": "Sharded tier only. Grow-only in self-service: raising it is automated, lowering it is an operator procedure raised through a support ticket."
+            },
+            "maxmemorypolicy": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Eviction policy. Defaults from purpose (cache = allkeys-lru, store = noeviction) and remains freely settable.",
+                "enum": [
+                    "noeviction",
+                    "allkeys-lru",
+                    "volatile-lru",
+                    "allkeys-lfu",
+                    "volatile-lfu",
+                    "allkeys-random",
+                    "volatile-random",
+                    "volatile-ttl"
+                ]
+            },
+            "config": {
+                "type": "object",
+                "nullable": true,
+                "required": false,
+                "description": "Allowlisted Valkey configuration keys. Unknown keys are rejected naming the key.",
+                "freeform": true
+            },
+            "storagegb": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "description": "Persistent storage per node in GB. Required for purpose store, not applicable to cache."
+            },
+            "authenabled": {
+                "type": "boolean",
+                "nullable": false,
+                "required": false,
+                "default": true
+            },
+            "password": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Optional. Omitted on create, the platform generates one. Stored as a platform-managed secret in your vault (see authsecret), billed like any secret. Sending a different password rotates it; resending the current one changes nothing. Never returned; use the credentials endpoint to reveal it.",
+                "writeOnly": true,
+                "sensitive": true
+            },
+            "tlsenabled": {
+                "type": "boolean",
+                "nullable": false,
+                "required": false,
+                "default": false
+            },
+            "tlsbundle": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Handle of a customer TLS bundle to serve. Omitted with TLS enabled, the platform issues and manages a bundle in your vault. A supplied bundle must cover every hostname the instance answers to; a 400 lists any missing names."
+            },
+            "tlsvalidityyears": {
+                "type": "integer",
+                "nullable": false,
+                "required": false,
+                "description": "Lifetime in years of the server certificate the platform issues when TLS is on with no customer bundle: 1, 3, 5 or 10. Renewed automatically 30 days before expiry, and reissued when changed, always signed by the same 30-year CA, so a saved CA certificate keeps verifying the server. Ignored for a customer bundle.",
+                "enum": [
+                    1,
+                    3,
+                    5,
+                    10
+                ],
+                "default": 3
+            },
+            "defaulthostname": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Server-generated default hostname (use the hostname generator endpoint). Assigned on create, immutable thereafter."
+            },
+            "hostnames": {
+                "type": "array",
+                "nullable": false,
+                "required": false,
+                "description": "Custom hostnames. A custom hostname on TCP is a vanity name, not a trust upgrade \u2014 clients trust the instance CA either way.",
+                "default": [],
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "hostname": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true
+                        }
+                    }
+                }
+            },
+            "externalenabled": {
+                "type": "boolean",
+                "nullable": false,
+                "required": false,
+                "description": "Expose the instance at the platform edge. Requires TLS, auth and a non-empty IP allowlist.",
+                "default": false
+            },
+            "allowedips": {
+                "type": "array",
+                "nullable": true,
+                "required": false,
+                "description": "CIDR allowlist for external access. Required non-empty while external is enabled.",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "backupenabled": {
+                "type": "boolean",
+                "nullable": false,
+                "required": false,
+                "description": "Store purpose only.",
+                "default": false
+            },
+            "backupschedule": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Backup cron schedule. Retention is fixed at seven days of snapshots."
+            },
+            "activeregions": {
+                "type": "array",
+                "nullable": false,
+                "required": true,
+                "description": "Regions this instance deploys into. At least one is required. Each region runs an independent copy with the same configuration and its own data.",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "networkpolicies": {
+                "type": "array",
+                "nullable": false,
+                "required": false,
+                "description": "Network policies narrowed to this Valkey instance, referenced by handle.",
+                "default": [],
+                "items": {
+                    "type": "string"
+                }
+            },
+            "project": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "createOnly": true,
+                "reference": "project"
+            },
+            "projectname": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "authsecret": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Handle of the platform-managed vault secret holding the auth password. Null while auth is off; turning auth off releases it.",
+                "readOnly": true,
+                "volatile": true
+            },
+            "organisation": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "nodes": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "description": "Derived node count per region for the current tier, size and shards.",
+                "readOnly": true,
+                "volatile": true
+            },
+            "created": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "updated": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "status": {
+                "type": "string",
+                "nullable": false,
+                "required": false,
+                "enum": [
+                    "provisioning",
+                    "running",
+                    "terminating",
+                    "terminated",
+                    "suspended",
+                    "error"
+                ],
+                "readOnly": true,
+                "volatile": true
+            }
+        }
+    },
+    "mysql": {
+        "aliases": {
+            "cpu": {
+                "field": "cpumillicores"
+            },
+            "memory": {
+                "field": "memorymb"
+            },
+            "persistence.storage": {
+                "field": "storagegb",
+                "group": "persistence"
+            },
+            "databases": {
+                "field": "databases",
+                "item": {
+                    "name": {
+                        "field": "name",
+                        "cast": "string"
+                    },
+                    "username": {
+                        "field": "username",
+                        "cast": "string"
+                    }
+                }
+            },
+            "topology.replicas": {
+                "field": "replicas",
+                "group": "topology"
+            },
+            "tuning.config": {
+                "field": "config",
+                "group": "tuning"
+            },
+            "security.tls": {
+                "field": "tlsenabled",
+                "group": "security"
+            },
+            "security.tls_bundle": {
+                "field": "tlsbundle",
+                "group": "security",
+                "cast": "string"
+            },
+            "security.tls_validity_years": {
+                "field": "tlsvalidityyears",
+                "group": "security"
+            },
+            "security.encryption": {
+                "field": "encryptionenabled",
+                "group": "security"
+            },
+            "default_hostname": {
+                "field": "defaulthostname",
+                "cast": "string"
+            },
+            "exposure.hostnames": {
+                "field": "hostnames",
+                "group": "exposure",
+                "item": {
+                    "hostname": {
+                        "field": "hostname",
+                        "cast": "string"
+                    }
+                }
+            },
+            "exposure.external": {
+                "field": "externalenabled",
+                "group": "exposure"
+            },
+            "exposure.external_port": {
+                "field": "externalport",
+                "group": "exposure"
+            },
+            "exposure.allowed_ips": {
+                "field": "allowedips",
+                "group": "exposure"
+            },
+            "client.phpmyadmin": {
+                "field": "clientenabled",
+                "group": "client"
+            },
+            "client.phpmyadmin_ttl": {
+                "field": "clientttlhours",
+                "group": "client"
+            },
+            "backup.backup_schedule": {
+                "field": "backupschedule",
+                "group": "backup",
+                "cast": "string"
+            },
+            "regions": {
+                "field": "activeregions"
+            },
+            "networking.network_policies": {
+                "field": "networkpolicies",
+                "group": "networking"
+            },
+            "restoretargets": {
+                "field": "restoretargets",
+                "item": {
+                    "id": {
+                        "field": "id",
+                        "cast": "string"
+                    },
+                    "handle": {
+                        "field": "handle",
+                        "cast": "string"
+                    },
+                    "kind": {
+                        "field": "kind",
+                        "cast": "string"
+                    },
+                    "status": {
+                        "field": "status",
+                        "cast": "string"
+                    },
+                    "instancestatus": {
+                        "field": "instancestatus",
+                        "cast": "string"
+                    },
+                    "targetat": {
+                        "field": "targetat",
+                        "cast": "string"
+                    }
+                }
+            },
+            "security.volume_encryption": {
+                "field": "volumeencryptionenabled",
+                "group": "security"
+            },
+            "root_secret": {
+                "field": "rootsecret",
+                "cast": "string"
+            },
+            "database_secrets": {
+                "field": "databasesecrets"
+            },
+            "luks_key": {
+                "field": "lukskey",
+                "cast": "string"
+            },
+            "keyring_key": {
+                "field": "keyringkey",
+                "cast": "string"
+            },
+            "key_rotation_status": {
+                "field": "keyrotationstatus",
+                "cast": "string"
+            },
+            "key_rotation_requested_at": {
+                "field": "keyrotationrequestedat",
+                "cast": "string"
+            },
+            "key_rotation_finished_at": {
+                "field": "keyrotationfinishedat",
+                "cast": "string"
+            }
+        },
+        "readOnly": [
+            "id",
+            "externalport",
+            "projectname",
+            "organisation",
+            "nodes",
+            "created",
+            "updated",
+            "status",
+            "restoreof",
+            "restoreofhandle",
+            "restorekind",
+            "restoretargetat",
+            "restoredatabase",
+            "restorestatus",
+            "restorefinishedat",
+            "restoreerror",
+            "restoretargets",
+            "rootsecret",
+            "databasesecrets",
+            "lukskey",
+            "keyringkey",
+            "keyrotationstatus",
+            "keyrotationrequestedat",
+            "keyrotationfinishedat"
+        ],
+        "displayReadOnly": [],
+        "groupOrder": [
+            "topology",
+            "persistence",
+            "tuning",
+            "backup",
+            "security",
+            "exposure",
+            "client",
+            "networking"
+        ],
+        "defaults": {
+            "tlsenabled": false,
+            "tlsvalidityyears": 3,
+            "encryptionenabled": false,
+            "hostnames": [],
+            "externalenabled": false,
+            "clientenabled": false,
+            "networkpolicies": [],
+            "restoretargets": [],
+            "volumeencryptionenabled": false,
+            "databasesecrets": []
+        },
+        "properties": {
+            "id": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "name": {
+                "type": "string",
+                "nullable": false,
+                "required": true
+            },
+            "handle": {
+                "type": "string",
+                "nullable": false,
+                "required": true
+            },
+            "tier": {
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "description": "Product tier. single = one node, restarts from disk. replicated = a primary plus asynchronous read replicas. ha = Group Replication with automatic failover. Immutable after creation.",
+                "enum": [
+                    "single",
+                    "replicated",
+                    "ha"
+                ],
+                "createOnly": true
+            },
+            "cpumillicores": {
+                "type": "integer",
+                "nullable": false,
+                "required": true,
+                "description": "CPU per node in millicores. Validated together with memorymb as a pair against the published plan matrix."
+            },
+            "memorymb": {
+                "type": "integer",
+                "nullable": false,
+                "required": true,
+                "description": "Memory per node in MB. Validated together with cpumillicores as a pair against the published plan matrix."
+            },
+            "storagegb": {
+                "type": "integer",
+                "nullable": false,
+                "required": true,
+                "description": "Persistent data storage per node in GB. Grow-only in self-service. The binlog volume backing point-in-time recovery is platform-managed and not counted here."
+            },
+            "databases": {
+                "type": "array",
+                "nullable": false,
+                "required": true,
+                "description": "Logical databases inside the instance, each with a dedicated user. At least one is required. Add or remove entries on a live instance and the platform converges it; schemas created by hand over SQL are never touched. Passwords are platform-generated \u2014 reveal or rotate them via the credentials endpoint.",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true,
+                            "description": "Schema name."
+                        },
+                        "username": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true,
+                            "description": "The dedicated user granted on this schema."
+                        }
+                    }
+                }
+            },
+            "replicas": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "description": "replicated tier: read replicas, 1 or 2 (default 1). ha tier: group members including the primary, 3 or 5 (default 3). Not applicable to single."
+            },
+            "config": {
+                "type": "object",
+                "nullable": true,
+                "required": false,
+                "description": "Allowlisted mysqld configuration keys. Unknown keys are rejected naming the key.",
+                "freeform": true
+            },
+            "tlsenabled": {
+                "type": "boolean",
+                "nullable": false,
+                "required": false,
+                "description": "Serve MySQL-native TLS (clients connect with ssl-mode VERIFY_IDENTITY). Required while external access is enabled.",
+                "default": false
+            },
+            "tlsbundle": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Handle of a customer TLS bundle to serve. Omitted with TLS enabled, the platform issues and manages a bundle in your vault. A supplied bundle must cover every hostname the instance answers to; a 400 lists any missing names."
+            },
+            "tlsvalidityyears": {
+                "type": "integer",
+                "nullable": false,
+                "required": false,
+                "description": "Lifetime in years of the server certificate the platform issues when TLS is on with no customer bundle: 1, 3, 5 or 10. Renewed automatically 30 days before expiry, and reissued when changed, always signed by the same 30-year CA, so a saved CA certificate keeps verifying the server. Ignored for a customer bundle.",
+                "enum": [
+                    1,
+                    3,
+                    5,
+                    10
+                ],
+                "default": 3
+            },
+            "encryptionenabled": {
+                "type": "boolean",
+                "nullable": false,
+                "required": false,
+                "description": "Encrypt data at rest with MySQL InnoDB encryption: every table, the redo and undo logs and the binary logs, under platform-generated and platform-managed keys (escrowed in your vault as keyringkey). Decided at creation and immutable thereafter - there is no online migration between the two states.",
+                "default": false,
+                "createOnly": true
+            },
+            "defaulthostname": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Server-generated default hostname (use the hostname generator endpoint). Assigned on create, immutable thereafter."
+            },
+            "hostnames": {
+                "type": "array",
+                "nullable": false,
+                "required": false,
+                "description": "Custom hostnames. A custom hostname is a vanity CNAME to the per-region default hostname - connections still use the allocated port.",
+                "default": [],
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "hostname": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true
+                        }
+                    }
+                }
+            },
+            "externalenabled": {
+                "type": "boolean",
+                "nullable": false,
+                "required": false,
+                "description": "Expose the instance at the platform edge on an allocated port. Requires TLS and a non-empty IP allowlist.",
+                "default": false
+            },
+            "externalport": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "description": "The edge port allocated to this instance - the same port in every region. Assigned when external access is first enabled; never customer-chosen.",
+                "readOnly": true,
+                "volatile": true
+            },
+            "allowedips": {
+                "type": "array",
+                "nullable": true,
+                "required": false,
+                "description": "CIDR allowlist for external access. Required non-empty while external is enabled.",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "clientenabled": {
+                "type": "boolean",
+                "nullable": false,
+                "required": false,
+                "description": "Run the phpMyAdmin web client at pma-<defaulthostname>.<region>... over HTTPS, restricted to the IP allowlist. Intended for temporary access: its time limit is shown, so switch it off when you are done.",
+                "default": false
+            },
+            "clientttlhours": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "description": "The phpMyAdmin client's time limit in hours. Defaults to 24 when the client is enabled without one. Switch the client off when you are done."
+            },
+            "backupschedule": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Dump cron schedule. Backups are always on for MySQL - only the schedule is tunable. Omitted, the platform default applies."
+            },
+            "activeregions": {
+                "type": "array",
+                "nullable": false,
+                "required": true,
+                "description": "Regions this instance deploys into. At least one is required. Each region runs an independent copy with the same configuration and its own data.",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "networkpolicies": {
+                "type": "array",
+                "nullable": false,
+                "required": false,
+                "description": "Network policies narrowed to this MySQL instance, referenced by handle.",
+                "default": [],
+                "items": {
+                    "type": "string"
+                }
+            },
+            "project": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "createOnly": true,
+                "reference": "project"
+            },
+            "projectname": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "organisation": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "nodes": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "description": "Derived node count per region for the current tier and replicas.",
+                "readOnly": true,
+                "volatile": true
+            },
+            "created": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "updated": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "status": {
+                "type": "string",
+                "nullable": false,
+                "required": false,
+                "enum": [
+                    "provisioning",
+                    "running",
+                    "terminating",
+                    "terminated",
+                    "suspended",
+                    "error"
+                ],
+                "readOnly": true,
+                "volatile": true
+            },
+            "restoreof": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Set on a restore target: the id of the instance it was restored from.",
+                "readOnly": true
+            },
+            "restoreofhandle": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Set on a restore target: the handle of the instance it was restored from.",
+                "readOnly": true
+            },
+            "restorekind": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Set on a restore target: staging (a disposable copy, no backups) or instance (kept, with backups).",
+                "enum": [
+                    "staging",
+                    "instance"
+                ],
+                "readOnly": true
+            },
+            "restoretargetat": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Set on a restore target: the UTC instant its data was restored to.",
+                "readOnly": true
+            },
+            "restoredatabase": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Set on a restore target that restored one database only.",
+                "readOnly": true
+            },
+            "restorestatus": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Set on a restore target: whether its data is ready. Use the instance only once this is completed.",
+                "enum": [
+                    "pending",
+                    "restoring",
+                    "completed",
+                    "failed"
+                ],
+                "readOnly": true,
+                "volatile": true
+            },
+            "restorefinishedat": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Set on a restore target: when the restore completed or failed.",
+                "readOnly": true,
+                "volatile": true
+            },
+            "restoreerror": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Set on a failed restore target: why it failed.",
+                "readOnly": true,
+                "volatile": true
+            },
+            "restoretargets": {
+                "type": "array",
+                "nullable": false,
+                "required": false,
+                "description": "On a source instance: its restore targets that are not terminated.",
+                "default": [],
+                "readOnly": true,
+                "volatile": true,
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true
+                        },
+                        "handle": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true
+                        },
+                        "kind": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true,
+                            "enum": [
+                                "staging",
+                                "instance"
+                            ]
+                        },
+                        "status": {
+                            "type": "string",
+                            "nullable": true,
+                            "required": true,
+                            "enum": [
+                                "pending",
+                                "restoring",
+                                "completed",
+                                "failed"
+                            ]
+                        },
+                        "instancestatus": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true,
+                            "enum": [
+                                "provisioning",
+                                "running",
+                                "terminating",
+                                "terminated",
+                                "suspended",
+                                "error"
+                            ]
+                        },
+                        "targetat": {
+                            "type": "string",
+                            "nullable": true,
+                            "required": true
+                        }
+                    }
+                }
+            },
+            "volumeencryptionenabled": {
+                "type": "boolean",
+                "nullable": false,
+                "required": false,
+                "description": "Add-on: encrypt every volume of the instance (data, binary logs, temporary files) at the storage layer, on top of encryptionenabled. The passphrase is platform-generated and platform-managed, kept in your vault as lukskey. Billed separately. Decided at creation and immutable thereafter.",
+                "default": false,
+                "createOnly": true
+            },
+            "rootsecret": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Handle of the platform-managed vault secret holding the root password.",
+                "readOnly": true,
+                "volatile": true
+            },
+            "databasesecrets": {
+                "type": "array",
+                "nullable": false,
+                "required": false,
+                "description": "Handles of the platform-managed vault secrets holding each database user's password (<handle>-mysql-<database>).",
+                "default": [],
+                "readOnly": true,
+                "volatile": true,
+                "items": {
+                    "type": "string"
+                }
+            },
+            "lukskey": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Handle of the platform-managed vault encryption key holding the volume encryption passphrase. Null without volume encryption.",
+                "readOnly": true
+            },
+            "keyringkey": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Handle of the platform-managed vault encryption key escrowing the instance's InnoDB keyrings. Null without encryption, and until the first escrow after the instance is running.",
+                "readOnly": true,
+                "volatile": true
+            },
+            "keyrotationstatus": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Outcome of the latest master-key rotation (rotate-key). Null when none was requested.",
+                "enum": [
+                    "pending",
+                    "completed",
+                    "failed"
+                ],
+                "readOnly": true,
+                "volatile": true
+            },
+            "keyrotationrequestedat": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "When the latest master-key rotation was requested.",
+                "readOnly": true
+            },
+            "keyrotationfinishedat": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "When the latest master-key rotation finished.",
+                "readOnly": true,
+                "volatile": true
+            }
+        }
+    },
+    "project": {
+        "aliases": {
+            "quotas.request.cpu": {
+                "field": "quotarequestcpu",
+                "group": "quotas.request",
+                "displayReadonly": true,
+                "cast": "string"
+            },
+            "quotas.request.memory": {
+                "field": "quotarequestmemory",
+                "group": "quotas.request",
+                "displayReadonly": true,
+                "cast": "string"
+            },
+            "quotas.limit.cpu": {
+                "field": "quotalimitcpu",
+                "group": "quotas.limit",
+                "displayReadonly": true,
+                "cast": "string"
+            },
+            "quotas.limit.memory": {
+                "field": "quotalimitmemory",
+                "group": "quotas.limit",
+                "displayReadonly": true,
+                "cast": "string"
+            }
+        },
+        "readOnly": [
+            "id",
+            "organisation",
+            "users",
+            "created",
+            "updated",
+            "effectivequotarequestcpu",
+            "effectivequotarequestmemory",
+            "effectivequotalimitcpu",
+            "effectivequotalimitmemory"
+        ],
+        "displayReadOnly": [
+            "quotarequestcpu",
+            "quotarequestmemory",
+            "quotalimitcpu",
+            "quotalimitmemory"
+        ],
+        "groupOrder": [
+            "quotas"
+        ],
+        "defaults": {
+            "users": []
+        },
+        "properties": {
+            "id": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "name": {
+                "type": "string",
+                "nullable": false,
+                "required": true
+            },
+            "handle": {
+                "type": "string",
+                "nullable": false,
+                "required": true
+            },
+            "organisation": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "regions": {
+                "type": "array",
+                "nullable": false,
+                "required": true,
+                "description": "Regions this project may deploy into. At least one is required.",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "users": {
+                "type": "array",
+                "nullable": false,
+                "required": false,
+                "description": "Members of the project. Managed through the project users endpoints; ignored on create and update.",
+                "default": [],
+                "readOnly": true,
+                "items": {
+                    "type": "string"
+                }
+            },
+            "quotarequestcpu": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Namespace CPU request quota. Null = platform default.",
+                "readOnly": true,
+                "displayReadOnly": true
+            },
+            "quotarequestmemory": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Namespace memory request quota. Null = platform default.",
+                "readOnly": true,
+                "displayReadOnly": true
+            },
+            "quotalimitcpu": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Namespace CPU limit quota. Null = platform default.",
+                "readOnly": true,
+                "displayReadOnly": true
+            },
+            "quotalimitmemory": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Namespace memory limit quota. Null = platform default.",
+                "readOnly": true,
+                "displayReadOnly": true
+            },
+            "created": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "updated": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "effectivequotarequestcpu": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Namespace CPU request quota in force, platform default resolved.",
+                "readOnly": true
+            },
+            "effectivequotarequestmemory": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Namespace memory request quota in force, platform default resolved.",
+                "readOnly": true
+            },
+            "effectivequotalimitcpu": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Namespace CPU limit quota in force, platform default resolved.",
+                "readOnly": true
+            },
+            "effectivequotalimitmemory": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Namespace memory limit quota in force, platform default resolved.",
+                "readOnly": true
+            }
+        }
+    },
+    "pathrule": {
+        "aliases": {
+            "security.rate_limiting.enabled": {
+                "field": "ratelimitingenabled",
+                "group": "security.rate_limiting"
+            },
+            "security.rate_limiting.per_minute": {
+                "field": "ratelimitingrequestsperminute",
+                "group": "security.rate_limiting"
+            },
+            "security.rate_limiting.per_hour": {
+                "field": "ratelimitingrequestsperhour",
+                "group": "security.rate_limiting"
+            },
+            "security.rate_limiting.per_second": {
+                "field": "ratelimitingrequestspersecond",
+                "group": "security.rate_limiting"
+            },
+            "security.ip_allowlist.enabled": {
+                "field": "ipwhitelistenabled",
+                "group": "security.ip_allowlist"
+            },
+            "security.ip_allowlist.ips": {
+                "field": "ipwhitelist",
+                "group": "security.ip_allowlist"
+            },
+            "security.ip_denylist.enabled": {
+                "field": "ipblacklistenabled",
+                "group": "security.ip_denylist"
+            },
+            "security.ip_denylist.ips": {
+                "field": "ipblacklist",
+                "group": "security.ip_denylist"
+            },
+            "security.basic_auth_enabled": {
+                "field": "basicauthenabled",
+                "group": "security"
+            },
+            "security.basic_auth": {
+                "field": "basicauthcredentials",
+                "group": "security",
+                "implies": {
+                    "basicauthenabled": true
+                },
+                "item": {
+                    "username": {
+                        "field": "username",
+                        "cast": "string"
+                    },
+                    "password": {
+                        "field": "password",
+                        "cast": "string"
+                    }
+                }
+            },
+            "created_by": {
+                "field": "createdby",
+                "cast": "string"
+            },
+            "updated_by": {
+                "field": "updatedby",
+                "cast": "string"
+            },
+            "removed": {
+                "field": "removedat"
+            }
+        },
+        "readOnly": [
+            "id",
+            "container",
+            "createdby",
+            "updatedby",
+            "created",
+            "updated",
+            "removedat"
+        ],
+        "displayReadOnly": [],
+        "groupOrder": [
+            "security"
+        ],
+        "defaults": {
+            "priority": 0,
+            "ratelimitingenabled": false,
+            "ipwhitelistenabled": false,
+            "ipblacklistenabled": false,
+            "basicauthenabled": false
+        },
+        "properties": {
+            "id": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "handle": {
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "description": "DNS-1123 compliant: lowercase alphanumeric and hyphens only. Unique among active rules on the same container."
+            },
+            "path": {
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "description": "URL path prefix. Requests matching this prefix (longest match wins) are subject to this rule plus the parent container settings, with this rule taking precedence on conflicts."
+            },
+            "priority": {
+                "type": "integer",
+                "nullable": false,
+                "required": false,
+                "description": "Tiebreaker when two rules share equal path-prefix length. Higher values win.",
+                "default": 0
+            },
+            "ratelimitingenabled": {
+                "type": "boolean",
+                "nullable": false,
+                "required": false,
+                "description": "Enable rate limiting by client IP for this path.",
+                "default": false
+            },
+            "ratelimitingrequestsperminute": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "description": "Max requests per minute per IP (requires ratelimitingenabled)."
+            },
+            "ratelimitingrequestsperhour": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "description": "Max requests per hour per IP (requires ratelimitingenabled)."
+            },
+            "ratelimitingrequestspersecond": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "description": "Max requests per second per IP (requires ratelimitingenabled)."
+            },
+            "ipwhitelistenabled": {
+                "type": "boolean",
+                "nullable": false,
+                "required": false,
+                "description": "Enable IP allow-list. Only IPs in the list can access this path.",
+                "default": false
+            },
+            "ipwhitelist": {
+                "type": "array",
+                "nullable": true,
+                "required": false,
+                "items": {
+                    "type": "string"
+                }
+            },
+            "ipblacklistenabled": {
+                "type": "boolean",
+                "nullable": false,
+                "required": false,
+                "description": "Enable IP deny-list. IPs in the list are blocked on this path.",
+                "default": false
+            },
+            "ipblacklist": {
+                "type": "array",
+                "nullable": true,
+                "required": false,
+                "items": {
+                    "type": "string"
+                }
+            },
+            "basicauthenabled": {
+                "type": "boolean",
+                "nullable": false,
+                "required": false,
+                "description": "Enable HTTP basic authentication on this path.",
+                "default": false
+            },
+            "basicauthcredentials": {
+                "type": "array",
+                "nullable": true,
+                "required": false,
+                "description": "List of {username, password} credential pairs accepted on this path.",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "username": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true,
+                            "description": "Basic auth username. 1-128 chars, alphanumeric plus . _ -. Globally unique across all containers \u2014 the console UI prefixes with the container handle (e.g. `mywebsite-alice`) to keep usernames container-scoped."
+                        },
+                        "password": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": true,
+                            "description": "Plaintext password on write; returned as the masked sentinel \"value-hidden-for-your-own-good\" on read. Sending the sentinel preserves the existing stored password.",
+                            "sensitive": true,
+                            "masked": "value-hidden-for-your-own-good"
+                        }
+                    }
+                },
+                "itemKey": "username"
+            },
+            "container": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Parent container id.",
+                "readOnly": true
+            },
+            "createdby": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "updatedby": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "created": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "updated": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "removedat": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            }
+        }
+    },
+    "registry": {
+        "aliases": {
+            "managed_by": {
+                "field": "managedbyresourceid",
+                "cast": "string"
+            },
+            "max_versions": {
+                "field": "maxversions"
+            },
+            "version_count": {
+                "field": "versioncount"
+            },
+            "rotated_at": {
+                "field": "rotatedat"
+            }
+        },
+        "readOnly": [
+            "id",
+            "managedbyresourceid",
+            "managedbyresourcetype",
+            "billable",
+            "currentversionid",
+            "maxversions",
+            "created",
+            "updated",
+            "currentversion",
+            "versioncount",
+            "rotatedat"
+        ],
+        "displayReadOnly": [],
+        "groupOrder": [],
+        "defaults": {},
+        "properties": {
+            "id": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "server": {
+                "type": "string",
+                "nullable": false,
+                "required": true
+            },
+            "name": {
+                "type": "string",
+                "nullable": false,
+                "required": true
+            },
+            "handle": {
+                "type": "string",
+                "nullable": false,
+                "required": true
+            },
+            "username": {
+                "type": "string",
+                "nullable": false,
+                "required": true
+            },
+            "password": {
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "sensitive": true
+            },
+            "managedbyresourceid": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "managedbyresourcetype": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "billable": {
+                "type": "boolean",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "currentversionid": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "maxversions": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "inputDeprecated": true
+            },
+            "created": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "updated": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "currentversion": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "versioncount": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "rotatedat": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            }
+        }
+    },
+    "secret": {
+        "aliases": {
+            "managed_by": {
+                "field": "managedbyresourceid",
+                "cast": "string"
+            },
+            "max_versions": {
+                "field": "maxversions"
+            },
+            "version_count": {
+                "field": "versioncount"
+            },
+            "rotated_at": {
+                "field": "rotatedat"
+            }
+        },
+        "readOnly": [
+            "id",
+            "managedbyresourceid",
+            "managedbyresourcetype",
+            "billable",
+            "maxversions",
+            "created",
+            "updated",
+            "currentversion",
+            "versioncount",
+            "rotatedat"
+        ],
+        "displayReadOnly": [],
+        "groupOrder": [],
+        "defaults": {},
+        "properties": {
+            "id": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "name": {
+                "type": "string",
+                "nullable": false,
+                "required": true
+            },
+            "handle": {
+                "type": "string",
+                "nullable": false,
+                "required": true
+            },
+            "value": {
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "sensitive": true
+            },
+            "managedbyresourceid": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "managedbyresourcetype": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "billable": {
+                "type": "boolean",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "maxversions": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "inputDeprecated": true
+            },
+            "created": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "updated": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "currentversion": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "versioncount": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "rotatedat": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            }
+        }
+    },
+    "tls_bundle": {
+        "aliases": {
+            "managed_by": {
+                "field": "managedbyresourceid",
+                "cast": "string"
+            },
+            "max_versions": {
+                "field": "maxversions"
+            },
+            "not_before": {
+                "field": "notbefore"
+            },
+            "expires": {
+                "field": "notafter"
+            },
+            "key_bits": {
+                "field": "keybits"
+            },
+            "version_count": {
+                "field": "versioncount"
+            },
+            "rotated_at": {
+                "field": "rotatedat"
+            }
+        },
+        "readOnly": [
+            "id",
+            "organisation",
+            "managedbyresourceid",
+            "managedbyresourcetype",
+            "billable",
+            "currentversion",
+            "maxversions",
+            "fingerprint",
+            "subject",
+            "issuer",
+            "notbefore",
+            "notafter",
+            "algorithm",
+            "keybits",
+            "created",
+            "updated",
+            "versioncount",
+            "rotatedat"
+        ],
+        "displayReadOnly": [],
+        "groupOrder": [],
+        "defaults": {},
+        "properties": {
+            "id": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "name": {
+                "type": "string",
+                "nullable": false,
+                "required": true
+            },
+            "handle": {
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "description": "DNS-1123 compliant: lowercase alphanumeric and hyphens only."
+            },
+            "ca": {
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "description": "PEM-encoded CA certificate.",
+                "rotateOnly": true
+            },
+            "cert": {
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "description": "PEM-encoded server certificate.",
+                "rotateOnly": true
+            },
+            "key": {
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "description": "PEM-encoded private key. Never returned on read.",
+                "writeOnly": true,
+                "sensitive": true,
+                "rotateOnly": true
+            },
+            "organisation": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "managedbyresourceid": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "managedbyresourcetype": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "billable": {
+                "type": "boolean",
+                "nullable": false,
+                "required": false,
+                "readOnly": true
+            },
+            "currentversion": {
+                "type": "integer",
+                "nullable": false,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "maxversions": {
+                "type": "integer",
+                "nullable": false,
+                "required": false,
+                "readOnly": true,
+                "inputDeprecated": true
+            },
+            "fingerprint": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "subject": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "issuer": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "notbefore": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "notafter": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "algorithm": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "keybits": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "created": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "updated": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "versioncount": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "rotatedat": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            }
+        }
+    },
+    "x509_cert": {
+        "aliases": {
+            "managed_by": {
+                "field": "managedbyresourceid",
+                "cast": "string"
+            },
+            "max_versions": {
+                "field": "maxversions"
+            },
+            "not_before": {
+                "field": "notbefore"
+            },
+            "expires": {
+                "field": "notafter"
+            },
+            "version_count": {
+                "field": "versioncount"
+            },
+            "rotated_at": {
+                "field": "rotatedat"
+            }
+        },
+        "readOnly": [
+            "id",
+            "organisation",
+            "managedbyresourceid",
+            "managedbyresourcetype",
+            "billable",
+            "currentversion",
+            "maxversions",
+            "fingerprint",
+            "subject",
+            "issuer",
+            "notbefore",
+            "notafter",
+            "algorithm",
+            "created",
+            "updated",
+            "versioncount",
+            "rotatedat"
+        ],
+        "displayReadOnly": [],
+        "groupOrder": [],
+        "defaults": {},
+        "properties": {
+            "id": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "name": {
+                "type": "string",
+                "nullable": false,
+                "required": true
+            },
+            "handle": {
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "description": "DNS-1123 compliant: lowercase alphanumeric and hyphens only."
+            },
+            "cert": {
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "description": "PEM-encoded x509 certificate.",
+                "rotateOnly": true
+            },
+            "organisation": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "managedbyresourceid": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "managedbyresourcetype": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "billable": {
+                "type": "boolean",
+                "nullable": false,
+                "required": false,
+                "readOnly": true
+            },
+            "currentversion": {
+                "type": "integer",
+                "nullable": false,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "maxversions": {
+                "type": "integer",
+                "nullable": false,
+                "required": false,
+                "readOnly": true,
+                "inputDeprecated": true
+            },
+            "fingerprint": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "subject": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "issuer": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "notbefore": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "notafter": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "algorithm": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "created": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "updated": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "versioncount": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "rotatedat": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            }
+        }
+    },
+    "gpg_keypair": {
+        "aliases": {
+            "public_key": {
+                "field": "publickey",
+                "cast": "string"
+            },
+            "private_key": {
+                "field": "privatekey",
+                "cast": "string"
+            },
+            "managed_by": {
+                "field": "managedbyresourceid",
+                "cast": "string"
+            },
+            "max_versions": {
+                "field": "maxversions"
+            },
+            "key_id": {
+                "field": "keyid",
+                "cast": "string"
+            },
+            "key_bits": {
+                "field": "keybits"
+            },
+            "key_created": {
+                "field": "keycreated"
+            },
+            "expires": {
+                "field": "expires"
+            },
+            "version_count": {
+                "field": "versioncount"
+            },
+            "rotated_at": {
+                "field": "rotatedat"
+            }
+        },
+        "readOnly": [
+            "id",
+            "organisation",
+            "managedbyresourceid",
+            "managedbyresourcetype",
+            "billable",
+            "currentversion",
+            "maxversions",
+            "keyid",
+            "uid",
+            "algorithm",
+            "keybits",
+            "keycreated",
+            "expires",
+            "created",
+            "updated",
+            "versioncount",
+            "rotatedat"
+        ],
+        "displayReadOnly": [],
+        "groupOrder": [],
+        "defaults": {},
+        "properties": {
+            "id": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "name": {
+                "type": "string",
+                "nullable": false,
+                "required": true
+            },
+            "handle": {
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "description": "DNS-1123 compliant: lowercase alphanumeric and hyphens only."
+            },
+            "publickey": {
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "description": "ASCII-armored PGP public key.",
+                "sensitive": true,
+                "rotateOnly": true
+            },
+            "privatekey": {
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "description": "ASCII-armored PGP private key. Never returned on read.",
+                "writeOnly": true,
+                "sensitive": true,
+                "rotateOnly": true
+            },
+            "organisation": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "managedbyresourceid": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "managedbyresourcetype": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "billable": {
+                "type": "boolean",
+                "nullable": false,
+                "required": false,
+                "readOnly": true
+            },
+            "currentversion": {
+                "type": "integer",
+                "nullable": false,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "maxversions": {
+                "type": "integer",
+                "nullable": false,
+                "required": false,
+                "readOnly": true,
+                "inputDeprecated": true
+            },
+            "keyid": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "uid": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "algorithm": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "keybits": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "keycreated": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "expires": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "created": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "updated": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "versioncount": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "rotatedat": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            }
+        }
+    },
+    "ssh_keypair": {
+        "aliases": {
+            "public_key": {
+                "field": "publickey",
+                "cast": "string"
+            },
+            "private_key": {
+                "field": "privatekey",
+                "cast": "string"
+            },
+            "managed_by": {
+                "field": "managedbyresourceid",
+                "cast": "string"
+            },
+            "max_versions": {
+                "field": "maxversions"
+            },
+            "key_id": {
+                "field": "keyid",
+                "cast": "string"
+            },
+            "key_bits": {
+                "field": "keybits"
+            },
+            "version_count": {
+                "field": "versioncount"
+            },
+            "rotated_at": {
+                "field": "rotatedat"
+            }
+        },
+        "readOnly": [
+            "id",
+            "organisation",
+            "managedbyresourceid",
+            "managedbyresourcetype",
+            "billable",
+            "currentversion",
+            "maxversions",
+            "keyid",
+            "algorithm",
+            "keybits",
+            "comment",
+            "created",
+            "updated",
+            "versioncount",
+            "rotatedat"
+        ],
+        "displayReadOnly": [],
+        "groupOrder": [],
+        "defaults": {},
+        "properties": {
+            "id": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "name": {
+                "type": "string",
+                "nullable": false,
+                "required": true
+            },
+            "handle": {
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "description": "DNS-1123 compliant: lowercase alphanumeric and hyphens only."
+            },
+            "publickey": {
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "description": "SSH public key line (algorithm base64 comment).",
+                "sensitive": true,
+                "rotateOnly": true
+            },
+            "privatekey": {
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "description": "PEM-encoded private key. Never returned on read.",
+                "writeOnly": true,
+                "sensitive": true,
+                "rotateOnly": true
+            },
+            "organisation": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "managedbyresourceid": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "managedbyresourcetype": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "billable": {
+                "type": "boolean",
+                "nullable": false,
+                "required": false,
+                "readOnly": true
+            },
+            "currentversion": {
+                "type": "integer",
+                "nullable": false,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "maxversions": {
+                "type": "integer",
+                "nullable": false,
+                "required": false,
+                "readOnly": true,
+                "inputDeprecated": true
+            },
+            "keyid": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "algorithm": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "keybits": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "comment": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "created": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "updated": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "versioncount": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "rotatedat": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            }
+        }
+    },
+    "encryption_key": {
+        "aliases": {
+            "key": {
+                "field": "key",
+                "cast": "string"
+            },
+            "managed_by": {
+                "field": "managedbyresourceid",
+                "cast": "string"
+            },
+            "max_versions": {
+                "field": "maxversions"
+            },
+            "key_bits": {
+                "field": "keybits"
+            },
+            "version_count": {
+                "field": "versioncount"
+            },
+            "rotated_at": {
+                "field": "rotatedat"
+            }
+        },
+        "readOnly": [
+            "id",
+            "organisation",
+            "managedbyresourceid",
+            "managedbyresourcetype",
+            "billable",
+            "currentversion",
+            "maxversions",
+            "keybits",
+            "created",
+            "updated",
+            "versioncount",
+            "rotatedat"
+        ],
+        "displayReadOnly": [],
+        "groupOrder": [],
+        "defaults": {},
+        "properties": {
+            "id": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "name": {
+                "type": "string",
+                "nullable": false,
+                "required": true
+            },
+            "handle": {
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "description": "DNS-1123 compliant: lowercase alphanumeric and hyphens only."
+            },
+            "key": {
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "description": "The raw encryption key (base64 or hex encoded). Never returned on read.",
+                "writeOnly": true,
+                "sensitive": true,
+                "rotateOnly": true
+            },
+            "format": {
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "description": "Key encoding format: base64, hex, or raw. Fixed when the key is created.",
+                "immutable": true
+            },
+            "organisation": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "managedbyresourceid": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "managedbyresourcetype": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "billable": {
+                "type": "boolean",
+                "nullable": false,
+                "required": false,
+                "readOnly": true
+            },
+            "currentversion": {
+                "type": "integer",
+                "nullable": false,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "maxversions": {
+                "type": "integer",
+                "nullable": false,
+                "required": false,
+                "readOnly": true,
+                "inputDeprecated": true
+            },
+            "keybits": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "created": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "updated": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "versioncount": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "rotatedat": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            }
+        }
+    },
+    "env_file": {
+        "aliases": {
+            "content": {
+                "field": "content",
+                "cast": "string"
+            },
+            "managed_by": {
+                "field": "managedbyresourceid",
+                "cast": "string"
+            },
+            "max_versions": {
+                "field": "maxversions"
+            },
+            "entries": {
+                "field": "entrycount"
+            },
+            "version_count": {
+                "field": "versioncount"
+            },
+            "rotated_at": {
+                "field": "rotatedat"
+            }
+        },
+        "readOnly": [
+            "id",
+            "organisation",
+            "managedbyresourceid",
+            "managedbyresourcetype",
+            "billable",
+            "currentversion",
+            "maxversions",
+            "entrycount",
+            "created",
+            "updated",
+            "versioncount",
+            "rotatedat"
+        ],
+        "displayReadOnly": [],
+        "groupOrder": [],
+        "defaults": {},
+        "properties": {
+            "id": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "name": {
+                "type": "string",
+                "nullable": false,
+                "required": true
+            },
+            "handle": {
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "description": "DNS-1123 compliant: lowercase alphanumeric and hyphens only."
+            },
+            "content": {
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "description": "KEY=VALUE pairs, one per line. Comment lines (#) and blank lines are allowed.",
+                "rotateOnly": true
+            },
+            "organisation": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "managedbyresourceid": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "managedbyresourcetype": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "billable": {
+                "type": "boolean",
+                "nullable": false,
+                "required": false,
+                "readOnly": true
+            },
+            "currentversion": {
+                "type": "integer",
+                "nullable": false,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "maxversions": {
+                "type": "integer",
+                "nullable": false,
+                "required": false,
+                "readOnly": true,
+                "inputDeprecated": true
+            },
+            "entrycount": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "created": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "updated": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "versioncount": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "rotatedat": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            }
+        }
+    },
+    "yaml_config": {
+        "aliases": {
+            "content": {
+                "field": "content",
+                "cast": "string"
+            },
+            "managed_by": {
+                "field": "managedbyresourceid",
+                "cast": "string"
+            },
+            "max_versions": {
+                "field": "maxversions"
+            },
+            "version_count": {
+                "field": "versioncount"
+            },
+            "rotated_at": {
+                "field": "rotatedat"
+            }
+        },
+        "readOnly": [
+            "id",
+            "organisation",
+            "managedbyresourceid",
+            "managedbyresourcetype",
+            "billable",
+            "currentversion",
+            "maxversions",
+            "created",
+            "updated",
+            "versioncount",
+            "rotatedat"
+        ],
+        "displayReadOnly": [],
+        "groupOrder": [],
+        "defaults": {},
+        "properties": {
+            "id": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "name": {
+                "type": "string",
+                "nullable": false,
+                "required": true
+            },
+            "handle": {
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "description": "DNS-1123 compliant: lowercase alphanumeric and hyphens only."
+            },
+            "content": {
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "description": "Valid YAML content.",
+                "rotateOnly": true
+            },
+            "organisation": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "managedbyresourceid": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "managedbyresourcetype": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "billable": {
+                "type": "boolean",
+                "nullable": false,
+                "required": false,
+                "readOnly": true
+            },
+            "currentversion": {
+                "type": "integer",
+                "nullable": false,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "maxversions": {
+                "type": "integer",
+                "nullable": false,
+                "required": false,
+                "readOnly": true,
+                "inputDeprecated": true
+            },
+            "created": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "updated": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "versioncount": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "rotatedat": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            }
+        }
+    },
+    "json_config": {
+        "aliases": {
+            "content": {
+                "field": "content",
+                "cast": "string"
+            },
+            "managed_by": {
+                "field": "managedbyresourceid",
+                "cast": "string"
+            },
+            "max_versions": {
+                "field": "maxversions"
+            },
+            "version_count": {
+                "field": "versioncount"
+            },
+            "rotated_at": {
+                "field": "rotatedat"
+            }
+        },
+        "readOnly": [
+            "id",
+            "organisation",
+            "managedbyresourceid",
+            "managedbyresourcetype",
+            "billable",
+            "currentversion",
+            "maxversions",
+            "created",
+            "updated",
+            "versioncount",
+            "rotatedat"
+        ],
+        "displayReadOnly": [],
+        "groupOrder": [],
+        "defaults": {},
+        "properties": {
+            "id": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "name": {
+                "type": "string",
+                "nullable": false,
+                "required": true
+            },
+            "handle": {
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "description": "DNS-1123 compliant: lowercase alphanumeric and hyphens only."
+            },
+            "content": {
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "description": "Valid JSON content.",
+                "rotateOnly": true
+            },
+            "organisation": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "managedbyresourceid": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "managedbyresourcetype": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "billable": {
+                "type": "boolean",
+                "nullable": false,
+                "required": false,
+                "readOnly": true
+            },
+            "currentversion": {
+                "type": "integer",
+                "nullable": false,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "maxversions": {
+                "type": "integer",
+                "nullable": false,
+                "required": false,
+                "readOnly": true,
+                "inputDeprecated": true
+            },
+            "created": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "updated": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "versioncount": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "rotatedat": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            }
+        }
+    },
+    "plain_config": {
+        "aliases": {
+            "managed_by": {
+                "field": "managedbyresourceid",
+                "cast": "string"
+            },
+            "max_versions": {
+                "field": "maxversions"
+            },
+            "content_length": {
+                "field": "contentlength"
+            },
+            "version_count": {
+                "field": "versioncount"
+            },
+            "rotated_at": {
+                "field": "rotatedat"
+            }
+        },
+        "readOnly": [
+            "id",
+            "organisation",
+            "managedbyresourceid",
+            "managedbyresourcetype",
+            "billable",
+            "currentversion",
+            "maxversions",
+            "contentlength",
+            "created",
+            "updated",
+            "versioncount",
+            "rotatedat"
+        ],
+        "displayReadOnly": [],
+        "groupOrder": [],
+        "defaults": {},
+        "properties": {
+            "id": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "name": {
+                "type": "string",
+                "nullable": false,
+                "required": true
+            },
+            "handle": {
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "description": "DNS-1123 compliant: lowercase alphanumeric and hyphens only."
+            },
+            "content": {
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "description": "Arbitrary text content.",
+                "rotateOnly": true
+            },
+            "organisation": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "managedbyresourceid": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "managedbyresourcetype": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "billable": {
+                "type": "boolean",
+                "nullable": false,
+                "required": false,
+                "readOnly": true
+            },
+            "currentversion": {
+                "type": "integer",
+                "nullable": false,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "maxversions": {
+                "type": "integer",
+                "nullable": false,
+                "required": false,
+                "readOnly": true,
+                "inputDeprecated": true
+            },
+            "contentlength": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "created": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "updated": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "versioncount": {
+                "type": "integer",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "rotatedat": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            }
+        }
+    },
+    "network_policy": {
+        "aliases": {
+            "ingress_peers": {
+                "field": "ingresspeers"
+            },
+            "egress_cidrs": {
+                "field": "egresscidrs"
+            },
+            "egress_fqdns": {
+                "field": "egressfqdns"
+            },
+            "ports": {
+                "field": "ports",
+                "item": {
+                    "port": {
+                        "field": "port"
+                    },
+                    "protocol": {
+                        "field": "protocol",
+                        "cast": "string"
+                    }
+                }
+            },
+            "managed_by": {
+                "field": "managedbyresourceid",
+                "cast": "string"
+            },
+            "enable_l7": {
+                "field": "l7enabled"
+            }
+        },
+        "readOnly": [
+            "id",
+            "organisation",
+            "managedbyresourceid",
+            "managedbyresourcetype",
+            "billable",
+            "created",
+            "updated"
+        ],
+        "displayReadOnly": [],
+        "groupOrder": [],
+        "defaults": {},
+        "properties": {
+            "id": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "name": {
+                "type": "string",
+                "nullable": false,
+                "required": true
+            },
+            "handle": {
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "description": "DNS-1123 compliant: lowercase alphanumeric and hyphens only."
+            },
+            "ingresspeers": {
+                "type": "array",
+                "nullable": true,
+                "required": false,
+                "description": "Same-organisation project handles allowed to reach this policy's targets.",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "egresscidrs": {
+                "type": "array",
+                "nullable": true,
+                "required": false,
+                "description": "CIDR ranges this policy's targets are allowed to send outbound traffic to.",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "egressfqdns": {
+                "type": "array",
+                "nullable": true,
+                "required": false,
+                "description": "Domain names allowed for outbound traffic. Coming soon \u2014 stored and validated now, enforced in a future release.",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "ports": {
+                "type": "array",
+                "nullable": true,
+                "required": false,
+                "description": "Optional port/protocol scoping applied to the rules above. Omit to allow all ports.",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "port": {
+                            "type": "integer",
+                            "nullable": false,
+                            "required": true,
+                            "description": "Port number the rule applies to."
+                        },
+                        "protocol": {
+                            "type": "string",
+                            "nullable": false,
+                            "required": false,
+                            "description": "Transport protocol.",
+                            "enum": [
+                                "TCP",
+                                "UDP"
+                            ],
+                            "default": "TCP"
+                        }
+                    }
+                }
+            },
+            "organisation": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "managedbyresourceid": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "managedbyresourcetype": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "billable": {
+                "type": "boolean",
+                "nullable": false,
+                "required": false,
+                "readOnly": true
+            },
+            "created": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true
+            },
+            "updated": {
+                "type": "timestamp",
+                "nullable": true,
+                "required": false,
+                "readOnly": true,
+                "volatile": true
+            },
+            "l7enabled": {
+                "type": "boolean",
+                "nullable": false,
+                "required": false,
+                "description": "Enable L7 controls for this policy. Opts the policy into the application-layer engine and its per-replica charge for every container it is applied to. Automatically enabled when egress domains are set."
+            }
+        }
+    },
+    "billing_details": {
+        "aliases": {
+            "legal_name": {
+                "field": "legalname",
+                "cast": "string"
+            },
+            "entity_type": {
+                "field": "billingentitytype",
+                "cast": "string"
+            },
+            "address_line1": {
+                "field": "addressline1",
+                "cast": "string"
+            },
+            "address_line2": {
+                "field": "addressline2",
+                "cast": "string"
+            },
+            "city": {
+                "field": "addresscity",
+                "cast": "string"
+            },
+            "state": {
+                "field": "addressstate",
+                "cast": "string"
+            },
+            "postcode": {
+                "field": "addresspostcode",
+                "cast": "string"
+            },
+            "country": {
+                "field": "addresscountry",
+                "cast": "string"
+            },
+            "tax_id": {
+                "field": "taxid",
+                "cast": "string"
+            },
+            "tax_id_type": {
+                "field": "taxidtype",
+                "cast": "string"
+            },
+            "registration_number": {
+                "field": "registrationnumber",
+                "cast": "string"
+            },
+            "billing_reference": {
+                "field": "billingreference",
+                "cast": "string"
+            }
+        },
+        "readOnly": [
+            "organisationid",
+            "name",
+            "complete"
+        ],
+        "displayReadOnly": [],
+        "groupOrder": [],
+        "defaults": {},
+        "properties": {
+            "organisationid": {
+                "type": "string",
+                "nullable": false,
+                "required": false,
+                "readOnly": true
+            },
+            "name": {
+                "type": "string",
+                "nullable": false,
+                "required": false,
+                "description": "The display name shown in the console. Invoices fall back to it when legalname is unset.",
+                "readOnly": true
+            },
+            "legalname": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Registered legal entity name, printed on invoices."
+            },
+            "email": {
+                "type": "string",
+                "nullable": false,
+                "required": false,
+                "description": "The billing email all organisation-scoped email goes to."
+            },
+            "billingentitytype": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "enum": [
+                    "individual",
+                    "company"
+                ]
+            },
+            "addressline1": {
+                "type": "string",
+                "nullable": true,
+                "required": false
+            },
+            "addressline2": {
+                "type": "string",
+                "nullable": true,
+                "required": false
+            },
+            "addresscity": {
+                "type": "string",
+                "nullable": true,
+                "required": false
+            },
+            "addressstate": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "State, province or emirate."
+            },
+            "addresspostcode": {
+                "type": "string",
+                "nullable": true,
+                "required": false
+            },
+            "addresscountry": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "ISO 3166-1 alpha-2 country code."
+            },
+            "taxid": {
+                "type": "string",
+                "nullable": true,
+                "required": false
+            },
+            "taxidtype": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Drives the label the invoice prints next to the tax number.",
+                "enum": [
+                    "vat",
+                    "trn",
+                    "gst",
+                    "abn",
+                    "ein",
+                    "other"
+                ]
+            },
+            "registrationnumber": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Company registration or trade licence number."
+            },
+            "billingreference": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "Customer PO number or cost centre, printed on the invoice."
+            },
+            "complete": {
+                "type": "boolean",
+                "nullable": false,
+                "required": false,
+                "description": "Whether the identity is invoice-ready. Advisory only \u2014 never blocks invoicing.",
+                "readOnly": true,
+                "volatile": true
+            }
+        }
+    }
+}

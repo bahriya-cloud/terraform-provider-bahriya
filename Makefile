@@ -25,9 +25,10 @@ SPEC_DIR ?= ../packages/bahriya-openapi/specs/v1
 
 generate:
 	go run ./cmd/generator -spec $(SPEC_DIR) -out internal/resources
+	cp $(SPEC_DIR)/../resource-schema.json internal/bmap/resource-schema.json
 
 verify: generate
-	@if ! git diff --exit-code -- internal/resources internal/datasources 2>/dev/null; then \
+	@if ! git diff --exit-code -- internal/resources internal/datasources internal/bmap/resource-schema.json 2>/dev/null; then \
 		echo "ERROR: generated files are out of sync. Run 'make generate' and commit."; \
 		exit 1; \
 	fi

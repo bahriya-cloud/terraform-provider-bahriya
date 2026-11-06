@@ -1,4 +1,5 @@
 /bin/
+/build/
 *.tfstate
 *.tfstate.backup
 .terraform/
