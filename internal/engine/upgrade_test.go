@@ -18,20 +18,32 @@ import (
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
 )
 
-// testdata/v0.4.2-resource-schemas.json is `terraform providers schema -json`
-// of the released v0.4.2 binary, resource schemas only (jq -S). It is the v0
-// state shape the upgrader reads, frozen: never regenerate it.
-const v042SchemasSHA256 = "053d0d61ed97827f7461bd95898adbe52d48493366dbd88ab77b9c1868250b43"
+// testdata/v<version>-resource-schemas.json is `terraform providers schema
+// -json` of that released binary, resource schemas only (jq -S): the v0 state
+// shapes the upgrader reads directly, frozen, never regenerated. 0.3.x and
+// 0.4.x upgrade directly; a schema diff of all nine 0.3.x tags against 0.4.2
+// found no attribute whose name stayed while its type changed, and one that
+// was removed (container healthcheckscheme, in v0Drops).
+var frozenSchemas = map[string]string{
+	"0.4.2": "053d0d61ed97827f7461bd95898adbe52d48493366dbd88ab77b9c1868250b43",
+	"0.3.8": "6218267c52090f7ea683b16b2afe66d25fd12fc9943fd2f0cee72c8e2862e1f3",
+}
 
 func v042Attributes(t *testing.T) map[string][]string {
 	t.Helper()
-	data, err := os.ReadFile(filepath.Join("testdata", "v0.4.2-resource-schemas.json"))
+	return frozenAttributes(t, "0.4.2")
+}
+
+func frozenAttributes(t *testing.T, version string) map[string][]string {
+	t.Helper()
+	file := "v" + version + "-resource-schemas.json"
+	data, err := os.ReadFile(filepath.Join("testdata", file))
 	if err != nil {
 		t.Fatal(err)
 	}
 	sum := sha256.Sum256(data)
-	if hex.EncodeToString(sum[:]) != v042SchemasSHA256 {
-		t.Fatal("testdata/v0.4.2-resource-schemas.json changed: it is the frozen v0 state shape and must not be regenerated")
+	if hex.EncodeToString(sum[:]) != frozenSchemas[version] {
+		t.Fatalf("testdata/%s changed: it is a frozen v0 state shape and must not be regenerated", file)
 	}
 	var schemas map[string]struct {
 		Block struct {
@@ -72,18 +84,24 @@ func upgrade(t *testing.T, r *Resource, v0 *bmap.Map) (resource.UpgradeStateResp
 	return resp, got.(*bmap.Map)
 }
 
-// Every v0.4.2 attribute of an engine kind is a v1 field name, a rename or a
-// deliberate drop; nothing else could ever reach the "cannot map" error from a
-// v0.4.x state.
+// Every v0.4.2 and v0.3.8 attribute of an engine kind is a v1 field name, a
+// rename or a deliberate drop; nothing else could ever reach the "cannot map"
+// error from a 0.3.x or 0.4.x state.
 func TestEveryV042AttributeIsMapped(t *testing.T) {
-	attrs := v042Attributes(t)
+	for version := range frozenSchemas {
+		attrs := frozenAttributes(t, version)
+		checkMapped(t, version, attrs)
+	}
+}
+
+func checkMapped(t *testing.T, version string, attrs map[string][]string) {
 	for name := range Descriptors {
 		k := bmap.Embedded().Kind(name)
 		for _, a := range attrs["bahriya_"+k.TypeName()] {
 			_, renamed := v0Renames[name][a]
 			_, dropped := v0Drops[name][a]
 			if k.Field(a) == nil && !renamed && !dropped {
-				t.Errorf("bahriya_%s.%s is in the v0.4.2 schema but neither a v1 field, a rename nor a drop", k.TypeName(), a)
+				t.Errorf("bahriya_%s.%s is in the v%s schema but neither a v1 field, a rename nor a drop", k.TypeName(), a, version)
 			}
 		}
 	}
@@ -93,9 +111,17 @@ func TestEveryV042AttributeIsMapped(t *testing.T) {
 // record, for every kind with a state-mode conformance case: the record is
 // restricted to the attributes v0.4.2 actually had.
 func TestV0StatesUpgradeToTheV1Shape(t *testing.T) {
-	attrs := v042Attributes(t)
+	for version := range frozenSchemas {
+		t.Run("v"+version, func(t *testing.T) { upgradeShape(t, frozenAttributes(t, version)) })
+	}
+}
+
+func upgradeShape(t *testing.T, attrs map[string][]string) {
 	upgraded := 0
 	for _, c := range stateCases(t) {
+		if _, existed := attrs["bahriya_"+bmap.Embedded().Kind(c.kind).TypeName()]; !existed {
+			continue // the kind is newer than this release (mysql in 0.3.8)
+		}
 		r := engineResource(t, c.kind)
 		k := r.kind
 		had := map[string]bool{}
@@ -136,6 +162,31 @@ func TestV0StatesUpgradeToTheV1Shape(t *testing.T) {
 	}
 }
 
+// Reading raw JSON, the upgrader checks types itself: a known attribute with
+// the wrong JSON type fails with our message, never a panic or a silent zero.
+func TestAWrongTypeFailsWithTheUpgradeMessage(t *testing.T) {
+	for _, tc := range []struct {
+		kind string
+		v0   *bmap.Map
+	}{
+		{"secret", bmap.MapOf("id", "s1", "name", "Key", "handle", "key", "value", "x", "maxversions", "five")},
+		{"memcached", bmap.MapOf("id", "m1", "name", "Cache", "handle", "cache", "memorymb", true)},
+		{"network_policy", bmap.MapOf("id", "n1", "name", "Web", "handle", "web", "ingresspeers", "frontend")},
+	} {
+		r := engineResource(t, tc.kind)
+		resp, got := upgrade(t, r, tc.v0)
+		if !resp.Diagnostics.HasError() || got != nil {
+			t.Errorf("%s: a wrong type must fail the upgrade, got %s", tc.kind, bmap.Encode(got))
+			continue
+		}
+		detail := resp.Diagnostics.Errors()[0].Detail()
+		id, _ := tc.v0.Get("id")
+		if !strings.Contains(detail, "bahriya_"+r.kind.TypeName()) || !strings.Contains(detail, id.(string)) {
+			t.Errorf("%s: the message must name the resource and id: %s", tc.kind, detail)
+		}
+	}
+}
+
 // path_rule's container_id becomes container; without the rename the upgrade
 // fails (negative control b).
 func TestPathRuleContainerIDIsRenamed(t *testing.T) {
@@ -166,7 +217,7 @@ func TestUnknownAttributesFailAndDropsAreRemoved(t *testing.T) {
 		t.Fatal("an unknown attribute must fail the upgrade")
 	}
 	detail := resp.Diagnostics.Errors()[0].Detail()
-	for _, want := range []string{"bahriya_secret", "s1", "bogus", "0.4.2"} {
+	for _, want := range []string{"bahriya_secret", "s1", "bogus", "0.3.0 or later upgrades directly", "0.4.2"} {
 		if !strings.Contains(detail, want) {
 			t.Errorf("the message must name %q: %s", want, detail)
 		}

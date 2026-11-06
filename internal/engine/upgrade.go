@@ -30,6 +30,12 @@ var v0Drops = map[string]map[string]string{
 	"container": {"healthcheckscheme": "removed from the API in v0.4.0"},
 }
 
+// v0UpgradePath is what a refused upgrade tells the user. State from 0.3.0 on
+// upgrades directly (its schemas are tested); only older state, or state that
+// was edited by hand, can be refused.
+const v0UpgradePath = "State written by provider 0.3.0 or later upgrades directly; for older state, " +
+	"apply once with provider 0.4.2 and run `terraform apply -refresh-only`, then switch to v1."
+
 // UpgradeState moves v0.x state (schema version 0) to the v1 shape. It reads
 // the raw state itself rather than through a prior schema, so a state from
 // any v0 release is either mapped by the tables above or refused with a
@@ -54,8 +60,7 @@ func (r *Resource) upgradeFromV0(ctx context.Context, req resource.UpgradeStateR
 	raw, err := tfval.FromGo(r.toState(record), r.objectType(ctx))
 	if err != nil {
 		resp.Diagnostics.AddError("State upgrade failed",
-			fmt.Sprintf("bahriya_%s %v: a value in the state written by provider v0 does not fit v1 (%v). "+
-				"Upgrade with provider 0.4.2 and run `terraform apply -refresh-only` first.", r.kind.TypeName(), mustGet(record, "id"), err))
+			fmt.Sprintf("bahriya_%s %v: a value in the state written by provider v0 does not fit v1 (%v). "+v0UpgradePath, r.kind.TypeName(), mustGet(record, "id"), err))
 		return
 	}
 	resp.State.Raw = raw
@@ -92,8 +97,7 @@ func (r *Resource) v0Record(stateJSON []byte) (*bmap.Map, error) {
 	if len(unknown) > 0 {
 		sort.Strings(unknown)
 		id, _ := v0.Get("id")
-		return nil, fmt.Errorf("bahriya_%s %v: state written by provider v0 has attribute(s) %v, which v1 cannot map. "+
-			"Upgrade with provider 0.4.2 and run `terraform apply -refresh-only` first.", r.kind.TypeName(), id, unknown)
+		return nil, fmt.Errorf("bahriya_%s %v: state written by provider v0 has attribute(s) %v, which v1 cannot map. "+v0UpgradePath, r.kind.TypeName(), id, unknown)
 	}
 	return record, nil
 }

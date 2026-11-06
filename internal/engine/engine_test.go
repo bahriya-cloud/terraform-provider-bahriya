@@ -490,6 +490,14 @@ func TestMysqlTypedConfigReadsAsStrings(t *testing.T) {
 					typed.Set(k, n)
 					continue
 				}
+				if f, err := strconv.ParseFloat(s, 64); err == nil {
+					typed.Set(k, f)
+					continue
+				}
+				if b, err := strconv.ParseBool(s); err == nil {
+					typed.Set(k, b)
+					continue
+				}
 			}
 			typed.Set(k, v)
 		}
@@ -511,10 +519,16 @@ resource "bahriya_mysql" "m" {
     storage = 10
   }
   tuning = {
-    config = { max_connections = "300" }
+    config = { max_connections = "300", long_query_time = "0.5", slow_query_log = "true" }
   }
 }`,
-			Check: tfresource.TestCheckResourceAttr("bahriya_mysql.m", "tuning.config.max_connections", "300"),
+			// The re-plan after apply must be empty (plugin-testing fails the step
+			// otherwise): the string forms do not diff against the typed API values.
+			Check: tfresource.ComposeAggregateTestCheckFunc(
+				tfresource.TestCheckResourceAttr("bahriya_mysql.m", "tuning.config.max_connections", "300"),
+				tfresource.TestCheckResourceAttr("bahriya_mysql.m", "tuning.config.long_query_time", "0.5"),
+				tfresource.TestCheckResourceAttr("bahriya_mysql.m", "tuning.config.slow_query_log", "true"),
+			),
 		}},
 	})
 }
