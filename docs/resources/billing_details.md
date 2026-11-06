@@ -73,7 +73,7 @@ resource "bahriya_billing_details" "this" {
 
 ## Import
 
-The details are a singleton in the provider's configured organisation, so any import ID refreshes the same record; by convention use the organisation UUID:
+The details are a singleton in the provider's configured organisation. Import them by that organisation's UUID; any other ID is refused:
 
 ```shell
 terraform import bahriya_billing_details.this fbae2caa-40de-4196-a58b-5dd26bf8de38

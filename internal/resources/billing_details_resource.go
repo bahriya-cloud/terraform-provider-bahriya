@@ -217,8 +217,16 @@ func (r *billingDetailsResource) Delete(ctx context.Context, _ resource.DeleteRe
 }
 
 func (r *billingDetailsResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// The singleton lives at a fixed path in the configured organisation, so
-	// the import ID is informational; Read refreshes everything.
+	// The singleton has no id of its own: it is the configured organisation's,
+	// and `id` is that organisation's UUID. The import ID must name it, so an
+	// import cannot claim another organisation's details and ImportStateVerify
+	// compares like with like (TF v1 #2247).
+	if r.client != nil && req.ID != r.client.OrganisationID() {
+		resp.Diagnostics.AddError("Import ID must be the organisation UUID",
+			fmt.Sprintf("bahriya_billing_details is one per organisation, imported by the UUID of the provider's configured organisation (%s), got %q.",
+				r.client.OrganisationID(), req.ID))
+		return
+	}
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, schemaPath("id"), req.ID)...)
 }
 

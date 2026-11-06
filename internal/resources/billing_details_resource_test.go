@@ -4,8 +4,11 @@ import (
 	"context"
 	"testing"
 
+	"github.com/bahriya-cloud/terraform-provider-bahriya/internal/client"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-go/tftypes"
 )
 
 // bahriya_billing_details is a hand-written singleton; these tests pin the
@@ -126,5 +129,27 @@ func TestBillingDetailsSchemaContract(t *testing.T) {
 	}
 	if len(attrs) != 15 {
 		t.Errorf("schema has %d attributes, want 15 — update the docs when adding one", len(attrs))
+	}
+}
+
+// The import ID is the configured organisation's UUID: the singleton has no
+// id of its own, so any other ID is refused rather than silently importing
+// this organisation's details under a foreign identifier.
+func TestBillingDetailsImportNeedsTheOrganisationUUID(t *testing.T) {
+	const org = "fbae2caa-40de-4196-a58b-5dd26bf8de38"
+	r := &billingDetailsResource{client: client.New("http://127.0.0.1:0", "token", org)}
+	var sresp resource.SchemaResponse
+	r.Schema(context.Background(), resource.SchemaRequest{}, &sresp)
+
+	importAs := func(id string) resource.ImportStateResponse {
+		resp := resource.ImportStateResponse{State: tfsdk.State{Schema: sresp.Schema, Raw: tftypes.NewValue(sresp.Schema.Type().TerraformType(context.Background()), nil)}}
+		r.ImportState(context.Background(), resource.ImportStateRequest{ID: id}, &resp)
+		return resp
+	}
+	if resp := importAs(org); resp.Diagnostics.HasError() {
+		t.Errorf("importing by the organisation UUID failed: %v", resp.Diagnostics)
+	}
+	if resp := importAs("not-this-org"); !resp.Diagnostics.HasError() {
+		t.Error("importing by another ID must be refused")
 	}
 }
