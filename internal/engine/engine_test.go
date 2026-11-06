@@ -240,6 +240,88 @@ resource "bahriya_memcached" "m" {
 	})
 }
 
+// An unset boolean takes the spec default, never false: valkey authenabled
+// defaults to true, and a forced false once created unauthenticated
+// instances (2026-08 production e2e).
+func TestValkeyUnsetBooleansTakeTheSpecDefault(t *testing.T) {
+	api := newFakeAPI(t)
+	tfresource.UnitTest(t, tfresource.TestCase{
+		ProtoV6ProviderFactories: factories(api),
+		Steps: []tfresource.TestStep{{
+			Config: `
+resource "bahriya_valkey" "v" {
+  name    = "Cache"
+  handle  = "cache"
+  tier    = "single"
+  purpose = "cache"
+  memory  = 256
+  regions = ["helsinki-1"]
+}`,
+			Check: tfresource.TestCheckResourceAttr("bahriya_valkey.v", "status", "running"),
+		}},
+	})
+	body := api.created["valkey"]
+	for key, want := range map[string]any{"authenabled": true, "tlsenabled": false, "backupenabled": false, "externalenabled": false} {
+		if got, _ := body.Get(key); got != want {
+			t.Errorf("%s sent as %v, want the spec default %v (body %s)", key, got, want, bmap.Encode(body))
+		}
+	}
+}
+
+// MySQL: tier and both encryption choices are fixed at creation, so changing
+// one replaces the instance; the managed vault items are read-only; no
+// credential is ever an attribute.
+func TestMysqlCreateTimeChoicesAndCredentials(t *testing.T) {
+	s, err := BuildSchema(bmap.Embedded().Kind("mysql"), "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for name, attr := range s.Attributes {
+		if name == "password" || name == "rootpassword" {
+			t.Errorf("no credential may be a resource attribute (%q, %T)", name, attr)
+		}
+	}
+	if !s.Attributes["root_secret"].IsComputed() || s.Attributes["root_secret"].IsOptional() {
+		t.Error("root_secret must be computed only")
+	}
+
+	api := newFakeAPI(t)
+	cfg := func(handle, tier string) string {
+		return fmt.Sprintf(`
+resource "bahriya_mysql" "m" {
+  name      = "Orders"
+  handle    = %q
+  tier      = %q
+  cpu       = 500
+  memory    = 1024
+  regions   = ["helsinki-1"]
+  databases = [{ name = "app", username = "app-user" }]
+  persistence = {
+    storage = 10
+  }
+}`, handle, tier)
+	}
+	tfresource.UnitTest(t, tfresource.TestCase{
+		ProtoV6ProviderFactories: factories(api),
+		Steps: []tfresource.TestStep{
+			{Config: cfg("orders", "single")},
+			// Same handle: a replacement would terminate the instance and then fail on
+			// the handle a terminated instance keeps, so the plan refuses it.
+			{Config: cfg("orders", "replicated"), ExpectError: regexp.MustCompile(`give the new\s+instance a new handle`)},
+			// A new handle with it: an ordinary replacement.
+			{
+				Config: cfg("orders-two", "replicated"),
+				ConfigPlanChecks: tfresource.ConfigPlanChecks{PreApply: []plancheck.PlanCheck{
+					plancheck.ExpectResourceAction("bahriya_mysql.m", plancheck.ResourceActionDestroyBeforeCreate),
+				}},
+			},
+		},
+	})
+	if posts := api.Calls("POST /organisations/" + fakeOrg + "/mysql"); len(posts) != 2 {
+		t.Errorf("want 2 creates (original, replacement), got %v", posts)
+	}
+}
+
 // A project reads through its list wrapper and is deleted with confirmName.
 func TestProjectWrapperAndConfirmDelete(t *testing.T) {
 	api := newFakeAPI(t)

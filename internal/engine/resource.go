@@ -186,19 +186,20 @@ func (r *Resource) ModifyPlan(ctx context.Context, req resource.ModifyPlanReques
 		if !r.kind.IsWritable(f) {
 			continue
 		}
-		priorValue, hasPrior := prior.Get(f.Name)
-		hasPrior = hasPrior && priorValue != nil
+		priorValue, _ := prior.Get(f.Name)
 		secret := f.Desc.Sensitive || f.Desc.WriteOnly
 		var value any
 		switch {
 		case explicit.Has(f.Name) || (resolved.Has(f.Name) && !secret):
 			value, _ = resolved.Get(f.Name)
-		case hasPrior:
+		case prior != nil:
+			// The item exists: keep what the API holds, null included, so an
+			// unconfigured field the API leaves empty plans no diff.
 			value = priorValue
 		case secret:
-			value = nil
+			value = nil // never returned by the API, so never unknown
 		default:
-			value = tfval.Unknown
+			value = tfval.Unknown // create: the API decides
 		}
 		if prior != nil && !tfval.IsUnknown(value) && !bmap.JSONEquals(value, priorValue) {
 			changed = true
@@ -227,18 +228,32 @@ func (r *Resource) ModifyPlan(ctx context.Context, req resource.ModifyPlanReques
 	if prior == nil {
 		return
 	}
+	differs := func(name string) bool {
+		was, _ := prior.Get(name)
+		now, _ := planned.Get(name)
+		return was != nil && !tfval.IsUnknown(now) && !bmap.JSONEquals(was, now)
+	}
+	newHandle := differs("handle")
 	for _, f := range r.kind.Fields {
-		was, _ := prior.Get(f.Name)
-		now, _ := planned.Get(f.Name)
-		if was == nil || tfval.IsUnknown(now) || bmap.JSONEquals(was, now) {
+		if !differs(f.Name) {
 			continue
 		}
 		switch {
 		case f.Desc.Immutable:
 			resp.Diagnostics.AddAttributeError(attrPath(f.Path), "This value is fixed when the item is created",
 				fmt.Sprintf("%s is fixed when a %s is created; to use another value, create a new %s and move its attachments.", f.Path, r.desc.Name, r.desc.Name))
-		case f.Name == "handle" || f.Desc.CreateOnly:
+		case f.Name == "handle":
 			resp.RequiresReplace = append(resp.RequiresReplace, attrPath(f.Path))
+		case f.Desc.CreateOnly && newHandle:
+			resp.RequiresReplace = append(resp.RequiresReplace, attrPath(f.Path))
+		case f.Desc.CreateOnly:
+			// A replacement keeping the handle would destroy this item and then fail:
+			// a terminated item keeps its handle for good, so the create is refused
+			// with "Handle already in use". Refuse in the plan, before anything is lost.
+			resp.Diagnostics.AddAttributeError(attrPath(f.Path), "This value is fixed when the "+r.desc.noun()+" is created",
+				fmt.Sprintf("%s is fixed when a %s is created, and changing it means a new %s. Its handle stays taken after "+
+					"the old one is terminated, so give the new %s a new handle in the same change: Terraform then replaces it.",
+					f.Path, r.desc.Name, r.desc.noun(), r.desc.noun()))
 		}
 	}
 }

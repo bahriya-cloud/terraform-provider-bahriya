@@ -33,13 +33,14 @@ type fakeAPI struct {
 	items   map[string]map[string]*bmap.Map // kind → id → record
 	nextID  int
 	clock   int
-	calls   []string // "METHOD path" in order
+	calls   []string             // "METHOD path" in order
+	created map[string]*bmap.Map // kind → the last create body
 	refuse  map[string]string
 	derived map[string]func(record *bmap.Map)
 }
 
 func newFakeAPI(t *testing.T) *fakeAPI {
-	api := &fakeAPI{t: t, items: map[string]map[string]*bmap.Map{}, refuse: map[string]string{}, derived: map[string]func(*bmap.Map){}}
+	api := &fakeAPI{t: t, items: map[string]map[string]*bmap.Map{}, created: map[string]*bmap.Map{}, refuse: map[string]string{}, derived: map[string]func(*bmap.Map){}}
 	api.server = httptest.NewServer(http.HandlerFunc(api.serve))
 	t.Cleanup(api.server.Close)
 	return api
@@ -141,6 +142,7 @@ func (a *fakeAPI) serve(w http.ResponseWriter, req *http.Request) {
 			a.reply(w, 400, "Unexpected key(s) "+bad)
 			return
 		}
+		a.created[d.Name] = body
 		a.nextID++
 		newID := fmt.Sprintf("00000000-0000-4000-8000-%012d", a.nextID)
 		record := bmap.NewMap()
