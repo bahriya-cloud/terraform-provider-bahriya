@@ -16,6 +16,7 @@ func NewTLSBundleResource() resource.Resource {
 // tlsBundleSchema is bahriya_tls_bundle's schema.
 func tlsBundleSchema() schema.Schema {
 	return schema.Schema{
+		Version:             engine.SchemaVersion,
 		Description:         "Manages a Bahriya tls_bundle.",
 		MarkdownDescription: "Manages a Bahriya tls_bundle.",
 		Attributes: map[string]schema.Attribute{

@@ -16,6 +16,7 @@ func NewGpgKeypairResource() resource.Resource {
 // gpgKeypairSchema is bahriya_gpg_keypair's schema.
 func gpgKeypairSchema() schema.Schema {
 	return schema.Schema{
+		Version:             engine.SchemaVersion,
 		Description:         "Manages a Bahriya gpg_keypair.",
 		MarkdownDescription: "Manages a Bahriya gpg_keypair.",
 		Attributes: map[string]schema.Attribute{

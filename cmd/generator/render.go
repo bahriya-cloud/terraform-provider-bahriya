@@ -50,8 +50,8 @@ func kindFile(name, goName string) ([]byte, error) {
 	b.WriteString(")\n\n")
 	fmt.Fprintf(&b, "// New%[1]sResource is bahriya_%[2]s, served by the engine.\nfunc New%[1]sResource() resource.Resource {\n\treturn engine.NewResource(%[2]q, %[3]sSchema())\n}\n\n", goName, name, lowerFirst(goName))
 	desc := engine.Description(name)
-	fmt.Fprintf(&b, "// %sSchema is bahriya_%s's schema.\nfunc %sSchema() schema.Schema {\n\treturn schema.Schema{\n\t\tDescription: %q,\n\t\tMarkdownDescription: %q,\n\t\tAttributes: %s,\n\t}\n}\n",
-		lowerFirst(goName), name, lowerFirst(goName), desc, desc, engine.RenderAttributes(attrs, 2))
+	fmt.Fprintf(&b, "// %sSchema is bahriya_%s's schema.\nfunc %sSchema() schema.Schema {\n\treturn schema.Schema{\n\t\tVersion: engine.SchemaVersion,\n\t\tDescription: %q,\n\t\tMarkdownDescription: %q,\n\t\tAttributes: %s,\n\t}\n}\n",
+		lowerFirst(goName), k.TypeName(), lowerFirst(goName), desc, desc, engine.RenderAttributes(attrs, 2))
 	return []byte(b.String()), nil
 }
 

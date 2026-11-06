@@ -14,9 +14,10 @@ func NewPathRuleResource() resource.Resource {
 	return engine.NewResource("pathrule", pathRuleSchema())
 }
 
-// pathRuleSchema is bahriya_pathrule's schema.
+// pathRuleSchema is bahriya_path_rule's schema.
 func pathRuleSchema() schema.Schema {
 	return schema.Schema{
+		Version:             engine.SchemaVersion,
 		Description:         "Manages a Bahriya path_rule.",
 		MarkdownDescription: "Manages a Bahriya path_rule.",
 		Attributes: map[string]schema.Attribute{

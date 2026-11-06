@@ -38,6 +38,7 @@ var (
 	_ resource.ResourceWithModifyPlan     = (*Resource)(nil)
 	_ resource.ResourceWithImportState    = (*Resource)(nil)
 	_ resource.ResourceWithValidateConfig = (*Resource)(nil)
+	_ resource.ResourceWithUpgradeState   = (*Resource)(nil)
 )
 
 // NewResource is a kind's resource with its generated schema (the files
@@ -274,7 +275,7 @@ func (r *Resource) ModifyPlan(ctx context.Context, req resource.ModifyPlanReques
 		}
 	}
 
-	raw, err := tfval.FromGo(r.kind.ToYAML(planned, true), r.objectType(ctx))
+	raw, err := tfval.FromGo(r.toState(planned), r.objectType(ctx))
 	if err != nil {
 		resp.Diagnostics.AddError("Plan", err.Error())
 		return
@@ -699,13 +700,37 @@ func (r *Resource) setState(ctx context.Context, out *tftypes.Value, record, kno
 			merged.Set(f.Name, mergeItems(f, value, knownValue))
 		}
 	}
-	raw, err := tfval.FromGo(r.kind.ToYAML(merged, true), r.objectType(ctx))
+	raw, err := tfval.FromGo(r.toState(merged), r.objectType(ctx))
 	if err != nil {
 		diags.AddError("State", err.Error())
 		return diags
 	}
 	*out = raw
 	return diags
+}
+
+// toState is an API-named record in the v1 state shape (ToYAML, state mode),
+// with free-form map values as strings: Terraform holds them as Map(String)
+// (an accepted deviation), while the API returns them typed (max_connections
+// 300). JSON semantics, as v0.x did; the API accepts the strings back.
+func (r *Resource) toState(record *bmap.Map) *bmap.Map {
+	out := bmap.Clone(record).(*bmap.Map)
+	for _, f := range r.kind.Fields {
+		if !f.Desc.Freeform {
+			continue
+		}
+		m, ok := mustGet(out, f.Name).(*bmap.Map)
+		if !ok {
+			continue
+		}
+		strs := bmap.NewMap()
+		for _, k := range m.Keys() {
+			v, _ := m.Get(k)
+			strs.Set(k, bmap.Cast(v))
+		}
+		out.Set(f.Name, strs)
+	}
+	return r.kind.ToYAML(out, true)
 }
 
 // mergeItems restores secrets in list items (basic auth passwords, say) from

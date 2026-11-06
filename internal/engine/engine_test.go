@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"regexp"
+	"strconv"
 	"testing"
 	"time"
 
@@ -468,6 +469,76 @@ resource "bahriya_path_rule" "r" {
 	}
 	if posts := api.Calls("POST /organisations/" + fakeOrg + "/containers/" + b + "/pathrules"); len(posts) != 1 {
 		t.Errorf("want the replacement created under container b, got %v", posts)
+	}
+}
+
+// Free-form config is Map(String) in Terraform while the API returns typed
+// values (max_connections 300): state holds the string form, so the read after
+// apply is consistent and re-planning is empty.
+func TestMysqlTypedConfigReadsAsStrings(t *testing.T) {
+	api := newFakeAPI(t)
+	api.derived["mysql"] = func(record *bmap.Map) {
+		cfg, ok := mustGet(record, "config").(*bmap.Map)
+		if !ok {
+			return
+		}
+		typed := bmap.NewMap()
+		for _, k := range cfg.Keys() {
+			v, _ := cfg.Get(k)
+			if s, isString := v.(string); isString {
+				if n, err := strconv.ParseInt(s, 10, 64); err == nil {
+					typed.Set(k, n)
+					continue
+				}
+			}
+			typed.Set(k, v)
+		}
+		record.Set("config", typed)
+	}
+	tfresource.UnitTest(t, tfresource.TestCase{
+		ProtoV6ProviderFactories: factories(api),
+		Steps: []tfresource.TestStep{{
+			Config: `
+resource "bahriya_mysql" "m" {
+  name      = "Orders"
+  handle    = "orders"
+  tier      = "single"
+  cpu       = 500
+  memory    = 1024
+  regions   = ["helsinki-1"]
+  databases = [{ name = "app", username = "app-user" }]
+  persistence = {
+    storage = 10
+  }
+  tuning = {
+    config = { max_connections = "300" }
+  }
+}`,
+			Check: tfresource.TestCheckResourceAttr("bahriya_mysql.m", "tuning.config.max_connections", "300"),
+		}},
+	})
+}
+
+// max_versions is read-only in v1 (x-input-deprecated; nothing ever wrote it
+// after create). A configuration that still sets it fails with Terraform's own
+// read-only error; the upgrade guide quotes this text so users can search it.
+func TestMaxVersionsInConfigIsTerraformsReadOnlyError(t *testing.T) {
+	api := newFakeAPI(t)
+	tfresource.UnitTest(t, tfresource.TestCase{
+		ProtoV6ProviderFactories: factories(api),
+		Steps: []tfresource.TestStep{{
+			Config: `
+resource "bahriya_secret" "s" {
+  name         = "Key"
+  handle       = "key"
+  value        = "v1"
+  max_versions = 5
+}`,
+			ExpectError: regexp.MustCompile(`Invalid Configuration for Read-Only Attribute[\s\S]*Cannot set value for this attribute as the provider has marked it as\s+read-only\. Remove the configuration line setting the value\.`),
+		}},
+	})
+	if posts := api.Calls("POST"); len(posts) != 0 {
+		t.Errorf("nothing may be created, got %v", posts)
 	}
 }
 

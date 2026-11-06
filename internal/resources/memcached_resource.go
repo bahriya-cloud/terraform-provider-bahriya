@@ -17,6 +17,7 @@ func NewMemcachedResource() resource.Resource {
 // memcachedSchema is bahriya_memcached's schema.
 func memcachedSchema() schema.Schema {
 	return schema.Schema{
+		Version:             engine.SchemaVersion,
 		Description:         "Manages a Bahriya memcached.",
 		MarkdownDescription: "Manages a Bahriya memcached.",
 		Attributes: map[string]schema.Attribute{

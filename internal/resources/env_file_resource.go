@@ -16,6 +16,7 @@ func NewEnvFileResource() resource.Resource {
 // envFileSchema is bahriya_env_file's schema.
 func envFileSchema() schema.Schema {
 	return schema.Schema{
+		Version:             engine.SchemaVersion,
 		Description:         "Manages a Bahriya env_file.",
 		MarkdownDescription: "Manages a Bahriya env_file.",
 		Attributes: map[string]schema.Attribute{

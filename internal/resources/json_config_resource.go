@@ -16,6 +16,7 @@ func NewJSONConfigResource() resource.Resource {
 // jsonConfigSchema is bahriya_json_config's schema.
 func jsonConfigSchema() schema.Schema {
 	return schema.Schema{
+		Version:             engine.SchemaVersion,
 		Description:         "Manages a Bahriya json_config.",
 		MarkdownDescription: "Manages a Bahriya json_config.",
 		Attributes: map[string]schema.Attribute{

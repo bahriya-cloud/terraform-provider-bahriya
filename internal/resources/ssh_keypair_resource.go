@@ -16,6 +16,7 @@ func NewSSHKeypairResource() resource.Resource {
 // sshKeypairSchema is bahriya_ssh_keypair's schema.
 func sshKeypairSchema() schema.Schema {
 	return schema.Schema{
+		Version:             engine.SchemaVersion,
 		Description:         "Manages a Bahriya ssh_keypair.",
 		MarkdownDescription: "Manages a Bahriya ssh_keypair.",
 		Attributes: map[string]schema.Attribute{

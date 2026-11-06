@@ -16,6 +16,7 @@ func NewYAMLConfigResource() resource.Resource {
 // yamlConfigSchema is bahriya_yaml_config's schema.
 func yamlConfigSchema() schema.Schema {
 	return schema.Schema{
+		Version:             engine.SchemaVersion,
 		Description:         "Manages a Bahriya yaml_config.",
 		MarkdownDescription: "Manages a Bahriya yaml_config.",
 		Attributes: map[string]schema.Attribute{

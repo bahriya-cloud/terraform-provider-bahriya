@@ -16,6 +16,7 @@ func NewRegistryResource() resource.Resource {
 // registrySchema is bahriya_registry's schema.
 func registrySchema() schema.Schema {
 	return schema.Schema{
+		Version:             engine.SchemaVersion,
 		Description:         "Manages a Bahriya registry.",
 		MarkdownDescription: "Manages a Bahriya registry.",
 		Attributes: map[string]schema.Attribute{

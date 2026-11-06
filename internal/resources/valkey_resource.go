@@ -20,6 +20,7 @@ func NewValkeyResource() resource.Resource {
 // valkeySchema is bahriya_valkey's schema.
 func valkeySchema() schema.Schema {
 	return schema.Schema{
+		Version:             engine.SchemaVersion,
 		Description:         "Manages a Bahriya valkey.",
 		MarkdownDescription: "Manages a Bahriya valkey.",
 		Attributes: map[string]schema.Attribute{

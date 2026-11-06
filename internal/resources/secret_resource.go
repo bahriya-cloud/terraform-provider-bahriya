@@ -16,6 +16,7 @@ func NewSecretResource() resource.Resource {
 // secretSchema is bahriya_secret's schema.
 func secretSchema() schema.Schema {
 	return schema.Schema{
+		Version:             engine.SchemaVersion,
 		Description:         "Manages a Bahriya secret.",
 		MarkdownDescription: "Manages a Bahriya secret.",
 		Attributes: map[string]schema.Attribute{

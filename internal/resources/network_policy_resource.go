@@ -19,6 +19,7 @@ func NewNetworkPolicyResource() resource.Resource {
 // networkPolicySchema is bahriya_network_policy's schema.
 func networkPolicySchema() schema.Schema {
 	return schema.Schema{
+		Version:             engine.SchemaVersion,
 		Description:         "Manages a Bahriya network_policy.",
 		MarkdownDescription: "Manages a Bahriya network_policy.",
 		Attributes: map[string]schema.Attribute{

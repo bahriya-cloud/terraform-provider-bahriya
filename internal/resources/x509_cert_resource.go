@@ -16,6 +16,7 @@ func NewX509CertResource() resource.Resource {
 // x509CertSchema is bahriya_x509_cert's schema.
 func x509CertSchema() schema.Schema {
 	return schema.Schema{
+		Version:             engine.SchemaVersion,
 		Description:         "Manages a Bahriya x509_cert.",
 		MarkdownDescription: "Manages a Bahriya x509_cert.",
 		Attributes: map[string]schema.Attribute{

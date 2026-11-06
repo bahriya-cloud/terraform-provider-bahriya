@@ -245,7 +245,7 @@ func BuildSchema(k *bmap.Kind, description string) (schema.Schema, error) {
 	if err != nil {
 		return schema.Schema{}, err
 	}
-	return schema.Schema{Description: description, MarkdownDescription: description, Attributes: frameworkAttrs(attrs)}, nil
+	return schema.Schema{Version: SchemaVersion, Description: description, MarkdownDescription: description, Attributes: frameworkAttrs(attrs)}, nil
 }
 
 func frameworkAttrs(attrs []*Attr) map[string]schema.Attribute {

@@ -16,6 +16,7 @@ func NewEncryptionKeyResource() resource.Resource {
 // encryptionKeySchema is bahriya_encryption_key's schema.
 func encryptionKeySchema() schema.Schema {
 	return schema.Schema{
+		Version:             engine.SchemaVersion,
 		Description:         "Manages a Bahriya encryption_key.",
 		MarkdownDescription: "Manages a Bahriya encryption_key.",
 		Attributes: map[string]schema.Attribute{

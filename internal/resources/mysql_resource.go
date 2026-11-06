@@ -20,6 +20,7 @@ func NewMysqlResource() resource.Resource {
 // mysqlSchema is bahriya_mysql's schema.
 func mysqlSchema() schema.Schema {
 	return schema.Schema{
+		Version:             engine.SchemaVersion,
 		Description:         "Manages a Bahriya mysql.",
 		MarkdownDescription: "Manages a Bahriya mysql.",
 		Attributes: map[string]schema.Attribute{

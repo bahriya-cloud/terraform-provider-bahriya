@@ -17,6 +17,7 @@ func NewProjectResource() resource.Resource {
 // projectSchema is bahriya_project's schema.
 func projectSchema() schema.Schema {
 	return schema.Schema{
+		Version:             engine.SchemaVersion,
 		Description:         "Manages a Bahriya project.",
 		MarkdownDescription: "Manages a Bahriya project.",
 		Attributes: map[string]schema.Attribute{

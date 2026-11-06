@@ -20,6 +20,7 @@ func NewContainerResource() resource.Resource {
 // containerSchema is bahriya_container's schema.
 func containerSchema() schema.Schema {
 	return schema.Schema{
+		Version:             engine.SchemaVersion,
 		Description:         "Manages a Bahriya container.",
 		MarkdownDescription: "Manages a Bahriya container.",
 		Attributes: map[string]schema.Attribute{

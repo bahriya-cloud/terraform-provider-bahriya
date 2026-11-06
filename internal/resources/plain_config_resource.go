@@ -16,6 +16,7 @@ func NewPlainConfigResource() resource.Resource {
 // plainConfigSchema is bahriya_plain_config's schema.
 func plainConfigSchema() schema.Schema {
 	return schema.Schema{
+		Version:             engine.SchemaVersion,
 		Description:         "Manages a Bahriya plain_config.",
 		MarkdownDescription: "Manages a Bahriya plain_config.",
 		Attributes: map[string]schema.Attribute{
