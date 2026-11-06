@@ -21,10 +21,13 @@ type Schema struct {
 
 // Kind is one kind's entry of resource-schema.json.
 type Kind struct {
-	Name            string
-	Fields          []*Field // declaration order (the order of `properties`)
-	GroupOrder      []string
-	Defaults        *Map
+	Name       string
+	Fields     []*Field // declaration order (the order of `properties`)
+	GroupOrder []string
+	Defaults   *Map
+	// TerraformType is the Terraform type suffix when it is not the kind name
+	// (pathrule → path_rule); empty otherwise.
+	TerraformType   string
 	byName          map[string]*Field
 	topGroups       map[string]bool
 	readOnly        map[string]bool
@@ -75,7 +78,10 @@ type Descriptor struct {
 	RotateOnly bool
 	// Immutable marks a field fixed at creation that neither an update nor a
 	// rotation changes (x-immutable).
-	Immutable   bool
+	Immutable bool
+	// Parent marks the item's URL parent (x-parent): read-only in the body,
+	// but kept in YAML and rendered in HCL, since clients supply it.
+	Parent      bool
 	Description string
 	ItemsType   string
 }
@@ -144,6 +150,7 @@ func parseKind(name string, meta *Map) (*Kind, error) {
 		displayReadOnly: stringSet(mapGet(meta, "displayReadOnly")),
 		Defaults:        asMap(mapGet(meta, "defaults")),
 	}
+	k.TerraformType, _ = mapGet(meta, "terraformType").(string)
 	for _, g := range asList(mapGet(meta, "groupOrder")) {
 		group, _ := g.(string)
 		k.GroupOrder = append(k.GroupOrder, group)
@@ -230,6 +237,7 @@ func parseDescriptor(m *Map) *Descriptor {
 	d.InputDeprecated, _ = mapGet(m, "inputDeprecated").(bool)
 	d.RotateOnly, _ = mapGet(m, "rotateOnly").(bool)
 	d.Immutable, _ = mapGet(m, "immutable").(bool)
+	d.Parent, _ = mapGet(m, "parent").(bool)
 	d.Description, _ = mapGet(m, "description").(string)
 	d.ItemsType, _ = mapGet(asMap(mapGet(m, "items")), "type").(string)
 	return d
@@ -250,9 +258,18 @@ func (k *Kind) IsDisplayReadOnly(f *Field) bool {
 	return k.displayReadOnly[f.Name] || f.Desc.DisplayReadOnly
 }
 
-// isStrippedReadOnly is R11's read-only test: readOnly and not displayReadOnly.
+// isStrippedReadOnly is R11's read-only test: readOnly, not displayReadOnly,
+// and not a parent.
 func (k *Kind) isStrippedReadOnly(f *Field) bool {
-	return k.readOnly[f.Name] || (f.Desc.ReadOnly && !f.Desc.DisplayReadOnly)
+	return (k.readOnly[f.Name] || (f.Desc.ReadOnly && !f.Desc.DisplayReadOnly)) && !f.Desc.Parent
+}
+
+// TypeName is the Terraform type suffix: TerraformType, or the kind name.
+func (k *Kind) TypeName() string {
+	if k.TerraformType != "" {
+		return k.TerraformType
+	}
+	return k.Name
 }
 
 // YAMLOrder lists the fields in R14 order: ungrouped in declaration order,

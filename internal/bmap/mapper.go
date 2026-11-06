@@ -398,7 +398,7 @@ func (k *Kind) ToHCL(doc *Map) string {
 	if k.byName["handle"] != nil {
 		label, _ = mapGet(doc, "handle").(string)
 	}
-	lines := []string{fmt.Sprintf("resource \"bahriya_%s\" %s {", k.Name, Encode(label))}
+	lines := []string{fmt.Sprintf("resource \"bahriya_%s\" %s {", k.TypeName(), Encode(label))}
 	for _, key := range doc.Keys() {
 		value, _ := doc.Get(key)
 		if key == "kind" || value == nil {

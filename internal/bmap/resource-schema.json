@@ -3297,8 +3297,9 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
-                "description": "Parent container id.",
-                "readOnly": true
+                "description": "Parent container id. Fixed for the life of the rule.",
+                "readOnly": true,
+                "parent": true
             },
             "createdby": {
                 "type": "string",
@@ -3332,7 +3333,8 @@
                 "required": false,
                 "readOnly": true
             }
-        }
+        },
+        "terraformType": "path_rule"
     },
     "registry": {
         "aliases": {
