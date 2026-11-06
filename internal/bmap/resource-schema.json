@@ -2327,6 +2327,11 @@
                 "field": "clientttlhours",
                 "group": "client"
             },
+            "client.phpmyadmin_expires_at": {
+                "field": "clientexpiresat",
+                "group": "client",
+                "cast": "string"
+            },
             "backup.backup_schedule": {
                 "field": "backupschedule",
                 "group": "backup",
@@ -2403,6 +2408,7 @@
         "readOnly": [
             "id",
             "externalport",
+            "clientexpiresat",
             "projectname",
             "organisation",
             "nodes",
@@ -2617,14 +2623,22 @@
                 "type": "boolean",
                 "nullable": false,
                 "required": false,
-                "description": "Run the phpMyAdmin web client at pma-<defaulthostname>.<region>... over HTTPS, restricted to the IP allowlist. Intended for temporary access: its time limit is shown, so switch it off when you are done.",
+                "description": "Run the phpMyAdmin web client at pma-<defaulthostname>.<region>... over HTTPS, restricted to the IP allowlist. Intended for temporary access: it is switched off automatically when its time limit is reached.",
                 "default": false
             },
             "clientttlhours": {
                 "type": "integer",
                 "nullable": true,
                 "required": false,
-                "description": "The phpMyAdmin client's time limit in hours. Defaults to 24 when the client is enabled without one. Switch the client off when you are done."
+                "description": "The phpMyAdmin client's time limit in hours. The client is switched off automatically when it is reached. Defaults to 24 when the client is enabled without one."
+            },
+            "clientexpiresat": {
+                "type": "string",
+                "nullable": true,
+                "required": false,
+                "description": "When the phpMyAdmin client's time limit runs out (UTC). Null while the client is off. Set again each time the client is switched on or its time limit changes.",
+                "readOnly": true,
+                "volatile": true
             },
             "backupschedule": {
                 "type": "string",
@@ -3699,43 +3713,50 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
-                "readOnly": true
+                "readOnly": true,
+                "volatile": true
             },
             "subject": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
-                "readOnly": true
+                "readOnly": true,
+                "volatile": true
             },
             "issuer": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
-                "readOnly": true
+                "readOnly": true,
+                "volatile": true
             },
             "notbefore": {
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
-                "readOnly": true
+                "readOnly": true,
+                "volatile": true
             },
             "notafter": {
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
-                "readOnly": true
+                "readOnly": true,
+                "volatile": true
             },
             "algorithm": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
-                "readOnly": true
+                "readOnly": true,
+                "volatile": true
             },
             "keybits": {
                 "type": "integer",
                 "nullable": true,
                 "required": false,
-                "readOnly": true
+                "readOnly": true,
+                "volatile": true
             },
             "created": {
                 "type": "timestamp",
@@ -3761,7 +3782,8 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
-                "readOnly": true
+                "readOnly": true,
+                "volatile": true
             }
         }
     },
@@ -3876,37 +3898,43 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
-                "readOnly": true
+                "readOnly": true,
+                "volatile": true
             },
             "subject": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
-                "readOnly": true
+                "readOnly": true,
+                "volatile": true
             },
             "issuer": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
-                "readOnly": true
+                "readOnly": true,
+                "volatile": true
             },
             "notbefore": {
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
-                "readOnly": true
+                "readOnly": true,
+                "volatile": true
             },
             "notafter": {
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
-                "readOnly": true
+                "readOnly": true,
+                "volatile": true
             },
             "algorithm": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
-                "readOnly": true
+                "readOnly": true,
+                "volatile": true
             },
             "created": {
                 "type": "timestamp",
@@ -3932,7 +3960,8 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
-                "readOnly": true
+                "readOnly": true,
+                "volatile": true
             }
         }
     },
@@ -4072,37 +4101,43 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
-                "readOnly": true
+                "readOnly": true,
+                "volatile": true
             },
             "uid": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
-                "readOnly": true
+                "readOnly": true,
+                "volatile": true
             },
             "algorithm": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
-                "readOnly": true
+                "readOnly": true,
+                "volatile": true
             },
             "keybits": {
                 "type": "integer",
                 "nullable": true,
                 "required": false,
-                "readOnly": true
+                "readOnly": true,
+                "volatile": true
             },
             "keycreated": {
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
-                "readOnly": true
+                "readOnly": true,
+                "volatile": true
             },
             "expires": {
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
-                "readOnly": true
+                "readOnly": true,
+                "volatile": true
             },
             "created": {
                 "type": "timestamp",
@@ -4128,7 +4163,8 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
-                "readOnly": true
+                "readOnly": true,
+                "volatile": true
             }
         }
     },
@@ -4260,25 +4296,29 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
-                "readOnly": true
+                "readOnly": true,
+                "volatile": true
             },
             "algorithm": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
-                "readOnly": true
+                "readOnly": true,
+                "volatile": true
             },
             "keybits": {
                 "type": "integer",
                 "nullable": true,
                 "required": false,
-                "readOnly": true
+                "readOnly": true,
+                "volatile": true
             },
             "comment": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
-                "readOnly": true
+                "readOnly": true,
+                "volatile": true
             },
             "created": {
                 "type": "timestamp",
@@ -4304,7 +4344,8 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
-                "readOnly": true
+                "readOnly": true,
+                "volatile": true
             }
         }
     },
@@ -4424,7 +4465,8 @@
                 "type": "integer",
                 "nullable": true,
                 "required": false,
-                "readOnly": true
+                "readOnly": true,
+                "volatile": true
             },
             "created": {
                 "type": "timestamp",
@@ -4450,7 +4492,8 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
-                "readOnly": true
+                "readOnly": true,
+                "volatile": true
             }
         }
     },
@@ -4561,7 +4604,8 @@
                 "type": "integer",
                 "nullable": true,
                 "required": false,
-                "readOnly": true
+                "readOnly": true,
+                "volatile": true
             },
             "created": {
                 "type": "timestamp",
@@ -4587,7 +4631,8 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
-                "readOnly": true
+                "readOnly": true,
+                "volatile": true
             }
         }
     },
@@ -4714,7 +4759,8 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
-                "readOnly": true
+                "readOnly": true,
+                "volatile": true
             }
         }
     },
@@ -4841,7 +4887,8 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
-                "readOnly": true
+                "readOnly": true,
+                "volatile": true
             }
         }
     },
@@ -4948,7 +4995,8 @@
                 "type": "integer",
                 "nullable": true,
                 "required": false,
-                "readOnly": true
+                "readOnly": true,
+                "volatile": true
             },
             "created": {
                 "type": "timestamp",
@@ -4974,7 +5022,8 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
-                "readOnly": true
+                "readOnly": true,
+                "volatile": true
             }
         }
     },
