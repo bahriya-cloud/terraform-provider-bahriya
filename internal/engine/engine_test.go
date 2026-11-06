@@ -364,6 +364,53 @@ resource "bahriya_network_policy" "n" {
 	}
 }
 
+// A masked secret in a list item (basic auth passwords) keeps the configured
+// value in state, matched by x-item-key, so it never drifts to the sentinel
+// (the v0.x drift); x-implies turns basic auth on; a new password is sent.
+func TestContainerBasicAuthPasswordsDoNotDrift(t *testing.T) {
+	api := newFakeAPI(t)
+	cfg := func(password string) string {
+		return fmt.Sprintf(`
+resource "bahriya_container" "c" {
+  name    = "Shop"
+  handle  = "shop"
+  regions = ["helsinki-1"]
+  workload = {
+    image  = "nginx:1.27"
+    cpu    = 250
+    memory = 256
+  }
+  security = {
+    basic_auth = [{ username = "shop-alice", password = %q }]
+  }
+}`, password)
+	}
+	tfresource.UnitTest(t, tfresource.TestCase{
+		ProtoV6ProviderFactories: factories(api),
+		Steps: []tfresource.TestStep{
+			{
+				Config: cfg("s3cret"),
+				Check: tfresource.ComposeAggregateTestCheckFunc(
+					tfresource.TestCheckResourceAttr("bahriya_container.c", "security.basic_auth.0.password", "s3cret"),
+					tfresource.TestCheckResourceAttr("bahriya_container.c", "security.basic_auth_enabled", "true"),
+				),
+			},
+			{
+				Config: cfg("n3w"),
+				Check:  tfresource.TestCheckResourceAttr("bahriya_container.c", "security.basic_auth.0.password", "n3w"),
+			},
+		},
+	})
+	puts := api.Calls("PUT")
+	if len(puts) != 1 {
+		t.Errorf("want 1 PUT for the new password, got %v", puts)
+	}
+	body := api.created["container"]
+	if enabled, _ := body.Get("basicauthenabled"); enabled != true {
+		t.Errorf("x-implies must send basicauthenabled true, got %v", enabled)
+	}
+}
+
 // A project reads through its list wrapper and is deleted with confirmName.
 func TestProjectWrapperAndConfirmDelete(t *testing.T) {
 	api := newFakeAPI(t)
