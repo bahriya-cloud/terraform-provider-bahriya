@@ -11,7 +11,7 @@ Manages a Bahriya SSH keypair. The private key is PEM-encoded and the public key
 
 ## Example Usage
 
-```hcl
+```terraform
 resource "bahriya_ssh_keypair" "deploy" {
   handle     = "deploy"
   name       = "Deploy Key"

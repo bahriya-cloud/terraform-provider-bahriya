@@ -15,7 +15,7 @@ Unlike projects and containers, registry handles **are released** on delete and 
 
 ### GitHub Container Registry
 
-```hcl
+```terraform
 resource "bahriya_registry" "ghcr" {
   handle   = "ghcr"
   name     = "GitHub Container Registry"
@@ -27,7 +27,7 @@ resource "bahriya_registry" "ghcr" {
 
 ### Docker Hub
 
-```hcl
+```terraform
 resource "bahriya_registry" "docker_hub" {
   handle   = "docker-hub"
   name     = "Docker Hub"
@@ -39,7 +39,7 @@ resource "bahriya_registry" "docker_hub" {
 
 ### AWS ECR
 
-```hcl
+```terraform
 resource "bahriya_registry" "ecr" {
   handle   = "ecr"
   name     = "AWS ECR"
@@ -51,7 +51,7 @@ resource "bahriya_registry" "ecr" {
 
 ### Referencing from a Container
 
-```hcl
+```terraform
 resource "bahriya_container" "api" {
   handle   = "api"
   name     = "API Server"

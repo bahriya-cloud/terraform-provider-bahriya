@@ -1,0 +1,28 @@
+---
+page_title: "bahriya_organisation Data Source - Bahriya"
+subcategory: ""
+description: |-
+  Fetches the current organisation configured in the provider.
+---
+
+{{/* This template serves as a starting point for documentation generation, and can be customized with hardcoded values and/or doc gen templates.
+
+For example, the {{ .SchemaMarkdown }} template can be used to replace manual schema documentation if descriptions of schema attributes are added in the provider source code. */ -}}
+
+# bahriya_organisation (Data Source)
+
+Fetches details about the current organisation, as identified by the `organisation_id` in the provider configuration.
+
+## Example Usage
+
+{{tffile "examples/data-sources/organisation/example_1.tf"}}
+
+## Schema
+
+### Read-Only
+
+- `id` (String) - Organisation UUID.
+- `name` (String) - Organisation display name.
+- `handle` (String) - Organisation handle (permanent, unique identifier).
+- `email` (String) - Organisation contact email.
+- `role` (String) - Authenticated user's role in this organisation.

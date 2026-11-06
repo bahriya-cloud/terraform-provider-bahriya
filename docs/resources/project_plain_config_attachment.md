@@ -13,7 +13,7 @@ Both `project_id` and `handle` force replacement — changing either detaches an
 
 ## Example Usage
 
-```hcl
+```terraform
 resource "bahriya_plain_config" "nginx_conf" {
   # ... bahriya_plain_config configuration ...
 }

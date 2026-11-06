@@ -9,11 +9,11 @@ description: |-
 
 Manages a Bahriya container workload. Containers come in three types:
 
-| Type | Description |
-|---|---|
+| Type             | Description                                                                                                                |
+|------------------|----------------------------------------------------------------------------------------------------------------------------|
 | `http` (default) | Long-running service that accepts incoming HTTP traffic. Gets a hostname, TLS, autoscaling, rate limiting, and basic auth. |
-| `worker` | Long-running background process with no public network exposure. |
-| `cronjob` | Scheduled container that runs to completion on a cron expression. |
+| `worker`         | Long-running background process with no public network exposure.                                                           |
+| `cronjob`        | Scheduled container that runs to completion on a cron expression.                                                          |
 
 The type is set at creation time and is immutable.
 
@@ -21,7 +21,7 @@ The type is set at creation time and is immutable.
 
 ### HTTP Container
 
-```hcl
+```terraform
 resource "bahriya_container" "api" {
   handle          = "api"
   name            = "API Server"
@@ -62,7 +62,7 @@ resource "bahriya_container" "api" {
 
 ### Worker
 
-```hcl
+```terraform
 resource "bahriya_container" "queue" {
   handle = "queue-worker"
   name   = "Queue Worker"
@@ -83,7 +83,7 @@ resource "bahriya_container" "queue" {
 
 ### Cron Job
 
-```hcl
+```terraform
 resource "bahriya_container" "nightly" {
   handle   = "nightly-reports"
   name     = "Nightly Reports"
@@ -108,18 +108,11 @@ resource "bahriya_container" "nightly" {
 
 ### Choosing the Container Protocol
 
-`protocol` declares what the container speaks on its port. It governs **both**
-the health probe and the ingress upstream — which is why it is one setting and
-not two. Setting only the probe would leave a TLS container reporting healthy
-while the gateway still spoke plain HTTP to it, and every external request would
-fail.
+`protocol` declares what the container speaks on its port. It governs **both** the health probe and the ingress upstream — which is why it is one setting and not two. Setting only the probe would leave a TLS container reporting healthy while the gateway still spoke plain HTTP to it, and every external request would fail.
 
-The default, `http`, sends a GET to `healthcheckpath`. Use `https` when the
-container terminates TLS on its own listening port, and `tcp` when it does not
-speak HTTP at all — a TCP probe only checks the port accepts a connection, so
-`healthcheckpath` is not used.
+The default, `http`, sends a GET to `healthcheckpath`. Use `https` when the container terminates TLS on its own listening port, and `tcp` when it does not speak HTTP at all — a TCP probe only checks the port accepts a connection, so `healthcheckpath` is not used.
 
-```hcl
+```terraform
 # Terminates TLS itself — probe over HTTPS. The certificate is not verified,
 # so a self-signed one is fine.
 resource "bahriya_container" "secure_api" {
@@ -151,7 +144,7 @@ resource "bahriya_container" "queue_bridge" {
 
 ### With Rate Limiting and IP Rules
 
-```hcl
+```terraform
 resource "bahriya_container" "api" {
   handle          = "rate-limited-api"
   name            = "Rate Limited API"
@@ -275,6 +268,7 @@ Each entry references an item already attached to the container's project (by ha
 All nested items are **attributes**, not blocks — assign them with `=` and a list of objects, e.g. `newenvvar = [{ key = "K", value = "V" }]`.
 
 <a id="nestedatt--newenvvar"></a>
+
 #### Nested Schema for `newenvvar` (Attributes List)
 
 Environment variable key-value pairs.
@@ -283,6 +277,7 @@ Environment variable key-value pairs.
 - `value` (String, Required) - Variable value.
 
 <a id="nestedatt--secretsenvvar"></a>
+
 #### Nested Schema for `secretsenvvar` (Attributes List)
 
 Inject a secret as an environment variable.
@@ -291,6 +286,7 @@ Inject a secret as an environment variable.
 - `secret` (String, Required) - Secret handle to inject.
 
 <a id="nestedatt--hostnames"></a>
+
 #### Nested Schema for `hostnames` (Attributes List)
 
 Custom hostnames attached to this container.
@@ -299,6 +295,7 @@ Custom hostnames attached to this container.
 - `wwwredirect` (Boolean, Optional) - Redirect `www.` prefix to the bare domain.
 
 <a id="nestedatt--basicauthcredentials"></a>
+
 #### Nested Schema for `basicauthcredentials` (Attributes List)
 
 Basic auth credentials (up to 10). HTTP containers only.
@@ -307,6 +304,7 @@ Basic auth credentials (up to 10). HTTP containers only.
 - `password` (String, Required) - Password.
 
 <a id="nestedatt--initjobs"></a>
+
 #### Nested Schema for `initjobs` (Attributes List)
 
 Init jobs that run to completion before the main container starts. HTTP containers only.
@@ -320,6 +318,7 @@ Init jobs that run to completion before the main container starts. HTTP containe
 - `registry` (String, Optional) - Registry handle for private images.
 
 <a id="nestedatt--persistentvolumes"></a>
+
 #### Nested Schema for `persistentvolumes` (Attributes List)
 
 Persistent volumes. Each replica gets its own copy. Containers with persistent volumes cannot use autoscaling.
@@ -331,54 +330,63 @@ Persistent volumes. Each replica gets its own copy. Containers with persistent v
 The vault/config mounts below share the same shape: `handle` of a project-attached item plus the `mountpath` to render it at.
 
 <a id="nestedatt--tlsbundles"></a>
+
 #### Nested Schema for `tlsbundles` (Attributes List)
 
 - `handle` (String, Required) - Handle of a project-attached TLS bundle.
 - `mountpath` (String, Required) - Path to mount the bundle at inside the container.
 
 <a id="nestedatt--x509certs"></a>
+
 #### Nested Schema for `x509certs` (Attributes List)
 
 - `handle` (String, Required) - Handle of a project-attached x509 certificate.
 - `mountpath` (String, Required) - Path to mount the certificate at.
 
 <a id="nestedatt--gpgkeypairs"></a>
+
 #### Nested Schema for `gpgkeypairs` (Attributes List)
 
 - `handle` (String, Required) - Handle of a project-attached GPG keypair.
 - `mountpath` (String, Required) - Path to mount the keypair at.
 
 <a id="nestedatt--sshkeypairs"></a>
+
 #### Nested Schema for `sshkeypairs` (Attributes List)
 
 - `handle` (String, Required) - Handle of a project-attached SSH keypair.
 - `mountpath` (String, Required) - Path to mount the keypair at.
 
 <a id="nestedatt--encryptionkeys"></a>
+
 #### Nested Schema for `encryptionkeys` (Attributes List)
 
 - `handle` (String, Required) - Handle of a project-attached encryption key.
 - `mountpath` (String, Required) - Path to mount the key at.
 
 <a id="nestedatt--jsonconfigs"></a>
+
 #### Nested Schema for `jsonconfigs` (Attributes List)
 
 - `handle` (String, Required) - Handle of a project-attached JSON config.
 - `mountpath` (String, Required) - Path to mount the config at.
 
 <a id="nestedatt--yamlconfigs"></a>
+
 #### Nested Schema for `yamlconfigs` (Attributes List)
 
 - `handle` (String, Required) - Handle of a project-attached YAML config.
 - `mountpath` (String, Required) - Path to mount the config at.
 
 <a id="nestedatt--plainconfigs"></a>
+
 #### Nested Schema for `plainconfigs` (Attributes List)
 
 - `handle` (String, Required) - Handle of a project-attached plain-text config.
 - `mountpath` (String, Required) - Path to mount the config at.
 
 <a id="nestedatt--envfiles"></a>
+
 #### Nested Schema for `envfiles` (Attributes List)
 
 - `handle` (String, Required) - Handle of a project-attached env-file.

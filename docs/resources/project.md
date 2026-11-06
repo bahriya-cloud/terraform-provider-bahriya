@@ -11,7 +11,7 @@ Manages a Bahriya project. A project is the namespace inside an organisation tha
 
 ## Example Usage
 
-```hcl
+```terraform
 resource "bahriya_project" "web" {
   handle  = "web-prod"
   name    = "Web Production"
@@ -21,7 +21,7 @@ resource "bahriya_project" "web" {
 
 ### Multi-Region Project
 
-```hcl
+```terraform
 data "bahriya_regions" "active" {
   status_filter = "active"
 }
@@ -58,14 +58,9 @@ resource "bahriya_project" "global" {
 - `effectivequotarequestcpu` (String) - Namespace CPU request quota in force, platform default resolved.
 - `effectivequotarequestmemory` (String) - Namespace memory request quota in force, platform default resolved.
 
-The `quota*` attributes are the project's own overrides and are null unless staff have granted the
-project an explicit allowance. The `effectivequota*` attributes are always populated: they are the
-ceilings actually enforced against every deployment in each of the project's regions, with the
-platform default already resolved. Read those when sizing a workload — the allowance is replicated
-into each region rather than divided between them, so a container spanning three regions must fit
-inside the same ceilings three times.
+The `quota*` attributes are the project's own overrides and are null unless staff have granted the project an explicit allowance. The `effectivequota*` attributes are always populated: they are the ceilings actually enforced against every deployment in each of the project's regions, with the platform default already resolved. Read those when sizing a workload — the allowance is replicated into each region rather than divided between them, so a container spanning three regions must fit inside the same ceilings three times.
 
-```hcl
+```terraform
 output "cpu_headroom" {
   value = bahriya_project.web.effectivequotarequestcpu
 }

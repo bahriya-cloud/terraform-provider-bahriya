@@ -11,7 +11,7 @@ Fetches details for a single Bahriya region by its identifier.
 
 ## Example Usage
 
-```hcl
+```terraform
 data "bahriya_region" "helsinki" {
   id = "helsinki-1"
 }

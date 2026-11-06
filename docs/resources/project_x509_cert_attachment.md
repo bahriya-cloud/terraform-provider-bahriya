@@ -13,7 +13,7 @@ Both `project_id` and `handle` force replacement — changing either detaches an
 
 ## Example Usage
 
-```hcl
+```terraform
 resource "bahriya_x509_cert" "client_cert" {
   # ... bahriya_x509_cert configuration ...
 }

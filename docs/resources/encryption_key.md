@@ -11,7 +11,7 @@ Manages a Bahriya symmetric encryption key. The key material is encrypted at res
 
 ## Example Usage
 
-```hcl
+```terraform
 resource "bahriya_encryption_key" "tokens" {
   handle    = "session-tokens"
   name      = "Session token AES key"

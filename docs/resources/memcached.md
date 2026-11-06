@@ -15,7 +15,7 @@ Creating a Memcached instance is asynchronous — the provider waits up to 10 mi
 
 ### Basic Instance
 
-```hcl
+```terraform
 resource "bahriya_memcached" "session" {
   handle        = "session-cache"
   name          = "Session Cache"
@@ -27,7 +27,7 @@ resource "bahriya_memcached" "session" {
 
 ### Tuned Instance
 
-```hcl
+```terraform
 resource "bahriya_memcached" "api_cache" {
   handle         = "api-cache"
   name           = "API Response Cache"

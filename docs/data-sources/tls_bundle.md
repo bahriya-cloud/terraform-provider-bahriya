@@ -13,7 +13,7 @@ Its main use is the platform-managed certificate of a `bahriya_mysql` or `bahriy
 
 ## Example Usage
 
-```hcl
+```terraform
 resource "bahriya_mysql" "orders" {
   name          = "Orders DB"
   handle        = "orders-db"

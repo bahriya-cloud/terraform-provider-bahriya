@@ -1,0 +1,61 @@
+---
+page_title: "bahriya_memcached Resource - Bahriya"
+subcategory: ""
+description: |-
+  Manages a Bahriya Memcached instance — a managed cache backend attachable to containers.
+---
+
+{{/* This template serves as a starting point for documentation generation, and can be customized with hardcoded values and/or doc gen templates.
+
+For example, the {{ .SchemaMarkdown }} template can be used to replace manual schema documentation if descriptions of schema attributes are added in the provider source code. */ -}}
+
+# bahriya_memcached (Resource)
+
+Manages a Bahriya Memcached instance. Memcached instances provide a managed cache backend that containers can connect to.
+
+Creating a Memcached instance is asynchronous — the provider waits up to 10 minutes for the instance to reach `running` status. Destroying waits up to 10 minutes for `terminated` status.
+
+## Example Usage
+
+### Basic Instance
+
+{{tffile "examples/resources/memcached/example_1.tf"}}
+
+### Tuned Instance
+
+{{tffile "examples/resources/memcached/example_2.tf"}}
+
+## Schema
+
+### Required
+
+- `handle` (String) - Unique lowercase handle. Immutable — changing this forces recreation. Handles are **not released** on delete (soft-delete).
+- `name` (String) - Display name.
+- `memorymb` (Number) - Cache size in megabytes. Note: this is an integer, not a string.
+- `activeregions` (List of String) - Active regions. At least one required.
+
+### Optional
+
+- `project` (String) - Project UUID. Changing this forces recreation.
+- `nodes` (Number) - Number of nodes, 1–9 (default 1).
+- `maxconnections` (Number) - Maximum concurrent connections per node (default 1024).
+- `threads` (Number) - Worker threads per node (default 4).
+- `maxitemsizemb` (Number) - Largest item the cache will accept in MB, max 128 (default 1).
+- `networkpolicies` (List of String) - Network policies narrowed to this memcached instance, referenced by handle. Datastores are L3/L4 only — an L7 policy applied here enforces its L3/L4 rules; there is no sidecar.
+
+### Read-Only
+
+- `id` (String) - Memcached instance UUID.
+- `status` (String) - Current instance status.
+- `organisation` (String) - Organisation UUID.
+- `projectname` (String) - Project display name.
+- `managedbycontainer` (String) - When set, this instance is managed by a container's proxy cache feature and cannot be modified directly.
+- `managedbycontainername` (String) - The name of the container in managedbycontainer, so a client can show it without a second lookup.
+
+## Import
+
+Memcached instances can be imported using their UUID:
+
+```bash
+terraform import bahriya_memcached.session 065df92e-4e46-436a-a0a0-aaaaaaaaaaaa
+```

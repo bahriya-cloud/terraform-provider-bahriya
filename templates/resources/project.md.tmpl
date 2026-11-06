@@ -1,0 +1,59 @@
+---
+page_title: "bahriya_project Resource - Bahriya"
+subcategory: ""
+description: |-
+  Manages a Bahriya project — the logical grouping that owns containers, secrets, registries, and Memcached instances.
+---
+
+{{/* This template serves as a starting point for documentation generation, and can be customized with hardcoded values and/or doc gen templates.
+
+For example, the {{ .SchemaMarkdown }} template can be used to replace manual schema documentation if descriptions of schema attributes are added in the provider source code. */ -}}
+
+# bahriya_project (Resource)
+
+Manages a Bahriya project. A project is the namespace inside an organisation that owns containers, registries, secrets, and Memcached instances.
+
+## Example Usage
+
+{{tffile "examples/resources/project/example_1.tf"}}
+
+### Multi-Region Project
+
+{{tffile "examples/resources/project/example_2.tf"}}
+
+## Schema
+
+### Required
+
+- `handle` (String) - Unique lowercase handle. Immutable — changing this forces recreation. Handles are **not released** on delete (soft-delete).
+- `name` (String) - Display name.
+- `regions` (List of String) - Regions this project may deploy into. At least one is required.
+
+### Optional
+
+- `users` (List of String) - User IDs in this project.
+
+### Read-Only
+
+- `id` (String) - Project UUID.
+- `organisation` (String) - Organisation UUID.
+- `quotalimitcpu` (String) - Namespace CPU limit quota (platform-managed). Null when the project follows the platform default.
+- `quotalimitmemory` (String) - Namespace memory limit quota (platform-managed). Null when the project follows the platform default.
+- `quotarequestcpu` (String) - Namespace CPU request quota (platform-managed). Null when the project follows the platform default.
+- `quotarequestmemory` (String) - Namespace memory request quota (platform-managed). Null when the project follows the platform default.
+- `effectivequotalimitcpu` (String) - Namespace CPU limit quota in force, platform default resolved.
+- `effectivequotalimitmemory` (String) - Namespace memory limit quota in force, platform default resolved.
+- `effectivequotarequestcpu` (String) - Namespace CPU request quota in force, platform default resolved.
+- `effectivequotarequestmemory` (String) - Namespace memory request quota in force, platform default resolved.
+
+The `quota*` attributes are the project's own overrides and are null unless staff have granted the project an explicit allowance. The `effectivequota*` attributes are always populated: they are the ceilings actually enforced against every deployment in each of the project's regions, with the platform default already resolved. Read those when sizing a workload — the allowance is replicated into each region rather than divided between them, so a container spanning three regions must fit inside the same ceilings three times.
+
+{{tffile "examples/resources/project/example_3.tf"}}
+
+## Import
+
+Projects can be imported using their UUID:
+
+```bash
+terraform import bahriya_project.web 065df92e-4e46-436a-a0a0-aaaaaaaaaaaa
+```

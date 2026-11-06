@@ -13,7 +13,7 @@ Lists all available Bahriya regions. Use `status_filter` to return only regions 
 
 ### All Active Regions
 
-```hcl
+```terraform
 data "bahriya_regions" "active" {
   status_filter = "active"
 }
@@ -25,7 +25,7 @@ output "region_ids" {
 
 ### Use in a Project
 
-```hcl
+```terraform
 data "bahriya_regions" "active" {
   status_filter = "active"
 }
@@ -39,7 +39,7 @@ resource "bahriya_project" "web" {
 
 ### All Regions (No Filter)
 
-```hcl
+```terraform
 data "bahriya_regions" "all" {}
 ```
 

@@ -11,7 +11,7 @@ Manages a Bahriya GPG keypair. Both keys are stored ASCII-armored. The private k
 
 ## Example Usage
 
-```hcl
+```terraform
 resource "bahriya_gpg_keypair" "signing" {
   handle     = "release-signing"
   name       = "Release Signing Key"

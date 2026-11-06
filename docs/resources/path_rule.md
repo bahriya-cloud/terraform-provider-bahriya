@@ -13,7 +13,7 @@ Apply basic authentication, rate limiting, or IP allow / deny lists to a specifi
 
 ### Basic authentication on an admin area
 
-```hcl
+```terraform
 resource "bahriya_path_rule" "admin" {
   container_id = bahriya_container.api.id
   handle       = "admin"
@@ -31,7 +31,7 @@ resource "bahriya_path_rule" "admin" {
 
 ### Rate limiting on a webhook endpoint
 
-```hcl
+```terraform
 resource "bahriya_path_rule" "webhook" {
   container_id = bahriya_container.api.id
   handle       = "webhook"
@@ -45,7 +45,7 @@ resource "bahriya_path_rule" "webhook" {
 
 ### Combined controls on an internal endpoint
 
-```hcl
+```terraform
 resource "bahriya_path_rule" "internal" {
   container_id = bahriya_container.api.id
   handle       = "internal-tools"

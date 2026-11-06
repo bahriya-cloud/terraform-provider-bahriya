@@ -22,7 +22,7 @@ The connection password is never returned by the API. Set one explicitly with `p
 
 ### Basic Cache
 
-```hcl
+```terraform
 resource "bahriya_valkey" "sessions" {
   handle        = "session-cache"
   name          = "Session Cache"
@@ -36,7 +36,7 @@ resource "bahriya_valkey" "sessions" {
 
 ### Highly Available Store with Backups
 
-```hcl
+```terraform
 resource "bahriya_valkey" "queue" {
   handle        = "job-queue"
   name          = "Job Queue"
@@ -57,7 +57,7 @@ resource "bahriya_valkey" "queue" {
 
 External exposure requires TLS, auth and a non-empty CIDR allowlist — the API rejects any state where `externalenabled` is true and one of the three is missing.
 
-```hcl
+```terraform
 resource "bahriya_valkey" "shared" {
   handle        = "shared-cache"
   name          = "Shared Cache"
@@ -82,7 +82,7 @@ With `tlsenabled = true` and no `tlsbundle`, the platform issues and manages a T
 
 ### Sharded Cluster with Configuration Tuning
 
-```hcl
+```terraform
 resource "bahriya_valkey" "catalog" {
   handle        = "catalog"
   name          = "Catalog"
@@ -151,6 +151,7 @@ Nested items (`hostnames`) are Attributes Lists — assign them with attribute s
 - `authsecret` (String) - Handle of the platform-managed vault secret holding the auth password. Null while auth is off; turning auth off releases it.
 
 <a id="nestedatt--hostnames"></a>
+
 #### Nested Schema for `hostnames` (Attributes List)
 
 - `hostname` (String, Required) - Custom hostname (FQDN). Point a CNAME at the instance's per-region hostname. Lowercased and trimmed server-side.

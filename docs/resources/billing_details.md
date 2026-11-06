@@ -17,7 +17,7 @@ All fields are optional. Invoices are issued either way — the computed `comple
 
 ### A company with a tax registration
 
-```hcl
+```terraform
 resource "bahriya_billing_details" "this" {
   entity_type = "company"
   legal_name  = "Acme Trading LLC"
@@ -39,7 +39,7 @@ resource "bahriya_billing_details" "this" {
 
 ### An individual
 
-```hcl
+```terraform
 resource "bahriya_billing_details" "this" {
   entity_type   = "individual"
   address_line1 = "12 Harbour Lane"

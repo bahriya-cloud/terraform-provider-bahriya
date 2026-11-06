@@ -1,4 +1,4 @@
-.PHONY: build test generate verify install fmt vet tidy clean
+.PHONY: build test generate verify install fmt vet tidy clean docs docs-schema docs-validate
 
 PROVIDER_NAME := terraform-provider-bahriya
 VERSION       := dev
@@ -34,6 +34,27 @@ verify: generate
 		echo "ERROR: generated files are out of sync. Run 'make generate' and commit."; \
 		exit 1; \
 	fi
+
+# docs renders docs/ from templates/ and examples/ with tfplugindocs (pinned as a
+# go tool). The main package lives in cmd/, which tfplugindocs cannot build, so
+# the schema is exported through a dev override and handed to it; tfplugindocs
+# looks the provider up under its default registry key.
+DOCS_TMP := $(shell mktemp -d 2>/dev/null || echo /tmp/tfdocs)
+docs-schema: build
+	printf 'provider_installation {\n  dev_overrides { "bahriya-cloud/bahriya" = "%s" }\n  direct {}\n}\n' "$(CURDIR)/bin" > $(DOCS_TMP)/rc
+	mkdir -p $(DOCS_TMP)/ws
+	printf 'terraform {\n  required_providers {\n    bahriya = { source = "bahriya-cloud/bahriya" }\n  }\n}\n' > $(DOCS_TMP)/ws/main.tf
+	cd $(DOCS_TMP)/ws && TF_CLI_CONFIG_FILE=$(DOCS_TMP)/rc terraform providers schema -json > $(DOCS_TMP)/schema.json
+	jq '.provider_schemas |= with_entries(.key = "registry.terraform.io/hashicorp/bahriya")' $(DOCS_TMP)/schema.json > bin/docs-schema.json
+
+docs: docs-schema
+	go tool tfplugindocs generate --provider-name bahriya --rendered-provider-name Bahriya --providers-schema bin/docs-schema.json
+
+# docs-validate checks every example with `terraform validate` and the rendered
+# docs with tfplugindocs.
+docs-validate: docs-schema
+	go test ./internal/provider -run 'TestDocsExamplesValidate|TestHCLFixturesValidate' -count=1
+	go tool tfplugindocs validate --provider-name bahriya --providers-schema bin/docs-schema.json
 
 install: build
 	mkdir -p $(INSTALL_DIR)

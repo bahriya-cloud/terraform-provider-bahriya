@@ -15,7 +15,7 @@ Both `project_id` and `handle` force replacement — changing either detaches an
 
 ## Example Usage
 
-```hcl
+```terraform
 resource "bahriya_network_policy" "web_tier" {
   # ... bahriya_network_policy configuration ...
 }

@@ -11,7 +11,7 @@ Manages a Bahriya plain-text config. The content is stored verbatim (no parsing 
 
 ## Example Usage
 
-```hcl
+```terraform
 resource "bahriya_plain_config" "nginx_snippet" {
   handle  = "nginx-snippet"
   name    = "nginx snippet"

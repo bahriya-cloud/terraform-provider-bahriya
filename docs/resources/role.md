@@ -15,7 +15,7 @@ System roles (`owner`, `admin`, `member`, `viewer`) are managed by Bahriya and a
 
 ### A "Deployer" role
 
-```hcl
+```terraform
 resource "bahriya_role" "deployer" {
   name        = "Deployer"
   description = "Manage containers; read-only on credentials."

@@ -13,7 +13,7 @@ By default a project's workloads can talk to each other and reach the internet. 
 
 ## Example Usage
 
-```hcl
+```terraform
 resource "bahriya_network_policy" "web_tier" {
   handle = "web-tier"
   name   = "Web tier"
@@ -63,6 +63,7 @@ resource "bahriya_network_policy" "notifications" {
 - `managedbyresourcetype` (String) - Type of the managing resource, when managed.
 
 <a id="nestedatt--ports"></a>
+
 ### Nested Schema for `ports` (Attributes List)
 
 Assign with attribute syntax, e.g. `ports = [{ port = 443, protocol = "TCP" }]`.

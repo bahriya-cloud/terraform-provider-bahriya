@@ -11,7 +11,7 @@ Fetches details about the current organisation, as identified by the `organisati
 
 ## Example Usage
 
-```hcl
+```terraform
 data "bahriya_organisation" "current" {}
 
 output "org_name" {

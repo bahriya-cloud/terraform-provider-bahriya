@@ -1,6 +1,5 @@
 ---
 page_title: "Provider: Bahriya"
-subcategory: ""
 description: |-
   The Bahriya provider manages every Bahriya Cloud resource.
 ---
@@ -38,7 +37,7 @@ export BAHRIYA_ORGANISATION_ID="65cc42f1-..."
 
 Or set them in the provider block:
 
-```hcl
+```terraform
 provider "bahriya" {
   token           = var.bahriya_token
   organisation_id = var.bahriya_org_id
@@ -47,7 +46,7 @@ provider "bahriya" {
 
 ## Example Usage
 
-```hcl
+```terraform
 terraform {
   required_providers {
     bahriya = {
@@ -88,7 +87,7 @@ resource "bahriya_container" "api" {
 
 Use provider aliases to manage resources across organisations:
 
-```hcl
+```terraform
 provider "bahriya" {
   alias           = "prod"
   organisation_id = var.prod_org_id

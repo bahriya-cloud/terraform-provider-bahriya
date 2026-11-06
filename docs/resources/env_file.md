@@ -11,7 +11,7 @@ Manages a Bahriya env file. The content is a dotenv-style document (`KEY=VALUE` 
 
 ## Example Usage
 
-```hcl
+```terraform
 resource "bahriya_env_file" "api" {
   handle  = "api-env"
   name    = "API env"

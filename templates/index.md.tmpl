@@ -1,0 +1,62 @@
+---
+page_title: "Provider: Bahriya"
+description: |-
+  The Bahriya provider manages every Bahriya Cloud resource.
+---
+
+{{/* This template serves as a starting point for documentation generation, and can be customized with hardcoded values and/or doc gen templates.
+
+For example, the {{ .SchemaMarkdown }} template can be used to replace manual schema documentation if descriptions of schema attributes are added in the provider source code. */ -}}
+
+# Bahriya Provider
+
+The Bahriya provider lets you manage infrastructure on [Bahriya Cloud](https://bahriya.cloud) declaratively with Terraform. It supports every Bahriya resource — projects, containers, managed datastores, vault items, configs and network policies — so your entire estate can live in version control.
+
+## About Bahriya
+
+[Bahriya](https://bahriya.cloud) is a container cloud with a simple contract: bring a container image, pick your regions, and the platform runs it — load balancing, TLS, health checks, autoscaling, a secrets vault and managed datastores included rather than bolted on.
+
+- [HTTP Containers](https://bahriya.cloud/product/containers) — TLS-terminated, autoscaling, multi-region services with custom hostnames.
+- [Workers](https://bahriya.cloud/product/workers) and [Cron Jobs](https://bahriya.cloud/product/cronjobs) — background and scheduled containers.
+- [Managed MySQL](https://bahriya.cloud/product/mysql) — databases with per-database users, backups and point-in-time recovery; [Managed Valkey](https://bahriya.cloud/product/valkey) — the Redis-compatible, open-source in-memory datastore — and [Managed Memcached](https://bahriya.cloud/product/memcached).
+- [Vault](https://bahriya.cloud/product/vault) and [Configs](https://bahriya.cloud/product/configs) — secrets, TLS bundles, keypairs, encryption keys and config files, versioned and mountable.
+- [Network Policies](https://bahriya.cloud/product/network-policies) and [Volume Storage](https://bahriya.cloud/product/volume-storage) — traffic control and persistence.
+
+Every resource in this provider has a matching [Terraform knowledgebase guide](https://bahriya.cloud/knowledgebase/terraform) with a complete, working deploy example. New to the platform? Start with [getting started](https://bahriya.cloud/knowledgebase/getting-started), browse the [full knowledgebase](https://bahriya.cloud/knowledgebase), or follow launches on [the blog](https://bahriya.cloud/blog).
+
+## Authentication
+
+The provider authenticates with a **personal access token** (PAT):
+
+1. Sign in to the [Bahriya console](https://console.bahriya.cloud).
+2. Open your profile, then **Tokens**.
+3. Click **Create token** and copy the `pat_...` value.
+
+Export the token and your organisation ID:
+
+```bash
+export BAHRIYA_TOKEN="pat_..."
+export BAHRIYA_ORGANISATION_ID="65cc42f1-..."
+```
+
+Or set them in the provider block:
+
+{{tffile "examples/example_1.tf"}}
+
+## Example Usage
+
+{{tffile "examples/example_2.tf"}}
+
+## Multi-Organisation Setup
+
+Use provider aliases to manage resources across organisations:
+
+{{tffile "examples/example_3.tf"}}
+
+## Schema
+
+### Optional
+
+- `token` (String, Sensitive) - Personal access token. Falls back to `BAHRIYA_TOKEN` environment variable.
+- `organisation_id` (String) - Organisation UUID. Falls back to `BAHRIYA_ORGANISATION_ID` environment variable.
+- `base_url` (String) - API base URL. Defaults to `https://api.bahriya.cloud/console/v1`. Falls back to `BAHRIYA_API_URL` environment variable.

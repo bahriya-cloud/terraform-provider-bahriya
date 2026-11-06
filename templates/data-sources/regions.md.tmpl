@@ -1,0 +1,51 @@
+---
+page_title: "bahriya_regions Data Source - Bahriya"
+subcategory: ""
+description: |-
+  Lists all available Bahriya regions, with optional status filtering.
+---
+
+{{/* This template serves as a starting point for documentation generation, and can be customized with hardcoded values and/or doc gen templates.
+
+For example, the {{ .SchemaMarkdown }} template can be used to replace manual schema documentation if descriptions of schema attributes are added in the provider source code. */ -}}
+
+# bahriya_regions (Data Source)
+
+Lists all available Bahriya regions. Use `status_filter` to return only regions with a specific status.
+
+## Example Usage
+
+### All Active Regions
+
+{{tffile "examples/data-sources/regions/example_1.tf"}}
+
+### Use in a Project
+
+{{tffile "examples/data-sources/regions/example_2.tf"}}
+
+### All Regions (No Filter)
+
+{{tffile "examples/data-sources/regions/example_3.tf"}}
+
+## Schema
+
+### Optional
+
+- `status_filter` (String) - Only return regions with this status (e.g. `active`). If omitted, all regions are returned.
+
+### Read-Only
+
+- `regions` (List of Object) - List of regions matching the filter.
+
+Each region object contains:
+
+- `id` (String) - Region identifier.
+- `name` (String) - Region display name.
+- `description` (String) - Human-readable region description.
+- `class` (String) - Region class.
+- `status` (String) - Region status.
+- `city` (String) - City.
+- `state` (String) - State or province.
+- `country` (String) - Country.
+- `latitude` (Number) - Geographic latitude.
+- `longitude` (Number) - Geographic longitude.

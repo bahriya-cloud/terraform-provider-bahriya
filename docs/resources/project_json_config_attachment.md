@@ -13,7 +13,7 @@ Both `project_id` and `handle` force replacement — changing either detaches an
 
 ## Example Usage
 
-```hcl
+```terraform
 resource "bahriya_json_config" "feature_flags" {
   # ... bahriya_json_config configuration ...
 }

@@ -11,7 +11,7 @@ Manages a Bahriya x509 certificate. Unlike `bahriya_tls_bundle`, this resource s
 
 ## Example Usage
 
-```hcl
+```terraform
 resource "bahriya_x509_cert" "client_ca" {
   handle = "client-ca"
   name   = "Client CA"

@@ -1,0 +1,67 @@
+---
+page_title: "bahriya_registry Resource - Bahriya"
+subcategory: ""
+description: |-
+  Manages a Bahriya registry credential for pulling private container images.
+---
+
+{{/* This template serves as a starting point for documentation generation, and can be customized with hardcoded values and/or doc gen templates.
+
+For example, the {{ .SchemaMarkdown }} template can be used to replace manual schema documentation if descriptions of schema attributes are added in the provider source code. */ -}}
+
+# bahriya_registry (Resource)
+
+Manages a Bahriya registry credential. Registries hold the credentials used to pull private container images. Reference a registry from a container via the `registry` attribute.
+
+Unlike projects and containers, registry handles **are released** on delete and can be reused.
+
+## Example Usage
+
+### GitHub Container Registry
+
+{{tffile "examples/resources/registry/example_1.tf"}}
+
+### Docker Hub
+
+{{tffile "examples/resources/registry/example_2.tf"}}
+
+### AWS ECR
+
+{{tffile "examples/resources/registry/example_3.tf"}}
+
+### Referencing from a Container
+
+{{tffile "examples/resources/registry/example_4.tf"}}
+
+## Schema
+
+### Required
+
+- `handle` (String) - Unique lowercase handle. Immutable — changing this forces recreation.
+- `name` (String) - Display name.
+- `server` (String) - Registry server hostname (e.g. `ghcr.io`, `registry-1.docker.io`).
+- `username` (String) - Registry username.
+- `password` (String, Sensitive) - Registry password or access token.
+
+### Optional
+
+- `maxversions` (Number) - Maximum number of historical versions to retain.
+
+### Read-Only
+
+- `id` (String) - Registry UUID.
+- `billable` (Boolean) - Whether this registry is billable.
+- `currentversion` (Number) - The currently active version number.
+- `currentversionid` (String) - UUID of the currently active version.
+- `managedbyresourceid` (String) - UUID of the managing resource, if any.
+- `managedbyresourcetype` (String) - Type of the managing resource, if any.
+- `organisation` (String) - Organisation UUID.
+- `versioncount` (Number) - How many versions are kept, the current one included.
+
+## Import
+
+Registries can be imported using their UUID:
+
+```bash
+terraform import bahriya_registry.ghcr 065df92e-4e46-436a-a0a0-aaaaaaaaaaaa
+```

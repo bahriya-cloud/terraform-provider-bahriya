@@ -23,7 +23,7 @@ Passwords are never part of the resource or its state. The platform generates th
 
 ### Single Node
 
-```hcl
+```terraform
 resource "bahriya_mysql" "orders" {
   handle        = "orders-db"
   name          = "Orders DB"
@@ -42,7 +42,7 @@ resource "bahriya_mysql" "orders" {
 
 ### Replicated with Several Databases and Tuning
 
-```hcl
+```terraform
 resource "bahriya_mysql" "shop" {
   handle        = "shop-db"
   name          = "Shop DB"
@@ -75,7 +75,7 @@ Adding or removing an entry in `databases` on a live instance converges it: a ne
 
 External access requires TLS and a non-empty CIDR allowlist — the API rejects any state where `externalenabled` is true and either is missing. The instance is reachable at `<defaulthostname>.<region>.mysql.on.bahriya.app` on the port in `externalport`, which is allocated when external access is first enabled and is the same in every region.
 
-```hcl
+```terraform
 resource "bahriya_mysql" "ledger" {
   handle            = "ledger-db"
   name              = "Ledger DB"
@@ -166,12 +166,14 @@ Nested items (`databases`, `hostnames`) are Attributes Lists — assign them wit
 - `keyrotationfinishedat` (String) - When the latest master-key rotation finished.
 
 <a id="nestedatt--databases"></a>
+
 #### Nested Schema for `databases` (Attributes List)
 
 - `name` (String, Required) - Schema name.
 - `username` (String, Required) - The dedicated user granted on this schema.
 
 <a id="nestedatt--hostnames"></a>
+
 #### Nested Schema for `hostnames` (Attributes List)
 
 - `hostname` (String, Required) - Custom hostname (FQDN). Point a CNAME at the instance's per-region hostname.

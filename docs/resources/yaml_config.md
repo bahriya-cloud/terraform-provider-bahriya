@@ -11,7 +11,7 @@ Manages a Bahriya YAML config. The content is validated as YAML on create and up
 
 ## Example Usage
 
-```hcl
+```terraform
 resource "bahriya_yaml_config" "app" {
   handle  = "app-yaml"
   name    = "App YAML"

@@ -11,7 +11,7 @@ Manages a Bahriya TLS bundle. Each bundle holds a CA, a server certificate and t
 
 ## Example Usage
 
-```hcl
+```terraform
 resource "bahriya_tls_bundle" "edge" {
   handle = "edge-tls"
   name   = "Edge TLS"
