@@ -1,47 +1,26 @@
 ---
-page_title: "bahriya_env_file Resource - Bahriya"
+page_title: "{{.Name}} {{.Type}} - Bahriya"
 subcategory: ""
 description: |-
-  Manages a Bahriya env file — a reusable, versioned set of KEY=VALUE pairs.
+  An env file: a versioned set of KEY=VALUE pairs that containers read as environment variables.
 ---
 
-{{/* This template serves as a starting point for documentation generation, and can be customized with hardcoded values and/or doc gen templates.
+# {{.Name}} ({{.Type}})
 
-For example, the {{ .SchemaMarkdown }} template can be used to replace manual schema documentation if descriptions of schema attributes are added in the provider source code. */ -}}
+An env file: a versioned set of environment variables that any container in a project it is attached to can use. The content is one `KEY=VALUE` pair per line; lines starting with `#` and blank lines are ignored. Changing `content` creates a new version and makes it current.
 
-# bahriya_env_file (Resource)
-
-Manages a Bahriya env file. The content is a dotenv-style document (`KEY=VALUE` per line, with `#` comments and blank lines allowed). Env files are versioned and reusable across containers.
+A container names its env files in `configs.env_files`.
 
 ## Example Usage
 
-{{tffile "examples/resources/env_file/example_1.tf"}}
+{{ tffile "examples/resources/env_file/example_1.tf" }}
 
-## Schema
-
-### Required
-
-- `handle` (String) - DNS-1123 compliant: lowercase alphanumeric and hyphens only. Immutable — changing forces recreation.
-- `name` (String) - Display name.
-- `content` (String) - KEY=VALUE pairs, one per line. Comment lines (`#`) and blank lines are allowed.
-
-### Optional
-
-- `maxversions` (Number) - Maximum number of historical versions to retain.
-
-### Read-Only
-
-- `id` (String) - Env file UUID.
-- `billable` (Boolean) - Whether this env file is billable.
-- `currentversion` (Number) - The currently active version number.
-- `entrycount` (Number) - Number of KEY=VALUE entries parsed from the content.
-- `managedbyresourceid` (String) - UUID of the managing resource, if any.
-- `managedbyresourcetype` (String) - Type of the managing resource, if any.
-- `organisation` (String) - Organisation UUID.
-- `versioncount` (Number) - How many versions are kept, the current one included.
+{{ .SchemaMarkdown | trimspace }}
 
 ## Import
 
-```bash
-terraform import bahriya_env_file.api 065df92e-4e46-436a-a0a0-aaaaaaaaaaaa
-```
+Import an env file by its UUID:
+
+{{ codefile "shell" "examples/resources/env_file/import.sh" }}
+
+~> **Note:** The API never returns an env file's content. After importing, set `content` in your configuration; the next apply writes it as a new version.

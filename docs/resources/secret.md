@@ -72,22 +72,22 @@ resource "bahriya_container" "api" {
 
 ### Required
 
-- `handle` (String)
-- `name` (String)
-- `value` (String, Sensitive)
+- `handle` (String) Short identifier of the secret, unique within the organisation, by which containers reference it. Letters, digits, hyphens and underscores only.
+- `name` (String) Display name of the secret.
+- `value` (String, Sensitive) The secret value, at most 124 characters. It is never returned in plaintext: reads return a placeholder in its place, and sending that placeholder back leaves the stored value unchanged. A new value is kept as a new version.
 
 ### Read-Only
 
-- `billable` (Boolean)
-- `created` (Attributes) (see [below for nested schema](#nestedatt--created))
-- `currentversion` (Number)
-- `id` (String) The ID of this resource.
-- `managed_by` (String)
-- `managedbyresourcetype` (String)
-- `max_versions` (Number)
-- `rotated_at` (Attributes) (see [below for nested schema](#nestedatt--rotated_at))
-- `updated` (Attributes) (see [below for nested schema](#nestedatt--updated))
-- `version_count` (Number)
+- `billable` (Boolean) Whether the secret is billed to the organisation.
+- `created` (Attributes) When the secret was created (UTC). (see [below for nested schema](#nestedatt--created))
+- `currentversion` (Number) Number of the version in use.
+- `id` (String) Unique identifier (UUID) of the secret, assigned by the platform.
+- `managed_by` (String) Identifier (UUID) of the platform resource that manages this secret, such as a MySQL instance. Null when the organisation manages it.
+- `managedbyresourcetype` (String) Type of the platform resource that manages this secret, such as mysql. Null when the organisation manages it. A managed secret can be changed only by that resource.
+- `max_versions` (Number) Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.
+- `rotated_at` (Attributes) When the version in use was written (UTC). Null until the secret has been rotated at least once. After a rollback, the date of the version rolled back to. (see [below for nested schema](#nestedatt--rotated_at))
+- `updated` (Attributes) When the secret was last changed (UTC). (see [below for nested schema](#nestedatt--updated))
+- `version_count` (Number) Number of stored versions, including the version in use.
 
 <a id="nestedatt--created"></a>
 ### Nested Schema for `created`

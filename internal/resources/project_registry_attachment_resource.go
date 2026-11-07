@@ -45,11 +45,11 @@ func (r *projectRegistryAttachmentResource) Metadata(_ context.Context, req reso
 
 func (r *projectRegistryAttachmentResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description: "Attaches a registry to a Bahriya project. Both project_id and handle force replacement.",
+		Description: "Attaches a registry to a project, so the project's workloads can use it. Changing project_id or handle replaces the attachment.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:    true,
-				Description: "Composite identifier of the attachment ({project_id}:{handle}).",
+				Description: "Identifier of the attachment, in the form {project_id}:{handle}.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -70,7 +70,7 @@ func (r *projectRegistryAttachmentResource) Schema(_ context.Context, _ resource
 			},
 			"join_id": schema.StringAttribute{
 				Computed:    true,
-				Description: "Identifier of the underlying project-attachment join row.",
+				Description: "Identifier the API gives this attachment.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},

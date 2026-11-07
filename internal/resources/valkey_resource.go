@@ -143,8 +143,8 @@ func valkeySchema() schema.Schema {
 					"shards": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Sharded tier only. Grow-only in self-service: raising it is automated, lowering it is an operator procedure raised through a support ticket.",
-						MarkdownDescription: "Sharded tier only. Grow-only in self-service: raising it is automated, lowering it is an operator procedure raised through a support ticket.",
+						Description:         "Number of shards, for the sharded tier only. You can raise it at any time; to lower it, raise a support ticket.",
+						MarkdownDescription: "Number of shards, for the sharded tier only. You can raise it at any time; to lower it, raise a support ticket.",
 					},
 				},
 				Optional: true,

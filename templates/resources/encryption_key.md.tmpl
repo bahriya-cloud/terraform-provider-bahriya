@@ -1,50 +1,24 @@
 ---
-page_title: "bahriya_encryption_key Resource - Bahriya"
+page_title: "{{.Name}} {{.Type}} - Bahriya"
 subcategory: ""
 description: |-
-  Manages a Bahriya symmetric encryption key (AES, ChaCha20, etc.).
+  A vault encryption key: a versioned symmetric key that containers mount as a file.
 ---
 
-{{/* This template serves as a starting point for documentation generation, and can be customized with hardcoded values and/or doc gen templates.
+# {{.Name}} ({{.Type}})
 
-For example, the {{ .SchemaMarkdown }} template can be used to replace manual schema documentation if descriptions of schema attributes are added in the provider source code. */ -}}
-
-# bahriya_encryption_key (Resource)
-
-Manages a Bahriya symmetric encryption key. The key material is encrypted at rest and is never returned on read.
+A vault encryption key: a symmetric key, encrypted at rest and versioned. The API never returns the key material. Changing `key` creates a new version and makes it current.
 
 ## Example Usage
 
-{{tffile "examples/resources/encryption_key/example_1.tf"}}
+{{ tffile "examples/resources/encryption_key/example_1.tf" }}
 
-## Schema
-
-### Required
-
-- `handle` (String) - DNS-1123 compliant: lowercase alphanumeric and hyphens only. Immutable — changing forces recreation.
-- `name` (String) - Display name.
-- `format` (String) - Key encoding format: `base64`, `hex`, or `raw`.
-- `key` (String, Sensitive) - The raw encryption key (base64 or hex encoded). Never returned on read.
-
-### Optional
-
-- `maxversions` (Number) - Maximum number of historical versions to retain.
-
-### Read-Only
-
-- `id` (String) - Key UUID.
-- `billable` (Boolean) - Whether this key is billable.
-- `currentversion` (Number) - The currently active version number.
-- `keybits` (Number) - Key length in bits.
-- `managedbyresourceid` (String) - UUID of the managing resource, if any.
-- `managedbyresourcetype` (String) - Type of the managing resource, if any.
-- `organisation` (String) - Organisation UUID.
-- `versioncount` (Number) - How many versions are kept, the current one included.
+{{ .SchemaMarkdown | trimspace }}
 
 ## Import
 
-```bash
-terraform import bahriya_encryption_key.tokens 065df92e-4e46-436a-a0a0-aaaaaaaaaaaa
-```
+Import an encryption key by its UUID:
 
-~> **Note:** The `key` attribute is never returned by the API. After importing, you must set it in configuration; the provider preserves the value from Terraform state.
+{{ codefile "shell" "examples/resources/encryption_key/import.sh" }}
+
+~> **Note:** The API never returns the key material. After importing, set `key` in your configuration; the next apply writes it as a new version.

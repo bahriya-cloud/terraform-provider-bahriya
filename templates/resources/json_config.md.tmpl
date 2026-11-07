@@ -1,46 +1,26 @@
 ---
-page_title: "bahriya_json_config Resource - Bahriya"
+page_title: "{{.Name}} {{.Type}} - Bahriya"
 subcategory: ""
 description: |-
-  Manages a Bahriya JSON config — a reusable, versioned JSON document.
+  A JSON config: a versioned JSON document that containers mount as a file.
 ---
 
-{{/* This template serves as a starting point for documentation generation, and can be customized with hardcoded values and/or doc gen templates.
+# {{.Name}} ({{.Type}})
 
-For example, the {{ .SchemaMarkdown }} template can be used to replace manual schema documentation if descriptions of schema attributes are added in the provider source code. */ -}}
+A JSON config: a versioned JSON document that any container in a project it is attached to can mount as a file. The content is checked as JSON on every create and update. Changing `content` creates a new version and makes it current.
 
-# bahriya_json_config (Resource)
-
-Manages a Bahriya JSON config. The content is validated as JSON on create and update. Configs are versioned and reusable across containers.
+A container mounts its JSON configs in `configs.json_configs`.
 
 ## Example Usage
 
-{{tffile "examples/resources/json_config/example_1.tf"}}
+{{ tffile "examples/resources/json_config/example_1.tf" }}
 
-## Schema
-
-### Required
-
-- `handle` (String) - DNS-1123 compliant: lowercase alphanumeric and hyphens only. Immutable — changing forces recreation.
-- `name` (String) - Display name.
-- `content` (String) - Valid JSON content.
-
-### Optional
-
-- `maxversions` (Number) - Maximum number of historical versions to retain.
-
-### Read-Only
-
-- `id` (String) - Config UUID.
-- `billable` (Boolean) - Whether this config is billable.
-- `currentversion` (Number) - The currently active version number.
-- `managedbyresourceid` (String) - UUID of the managing resource, if any.
-- `managedbyresourcetype` (String) - Type of the managing resource, if any.
-- `organisation` (String) - Organisation UUID.
-- `versioncount` (Number) - How many versions are kept, the current one included.
+{{ .SchemaMarkdown | trimspace }}
 
 ## Import
 
-```bash
-terraform import bahriya_json_config.app 065df92e-4e46-436a-a0a0-aaaaaaaaaaaa
-```
+Import a JSON config by its UUID:
+
+{{ codefile "shell" "examples/resources/json_config/import.sh" }}
+
+~> **Note:** The API never returns a config's content. After importing, set `content` in your configuration; the next apply writes it as a new version.

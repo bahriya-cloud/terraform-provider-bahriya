@@ -69,7 +69,7 @@ func (d *regionsDataSource) Schema(_ context.Context, _ datasource.SchemaRequest
 		Description: "Lists all available Bahriya regions. Optionally filter by status.",
 		Attributes: map[string]schema.Attribute{
 			"status_filter": schema.StringAttribute{
-				Description: "Only return regions with this status (e.g. \"active\"). If omitted, all regions are returned.",
+				Description: "Only return regions with this status, such as \"active\". If omitted, all regions are returned.",
 				Optional:    true,
 			},
 			"regions": schema.ListNestedAttribute{

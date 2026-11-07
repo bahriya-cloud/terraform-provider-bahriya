@@ -87,23 +87,23 @@ func projectSchema() schema.Schema {
 			},
 			"effectivequotarequestcpu": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Namespace CPU request quota in force, platform default resolved.",
-				MarkdownDescription: "Namespace CPU request quota in force, platform default resolved.",
+				Description:         "CPU the project may reserve in each region it runs in, as in force now: its own setting, or else the standard allowance.",
+				MarkdownDescription: "CPU the project may reserve in each region it runs in, as in force now: its own setting, or else the standard allowance.",
 			},
 			"effectivequotarequestmemory": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Namespace memory request quota in force, platform default resolved.",
-				MarkdownDescription: "Namespace memory request quota in force, platform default resolved.",
+				Description:         "Memory the project may reserve in each region it runs in, as in force now: its own setting, or else the standard allowance.",
+				MarkdownDescription: "Memory the project may reserve in each region it runs in, as in force now: its own setting, or else the standard allowance.",
 			},
 			"effectivequotalimitcpu": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Namespace CPU limit quota in force, platform default resolved.",
-				MarkdownDescription: "Namespace CPU limit quota in force, platform default resolved.",
+				Description:         "CPU ceiling for the project in each region it runs in, as in force now: its own setting, or else the standard allowance.",
+				MarkdownDescription: "CPU ceiling for the project in each region it runs in, as in force now: its own setting, or else the standard allowance.",
 			},
 			"effectivequotalimitmemory": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Namespace memory limit quota in force, platform default resolved.",
-				MarkdownDescription: "Namespace memory limit quota in force, platform default resolved.",
+				Description:         "Memory ceiling for the project in each region it runs in, as in force now: its own setting, or else the standard allowance.",
+				MarkdownDescription: "Memory ceiling for the project in each region it runs in, as in force now: its own setting, or else the standard allowance.",
 			},
 			"quotas": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -111,13 +111,13 @@ func projectSchema() schema.Schema {
 						Attributes: map[string]schema.Attribute{
 							"cpu": schema.StringAttribute{
 								Computed:            true,
-								Description:         "Namespace CPU request quota. Null = platform default.",
-								MarkdownDescription: "Namespace CPU request quota. Null = platform default.",
+								Description:         "CPU the project may reserve in each region it runs in, if set for this project. Null when the project uses the standard allowance.",
+								MarkdownDescription: "CPU the project may reserve in each region it runs in, if set for this project. Null when the project uses the standard allowance.",
 							},
 							"memory": schema.StringAttribute{
 								Computed:            true,
-								Description:         "Namespace memory request quota. Null = platform default.",
-								MarkdownDescription: "Namespace memory request quota. Null = platform default.",
+								Description:         "Memory the project may reserve in each region it runs in, if set for this project. Null when the project uses the standard allowance.",
+								MarkdownDescription: "Memory the project may reserve in each region it runs in, if set for this project. Null when the project uses the standard allowance.",
 							},
 						},
 						Optional: true,
@@ -127,13 +127,13 @@ func projectSchema() schema.Schema {
 						Attributes: map[string]schema.Attribute{
 							"cpu": schema.StringAttribute{
 								Computed:            true,
-								Description:         "Namespace CPU limit quota. Null = platform default.",
-								MarkdownDescription: "Namespace CPU limit quota. Null = platform default.",
+								Description:         "CPU ceiling for the project in each region it runs in, if set for this project. Null when the project uses the standard allowance.",
+								MarkdownDescription: "CPU ceiling for the project in each region it runs in, if set for this project. Null when the project uses the standard allowance.",
 							},
 							"memory": schema.StringAttribute{
 								Computed:            true,
-								Description:         "Namespace memory limit quota. Null = platform default.",
-								MarkdownDescription: "Namespace memory limit quota. Null = platform default.",
+								Description:         "Memory ceiling for the project in each region it runs in, if set for this project. Null when the project uses the standard allowance.",
+								MarkdownDescription: "Memory ceiling for the project in each region it runs in, if set for this project. Null when the project uses the standard allowance.",
 							},
 						},
 						Optional: true,

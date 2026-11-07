@@ -45,32 +45,32 @@ func (r *projectYAMLConfigAttachmentResource) Metadata(_ context.Context, req re
 
 func (r *projectYAMLConfigAttachmentResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description: "Attaches a yaml_config to a Bahriya project. Both project_id and handle force replacement.",
+		Description: "Attaches a YAML config to a project, so the project's workloads can use it. Changing project_id or handle replaces the attachment.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:    true,
-				Description: "Composite identifier of the attachment ({project_id}:{handle}).",
+				Description: "Identifier of the attachment, in the form {project_id}:{handle}.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"project_id": schema.StringAttribute{
 				Required:    true,
-				Description: "ID (UUID) of the project the yaml_config is attached to.",
+				Description: "ID (UUID) of the project the YAML config is attached to.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"handle": schema.StringAttribute{
 				Required:    true,
-				Description: "Handle of the yaml_config to attach.",
+				Description: "Handle of the YAML config to attach.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"join_id": schema.StringAttribute{
 				Computed:    true,
-				Description: "Identifier of the underlying project-attachment join row.",
+				Description: "Identifier the API gives this attachment.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},

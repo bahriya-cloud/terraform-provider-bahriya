@@ -1,41 +1,24 @@
 ---
-page_title: "bahriya_project_json_config_attachment Resource - Bahriya"
+page_title: "{{.Name}} {{.Type}} - Bahriya"
 subcategory: ""
 description: |-
-  Attaches a JSON config to a Bahriya project.
+  Attaches a JSON config to a project, so the project's containers can use it.
 ---
 
-{{/* This template serves as a starting point for documentation generation, and can be customized with hardcoded values and/or doc gen templates.
+# {{.Name}} ({{.Type}})
 
-For example, the {{ .SchemaMarkdown }} template can be used to replace manual schema documentation if descriptions of schema attributes are added in the provider source code. */ -}}
+Attaches a JSON config to a project, so the project's containers can use it. The config itself belongs to the organisation and is managed with `bahriya_json_config`; one config can be attached to many projects.
 
-# bahriya_project_json_config_attachment (Resource)
-
-Attaches a JSON config to a Bahriya project so containers in that project can use it. The attachable itself is org-scoped and defined by the `bahriya_json_config` resource; this resource is the project-level link between them.
-
-Both `project_id` and `handle` force replacement — changing either detaches and re-attaches.
+Changing `project_id` or `handle` replaces the attachment. Removing the attachment detaches the config from the project and never deletes the config.
 
 ## Example Usage
 
-{{tffile "examples/resources/project_json_config_attachment/example_1.tf"}}
+{{ tffile "examples/resources/project_json_config_attachment/example_1.tf" }}
 
-## Schema
-
-### Required
-
-- `project_id` (String) ID (UUID) of the project to attach to. Changing this replaces the attachment.
-- `handle` (String) Handle of the json config to attach. Changing this replaces the attachment.
-
-### Read-Only
-
-- `id` (String) Composite identifier of the attachment (`{project_id}:{handle}`).
-- `join_id` (String) Identifier of the underlying project-attachment join row.
+{{ .SchemaMarkdown | trimspace }}
 
 ## Import
 
-Attachments can be imported using the composite id `{project_id}:{handle}`:
+Import an attachment by the project's UUID and the config's handle, separated by a colon:
 
-```bash
-terraform import bahriya_project_json_config_attachment.web_json_config \
-  8a3d0000-1111-2222-3333-444444444444:feature-flags
-```
+{{ codefile "shell" "examples/resources/project_json_config_attachment/import.sh" }}

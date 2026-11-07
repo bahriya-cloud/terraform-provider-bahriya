@@ -2,411 +2,695 @@
 page_title: "bahriya_container Resource - Bahriya"
 subcategory: ""
 description: |-
-  Manages a Bahriya container — an HTTP server, background worker, or scheduled cron job deployed across one or more regions.
+  A container: an HTTP service, a background worker or a scheduled job, run from your image in the regions you choose.
 ---
 
 # bahriya_container (Resource)
 
-Manages a Bahriya container workload. Containers come in three types:
+A container runs your image in every region of `regions`, inside a project. `type` sets what kind of container it is, and cannot be changed after creation:
 
-| Type             | Description                                                                                                                |
-|------------------|----------------------------------------------------------------------------------------------------------------------------|
-| `http` (default) | Long-running service that accepts incoming HTTP traffic. Gets a hostname, TLS, autoscaling, rate limiting, and basic auth. |
-| `worker`         | Long-running background process with no public network exposure.                                                           |
-| `cronjob`        | Scheduled container that runs to completion on a cron expression.                                                          |
+| Type             | What it is                                                                                                                         |
+|------------------|------------------------------------------------------------------------------------------------------------------------------------|
+| `http` (default) | A long-running service that answers HTTP requests. It gets a hostname and TLS, and can use autoscaling, rate limiting, IP lists and basic authentication. |
+| `worker`         | A long-running background process that is not reachable from the internet.                                                        |
+| `cronjob`        | A job that runs to completion on the schedule in `schedule`.                                                                       |
 
-The type is set at creation time and is immutable.
+The settings are grouped the same way as in a Reis YAML file: `workload` (image, size, command and environment), `scaling`, `networking`, `security`, `storage`, `configs`, `vault`, `schedule` and the rest.
+
+Creating, changing and terminating a container is asynchronous. The provider waits up to 20 minutes for the container to reach `running`, or `terminated` on delete. If a create does not settle in time, the container is saved to state with its current status and a warning; run `terraform apply` again to check it.
+
+Container handles are not released when a container is terminated, so a handle cannot be reused.
 
 ## Example Usage
 
-### HTTP Container
+### HTTP container
 
 ```terraform
+variable "ghcr_username" {
+  type = string
+}
+
+variable "ghcr_token" {
+  type      = string
+  sensitive = true
+}
+
+variable "db_password" {
+  type      = string
+  sensitive = true
+}
+
+variable "tls_ca" {
+  type = string
+}
+
+variable "tls_cert" {
+  type = string
+}
+
+variable "tls_key" {
+  type      = string
+  sensitive = true
+}
+
+resource "bahriya_project" "web" {
+  name    = "Web"
+  handle  = "web"
+  regions = ["falkenstein-1", "virginia-1"]
+}
+
+resource "bahriya_registry" "ghcr" {
+  name     = "GitHub Container Registry"
+  handle   = "ghcr"
+  server   = "ghcr.io"
+  username = var.ghcr_username
+  password = var.ghcr_token
+}
+
+resource "bahriya_secret" "db_password" {
+  name   = "Database password"
+  handle = "db-password"
+  value  = var.db_password
+}
+
+resource "bahriya_tls_bundle" "edge" {
+  name   = "Edge certificate"
+  handle = "edge"
+  ca     = var.tls_ca
+  cert   = var.tls_cert
+  key    = var.tls_key
+}
+
+resource "bahriya_network_policy" "web_tier" {
+  name   = "Web tier"
+  handle = "web-tier"
+}
+
 resource "bahriya_container" "api" {
-  handle          = "api"
-  name            = "API Server"
-  image           = "ghcr.io/myorg/api:1.2.3"
-  containerport   = "3000"
-  healthcheckpath = "/healthz"
-  mincpu          = "250"
-  minmemory       = "256"
+  name    = "API Server"
+  handle  = "api"
+  project = bahriya_project.web.id
+  regions = ["falkenstein-1", "virginia-1"]
 
-  autoscalingminreplicas = "2"
-  autoscalingmaxreplicas = "5"
+  workload = {
+    image       = "ghcr.io/myorg/api:1.2.3"
+    registry    = bahriya_registry.ghcr.id
+    port        = "3000"
+    healthcheck = "/healthz"
+    cpu         = "250"
+    memory      = "256"
 
-  activeregions = ["falkenstein-1", "virginia-1"]
-  project       = bahriya_project.web.id
-  registry      = bahriya_registry.ghcr.handle
+    env = {
+      "NODE_ENV" = "production"
+    }
 
-  newenvvar = [
-    { key = "NODE_ENV", value = "production" },
-  ]
+    # Environment variable name = secret handle.
+    secrets = {
+      "DATABASE_PASSWORD" = bahriya_secret.db_password.handle
+    }
+  }
 
-  secretsenvvar = [
-    { name = "DATABASE_PASSWORD", secret = bahriya_secret.db_password.handle },
-  ]
+  scaling = {
+    replicas     = "2"
+    max_replicas = "5"
+  }
 
-  hostnames = [
-    { hostname = "api.example.com" },
-  ]
+  networking = {
+    domains = [
+      { hostname = "api.example.com" },
+    ]
 
-  # Attach project-scoped vault/config items (mounted as files) and a
-  # container-scoped network policy (applies to this container's pods only).
-  tlsbundles = [
-    { handle = bahriya_tls_bundle.edge.handle, mountpath = "/etc/tls" },
-  ]
+    # A network policy listed here applies to this container only.
+    network_policies = [bahriya_network_policy.web_tier.handle]
+  }
 
-  networkpolicies = [bahriya_network_policy.web_tier.handle]
+  # Vault and config items attached to the project are mounted as files.
+  vault = {
+    tls_bundles = [
+      { handle = bahriya_tls_bundle.edge.handle, mount_path = "/etc/tls" },
+    ]
+  }
 }
 ```
 
 ### Worker
 
 ```terraform
+resource "bahriya_project" "web" {
+  name    = "Web"
+  handle  = "web"
+  regions = ["falkenstein-1"]
+}
+
 resource "bahriya_container" "queue" {
-  handle = "queue-worker"
-  name   = "Queue Worker"
-  image  = "ghcr.io/myorg/app:1.0.0"
-  type   = "worker"
+  name    = "Queue Worker"
+  handle  = "queue-worker"
+  type    = "worker"
+  project = bahriya_project.web.id
+  regions = ["falkenstein-1"]
 
-  mincpu    = "200"
-  minmemory = "256"
+  workload = {
+    image   = "ghcr.io/myorg/app:1.0.0"
+    cpu     = "200"
+    memory  = "256"
+    command = ["/usr/bin/php"]
+    args    = ["artisan", "queue:work", "--tries=3"]
+  }
 
-  autoscalingminreplicas = "1"
-  activeregions          = ["falkenstein-1"]
-  project                = bahriya_project.web.id
-
-  command = ["/usr/bin/php"]
-  args    = ["artisan", "queue:work", "--tries=3"]
+  scaling = {
+    replicas = "1"
+  }
 }
 ```
 
-### Cron Job
+### Scheduled job
 
 ```terraform
+resource "bahriya_project" "web" {
+  name    = "Web"
+  handle  = "web"
+  regions = ["falkenstein-1"]
+}
+
 resource "bahriya_container" "nightly" {
-  handle   = "nightly-reports"
-  name     = "Nightly Reports"
-  image    = "ghcr.io/myorg/reports:1.0.0"
-  type     = "cronjob"
-  schedule = "0 2 * * *"
-  timezone = "Europe/London"
+  name    = "Nightly Reports"
+  handle  = "nightly-reports"
+  type    = "cronjob"
+  project = bahriya_project.web.id
+  regions = ["falkenstein-1"]
 
-  concurrencypolicy = "Forbid"
+  workload = {
+    image   = "ghcr.io/myorg/reports:1.0.0"
+    cpu     = "100"
+    memory  = "256"
+    command = ["/usr/bin/php"]
+    args    = ["artisan", "reports:nightly"]
+  }
 
-  mincpu    = "100"
-  minmemory = "256"
+  scaling = {
+    replicas = "1"
+  }
 
-  autoscalingminreplicas = "1"
-  activeregions          = ["falkenstein-1"]
-  project                = bahriya_project.web.id
-
-  command = ["/usr/bin/php"]
-  args    = ["artisan", "reports:nightly"]
+  schedule = {
+    schedule    = "0 2 * * *"
+    tz          = "Europe/London"
+    concurrency = "Forbid"
+  }
 }
 ```
 
-### Choosing the Container Protocol
+### Choosing the protocol
 
-`protocol` declares what the container speaks on its port. It governs **both** the health probe and the ingress upstream — which is why it is one setting and not two. Setting only the probe would leave a TLS container reporting healthy while the gateway still spoke plain HTTP to it, and every external request would fail.
+`workload.protocol` says what the container speaks on `workload.port`. The same setting decides both how its health is checked and how requests reach it, so the two can never disagree.
 
-The default, `http`, sends a GET to `healthcheckpath`. Use `https` when the container terminates TLS on its own listening port, and `tcp` when it does not speak HTTP at all — a TCP probe only checks the port accepts a connection, so `healthcheckpath` is not used.
+The default, `http`, checks health with a GET request to `workload.healthcheck`. Use `https` when the container serves TLS on its own port; its certificate is not verified, so a self-signed certificate is acceptable. Use `tcp` when the container does not speak HTTP: the health check then only confirms that the port accepts a connection, and `workload.healthcheck` is not used.
 
 ```terraform
-# Terminates TLS itself — probe over HTTPS. The certificate is not verified,
-# so a self-signed one is fine.
+resource "bahriya_project" "web" {
+  name    = "Web"
+  handle  = "web"
+  regions = ["falkenstein-1"]
+}
+
+# Terminates TLS itself, so the health check probes over HTTPS. The
+# certificate is not verified, so a self-signed certificate is acceptable.
 resource "bahriya_container" "secure_api" {
-  handle            = "secure-api"
-  name              = "Secure API"
-  image             = "ghcr.io/org/secure-api:2.0.0"
-  containerport     = "8443"
-  healthcheckpath   = "/healthz"
-  protocol          = "https"
-  mincpu            = "100"
-  minmemory         = "128"
-  activeregions     = ["falkenstein-1"]
-  project           = bahriya_project.web.id
+  name    = "Secure API"
+  handle  = "secure-api"
+  project = bahriya_project.web.id
+  regions = ["falkenstein-1"]
+
+  workload = {
+    image       = "ghcr.io/org/secure-api:2.0.0"
+    port        = "8443"
+    healthcheck = "/healthz"
+    protocol    = "https"
+    cpu         = "100"
+    memory      = "128"
+  }
+
+  scaling = {
+    replicas = "1"
+  }
 }
 
-# Speaks a binary protocol, not HTTP — probe the port only.
+# Speaks a binary protocol rather than HTTP, so only the port is probed.
 resource "bahriya_container" "queue_bridge" {
-  handle            = "queue-bridge"
-  name              = "Queue Bridge"
-  image             = "registry.example.com/team/bridge:1.4.2"
-  containerport     = "9000"
-  protocol          = "tcp"
-  mincpu            = "50"
-  minmemory         = "128"
-  activeregions     = ["falkenstein-1"]
-  project           = bahriya_project.web.id
+  name    = "Queue Bridge"
+  handle  = "queue-bridge"
+  project = bahriya_project.web.id
+  regions = ["falkenstein-1"]
+
+  workload = {
+    image    = "registry.example.com/team/bridge:1.4.2"
+    port     = "9000"
+    protocol = "tcp"
+    cpu      = "50"
+    memory   = "128"
+  }
+
+  scaling = {
+    replicas = "1"
+  }
 }
 ```
 
-### With Rate Limiting and IP Rules
+### Rate limiting and IP lists
 
 ```terraform
+resource "bahriya_project" "web" {
+  name    = "Web"
+  handle  = "web"
+  regions = ["falkenstein-1"]
+}
+
 resource "bahriya_container" "api" {
-  handle          = "rate-limited-api"
-  name            = "Rate Limited API"
-  image           = "nginx:alpine"
-  containerport   = "80"
-  healthcheckpath = "/"
-  mincpu          = "100"
-  minmemory       = "128"
+  name    = "Rate Limited API"
+  handle  = "rate-limited-api"
+  project = bahriya_project.web.id
+  regions = ["falkenstein-1"]
 
-  autoscalingminreplicas = "1"
-  activeregions          = ["falkenstein-1"]
-  project                = bahriya_project.web.id
+  workload = {
+    image       = "nginx:alpine"
+    port        = "80"
+    healthcheck = "/"
+    cpu         = "100"
+    memory      = "128"
+  }
 
-  ratelimitingenabled          = true
-  ratelimitingrequestspersecond = 10
-  ratelimitingrequestsperminute = 300
+  scaling = {
+    replicas = "1"
+  }
 
-  ipwhitelistenabled = true
-  ipwhitelist        = ["203.0.113.0/24", "198.51.100.0/24"]
+  security = {
+    rate_limiting = {
+      enabled    = true
+      per_second = 10
+      per_minute = 300
+    }
+
+    ip_allowlist = {
+      enabled = true
+      ips     = ["203.0.113.0/24", "198.51.100.0/24"]
+    }
+  }
 }
 ```
 
+To apply these controls to one URL prefix only, use `bahriya_path_rule`.
+
+<!-- schema generated by tfplugindocs -->
 ## Schema
 
 ### Required
 
-- `handle` (String) - Unique lowercase handle. Immutable — changing this forces recreation. Handles are **not released** on delete (soft-delete).
-- `name` (String) - Display name.
-- `image` (String) - Container image reference. An explicit tag or digest is **required** — an untagged reference is rejected, because the deployment would render an unpullable image.
-- `mincpu` (String) - Minimum CPU in millicores.
-- `minmemory` (String) - Minimum memory in megabytes.
-- `activeregions` (List of String) - Active regions. At least one required.
+- `handle` (String) Short name that identifies the container in hostnames and references. Lowercase letters, digits and hyphens only.
+- `name` (String) Display name of the container, up to 100 characters.
+- `regions` (List of String) Regions this container deploys into. At least one is required.
+- `workload` (Attributes) (see [below for nested schema](#nestedatt--workload))
 
 ### Optional
 
-- `type` (String) - Container type: `http` (default), `worker`, or `cronjob`.
-- `containerport` (String) - Port the container listens on. **Required for HTTP containers** — deploy will fail without it.
-- `healthcheckpath` (String) - Health check endpoint path. **Required for HTTP containers** — the platform probes this path to decide if the container is healthy.
-- `protocol` (String) - The protocol the container speaks on its port: `http` (default), `https` or `tcp`. Governs **both** how the platform health-probes the container and how external traffic is delivered to it. `https` sends the probe over TLS (the certificate is not verified) and annotates the Service with `konghq.com/protocol: https` so the gateway speaks HTTPS upstream. `tcp` only checks the port accepts a connection and ignores `healthcheckpath`.
-- `project` (String) - Project UUID. Changing this forces recreation.
-- `registry` (String) - Registry handle for private images.
-- `autoscalingminreplicas` (String) - Minimum replicas.
-- `autoscalingmaxreplicas` (String) - Maximum replicas (enables autoscaling).
-- `autoscalingtargetcpu` (String) - CPU utilisation target for autoscaling.
-- `autoscalingtargetmemory` (String) - Memory utilisation target for autoscaling.
-- `autoscalingenabled` (Boolean) - Whether autoscaling is enabled.
-- `command` (List of String) - Override container ENTRYPOINT.
-- `args` (List of String) - Override container CMD arguments.
-- `bootstraptime` (Number) - Expected application bootstrap time in seconds, used for startup probe timing.
-- `ephemeralstoragegb` (Number) - Ephemeral storage in GB per pod.
-- `externalnetworkingenabled` (Boolean) - Expose the container externally via ingress.
-- `defaulthostname` (String) - Host alias for per-region default hostnames.
-- `customdnsmode` (String) - Custom DNS mode.
-- `dnsfailoverenabled` (Boolean) - Enable DNS failover.
-- `dnsttl` (Number) - DNS TTL in seconds for vanity records.
-
-**Vault & config attachments:**
-
-Each entry references an item already attached to the container's project (by handle) and specifies where it is mounted. Assign with attribute syntax, e.g. `tlsbundles = [{ handle = "edge", mountpath = "/etc/tls" }]`.
-
-- `tlsbundles` (Attributes List) - TLS bundles mounted as a Kubernetes Secret volume. (see [below for nested schema](#nestedatt--tlsbundles))
-- `x509certs` (Attributes List) - x509 certificates mounted as files. (see [below for nested schema](#nestedatt--x509certs))
-- `gpgkeypairs` (Attributes List) - GPG keypairs mounted as files. (see [below for nested schema](#nestedatt--gpgkeypairs))
-- `sshkeypairs` (Attributes List) - SSH keypairs mounted as files. (see [below for nested schema](#nestedatt--sshkeypairs))
-- `encryptionkeys` (Attributes List) - Encryption keys mounted as files. Env-var injection is not supported for encryption keys. (see [below for nested schema](#nestedatt--encryptionkeys))
-- `jsonconfigs` (Attributes List) - JSON configs mounted as files via a ConfigMap volume. (see [below for nested schema](#nestedatt--jsonconfigs))
-- `yamlconfigs` (Attributes List) - YAML configs mounted as files via a ConfigMap volume. (see [below for nested schema](#nestedatt--yamlconfigs))
-- `plainconfigs` (Attributes List) - Plain-text configs mounted as files via a ConfigMap volume. (see [below for nested schema](#nestedatt--plainconfigs))
-- `envfiles` (Attributes List) - Env-files injected as environment variables via `envFrom`. (see [below for nested schema](#nestedatt--envfiles))
-- `networkpolicies` (List of String) - Network policies narrowed to this container, referenced by handle. When a policy is listed here it applies to only this container's pods instead of the whole project.
-
-**Observability (HTTP + worker):**
-
-- `prometheusport` (String) - Port exposing Prometheus metrics.
-- `prometheuspath` (String) - Path to Prometheus metrics endpoint (default `/metrics`).
-
-**Security (HTTP only):**
-
-- `basicauthenabled` (Boolean) - Enable basic authentication on the container ingress.
-- `ratelimitingenabled` (Boolean) - Enable rate limiting by IP.
-- `ratelimitingrequestspersecond` (Number) - Max requests per second per IP.
-- `ratelimitingrequestsperminute` (Number) - Max requests per minute per IP.
-- `ratelimitingrequestsperhour` (Number) - Max requests per hour per IP.
-- `ipwhitelistenabled` (Boolean) - Enable IP allow-list.
-- `ipwhitelist` (List of String) - Allowed IP addresses/CIDRs.
-- `ipblacklistenabled` (Boolean) - Enable IP deny-list.
-- `ipblacklist` (List of String) - Denied IP addresses/CIDRs.
-
-**Proxy cache (HTTP only):**
-
-- `proxycacheenabled` (Boolean) - Enable proxy cache backed by managed Memcached.
-- `proxycachettl` (Number) - Seconds the plugin serves the cached entry.
-- `proxycachestoragettl` (Number) - Seconds Memcached keeps the entry.
-- `proxycachesizemb` (Number) - Total cache cluster size in MB (multiple of 256).
-- `proxycachemaxitemsizemb` (Number) - Max size of any single cached item.
-- `proxycachevariant` (String) - `pre-rate-limit` or `post-rate-limit`.
-- `proxycachecontenttypes` (List of String) - Response content types eligible for caching.
-- `proxycacherequestmethods` (List of String) - HTTP methods eligible for caching.
-- `proxycacheresponsecodes` (List of Number) - Response status codes eligible for caching.
-- `proxycachevaryheaders` (List of String) - Request headers that contribute to the cache key.
-- `proxycachevaryqueryparams` (List of String) - Query params that contribute to the cache key.
-- `proxycachevarybodyjsonfields` (List of String) - JSON body fields that contribute to the cache key.
-- `proxycachehonorcachecontrol` (Boolean) - Honour RFC 7234 Cache-Control directives.
-- `proxycacheallowforcecacheheader` (Boolean) - Allow `X-Proxy-Cache-Memcached-Force: true` header to bypass checks.
-
-**Schedule (cronjob only):**
-
-- `schedule` (String) - 5-field cron expression. **Required for cron jobs.**
-- `timezone` (String) - IANA timezone the schedule fires in (default `UTC`).
-- `concurrencypolicy` (String) - `Allow`, `Forbid` (default), or `Replace`.
-- `suspended` (Boolean) - Pause scheduling without deleting the cron job.
-- `backofflimit` (Number) - Max retry attempts per execution.
-- `activedeadlineseconds` (Number) - Hard wall-clock cap per execution in seconds.
-- `ttlsecondsafterfinished` (Number) - Seconds to keep finished run pods for log inspection.
-- `startingdeadlineseconds` (Number) - Skip a run if more than N seconds late.
-- `successfuljobshistorylimit` (Number) - How many successful run records to keep.
-- `failedjobshistorylimit` (Number) - How many failed run records to keep.
-
-### Nested Schemas
-
-All nested items are **attributes**, not blocks — assign them with `=` and a list of objects, e.g. `newenvvar = [{ key = "K", value = "V" }]`.
-
-<a id="nestedatt--newenvvar"></a>
-
-#### Nested Schema for `newenvvar` (Attributes List)
-
-Environment variable key-value pairs.
-
-- `key` (String, Required) - Variable name.
-- `value` (String, Required) - Variable value.
-
-<a id="nestedatt--secretsenvvar"></a>
-
-#### Nested Schema for `secretsenvvar` (Attributes List)
-
-Inject a secret as an environment variable.
-
-- `name` (String, Required) - Environment variable name inside the container.
-- `secret` (String, Required) - Secret handle to inject.
-
-<a id="nestedatt--hostnames"></a>
-
-#### Nested Schema for `hostnames` (Attributes List)
-
-Custom hostnames attached to this container.
-
-- `hostname` (String, Required) - The hostname (e.g. `api.example.com`).
-- `wwwredirect` (Boolean, Optional) - Redirect `www.` prefix to the bare domain.
-
-<a id="nestedatt--basicauthcredentials"></a>
-
-#### Nested Schema for `basicauthcredentials` (Attributes List)
-
-Basic auth credentials (up to 10). HTTP containers only.
-
-- `username` (String, Required) - Username.
-- `password` (String, Required) - Password.
-
-<a id="nestedatt--initjobs"></a>
-
-#### Nested Schema for `initjobs` (Attributes List)
-
-Init jobs that run to completion before the main container starts. HTTP containers only.
-
-- `handle` (String, Required) - Init job handle.
-- `image` (String, Required) - Container image. An explicit tag or digest is required, as for the parent container.
-- `command` (List of String, Optional) - Override ENTRYPOINT.
-- `args` (List of String, Optional) - Override CMD arguments.
-- `mincpu` (String, Optional) - CPU in millicores.
-- `minmemory` (String, Optional) - Memory in megabytes.
-- `registry` (String, Optional) - Registry handle for private images.
-
-<a id="nestedatt--persistentvolumes"></a>
-
-#### Nested Schema for `persistentvolumes` (Attributes List)
-
-Persistent volumes. Each replica gets its own copy. Containers with persistent volumes cannot use autoscaling.
-
-- `handle` (String, Required) - Volume handle.
-- `mountpath` (String, Required) - Mount path inside the container.
-- `sizegb` (Number, Required) - Volume size in GB.
-
-The vault/config mounts below share the same shape: `handle` of a project-attached item plus the `mountpath` to render it at.
-
-<a id="nestedatt--tlsbundles"></a>
-
-#### Nested Schema for `tlsbundles` (Attributes List)
-
-- `handle` (String, Required) - Handle of a project-attached TLS bundle.
-- `mountpath` (String, Required) - Path to mount the bundle at inside the container.
-
-<a id="nestedatt--x509certs"></a>
-
-#### Nested Schema for `x509certs` (Attributes List)
-
-- `handle` (String, Required) - Handle of a project-attached x509 certificate.
-- `mountpath` (String, Required) - Path to mount the certificate at.
-
-<a id="nestedatt--gpgkeypairs"></a>
-
-#### Nested Schema for `gpgkeypairs` (Attributes List)
-
-- `handle` (String, Required) - Handle of a project-attached GPG keypair.
-- `mountpath` (String, Required) - Path to mount the keypair at.
-
-<a id="nestedatt--sshkeypairs"></a>
-
-#### Nested Schema for `sshkeypairs` (Attributes List)
-
-- `handle` (String, Required) - Handle of a project-attached SSH keypair.
-- `mountpath` (String, Required) - Path to mount the keypair at.
-
-<a id="nestedatt--encryptionkeys"></a>
-
-#### Nested Schema for `encryptionkeys` (Attributes List)
-
-- `handle` (String, Required) - Handle of a project-attached encryption key.
-- `mountpath` (String, Required) - Path to mount the key at.
-
-<a id="nestedatt--jsonconfigs"></a>
-
-#### Nested Schema for `jsonconfigs` (Attributes List)
-
-- `handle` (String, Required) - Handle of a project-attached JSON config.
-- `mountpath` (String, Required) - Path to mount the config at.
-
-<a id="nestedatt--yamlconfigs"></a>
-
-#### Nested Schema for `yamlconfigs` (Attributes List)
-
-- `handle` (String, Required) - Handle of a project-attached YAML config.
-- `mountpath` (String, Required) - Path to mount the config at.
-
-<a id="nestedatt--plainconfigs"></a>
-
-#### Nested Schema for `plainconfigs` (Attributes List)
-
-- `handle` (String, Required) - Handle of a project-attached plain-text config.
-- `mountpath` (String, Required) - Path to mount the config at.
-
-<a id="nestedatt--envfiles"></a>
-
-#### Nested Schema for `envfiles` (Attributes List)
-
-- `handle` (String, Required) - Handle of a project-attached env-file.
-- `injectionmethod` (String, Optional) - How the entries are injected (defaults to `envFrom`).
+- `configs` (Attributes) (see [below for nested schema](#nestedatt--configs))
+- `init_jobs` (Attributes List) Init jobs that run to completion before the main container starts. HTTP containers only. Up to a configurable maximum (default 3). Init jobs run within the main container's reserved CPU and memory and are not billed separately. (see [below for nested schema](#nestedatt--init_jobs))
+- `networking` (Attributes) (see [below for nested schema](#nestedatt--networking))
+- `observability` (Attributes) (see [below for nested schema](#nestedatt--observability))
+- `project` (String) Identifier (UUID) of the project the container belongs to. It is set when the container is created and cannot be changed.
+- `proxy_cache` (Attributes) (see [below for nested schema](#nestedatt--proxy_cache))
+- `scaling` (Attributes) (see [below for nested schema](#nestedatt--scaling))
+- `schedule` (Attributes) (see [below for nested schema](#nestedatt--schedule))
+- `security` (Attributes) (see [below for nested schema](#nestedatt--security))
+- `storage` (Attributes) (see [below for nested schema](#nestedatt--storage))
+- `type` (String) Container type. HTTP containers answer requests at their hostnames; workers run continuously without access from the internet; cron jobs run on a schedule. Defaults to `"http"`.
+- `vault` (Attributes) (see [below for nested schema](#nestedatt--vault))
 
 ### Read-Only
 
-- `id` (String) - Container UUID.
-- `status` (String) - Current container status.
-- `organisation` (String) - Organisation UUID.
-- `maxcpu` (String) - Computed CPU limit.
-- `maxmemory` (String) - Computed memory limit.
-- `projectname` (String) - Project display name.
-- `vanityhostname` (String) - Platform-assigned vanity hostname.
-- `proxycachememcached` (String) - ID of the managed Memcached instance backing the proxy cache.
+- `created` (Attributes) When the container was created (UTC). (see [below for nested schema](#nestedatt--created))
+- `id` (String) Unique identifier (UUID) of the container, assigned by the platform.
+- `organisation` (String) Identifier (UUID) of the organisation that owns the container.
+- `projectname` (String) Name of the project the container belongs to.
+- `restartedat` (Attributes) When the container was last restarted on request (UTC). Null if it has never been restarted. (see [below for nested schema](#nestedatt--restartedat))
+- `status` (String) Lifecycle state of the container: provisioning, running, terminating, terminated or error.
+- `updated` (Attributes) When the container was last changed (UTC). (see [below for nested schema](#nestedatt--updated))
+
+<a id="nestedatt--workload"></a>
+### Nested Schema for `workload`
+
+Required:
+
+- `cpu` (String) CPU requested for each replica, in millicores (1000 millicores is one vCPU).
+- `image` (String) The container image to deploy, including the registry host when it is not Docker Hub. An explicit tag or digest is required — an untagged reference is rejected.
+- `memory` (String) Memory requested for each replica, in MiB.
+
+Optional:
+
+- `args` (List of String) Override the container image CMD arguments.
+- `bootstrap_time` (Number) Expected application bootstrap time in seconds. Used to configure startup probe timing.
+- `command` (List of String) Override the container image CMD entrypoint.
+- `env` (Map of String) Environment variables set in the container, as name and value pairs.
+- `healthcheck` (String) Health check endpoint path. Required for HTTP containers, optional for workers.
+- `port` (String) Port the container listens on. Required for HTTP containers, optional for workers.
+- `protocol` (String) The protocol this container speaks on its port. It decides both how the container's health is checked and how requests reach it. `http` is the default. `https` is for a container that serves TLS on its own port: health checks and requests reach it over TLS, and its certificate is not verified. `tcp` only checks that the port accepts a connection and ignores the health check path; it suits a workload that does not speak HTTP. Defaults to `"http"`.
+- `registry` (String) Identifier (UUID) of the registry whose credentials are used to pull a private image. Leave it unset for a public image.
+- `secrets` (Map of String) Environment variables whose values come from secrets in the organisation vault. Each entry maps a variable name to a secret.
+
+Read-Only:
+
+- `max_cpu` (String) Server-computed: request x limit_multiplier (config). Not accepted from clients.
+- `max_memory` (String) Server-computed: request x limit_multiplier (config). Not accepted from clients.
+
+
+<a id="nestedatt--configs"></a>
+### Nested Schema for `configs`
+
+Optional:
+
+- `env_files` (Attributes List) Env-files attached to this container. Entries are injected as environment variables via envFrom. (see [below for nested schema](#nestedatt--configs--env_files))
+- `json_configs` (Attributes List) JSON configs attached to this container, each mounted as a file. (see [below for nested schema](#nestedatt--configs--json_configs))
+- `plain_configs` (Attributes List) Plain-text configs attached to this container, each mounted as a file. (see [below for nested schema](#nestedatt--configs--plain_configs))
+- `yaml_configs` (Attributes List) YAML configs attached to this container, each mounted as a file. (see [below for nested schema](#nestedatt--configs--yaml_configs))
+
+<a id="nestedatt--configs--env_files"></a>
+### Nested Schema for `configs.env_files`
+
+Required:
+
+- `handle` (String) Handle of the env-file attached to the project.
+
+Optional:
+
+- `injection_method` (String) How the env-file entries are injected into the container. Defaults to `"envFrom"`.
+
+
+<a id="nestedatt--configs--json_configs"></a>
+### Nested Schema for `configs.json_configs`
+
+Required:
+
+- `handle` (String) Handle of the vault/config item attached to the project.
+- `mount_path` (String) Absolute mount path inside the container where the item is rendered.
+
+
+<a id="nestedatt--configs--plain_configs"></a>
+### Nested Schema for `configs.plain_configs`
+
+Required:
+
+- `handle` (String) Handle of the vault/config item attached to the project.
+- `mount_path` (String) Absolute mount path inside the container where the item is rendered.
+
+
+<a id="nestedatt--configs--yaml_configs"></a>
+### Nested Schema for `configs.yaml_configs`
+
+Required:
+
+- `handle` (String) Handle of the vault/config item attached to the project.
+- `mount_path` (String) Absolute mount path inside the container where the item is rendered.
+
+
+
+<a id="nestedatt--init_jobs"></a>
+### Nested Schema for `init_jobs`
+
+Required:
+
+- `handle` (String) Short identifier for this init job. Unique within the container. Used to address logs and events.
+- `image` (String) Container image for the init job. An explicit tag or digest is required — an untagged reference is rejected.
+
+Optional:
+
+- `args` (List of String) Override the image CMD arguments. Trimmed per-element; empty entries dropped.
+- `command` (List of String) Override the image ENTRYPOINT — one token per array entry. Use the same conventions as cron/worker: `[/bin/sh, -c]` for shell-style commands, or a direct exec form like `[./migrate]`. Null leaves the image entrypoint untouched.
+- `cpu` (String) Optional CPU request override (millicores). Cannot exceed the parent container's `mincpu` — init jobs share the main container's reserved capacity and are not billed separately. Leave blank to inherit. The UI no longer exposes this knob; kept for Terraform / Reis CLI users who already wire it.
+- `env` (Map of String) Environment variables for the init job (same shape as the main container).
+- `memory` (String) Optional memory request override (MB). Cannot exceed the parent container's `minmemory` — init jobs share the main container's reserved capacity and are not billed separately. Leave blank to inherit. The UI no longer exposes this knob; kept for Terraform / Reis CLI users who already wire it.
+- `registry` (String) Optional private registry id. Must belong to the same project as the parent container.
+- `secrets` (Map of String) Project secrets exposed as env vars for the init job.
+- `volumes` (Attributes List) Volumes from the parent container to mount in this init job. Defaults to none — opt-in per volume. (see [below for nested schema](#nestedatt--init_jobs--volumes))
+
+<a id="nestedatt--init_jobs--volumes"></a>
+### Nested Schema for `init_jobs.volumes`
+
+Required:
+
+- `handle` (String) Handle of a persistent or ephemeral volume defined on the parent container.
+- `mount_path` (String) Mount path inside the init job container. Defaults to the parent container's mount path; can be overridden per init job.
+
+
+
+<a id="nestedatt--networking"></a>
+### Nested Schema for `networking`
+
+Optional:
+
+- `custom_dns_mode` (String) How traffic is spread across regions on the vanity hostname: none, round-robin or geo. A mode other than none requires two or more regions.
+- `default_hostname` (String) Host alias from which the default hostname in each region is built, such as mamluk-123.helsinki-1.x.on.bahriya.app.
+- `dns_failover` (Boolean) Enable DNS failover for this container. Defaults to `false`.
+- `dns_ttl` (Number) DNS TTL in seconds for vanity (rr/geo) records. Null uses provider default (300s). Region-specific CNAMEs in the containers zone use a separate platform-wide TTL.
+- `domains` (Attributes List) Custom hostnames attached to this container. Up to a configurable maximum (default 5). The first hostname is included; each additional hostname is billed via the extra_custom_hostname SKU. (see [below for nested schema](#nestedatt--networking--domains))
+- `external` (Boolean) Make this container reachable from the internet at its hostnames. When false, only workloads in the same project can reach it. The console turns this on for new HTTP containers; Reis and Terraform default to false, so leaving it out of a file never publishes a hostname. Defaults to `false`.
+- `network_policies` (List of String) Network policies narrowed to this container, referenced by handle. When a policy is listed here it applies to only this container instead of the whole project.
+- `vanity_hostname` (String) Platform-managed hostname that spreads traffic across the regions of the container according to the custom DNS mode. It requires two or more regions.
+
+<a id="nestedatt--networking--domains"></a>
+### Nested Schema for `networking.domains`
+
+Required:
+
+- `hostname` (String) Custom hostname (FQDN). Customer is responsible for pointing a CNAME at the container CNAME target. Lowercased and trimmed server-side.
+
+Optional:
+
+- `wwwredirect` (Boolean) Whether www.{hostname} redirects to {hostname}. Valid only when the hostname is an apex domain, such as example.com, and not www.example.com or sub.example.com. Defaults to `false`.
+
+
+
+<a id="nestedatt--observability"></a>
+### Nested Schema for `observability`
+
+Optional:
+
+- `prometheus_path` (String) Path to Prometheus metrics endpoint. Defaults to /metrics if not specified. Requires prometheus port to be set.
+- `prometheus_port` (String) Port exposing Prometheus metrics. Enables automatic scraping when set. Not applicable to cron jobs.
+
+
+<a id="nestedatt--proxy_cache"></a>
+### Nested Schema for `proxy_cache`
+
+Optional:
+
+- `allow_force_cache_header` (Boolean) Allow clients to send X-Proxy-Cache-Memcached-Force: true to bypass request-method/Cache-Control checks. Defaults to `false`.
+- `cache_ttl` (Number) Seconds the plugin serves the cached entry. Defaults to `300`.
+- `content_types` (List of String) Response content types eligible for caching (exact match).
+- `enabled` (Boolean) Whether responses from the container are cached in front of it, in a managed Memcached cluster. Available on HTTP containers only. Defaults to `false`.
+- `honor_cache_control` (Boolean) Honour RFC 7234 Cache-Control directives from upstream. Defaults to `true`.
+- `max_item_size_mb` (Number) Memcached -I value. Max size of any single cached item. Must be <= size/3.
+- `methods` (List of String) HTTP methods eligible for caching.
+- `response_codes` (List of Number) Response status codes eligible for caching.
+- `size_mb` (Number) Total size of the response cache, in MB. It must be a multiple of 256. The cache runs on 3 nodes, each with one third of the size rounded down to a whole MB, so a size that is not divisible by 3 is provisioned and billed as the nearest lower multiple of 3: 1024 becomes 1023 (3 × 341). A multiple of 768, such as 768, 1536, 2304 or 3072, is provisioned exactly as given.
+- `storage_ttl` (Number) Seconds memcached keeps the entry. Must be >= cache_ttl when set.
+- `variant` (String) Pre-rate-limit serves cache hits without consuming a rate-limit token. Post-rate-limit counts every request, hit or miss. Defaults to `"post_ratelimit"`.
+- `vary_body_json_fields` (List of String) JSON body fields that contribute to the cache key (scalar values only).
+- `vary_headers` (List of String) Request headers that contribute to the cache key.
+- `vary_query_params` (List of String) Query params that contribute to the cache key. Null = all params.
+
+Read-Only:
+
+- `memcached` (String) ID of the managed memcached instance backing the proxy cache.
+
+
+<a id="nestedatt--scaling"></a>
+### Nested Schema for `scaling`
+
+Optional:
+
+- `autoscaling` (Boolean) Whether the number of replicas scales automatically between the minimum and maximum replicas. Autoscaling cannot be enabled while persistent volumes are attached. Defaults to `false`.
+- `max_replicas` (String) Maximum number of replicas when autoscaling is enabled. Setting it enables autoscaling.
+- `replicas` (String) Number of replicas to run, and the minimum number when autoscaling is enabled. Defaults to `"1"`.
+- `target_cpu` (String) Average CPU utilisation that autoscaling aims to keep, as a percentage of the requested CPU.
+- `target_memory` (String) Average memory utilisation that autoscaling aims to keep, as a percentage of the requested memory.
+
+
+<a id="nestedatt--schedule"></a>
+### Nested Schema for `schedule`
+
+Optional:
+
+- `active_deadline` (Number) Max wall-time in seconds a single run may take before being killed. Null means no limit.
+- `backoff_limit` (Number) Number of retries before a run is considered failed. Defaults to `3`.
+- `concurrency` (String) Behaviour when a previous execution is still running at the next fire time. Defaults to `"Forbid"`.
+- `failed_history` (Number) How many failed runs are kept in the run history. Older runs are removed automatically. Defaults to `3`.
+- `schedule` (String) 5-field cron expression. Required for cron jobs.
+- `starting_deadline` (Number) If a scheduled run is missed by more than this many seconds, skip it. Null means catch-up indefinitely.
+- `successful_history` (Number) How many successful runs are kept in the run history. Older runs are removed automatically. Defaults to `3`.
+- `suspended` (Boolean) Pause scheduling without deleting the cron job. No new runs while suspended. Defaults to `false`.
+- `ttl_seconds` (Number) Seconds a finished run is kept, so its logs can be read, before it is removed. Defaults to `3600`.
+- `tz` (String) IANA time zone in which the schedule is evaluated, such as Europe/London. Defaults to UTC. The schedule follows this time zone in every region the cron job runs in. Defaults to `"UTC"`.
+
+
+<a id="nestedatt--security"></a>
+### Nested Schema for `security`
+
+Optional:
+
+- `basic_auth` (Attributes List) Up to 10 basic auth credentials (username/password). Passwords are AES-encrypted at rest and never returned in plaintext; send the masked sentinel to preserve an existing password. (see [below for nested schema](#nestedatt--security--basic_auth))
+- `basic_auth_enabled` (Boolean) Whether requests to the container require HTTP basic authentication. Available on HTTP containers only. Defaults to `false`.
+- `ip_allowlist` (Attributes) (see [below for nested schema](#nestedatt--security--ip_allowlist))
+- `ip_denylist` (Attributes) (see [below for nested schema](#nestedatt--security--ip_denylist))
+- `rate_limiting` (Attributes) (see [below for nested schema](#nestedatt--security--rate_limiting))
+
+<a id="nestedatt--security--basic_auth"></a>
+### Nested Schema for `security.basic_auth`
+
+Required:
+
+- `password` (String, Sensitive) Plaintext password on write; returned as the masked sentinel "value-hidden-for-your-own-good" on read. Sending the sentinel preserves the existing stored password.
+- `username` (String) User name for HTTP basic authentication: 1 to 128 characters, using letters, digits, full stops, underscores and hyphens. It must be unique across all containers; the console prefixes it with the container handle, such as mywebsite-alice, to keep it unique.
+
+
+<a id="nestedatt--security--ip_allowlist"></a>
+### Nested Schema for `security.ip_allowlist`
+
+Optional:
+
+- `enabled` (Boolean) Enable IP allow-list. Only IPs in the list can access the container. Defaults to `false`.
+- `ips` (List of String) IP addresses and CIDR ranges allowed to reach the container when the allow-list is enabled.
+
+
+<a id="nestedatt--security--ip_denylist"></a>
+### Nested Schema for `security.ip_denylist`
+
+Optional:
+
+- `enabled` (Boolean) Enable IP deny-list. IPs in the list are blocked. Defaults to `false`.
+- `ips` (List of String) IP addresses and CIDR ranges blocked from reaching the container when the deny-list is enabled.
+
+
+<a id="nestedatt--security--rate_limiting"></a>
+### Nested Schema for `security.rate_limiting`
+
+Optional:
+
+- `enabled` (Boolean) Whether requests to the container are rate limited per client IP address. Defaults to `false`.
+- `per_hour` (Number) Max requests per hour per IP (requires ratelimitingenabled).
+- `per_minute` (Number) Max requests per minute per IP (requires ratelimitingenabled).
+- `per_second` (Number) Max requests per second per IP (requires ratelimitingenabled).
+
+
+
+<a id="nestedatt--storage"></a>
+### Nested Schema for `storage`
+
+Optional:
+
+- `ephemeral_storage_gb` (Number) Ephemeral storage in GB per replica. First 3GB included free; each additional GB billed at the ephemeral rate. The maximum is platform-configurable (see GET /console/v1/services/containers). Defaults to `3`.
+- `persistent_volumes` (Attributes List) Persistent volumes attached to the container. Each replica gets its own copy of every volume. Containers with persistent volumes cannot use autoscaling. (see [below for nested schema](#nestedatt--storage--persistent_volumes))
+
+<a id="nestedatt--storage--persistent_volumes"></a>
+### Nested Schema for `storage.persistent_volumes`
+
+Required:
+
+- `handle` (String) Stable handle for the volume, unique within the container.
+- `mount_path` (String) Absolute mount path inside the container, unique within the container.
+- `size_gb` (Number) Volume size in GB. Each replica gets its own copy at this size. The per-volume maximum is platform-configurable (see GET /console/v1/services/containers).
+
+
+
+<a id="nestedatt--vault"></a>
+### Nested Schema for `vault`
+
+Optional:
+
+- `encryption_keys` (Attributes List) Encryption keys attached to this container, mounted as files. Env-var injection is not supported for encryption keys. (see [below for nested schema](#nestedatt--vault--encryption_keys))
+- `gpg_keypairs` (Attributes List) GPG keypairs attached to this container, mounted as files. (see [below for nested schema](#nestedatt--vault--gpg_keypairs))
+- `ssh_keypairs` (Attributes List) SSH keypairs attached to this container, mounted as files. (see [below for nested schema](#nestedatt--vault--ssh_keypairs))
+- `tls_bundles` (Attributes List) TLS bundles mounted into the container. Each entry names a TLS bundle attached to the project, by its handle, and the path at which its files are mounted. (see [below for nested schema](#nestedatt--vault--tls_bundles))
+- `x509_certs` (Attributes List) x509 certificates attached to this container, mounted as files. (see [below for nested schema](#nestedatt--vault--x509_certs))
+
+<a id="nestedatt--vault--encryption_keys"></a>
+### Nested Schema for `vault.encryption_keys`
+
+Required:
+
+- `handle` (String) Handle of the vault/config item attached to the project.
+- `mount_path` (String) Absolute mount path inside the container where the item is rendered.
+
+
+<a id="nestedatt--vault--gpg_keypairs"></a>
+### Nested Schema for `vault.gpg_keypairs`
+
+Required:
+
+- `handle` (String) Handle of the vault/config item attached to the project.
+- `mount_path` (String) Absolute mount path inside the container where the item is rendered.
+
+
+<a id="nestedatt--vault--ssh_keypairs"></a>
+### Nested Schema for `vault.ssh_keypairs`
+
+Required:
+
+- `handle` (String) Handle of the vault/config item attached to the project.
+- `mount_path` (String) Absolute mount path inside the container where the item is rendered.
+
+
+<a id="nestedatt--vault--tls_bundles"></a>
+### Nested Schema for `vault.tls_bundles`
+
+Required:
+
+- `handle` (String) Handle of the vault/config item attached to the project.
+- `mount_path` (String) Absolute mount path inside the container where the item is rendered.
+
+
+<a id="nestedatt--vault--x509_certs"></a>
+### Nested Schema for `vault.x509_certs`
+
+Required:
+
+- `handle` (String) Handle of the vault/config item attached to the project.
+- `mount_path` (String) Absolute mount path inside the container where the item is rendered.
+
+
+
+<a id="nestedatt--created"></a>
+### Nested Schema for `created`
+
+Read-Only:
+
+- `date` (String)
+- `timezone` (String)
+- `timezonetype` (Number)
+
+
+<a id="nestedatt--restartedat"></a>
+### Nested Schema for `restartedat`
+
+Read-Only:
+
+- `date` (String)
+- `timezone` (String)
+- `timezonetype` (Number)
+
+
+<a id="nestedatt--updated"></a>
+### Nested Schema for `updated`
+
+Read-Only:
+
+- `date` (String)
+- `timezone` (String)
+- `timezonetype` (Number)
 
 ## Import
 
-Containers can be imported using their UUID:
+Import a container by its UUID:
 
-```bash
+```shell
 terraform import bahriya_container.api 065df92e-4e46-436a-a0a0-aaaaaaaaaaaa
 ```
+
+~> **Note:** The API never returns basic authentication passwords. After importing, set each `security.basic_auth` password in your configuration; the next apply writes them.

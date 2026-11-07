@@ -1,67 +1,42 @@
 ---
-page_title: "bahriya_registry Resource - Bahriya"
+page_title: "{{.Name}} {{.Type}} - Bahriya"
 subcategory: ""
 description: |-
-  Manages a Bahriya registry credential for pulling private container images.
+  A registry credential: the server, username and password a container uses to pull a private image.
 ---
 
-{{/* This template serves as a starting point for documentation generation, and can be customized with hardcoded values and/or doc gen templates.
+# {{.Name}} ({{.Type}})
 
-For example, the {{ .SchemaMarkdown }} template can be used to replace manual schema documentation if descriptions of schema attributes are added in the provider source code. */ -}}
+A registry credential: the server, username and password used to pull private container images. The password is encrypted at rest and versioned, and the API never returns it. Changing `password` creates a new version and makes it current.
 
-# bahriya_registry (Resource)
+A container names its registry in `workload.registry`, by the registry's ID.
 
-Manages a Bahriya registry credential. Registries hold the credentials used to pull private container images. Reference a registry from a container via the `registry` attribute.
-
-Unlike projects and containers, registry handles **are released** on delete and can be reused.
+Registry handles are released when the registry is deleted, so a handle can be reused. Project and container handles are not.
 
 ## Example Usage
 
 ### GitHub Container Registry
 
-{{tffile "examples/resources/registry/example_1.tf"}}
+{{ tffile "examples/resources/registry/example_1.tf" }}
 
 ### Docker Hub
 
-{{tffile "examples/resources/registry/example_2.tf"}}
+{{ tffile "examples/resources/registry/example_2.tf" }}
 
-### AWS ECR
+### Amazon ECR
 
-{{tffile "examples/resources/registry/example_3.tf"}}
+{{ tffile "examples/resources/registry/example_3.tf" }}
 
-### Referencing from a Container
+### Pulling an image through the registry
 
-{{tffile "examples/resources/registry/example_4.tf"}}
+{{ tffile "examples/resources/registry/example_4.tf" }}
 
-## Schema
-
-### Required
-
-- `handle` (String) - Unique lowercase handle. Immutable — changing this forces recreation.
-- `name` (String) - Display name.
-- `server` (String) - Registry server hostname (e.g. `ghcr.io`, `registry-1.docker.io`).
-- `username` (String) - Registry username.
-- `password` (String, Sensitive) - Registry password or access token.
-
-### Optional
-
-- `maxversions` (Number) - Maximum number of historical versions to retain.
-
-### Read-Only
-
-- `id` (String) - Registry UUID.
-- `billable` (Boolean) - Whether this registry is billable.
-- `currentversion` (Number) - The currently active version number.
-- `currentversionid` (String) - UUID of the currently active version.
-- `managedbyresourceid` (String) - UUID of the managing resource, if any.
-- `managedbyresourcetype` (String) - Type of the managing resource, if any.
-- `organisation` (String) - Organisation UUID.
-- `versioncount` (Number) - How many versions are kept, the current one included.
+{{ .SchemaMarkdown | trimspace }}
 
 ## Import
 
-Registries can be imported using their UUID:
+Import a registry by its UUID:
 
-```bash
-terraform import bahriya_registry.ghcr 065df92e-4e46-436a-a0a0-aaaaaaaaaaaa
-```
+{{ codefile "shell" "examples/resources/registry/import.sh" }}
+
+~> **Note:** The API never returns the password. After importing, set `password` in your configuration; the next apply writes it as a new version.

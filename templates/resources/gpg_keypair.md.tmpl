@@ -1,53 +1,26 @@
 ---
-page_title: "bahriya_gpg_keypair Resource - Bahriya"
+page_title: "{{.Name}} {{.Type}} - Bahriya"
 subcategory: ""
 description: |-
-  Manages a Bahriya GPG (PGP) keypair — ASCII-armored public and private keys stored together.
+  A vault GPG keypair: an ASCII-armoured public and private key, versioned, that containers mount as files.
 ---
 
-{{/* This template serves as a starting point for documentation generation, and can be customized with hardcoded values and/or doc gen templates.
+# {{.Name}} ({{.Type}})
 
-For example, the {{ .SchemaMarkdown }} template can be used to replace manual schema documentation if descriptions of schema attributes are added in the provider source code. */ -}}
+A vault GPG (OpenPGP) keypair: an ASCII-armoured public key and its private key, stored together, encrypted at rest and versioned. The API never returns either key. Changing `public_key` or `private_key` creates a new version and makes it current.
 
-# bahriya_gpg_keypair (Resource)
-
-Manages a Bahriya GPG keypair. Both keys are stored ASCII-armored. The private key is encrypted at rest and is never returned on read.
+A container mounts its GPG keypairs in `vault.gpg_keypairs`.
 
 ## Example Usage
 
-{{tffile "examples/resources/gpg_keypair/example_1.tf"}}
+{{ tffile "examples/resources/gpg_keypair/example_1.tf" }}
 
-## Schema
-
-### Required
-
-- `handle` (String) - DNS-1123 compliant: lowercase alphanumeric and hyphens only. Immutable — changing forces recreation.
-- `name` (String) - Display name.
-- `publickey` (String, Sensitive) - ASCII-armored PGP public key.
-- `privatekey` (String, Sensitive) - ASCII-armored PGP private key. Never returned on read.
-
-### Optional
-
-- `maxversions` (Number) - Maximum number of historical versions to retain.
-
-### Read-Only
-
-- `id` (String) - Keypair UUID.
-- `algorithm` (String) - Key algorithm (RSA, EdDSA, etc.).
-- `billable` (Boolean) - Whether this keypair is billable.
-- `currentversion` (Number) - The currently active version number.
-- `keybits` (Number) - Key length in bits.
-- `keyid` (String) - The PGP key id.
-- `managedbyresourceid` (String) - UUID of the managing resource, if any.
-- `managedbyresourcetype` (String) - Type of the managing resource, if any.
-- `organisation` (String) - Organisation UUID.
-- `uid` (String) - The primary UID on the key.
-- `versioncount` (Number) - How many versions are kept, the current one included.
+{{ .SchemaMarkdown | trimspace }}
 
 ## Import
 
-```bash
-terraform import bahriya_gpg_keypair.signing 065df92e-4e46-436a-a0a0-aaaaaaaaaaaa
-```
+Import a GPG keypair by its UUID:
 
-~> **Note:** Keys are never returned by the API. After importing, you must set `publickey` and `privatekey` in configuration; the provider preserves the values from Terraform state.
+{{ codefile "shell" "examples/resources/gpg_keypair/import.sh" }}
+
+~> **Note:** The API never returns the keys. After importing, set `public_key` and `private_key` in your configuration; the next apply writes them as a new version.

@@ -96,7 +96,7 @@ func (r *roleResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 						},
 						"resource": schema.StringAttribute{
 							Required:    true,
-							Description: "Resource kind, e.g. attachables_registries, deployables_container_http.",
+							Description: "Resource kind, such as attachables_registries or deployables_container_http.",
 						},
 						"permission": schema.StringAttribute{
 							Required:    true,

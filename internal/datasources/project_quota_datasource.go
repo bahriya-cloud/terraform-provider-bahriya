@@ -75,19 +75,19 @@ func amountAttributes(description string) schema.SingleNestedAttribute {
 		Computed:    true,
 		Attributes: map[string]schema.Attribute{
 			"reserved_cpu": schema.StringAttribute{
-				Description: "CPU guaranteed to the workloads, e.g. \"1500m\".",
+				Description: "CPU guaranteed to the workloads, such as \"1500m\" (1.5 CPU cores).",
 				Computed:    true,
 			},
 			"reserved_memory": schema.StringAttribute{
-				Description: "Memory guaranteed to the workloads, e.g. \"2Gi\".",
+				Description: "Memory guaranteed to the workloads, such as \"2Gi\".",
 				Computed:    true,
 			},
 			"cpu_ceiling": schema.StringAttribute{
-				Description: "The most CPU the workloads may use, e.g. \"8000m\".",
+				Description: "The most CPU the workloads may use, such as \"8000m\" (8 CPU cores).",
 				Computed:    true,
 			},
 			"memory_ceiling": schema.StringAttribute{
-				Description: "The most memory the workloads may use, e.g. \"16G\".",
+				Description: "The most memory the workloads may use, such as \"16G\".",
 				Computed:    true,
 			},
 		},

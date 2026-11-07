@@ -39,19 +39,19 @@ func (p *bahriyaProvider) Metadata(_ context.Context, _ provider.MetadataRequest
 
 func (p *bahriyaProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description: "Manage Bahriya cloud resources (containers, projects, registries, secrets, memcached).",
+		Description: "Manages Bahriya Cloud resources: projects, containers, managed datastores, vault items, configs and network policies.",
 		Attributes: map[string]schema.Attribute{
 			"token": schema.StringAttribute{
-				Description: "Bahriya personal access token. Falls back to " + EnvToken + " env var.",
+				Description: "Bahriya personal access token. If not set, the " + EnvToken + " environment variable is used.",
 				Optional:    true,
 				Sensitive:   true,
 			},
 			"base_url": schema.StringAttribute{
-				Description: "Bahriya API base URL. Defaults to " + DefaultAPIURL + ". Falls back to " + EnvAPIURL + " env var.",
+				Description: "Bahriya API base URL. If not set, the " + EnvAPIURL + " environment variable is used, and otherwise " + DefaultAPIURL + ".",
 				Optional:    true,
 			},
 			"organisation_id": schema.StringAttribute{
-				Description: "Organisation UUID. Falls back to " + EnvOrganisationID + " env var.",
+				Description: "Organisation UUID. If not set, the " + EnvOrganisationID + " environment variable is used.",
 				Optional:    true,
 			},
 		},

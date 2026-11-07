@@ -4,10 +4,6 @@ description: |-
   The Bahriya provider manages every Bahriya Cloud resource.
 ---
 
-{{/* This template serves as a starting point for documentation generation, and can be customized with hardcoded values and/or doc gen templates.
-
-For example, the {{ .SchemaMarkdown }} template can be used to replace manual schema documentation if descriptions of schema attributes are added in the provider source code. */ -}}
-
 # Bahriya Provider
 
 The Bahriya provider lets you manage infrastructure on [Bahriya Cloud](https://bahriya.cloud) declaratively with Terraform. It supports every Bahriya resource — projects, containers, managed datastores, vault items, configs and network policies — so your entire estate can live in version control.
@@ -53,10 +49,12 @@ Use provider aliases to manage resources across organisations:
 
 {{tffile "examples/provider/example_3.tf"}}
 
-## Schema
+## The resource shape
 
-### Optional
+Every resource has the same shape as the matching Reis YAML file and the console's YAML view: the same friendly names (`cpu`, `max_replicas`, `tls_bundles`) and the same sections (`workload`, `scaling`, `security`). A Reis file and the equivalent Terraform resource line up key for key, so you can move between them without translating.
 
-- `token` (String, Sensitive) - Personal access token. Falls back to `BAHRIYA_TOKEN` environment variable.
-- `organisation_id` (String) - Organisation UUID. Falls back to `BAHRIYA_ORGANISATION_ID` environment variable.
-- `base_url` (String) - API base URL. Defaults to `https://api.bahriya.cloud/console/v1`. Falls back to `BAHRIYA_API_URL` environment variable.
+## Upgrading from 0.x
+
+Version 1.0 renames attributes and groups them into sections. Existing state upgrades automatically on the first plan, but configurations must be rewritten. See [Upgrading to version 1](guides/upgrading-to-v1).
+
+{{ .SchemaMarkdown | trimspace }}

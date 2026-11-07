@@ -92,7 +92,7 @@ resource "bahriya_container" "api" {
       { hostname = "api.example.com" },
     ]
 
-    # A network policy attached to this container applies to its pods only.
+    # A network policy listed here applies to this container only.
     network_policies = [bahriya_network_policy.web_tier.handle]
   }
 

@@ -1,51 +1,32 @@
 ---
-page_title: "bahriya_resource_grant Resource - Bahriya"
+page_title: "{{.Name}} {{.Type}} - Bahriya"
 subcategory: ""
 description: |-
-  Shares a specific resource instance with an organisation member — a user-level, additive instance ACL.
+  Shares one resource with one organisation member, granting permissions on that resource only.
 ---
 
-{{/* This template serves as a starting point for documentation generation, and can be customized with hardcoded values and/or doc gen templates.
+# {{.Name}} ({{.Type}})
 
-For example, the {{ .SchemaMarkdown }} template can be used to replace manual schema documentation if descriptions of schema attributes are added in the provider source code. */ -}}
+Grants one organisation member a set of permissions on **one resource**: a container, a Memcached instance, or a vault item, config, registry or network policy.
 
-# bahriya_resource_grant (Resource)
+A grant only ever adds access. It never removes access the member already has through their role, and it affects nothing but that one resource. The member must already belong to the organisation.
 
-Grants one organisation member a set of permissions on **one specific resource instance** (a container, a Memcached instance, or an attachable such as a registry or secret).
-
-Grants are **additive** — they only ever widen the member's access to that one instance; they never remove access the member already has through their role, and they affect nothing else. The member must already belong to the organisation.
-
-Because the API has no in-place update for a grant, changing any attribute (including the permission set) forces replacement: the old grant is revoked and a new one created.
+A grant cannot be changed in place, so changing any attribute, the permissions included, replaces it: the old grant is revoked and a new one is created.
 
 ## Example Usage
 
-### Share a container, read + update
+### Share a container, with read and update
 
-{{tffile "examples/resources/resource_grant/example_1.tf"}}
+{{ tffile "examples/resources/resource_grant/example_1.tf" }}
 
-### Share a registry, read-only
+### Share a registry, read only
 
-{{tffile "examples/resources/resource_grant/example_2.tf"}}
+{{ tffile "examples/resources/resource_grant/example_2.tf" }}
 
-## Schema
-
-### Required
-
-- `to_user` (String) UUID of the member to share with. Must already be a member of the organisation. Changing it replaces the grant.
-- `resource_type` (String) Resource kind, e.g. `deployables_container_http`, `attachables_registries`. Changing it replaces the grant.
-- `resource_id` (String) UUID of the specific instance to share. Changing it replaces the grant.
-- `permissions` (Set of String) Permissions to grant on the instance: any of `create`, `read`, `update`, `delete`. Changing the set replaces the grant.
-
-### Read-Only
-
-- `id` (String) Synthetic identifier: `<resource_type>|<resource_id>|<to_user>`.
-- `grant_ids` (List of String) The individual grant rows backing this share (one per permission).
+{{ .SchemaMarkdown | trimspace }}
 
 ## Import
 
-Resource grants can be imported using the composite id `<resource_type>|<resource_id>|<to_user>`:
+Import a grant by its resource kind, resource UUID and member UUID, separated by `|`:
 
-```bash
-terraform import bahriya_resource_grant.share_registry \
-  'attachables_registries|a1b2c3d4-5e6f-4071-8a2b-3c4d5e6f7081|5f9c1a2b-3d4e-4f60-8a1b-2c3d4e5f6071'
-```
+{{ codefile "shell" "examples/resources/resource_grant/import.sh" }}

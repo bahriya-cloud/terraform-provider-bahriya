@@ -2,164 +2,285 @@
 page_title: "bahriya_valkey Resource - Bahriya"
 subcategory: ""
 description: |-
-  Manages a Bahriya Valkey instance — a managed Valkey datastore for caching or persistent key-value storage.
+  A managed Valkey instance: a Redis-compatible datastore for caching or persistent key-value storage.
 ---
 
 # bahriya_valkey (Resource)
 
-Manages a Bahriya Valkey instance. Valkey instances provide a managed, Redis-compatible datastore that containers can connect to, with optional persistence, high availability, sharding and external exposure.
+A managed Valkey instance: a Redis-compatible datastore, run in every region of `regions`, that the containers of its project connect to. It can keep its data on disk, run with high availability, be split into shards and be reachable from outside Bahriya.
 
-Two axes shape an instance:
+Two choices shape an instance:
 
-- `purpose` — `cache` (no persistence, `allkeys-lru` eviction) or `store` (RDB+AOF persistence, `noeviction`, requires `storagegb`). Immutable after creation.
-- `tier` — `single` (one node), `ha` (Sentinel topology; clients need a Sentinel-aware driver) or `sharded` (cluster topology; clients need a cluster-aware driver). The `size` axis (`standard` or `hardened`) applies to `ha` and `sharded` and controls the replica count per shard.
+- `purpose`: `cache` (data in memory only, with `allkeys-lru` eviction) or `store` (data kept on disk with RDB and AOF, with `noeviction`; it needs `persistence.storage`). It cannot be changed after creation.
+- `tier`: `single` (one node), `ha` (a Sentinel topology; clients need a Sentinel-aware driver) or `sharded` (a cluster topology; clients need a cluster-aware driver). For `ha` and `sharded`, `topology.size` (`standard` or `hardened`) sets the number of replicas per shard.
 
-Creating a Valkey instance is asynchronous — the provider waits up to 20 minutes for the instance to reach `running` status. Destroying waits up to 20 minutes for `terminated` status. If a create does not settle in time, the instance is saved to state with its current status and a warning; run `terraform apply` again to re-check.
+Creating, changing and deleting an instance is asynchronous. The provider waits up to 20 minutes for the instance to reach `running`, or `terminated` on delete. If a create does not settle in time, the instance is saved to state with its current status and a warning; run `terraform apply` again to check it.
 
-The connection password is never returned by the API. Set one explicitly with `password`, or omit it and reveal the generated password from the console. The password is kept as a platform-managed secret in your vault (named in `authsecret`) and is billed like any other secret. Changing `password` rotates it on the running instance; turning `authenabled` off releases the secret, and turning it back on issues a new password.
+The API never returns the connection password. Set one with `security.password`, or leave it out and reveal the generated password in the console. The password is kept in your vault as a managed secret, named in `auth_secret`, and billed like any other secret. Changing `security.password` changes it on the running instance. Turning `security.auth` off removes the secret; turning it back on issues a new password.
 
 ## Example Usage
 
-### Basic Cache
+### A basic cache
 
 ```terraform
+resource "bahriya_project" "web" {
+  handle  = "web"
+  name    = "Web"
+  regions = ["falkenstein-1"]
+}
+
 resource "bahriya_valkey" "sessions" {
-  handle        = "session-cache"
-  name          = "Session Cache"
-  purpose       = "cache"
-  tier          = "single"
-  memorymb      = 256
-  activeregions = ["falkenstein-1"]
-  project       = bahriya_project.web.id
+  handle  = "session-cache"
+  name    = "Session Cache"
+  purpose = "cache"
+  tier    = "single"
+  memory  = 256
+  regions = ["falkenstein-1"]
+  project = bahriya_project.web.id
 }
 ```
 
-### Highly Available Store with Backups
+### A highly available store with backups
 
 ```terraform
+resource "bahriya_project" "web" {
+  handle  = "web"
+  name    = "Web"
+  regions = ["falkenstein-1"]
+}
+
 resource "bahriya_valkey" "queue" {
-  handle        = "job-queue"
-  name          = "Job Queue"
-  purpose       = "store"
-  tier          = "ha"
-  size          = "standard"
-  memorymb      = 1024
-  storagegb     = 10
-  activeregions = ["falkenstein-1"]
-  project       = bahriya_project.web.id
+  handle  = "job-queue"
+  name    = "Job Queue"
+  purpose = "store"
+  tier    = "ha"
+  memory  = 1024
+  regions = ["falkenstein-1"]
+  project = bahriya_project.web.id
 
-  backupenabled  = true
-  backupschedule = "0 3 * * *"
-}
-```
+  topology = {
+    size = "standard"
+  }
 
-### Externally Exposed with TLS
+  persistence = {
+    storage = 10
+  }
 
-External exposure requires TLS, auth and a non-empty CIDR allowlist — the API rejects any state where `externalenabled` is true and one of the three is missing.
-
-```terraform
-resource "bahriya_valkey" "shared" {
-  handle        = "shared-cache"
-  name          = "Shared Cache"
-  purpose       = "cache"
-  tier          = "single"
-  memorymb      = 512
-  activeregions = ["falkenstein-1"]
-  project       = bahriya_project.web.id
-
-  externalenabled = true
-  tlsenabled      = true
-  authenabled     = true
-  allowedips      = ["198.51.100.0/24"]
-
-  hostnames = [
-    { hostname = "cache.example.com" },
-  ]
-}
-```
-
-With `tlsenabled = true` and no `tlsbundle`, the platform issues and manages a TLS bundle in your vault. Its server certificate lasts `tlsvalidityyears` (1, 3, 5 or 10; 3 by default) and is renewed automatically 30 days before it expires, always signed by the same CA, so a CA certificate your clients saved keeps working. To serve your own bundle instead, set `tlsbundle` to its handle — it must cover every hostname the instance answers to, and the API returns a 400 listing any missing names.
-
-### Sharded Cluster with Configuration Tuning
-
-```terraform
-resource "bahriya_valkey" "catalog" {
-  handle        = "catalog"
-  name          = "Catalog"
-  purpose       = "cache"
-  tier          = "sharded"
-  size          = "hardened"
-  shards        = 3
-  memorymb      = 2048
-  activeregions = ["falkenstein-1", "singapore-1"]
-  project       = bahriya_project.web.id
-
-  maxmemorypolicy = "allkeys-lfu"
-
-  config = {
-    "tcp-keepalive" = "300"
-    "timeout"       = "0"
-    "databases"     = "16"
-    "loglevel"      = "notice"
+  backup = {
+    backup          = true
+    backup_schedule = "0 3 * * *"
   }
 }
 ```
 
-`shards` is grow-only in self-service: raising it is automated, lowering it is an operator procedure raised through a support ticket.
+### Reachable from outside, with TLS
 
+External access needs TLS, authentication and at least one address range in `exposure.allowed_ips`; the API refuses `exposure.external = true` without all three.
+
+```terraform
+resource "bahriya_project" "web" {
+  handle  = "web"
+  name    = "Web"
+  regions = ["falkenstein-1"]
+}
+
+resource "bahriya_valkey" "shared" {
+  handle  = "shared-cache"
+  name    = "Shared Cache"
+  purpose = "cache"
+  tier    = "single"
+  memory  = 512
+  regions = ["falkenstein-1"]
+  project = bahriya_project.web.id
+
+  security = {
+    tls  = true
+    auth = true
+  }
+
+  exposure = {
+    external    = true
+    allowed_ips = ["198.51.100.0/24"]
+    hostnames = [
+      { hostname = "cache.example.com" },
+    ]
+  }
+}
+```
+
+With `security.tls = true` and no `security.tls_bundle`, Bahriya issues and manages a TLS bundle in your vault. Its server certificate lasts `security.tls_validity_years` (1, 3, 5 or 10; 3 by default) and is renewed automatically 30 days before it expires, always signed by the same CA, so a CA certificate your clients saved keeps working. To serve your own bundle instead, set `security.tls_bundle` to its handle. It must cover every hostname the instance answers to; the API refuses it with a 400 that lists any missing names. The `bahriya_tls_bundle` data source reads the CA certificate clients pass with `--cacert`.
+
+### A sharded cluster with tuning
+
+```terraform
+resource "bahriya_project" "web" {
+  handle  = "web"
+  name    = "Web"
+  regions = ["falkenstein-1", "singapore-1"]
+}
+
+resource "bahriya_valkey" "catalog" {
+  handle  = "catalog"
+  name    = "Catalog"
+  purpose = "cache"
+  tier    = "sharded"
+  memory  = 2048
+  regions = ["falkenstein-1", "singapore-1"]
+  project = bahriya_project.web.id
+
+  topology = {
+    size   = "hardened"
+    shards = 3
+  }
+
+  # Free-form server settings. Values are strings.
+  tuning = {
+    maxmemory_policy = "allkeys-lfu"
+    config = {
+      "tcp-keepalive" = "300"
+      "timeout"       = "0"
+      "databases"     = "16"
+      "loglevel"      = "notice"
+    }
+  }
+}
+```
+
+`topology.shards` can be raised at any time. Lowering it is done by Bahriya on request: raise a support ticket.
+
+<!-- schema generated by tfplugindocs -->
 ## Schema
-
-Nested items (`hostnames`) are Attributes Lists — assign them with attribute syntax (`hostnames = [{ hostname = "..." }]`), not block syntax.
 
 ### Required
 
-- `handle` (String) - Unique lowercase handle. Immutable — changing this forces recreation. Handles are **not released** on delete.
-- `name` (String) - Display name.
-- `purpose` (String) - Sets the defaults bundle: `cache` = no persistence, allkeys-lru; `store` = RDB+AOF persistence, noeviction, storage required. Immutable after creation — changing this forces recreation.
-- `tier` (String) - Product tier. `single` = one node, restarts from disk. `ha` = Sentinel topology, needs a Sentinel-aware client driver. `sharded` = cluster topology, needs a cluster-aware client driver.
-- `memorymb` (Number) - Memory per node in MB. Billed per node.
-- `activeregions` (List of String) - Regions this instance deploys into. At least one is required. Each region runs an independent copy with the same configuration and its own data.
+- `handle` (String) Unique handle of the Valkey instance: lowercase letters, digits and hyphens.
+- `memory` (Number) Memory per node in MB. Billed per node.
+- `name` (String) Display name of the Valkey instance, up to 100 characters.
+- `purpose` (String) Sets the defaults bundle: cache = no persistence, allkeys-lru; store = RDB+AOF persistence, noeviction, storage required. Immutable after creation.
+- `regions` (List of String) Regions this instance deploys into. At least one is required. Each region runs an independent copy with the same configuration and its own data.
+- `tier` (String) Product tier. single = one node, restarts from disk. ha = Sentinel topology, needs a Sentinel-aware client driver. sharded = cluster topology, needs a cluster-aware client driver.
 
 ### Optional
 
-- `project` (String) - Project UUID. Changing this forces recreation.
-- `size` (String) - Size axis for the `ha` and `sharded` tiers (`standard` is the default). Not applicable to `single`.
-- `shards` (Number) - Sharded tier only. Grow-only in self-service: raising it is automated, lowering it is an operator procedure raised through a support ticket. Minimum 3.
-- `storagegb` (Number) - Persistent storage per node in GB. Required for purpose `store`, not applicable to `cache`.
-- `maxmemorypolicy` (String) - Eviction policy. Defaults from purpose (`cache` = allkeys-lru, `store` = noeviction) and remains freely settable.
-- `config` (Map of String) - Allowlisted Valkey configuration keys (`tcp-keepalive`, `timeout`, `tcp-backlog`, `databases`, `loglevel`). Unknown keys are rejected naming the key. Values are given as strings; numeric values are normalised server-side.
-- `authenabled` (Boolean) - Require the connection password (default true).
-- `password` (String, Sensitive) - Optional. Omitted on create, the platform generates one. Stored as a platform-managed secret in your vault (see `authsecret`), billed like any secret. A different value rotates it; resending the current one changes nothing. Never returned; reveal it from the console.
-- `tlsenabled` (Boolean) - Serve TLS (default false).
-- `tlsbundle` (String) - Handle of a customer TLS bundle to serve. Omitted with TLS enabled, the platform issues and manages a bundle in your vault. A supplied bundle must cover every hostname the instance answers to; a 400 lists any missing names.
-- `tlsvalidityyears` (Number) - Lifetime in years of the server certificate the platform issues when TLS is on with no customer bundle: 1, 3, 5 or 10. Renewed automatically 30 days before expiry, and reissued when changed, always signed by the same 30-year CA, so a saved CA certificate keeps verifying the server. Ignored for a customer bundle.
-- `defaulthostname` (String) - Server-generated default hostname label. Omitted on create, the platform assigns one; immutable thereafter. Only required up front when supplying a customer `tlsbundle`, so SAN coverage can be validated.
-- `externalenabled` (Boolean) - Expose the instance at the platform edge on port 6379. Requires TLS, auth and a non-empty IP allowlist.
-- `allowedips` (List of String) - CIDR allowlist for external access. Required non-empty while external is enabled.
-- `hostnames` (Attributes List) - Custom hostnames. A custom hostname on TCP is a vanity name, not a trust upgrade — clients trust the instance CA either way. (see [below for nested schema](#nestedatt--hostnames))
-- `backupenabled` (Boolean) - Daily backups. Store purpose only.
-- `backupschedule` (String) - Backup cron schedule. Retention is fixed at 7 daily snapshots.
-- `networkpolicies` (List of String) - Network policies narrowed to this Valkey instance, referenced by handle. Datastores are L3/L4 only — an L7 policy applied here enforces its L3/L4 rules.
+- `backup` (Attributes) (see [below for nested schema](#nestedatt--backup))
+- `default_hostname` (String) Server-generated default hostname (use the hostname generator endpoint). Assigned on create, immutable thereafter.
+- `exposure` (Attributes) (see [below for nested schema](#nestedatt--exposure))
+- `networking` (Attributes) (see [below for nested schema](#nestedatt--networking))
+- `persistence` (Attributes) (see [below for nested schema](#nestedatt--persistence))
+- `project` (String) Identifier (UUID) of the project the Valkey instance belongs to. Set when the instance is created and cannot be changed.
+- `security` (Attributes) (see [below for nested schema](#nestedatt--security))
+- `topology` (Attributes) (see [below for nested schema](#nestedatt--topology))
+- `tuning` (Attributes) (see [below for nested schema](#nestedatt--tuning))
 
 ### Read-Only
 
-- `id` (String) - Valkey instance UUID.
-- `status` (String) - Current instance status.
-- `nodes` (Number) - Derived node count per region for the current tier, size and shards.
-- `organisation` (String) - Organisation UUID.
-- `projectname` (String) - Project display name.
-- `authsecret` (String) - Handle of the platform-managed vault secret holding the auth password. Null while auth is off; turning auth off releases it.
+- `auth_secret` (String) Handle of the platform-managed vault secret holding the auth password. Null while auth is off; turning auth off releases it.
+- `created` (Attributes) When the Valkey instance was created (UTC). (see [below for nested schema](#nestedatt--created))
+- `id` (String) Unique identifier (UUID) of the Valkey instance, assigned by the platform.
+- `nodes` (Number) Derived node count per region for the current tier, size and shards.
+- `organisation` (String) Identifier (UUID) of the organisation that owns the Valkey instance.
+- `projectname` (String) Name of the project the Valkey instance belongs to.
+- `status` (String) Lifecycle state of the Valkey instance: provisioning, running, terminating, terminated, suspended or error.
+- `updated` (Attributes) When the Valkey instance was last changed (UTC). (see [below for nested schema](#nestedatt--updated))
 
-<a id="nestedatt--hostnames"></a>
+<a id="nestedatt--backup"></a>
+### Nested Schema for `backup`
 
-#### Nested Schema for `hostnames` (Attributes List)
+Optional:
 
-- `hostname` (String, Required) - Custom hostname (FQDN). Point a CNAME at the instance's per-region hostname. Lowercased and trimmed server-side.
+- `backup` (Boolean) Store purpose only. Defaults to `false`.
+- `backup_schedule` (String) Backup cron schedule. Retention is fixed at seven days of snapshots.
+
+
+<a id="nestedatt--exposure"></a>
+### Nested Schema for `exposure`
+
+Optional:
+
+- `allowed_ips` (List of String) CIDR allowlist for external access. Required non-empty while external is enabled.
+- `external` (Boolean) Expose the instance at the platform edge. Requires TLS, auth and a non-empty IP allowlist. Defaults to `false`.
+- `hostnames` (Attributes List) Custom hostnames. A custom hostname on TCP is a vanity name, not a trust upgrade — clients trust the instance CA either way. (see [below for nested schema](#nestedatt--exposure--hostnames))
+
+<a id="nestedatt--exposure--hostnames"></a>
+### Nested Schema for `exposure.hostnames`
+
+Required:
+
+- `hostname` (String) A custom hostname (fully qualified domain name) the instance answers to.
+
+
+
+<a id="nestedatt--networking"></a>
+### Nested Schema for `networking`
+
+Optional:
+
+- `network_policies` (List of String) Network policies narrowed to this Valkey instance, referenced by handle.
+
+
+<a id="nestedatt--persistence"></a>
+### Nested Schema for `persistence`
+
+Optional:
+
+- `storage` (Number) Persistent storage per node in GB. Required for purpose store, not applicable to cache.
+
+
+<a id="nestedatt--security"></a>
+### Nested Schema for `security`
+
+Optional:
+
+- `auth` (Boolean) Whether clients must authenticate with the password. Defaults to `true`.
+- `password` (String, Sensitive) Optional. Omitted on create, the platform generates one. Stored as a platform-managed secret in your vault (see authsecret), billed like any secret. Sending a different password rotates it; resending the current one changes nothing. Never returned; use the credentials endpoint to reveal it.
+- `tls` (Boolean) Whether clients connect over TLS. Defaults to `false`.
+- `tls_bundle` (String) Handle of a customer TLS bundle to serve. Omitted with TLS enabled, the platform issues and manages a bundle in your vault. A supplied bundle must cover every hostname the instance answers to; a 400 lists any missing names.
+- `tls_validity_years` (Number) Lifetime in years of the server certificate the platform issues when TLS is on with no customer bundle: 1, 3, 5 or 10. Renewed automatically 30 days before expiry, and reissued when changed, always signed by the same 30-year CA, so a saved CA certificate keeps verifying the server. Ignored for a customer bundle. Defaults to `3`.
+
+
+<a id="nestedatt--topology"></a>
+### Nested Schema for `topology`
+
+Optional:
+
+- `shards` (Number) Number of shards, for the sharded tier only. You can raise it at any time; to lower it, raise a support ticket.
+- `size` (String) Size axis for the ha and sharded tiers (standard is the default). Not applicable to single.
+
+
+<a id="nestedatt--tuning"></a>
+### Nested Schema for `tuning`
+
+Optional:
+
+- `config` (Map of String) Allowlisted Valkey configuration keys. Unknown keys are rejected naming the key.
+- `maxmemory_policy` (String) Eviction policy. Defaults from purpose (cache = allkeys-lru, store = noeviction) and remains freely settable.
+
+
+<a id="nestedatt--created"></a>
+### Nested Schema for `created`
+
+Read-Only:
+
+- `date` (String)
+- `timezone` (String)
+- `timezonetype` (Number)
+
+
+<a id="nestedatt--updated"></a>
+### Nested Schema for `updated`
+
+Read-Only:
+
+- `date` (String)
+- `timezone` (String)
+- `timezonetype` (Number)
 
 ## Import
 
-Valkey instances can be imported using their UUID:
+Import a Valkey instance by its UUID:
 
-```bash
+```shell
 terraform import bahriya_valkey.sessions 065df92e-4e46-436a-a0a0-aaaaaaaaaaaa
 ```
+
+~> **Note:** The API never returns the connection password. After importing, set `security.password` in your configuration if you manage the password with Terraform.

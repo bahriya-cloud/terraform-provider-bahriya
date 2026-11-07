@@ -11,6 +11,33 @@ type AttachmentResource struct {
 	APIType string // e.g. "tls_bundles" — URL path segment (snake_case)
 }
 
+// attachmentNouns is how customer-facing descriptions name each attachable,
+// with its indefinite article.
+var attachmentNouns = map[string][2]string{
+	"registry":       {"a", "registry"},
+	"secret":         {"a", "secret"},
+	"tls_bundle":     {"a", "TLS bundle"},
+	"x509_cert":      {"an", "x509 certificate"},
+	"gpg_keypair":    {"a", "GPG keypair"},
+	"ssh_keypair":    {"an", "SSH keypair"},
+	"encryption_key": {"an", "encryption key"},
+	"env_file":       {"an", "env file"},
+	"yaml_config":    {"a", "YAML config"},
+	"json_config":    {"a", "JSON config"},
+	"plain_config":   {"a", "plain-text config"},
+	"network_policy": {"a", "network policy"},
+}
+
+// Noun is the attachable's name in descriptions ("TLS bundle").
+func (a AttachmentResource) Noun() string {
+	return attachmentNouns[a.Name][1]
+}
+
+// Article is the indefinite article for Noun ("a" or "an").
+func (a AttachmentResource) Article() string {
+	return attachmentNouns[a.Name][0]
+}
+
 // ListingKey is the key under which this attachable appears in the
 // GET /organisations/{org}/projects/{pid}/attachments response. The response
 // groups attachables by SMUSHED key (tls_bundles → tlsbundles), matching the

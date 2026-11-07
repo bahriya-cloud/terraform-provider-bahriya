@@ -101,8 +101,8 @@ func containerSchema() schema.Schema {
 			"type": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "Container type. HTTP containers get ingress/networking; workers run continuously without external access; cron jobs run on a schedule. Defaults to `\"http\"`.",
-				MarkdownDescription: "Container type. HTTP containers get ingress/networking; workers run continuously without external access; cron jobs run on a schedule. Defaults to `\"http\"`.",
+				Description:         "Container type. HTTP containers answer requests at their hostnames; workers run continuously without access from the internet; cron jobs run on a schedule. Defaults to `\"http\"`.",
+				MarkdownDescription: "Container type. HTTP containers answer requests at their hostnames; workers run continuously without access from the internet; cron jobs run on a schedule. Defaults to `\"http\"`.",
 				Validators:          []validator.String{stringvalidator.OneOf("cronjob", "http", "worker")},
 			},
 			"restartedat": schema.SingleNestedAttribute{
@@ -285,8 +285,8 @@ func containerSchema() schema.Schema {
 					"protocol": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "The protocol this container speaks on its port. Governs BOTH how the platform health-probes it and how external traffic is delivered to it. `http` is the default. `https` is for a container that terminates TLS on its own listening port — the probe is sent over TLS (the certificate is not verified) and the ingress is told to speak HTTPS upstream. `tcp` probes only that the port accepts a connection and ignores the health check path; it suits a workload that does not speak HTTP. Defaults to `\"http\"`.",
-						MarkdownDescription: "The protocol this container speaks on its port. Governs BOTH how the platform health-probes it and how external traffic is delivered to it. `http` is the default. `https` is for a container that terminates TLS on its own listening port — the probe is sent over TLS (the certificate is not verified) and the ingress is told to speak HTTPS upstream. `tcp` probes only that the port accepts a connection and ignores the health check path; it suits a workload that does not speak HTTP. Defaults to `\"http\"`.",
+						Description:         "The protocol this container speaks on its port. It decides both how the container's health is checked and how requests reach it. `http` is the default. `https` is for a container that serves TLS on its own port: health checks and requests reach it over TLS, and its certificate is not verified. `tcp` only checks that the port accepts a connection and ignores the health check path; it suits a workload that does not speak HTTP. Defaults to `\"http\"`.",
+						MarkdownDescription: "The protocol this container speaks on its port. It decides both how the container's health is checked and how requests reach it. `http` is the default. `https` is for a container that serves TLS on its own port: health checks and requests reach it over TLS, and its certificate is not verified. `tcp` only checks that the port accepts a connection and ignores the health check path; it suits a workload that does not speak HTTP. Defaults to `\"http\"`.",
 						Validators:          []validator.String{stringvalidator.OneOf("http", "https", "tcp")},
 					},
 				},
@@ -333,8 +333,8 @@ func containerSchema() schema.Schema {
 					"ephemeral_storage_gb": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Ephemeral storage in GB per pod. First 3GB included free; each additional GB billed at the ephemeral rate. The maximum is platform-configurable (see GET /console/v1/services/containers). Defaults to `3`.",
-						MarkdownDescription: "Ephemeral storage in GB per pod. First 3GB included free; each additional GB billed at the ephemeral rate. The maximum is platform-configurable (see GET /console/v1/services/containers). Defaults to `3`.",
+						Description:         "Ephemeral storage in GB per replica. First 3GB included free; each additional GB billed at the ephemeral rate. The maximum is platform-configurable (see GET /console/v1/services/containers). Defaults to `3`.",
+						MarkdownDescription: "Ephemeral storage in GB per replica. First 3GB included free; each additional GB billed at the ephemeral rate. The maximum is platform-configurable (see GET /console/v1/services/containers). Defaults to `3`.",
 					},
 					"persistent_volumes": schema.ListNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{Attributes: map[string]schema.Attribute{
@@ -419,15 +419,15 @@ func containerSchema() schema.Schema {
 					"external": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Expose this container externally via ingress. When false, the container is only reachable within the project namespace. Console UI defaults this to true for HTTP containers (toggle starts ON, user can flip off); Reis CLI and Terraform default to false so an omitted-from-IaC field cannot silently provision external DNS. Defaults to `false`.",
-						MarkdownDescription: "Expose this container externally via ingress. When false, the container is only reachable within the project namespace. Console UI defaults this to true for HTTP containers (toggle starts ON, user can flip off); Reis CLI and Terraform default to false so an omitted-from-IaC field cannot silently provision external DNS. Defaults to `false`.",
+						Description:         "Make this container reachable from the internet at its hostnames. When false, only workloads in the same project can reach it. The console turns this on for new HTTP containers; Reis and Terraform default to false, so leaving it out of a file never publishes a hostname. Defaults to `false`.",
+						MarkdownDescription: "Make this container reachable from the internet at its hostnames. When false, only workloads in the same project can reach it. The console turns this on for new HTTP containers; Reis and Terraform default to false, so leaving it out of a file never publishes a hostname. Defaults to `false`.",
 					},
 					"network_policies": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "Network policies narrowed to this container, referenced by handle. When a policy is listed here it applies to only this container's pods instead of the whole project.",
-						MarkdownDescription: "Network policies narrowed to this container, referenced by handle. When a policy is listed here it applies to only this container's pods instead of the whole project.",
+						Description:         "Network policies narrowed to this container, referenced by handle. When a policy is listed here it applies to only this container instead of the whole project.",
+						MarkdownDescription: "Network policies narrowed to this container, referenced by handle. When a policy is listed here it applies to only this container instead of the whole project.",
 					},
 				},
 				Optional: true,
@@ -676,14 +676,14 @@ func containerSchema() schema.Schema {
 					"successful_history": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "How many successful run records the cluster keeps. Older runs are pruned automatically. Defaults to `3`.",
-						MarkdownDescription: "How many successful run records the cluster keeps. Older runs are pruned automatically. Defaults to `3`.",
+						Description:         "How many successful runs are kept in the run history. Older runs are removed automatically. Defaults to `3`.",
+						MarkdownDescription: "How many successful runs are kept in the run history. Older runs are removed automatically. Defaults to `3`.",
 					},
 					"failed_history": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "How many failed run records the cluster keeps. Older runs are pruned automatically. Defaults to `3`.",
-						MarkdownDescription: "How many failed run records the cluster keeps. Older runs are pruned automatically. Defaults to `3`.",
+						Description:         "How many failed runs are kept in the run history. Older runs are removed automatically. Defaults to `3`.",
+						MarkdownDescription: "How many failed runs are kept in the run history. Older runs are removed automatically. Defaults to `3`.",
 					},
 					"starting_deadline": schema.Int64Attribute{
 						Optional:            true,
@@ -706,8 +706,8 @@ func containerSchema() schema.Schema {
 					"ttl_seconds": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Seconds after run completion to keep the pod for log inspection before cleanup. Defaults to `3600`.",
-						MarkdownDescription: "Seconds after run completion to keep the pod for log inspection before cleanup. Defaults to `3600`.",
+						Description:         "Seconds a finished run is kept, so its logs can be read, before it is removed. Defaults to `3600`.",
+						MarkdownDescription: "Seconds a finished run is kept, so its logs can be read, before it is removed. Defaults to `3600`.",
 					},
 					"suspended": schema.BoolAttribute{
 						Optional:            true,
@@ -852,8 +852,8 @@ func containerSchema() schema.Schema {
 						}},
 						Optional:            true,
 						Computed:            true,
-						Description:         "YAML configs attached to this container, mounted as files via a ConfigMap volume.",
-						MarkdownDescription: "YAML configs attached to this container, mounted as files via a ConfigMap volume.",
+						Description:         "YAML configs attached to this container, each mounted as a file.",
+						MarkdownDescription: "YAML configs attached to this container, each mounted as a file.",
 					},
 					"json_configs": schema.ListNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{Attributes: map[string]schema.Attribute{
@@ -870,8 +870,8 @@ func containerSchema() schema.Schema {
 						}},
 						Optional:            true,
 						Computed:            true,
-						Description:         "JSON configs attached to this container, mounted as files via a ConfigMap volume.",
-						MarkdownDescription: "JSON configs attached to this container, mounted as files via a ConfigMap volume.",
+						Description:         "JSON configs attached to this container, each mounted as a file.",
+						MarkdownDescription: "JSON configs attached to this container, each mounted as a file.",
 					},
 					"plain_configs": schema.ListNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{Attributes: map[string]schema.Attribute{
@@ -888,8 +888,8 @@ func containerSchema() schema.Schema {
 						}},
 						Optional:            true,
 						Computed:            true,
-						Description:         "Plain-text configs attached to this container, mounted as files via a ConfigMap volume.",
-						MarkdownDescription: "Plain-text configs attached to this container, mounted as files via a ConfigMap volume.",
+						Description:         "Plain-text configs attached to this container, each mounted as a file.",
+						MarkdownDescription: "Plain-text configs attached to this container, each mounted as a file.",
 					},
 				},
 				Optional: true,

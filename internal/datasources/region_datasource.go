@@ -48,7 +48,7 @@ func (d *regionDataSource) Schema(_ context.Context, _ datasource.SchemaRequest,
 		Description: "Fetches details for a single Bahriya region by ID.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Description: "Region identifier (e.g. \"helsinki-1\").",
+				Description: "Region identifier, such as \"helsinki-1\".",
 				Required:    true,
 			},
 			"name": schema.StringAttribute{
@@ -60,11 +60,11 @@ func (d *regionDataSource) Schema(_ context.Context, _ datasource.SchemaRequest,
 				Computed:    true,
 			},
 			"class": schema.StringAttribute{
-				Description: "Region class (e.g. \"standard\").",
+				Description: "Region class, such as \"standard\".",
 				Computed:    true,
 			},
 			"status": schema.StringAttribute{
-				Description: "Region status (e.g. \"active\").",
+				Description: "Region status, such as \"active\".",
 				Computed:    true,
 			},
 			"city": schema.StringAttribute{

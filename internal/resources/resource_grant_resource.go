@@ -111,7 +111,7 @@ func (r *resourceGrantResource) Schema(_ context.Context, _ resource.SchemaReque
 			},
 			"resource_type": schema.StringAttribute{
 				Required:    true,
-				Description: "Resource kind, e.g. deployables_container_http, attachables_registries.",
+				Description: "Resource kind, such as deployables_container_http or attachables_registries.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},

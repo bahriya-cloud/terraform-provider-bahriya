@@ -1,36 +1,16 @@
 ---
-page_title: "bahriya_region Data Source - Bahriya"
+page_title: "{{.Name}} {{.Type}} - Bahriya"
 subcategory: ""
 description: |-
-  Fetches details for a single Bahriya region by ID.
+  Reads one Bahriya region by its identifier.
 ---
 
-{{/* This template serves as a starting point for documentation generation, and can be customized with hardcoded values and/or doc gen templates.
+# {{.Name}} ({{.Type}})
 
-For example, the {{ .SchemaMarkdown }} template can be used to replace manual schema documentation if descriptions of schema attributes are added in the provider source code. */ -}}
-
-# bahriya_region (Data Source)
-
-Fetches details for a single Bahriya region by its identifier.
+Reads one Bahriya region by its identifier, such as `falkenstein-1`. Use the identifier in the `regions` list of a project, container or datastore.
 
 ## Example Usage
 
-{{tffile "examples/data-sources/region/example_1.tf"}}
+{{ tffile "examples/data-sources/region/example_1.tf" }}
 
-## Schema
-
-### Required
-
-- `id` (String) - Region identifier (e.g. `helsinki-1`, `falkenstein-1`, `virginia-1`).
-
-### Read-Only
-
-- `name` (String) - Region display name.
-- `description` (String) - Human-readable region description.
-- `class` (String) - Region class (e.g. `standard`).
-- `status` (String) - Region status (e.g. `active`).
-- `city` (String) - City where the region is located.
-- `state` (String) - State or province.
-- `country` (String) - Country.
-- `latitude` (Number) - Geographic latitude.
-- `longitude` (Number) - Geographic longitude.
+{{ .SchemaMarkdown | trimspace }}

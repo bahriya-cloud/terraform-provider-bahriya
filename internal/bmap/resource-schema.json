@@ -765,7 +765,7 @@
                 "type": "boolean",
                 "nullable": false,
                 "required": false,
-                "description": "Expose this container externally via ingress. When false, the container is only reachable within the project namespace. Console UI defaults this to true for HTTP containers (toggle starts ON, user can flip off); Reis CLI and Terraform default to false so an omitted-from-IaC field cannot silently provision external DNS.",
+                "description": "Make this container reachable from the internet at its hostnames. When false, only workloads in the same project can reach it. The console turns this on for new HTTP containers; Reis and Terraform default to false, so leaving it out of a file never publishes a hostname.",
                 "default": false
             },
             "containerport": {
@@ -1028,7 +1028,7 @@
                 "type": "string",
                 "nullable": false,
                 "required": false,
-                "description": "Container type. HTTP containers get ingress/networking; workers run continuously without external access; cron jobs run on a schedule.",
+                "description": "Container type. HTTP containers answer requests at their hostnames; workers run continuously without access from the internet; cron jobs run on a schedule.",
                 "enum": [
                     "http",
                     "worker",
@@ -1105,14 +1105,14 @@
                 "type": "integer",
                 "nullable": true,
                 "required": false,
-                "description": "How many successful run records the cluster keeps. Older runs are pruned automatically.",
+                "description": "How many successful runs are kept in the run history. Older runs are removed automatically.",
                 "default": 3
             },
             "failedjobshistorylimit": {
                 "type": "integer",
                 "nullable": true,
                 "required": false,
-                "description": "How many failed run records the cluster keeps. Older runs are pruned automatically.",
+                "description": "How many failed runs are kept in the run history. Older runs are removed automatically.",
                 "default": 3
             },
             "startingdeadlineseconds": {
@@ -1138,7 +1138,7 @@
                 "type": "integer",
                 "nullable": true,
                 "required": false,
-                "description": "Seconds after run completion to keep the pod for log inspection before cleanup.",
+                "description": "Seconds a finished run is kept, so its logs can be read, before it is removed.",
                 "default": 3600
             },
             "suspended": {
@@ -1289,7 +1289,7 @@
                 "type": "integer",
                 "nullable": false,
                 "required": false,
-                "description": "Ephemeral storage in GB per pod. First 3GB included free; each additional GB billed at the ephemeral rate. The maximum is platform-configurable (see GET /console/v1/services/containers).",
+                "description": "Ephemeral storage in GB per replica. First 3GB included free; each additional GB billed at the ephemeral rate. The maximum is platform-configurable (see GET /console/v1/services/containers).",
                 "default": 3
             },
             "persistentvolumes": {
@@ -1456,7 +1456,7 @@
                 "type": "array",
                 "nullable": false,
                 "required": false,
-                "description": "Network policies narrowed to this container, referenced by handle. When a policy is listed here it applies to only this container's pods instead of the whole project.",
+                "description": "Network policies narrowed to this container, referenced by handle. When a policy is listed here it applies to only this container instead of the whole project.",
                 "default": [],
                 "items": {
                     "type": "string"
@@ -1620,7 +1620,7 @@
                 "type": "array",
                 "nullable": false,
                 "required": false,
-                "description": "YAML configs attached to this container, mounted as files via a ConfigMap volume.",
+                "description": "YAML configs attached to this container, each mounted as a file.",
                 "default": [],
                 "items": {
                     "type": "object",
@@ -1645,7 +1645,7 @@
                 "type": "array",
                 "nullable": false,
                 "required": false,
-                "description": "JSON configs attached to this container, mounted as files via a ConfigMap volume.",
+                "description": "JSON configs attached to this container, each mounted as a file.",
                 "default": [],
                 "items": {
                     "type": "object",
@@ -1670,7 +1670,7 @@
                 "type": "array",
                 "nullable": false,
                 "required": false,
-                "description": "Plain-text configs attached to this container, mounted as files via a ConfigMap volume.",
+                "description": "Plain-text configs attached to this container, each mounted as a file.",
                 "default": [],
                 "items": {
                     "type": "object",
@@ -1695,7 +1695,7 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
-                "description": "The protocol this container speaks on its port. Governs BOTH how the platform health-probes it and how external traffic is delivered to it. `http` is the default. `https` is for a container that terminates TLS on its own listening port \u2014 the probe is sent over TLS (the certificate is not verified) and the ingress is told to speak HTTPS upstream. `tcp` probes only that the port accepts a connection and ignores the health check path; it suits a workload that does not speak HTTP.",
+                "description": "The protocol this container speaks on its port. It decides both how the container's health is checked and how requests reach it. `http` is the default. `https` is for a container that serves TLS on its own port: health checks and requests reach it over TLS, and its certificate is not verified. `tcp` only checks that the port accepts a connection and ignores the health check path; it suits a workload that does not speak HTTP.",
                 "enum": [
                     "http",
                     "https",
@@ -2081,7 +2081,7 @@
                 "type": "integer",
                 "nullable": true,
                 "required": false,
-                "description": "Sharded tier only. Grow-only in self-service: raising it is automated, lowering it is an operator procedure raised through a support ticket."
+                "description": "Number of shards, for the sharded tier only. You can raise it at any time; to lower it, raise a support ticket."
             },
             "maxmemorypolicy": {
                 "type": "string",
@@ -3094,7 +3094,7 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
-                "description": "Namespace CPU request quota. Null = platform default.",
+                "description": "CPU the project may reserve in each region it runs in, if set for this project. Null when the project uses the standard allowance.",
                 "readOnly": true,
                 "displayReadOnly": true
             },
@@ -3102,7 +3102,7 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
-                "description": "Namespace memory request quota. Null = platform default.",
+                "description": "Memory the project may reserve in each region it runs in, if set for this project. Null when the project uses the standard allowance.",
                 "readOnly": true,
                 "displayReadOnly": true
             },
@@ -3110,7 +3110,7 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
-                "description": "Namespace CPU limit quota. Null = platform default.",
+                "description": "CPU ceiling for the project in each region it runs in, if set for this project. Null when the project uses the standard allowance.",
                 "readOnly": true,
                 "displayReadOnly": true
             },
@@ -3118,7 +3118,7 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
-                "description": "Namespace memory limit quota. Null = platform default.",
+                "description": "Memory ceiling for the project in each region it runs in, if set for this project. Null when the project uses the standard allowance.",
                 "readOnly": true,
                 "displayReadOnly": true
             },
@@ -3141,28 +3141,28 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
-                "description": "Namespace CPU request quota in force, platform default resolved.",
+                "description": "CPU the project may reserve in each region it runs in, as in force now: its own setting, or else the standard allowance.",
                 "readOnly": true
             },
             "effectivequotarequestmemory": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
-                "description": "Namespace memory request quota in force, platform default resolved.",
+                "description": "Memory the project may reserve in each region it runs in, as in force now: its own setting, or else the standard allowance.",
                 "readOnly": true
             },
             "effectivequotalimitcpu": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
-                "description": "Namespace CPU limit quota in force, platform default resolved.",
+                "description": "CPU ceiling for the project in each region it runs in, as in force now: its own setting, or else the standard allowance.",
                 "readOnly": true
             },
             "effectivequotalimitmemory": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
-                "description": "Namespace memory limit quota in force, platform default resolved.",
+                "description": "Memory ceiling for the project in each region it runs in, as in force now: its own setting, or else the standard allowance.",
                 "readOnly": true
             }
         }

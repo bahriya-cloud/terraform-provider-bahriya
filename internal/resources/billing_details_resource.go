@@ -128,7 +128,7 @@ func (r *billingDetailsResource) Schema(_ context.Context, _ resource.SchemaRequ
 			},
 			"country": schema.StringAttribute{
 				Optional:    true,
-				Description: "ISO 3166-1 alpha-2 country code, e.g. AE or DE. Unrelated to Bahriya's deployment regions.",
+				Description: "ISO 3166-1 alpha-2 country code, such as AE or DE. Unrelated to Bahriya's deployment regions.",
 			},
 			"tax_id": schema.StringAttribute{
 				Optional:    true,
