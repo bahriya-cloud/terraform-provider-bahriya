@@ -238,6 +238,9 @@ func (k *Kind) ToYAML(api *Map, state bool) *Map {
 			if def, ok := k.Defaults.Get(f.Name); ok && JSONEquals(value, def) {
 				continue // R11
 			}
+			if s, ok := value.(string); ok && f.Desc.Masked != "" && s == f.Desc.Masked {
+				continue // R11: the read placeholder is not a value; R16 keeps the material
+			}
 		}
 		if value == nil {
 			emitted.Set(f.Name, nil)

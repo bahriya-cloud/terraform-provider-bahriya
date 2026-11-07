@@ -21,8 +21,8 @@ const fakeOrg = "00000000-0000-4000-8000-00000000000f"
 //   - an unknown body key is a 400 (Valinor rejects it);
 //   - absent writable fields take the spec default; read-only id, created,
 //     updated (moved by every PUT), status and version fields are its own;
-//   - write-only and sensitive values are never returned, a masked one comes
-//     back as its sentinel;
+//   - write-only and sensitive values are never returned; one that is also
+//     masked comes back as its sentinel, as a detail read does (#2646);
 //   - rotate-only material changes only through POST …/rotate;
 //   - an asynchronous kind is terminated through its delete route and reads
 //     as terminated afterwards.
@@ -309,10 +309,13 @@ func (a *fakeAPI) view(k *bmap.Kind, record *bmap.Map) *bmap.Map {
 		v, _ := record.Get(key)
 		f := k.Field(key)
 		switch {
+		// A detail read returns secret material as its sentinel (a secret's
+		// value, a private key). Masked public material and config content
+		// come back in full here; only list reads mask them.
+		case f != nil && f.Desc.Masked != "" && (f.Desc.WriteOnly || f.Desc.Sensitive):
+			out.Set(key, f.Desc.Masked)
 		case f != nil && (f.Desc.WriteOnly || f.Desc.Sensitive):
 			continue
-		case f != nil && f.Desc.Masked != "":
-			out.Set(key, f.Desc.Masked)
 		case f != nil && f.Desc.ItemKey != "" && len(f.Item) > 0:
 			out.Set(key, maskItems(f, v))
 		default:

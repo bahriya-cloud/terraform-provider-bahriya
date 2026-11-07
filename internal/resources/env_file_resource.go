@@ -33,6 +33,7 @@ func envFileSchema() schema.Schema {
 			},
 			"content": schema.StringAttribute{
 				Required:            true,
+				Sensitive:           true,
 				Description:         "KEY=VALUE pairs, one per line. Comment lines (#) and blank lines are allowed.",
 				MarkdownDescription: "KEY=VALUE pairs, one per line. Comment lines (#) and blank lines are allowed.",
 			},

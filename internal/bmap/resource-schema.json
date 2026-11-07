@@ -3399,7 +3399,8 @@
                 "type": "string",
                 "nullable": false,
                 "required": true,
-                "sensitive": true
+                "sensitive": true,
+                "masked": "password-hidden-for-your-own-good"
             },
             "managedbyresourceid": {
                 "type": "string",
@@ -3521,7 +3522,8 @@
                 "type": "string",
                 "nullable": false,
                 "required": true,
-                "sensitive": true
+                "sensitive": true,
+                "masked": "value-hidden-for-your-own-good"
             },
             "managedbyresourceid": {
                 "type": "string",
@@ -3655,14 +3657,16 @@
                 "nullable": false,
                 "required": true,
                 "description": "PEM-encoded CA certificate.",
-                "rotateOnly": true
+                "rotateOnly": true,
+                "masked": "value-hidden-for-your-own-good"
             },
             "cert": {
                 "type": "string",
                 "nullable": false,
                 "required": true,
                 "description": "PEM-encoded server certificate.",
-                "rotateOnly": true
+                "rotateOnly": true,
+                "masked": "value-hidden-for-your-own-good"
             },
             "key": {
                 "type": "string",
@@ -3671,7 +3675,8 @@
                 "description": "PEM-encoded private key. Never returned on read.",
                 "writeOnly": true,
                 "sensitive": true,
-                "rotateOnly": true
+                "rotateOnly": true,
+                "masked": "value-hidden-for-your-own-good"
             },
             "organisation": {
                 "type": "string",
@@ -3856,7 +3861,8 @@
                 "nullable": false,
                 "required": true,
                 "description": "PEM-encoded x509 certificate.",
-                "rotateOnly": true
+                "rotateOnly": true,
+                "masked": "value-hidden-for-your-own-good"
             },
             "organisation": {
                 "type": "string",
@@ -4050,7 +4056,8 @@
                 "required": true,
                 "description": "ASCII-armored PGP public key.",
                 "sensitive": true,
-                "rotateOnly": true
+                "rotateOnly": true,
+                "masked": "value-hidden-for-your-own-good"
             },
             "privatekey": {
                 "type": "string",
@@ -4059,7 +4066,8 @@
                 "description": "ASCII-armored PGP private key. Never returned on read.",
                 "writeOnly": true,
                 "sensitive": true,
-                "rotateOnly": true
+                "rotateOnly": true,
+                "masked": "value-hidden-for-your-own-good"
             },
             "organisation": {
                 "type": "string",
@@ -4245,7 +4253,8 @@
                 "required": true,
                 "description": "SSH public key line (algorithm base64 comment).",
                 "sensitive": true,
-                "rotateOnly": true
+                "rotateOnly": true,
+                "masked": "value-hidden-for-your-own-good"
             },
             "privatekey": {
                 "type": "string",
@@ -4254,7 +4263,8 @@
                 "description": "PEM-encoded private key. Never returned on read.",
                 "writeOnly": true,
                 "sensitive": true,
-                "rotateOnly": true
+                "rotateOnly": true,
+                "masked": "value-hidden-for-your-own-good"
             },
             "organisation": {
                 "type": "string",
@@ -4416,7 +4426,8 @@
                 "description": "The raw encryption key (base64 or hex encoded). Never returned on read.",
                 "writeOnly": true,
                 "sensitive": true,
-                "rotateOnly": true
+                "rotateOnly": true,
+                "masked": "value-hidden-for-your-own-good"
             },
             "format": {
                 "type": "string",
@@ -4562,7 +4573,9 @@
                 "nullable": false,
                 "required": true,
                 "description": "KEY=VALUE pairs, one per line. Comment lines (#) and blank lines are allowed.",
-                "rotateOnly": true
+                "sensitive": true,
+                "rotateOnly": true,
+                "masked": "value-hidden-in-list"
             },
             "organisation": {
                 "type": "string",
@@ -4697,7 +4710,8 @@
                 "nullable": false,
                 "required": true,
                 "description": "Valid YAML content.",
-                "rotateOnly": true
+                "rotateOnly": true,
+                "masked": "value-hidden-in-list"
             },
             "organisation": {
                 "type": "string",
@@ -4825,7 +4839,8 @@
                 "nullable": false,
                 "required": true,
                 "description": "Valid JSON content.",
-                "rotateOnly": true
+                "rotateOnly": true,
+                "masked": "value-hidden-in-list"
             },
             "organisation": {
                 "type": "string",
@@ -4953,7 +4968,8 @@
                 "nullable": false,
                 "required": true,
                 "description": "Arbitrary text content.",
-                "rotateOnly": true
+                "rotateOnly": true,
+                "masked": "value-hidden-for-your-own-good"
             },
             "organisation": {
                 "type": "string",

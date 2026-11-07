@@ -164,7 +164,11 @@ func leaf(k *bmap.Kind, name string, f *bmap.Field, readOnly bool) (*Attr, error
 	a.Required = !readOnly && d.Required && !defaulted
 	a.Optional = !readOnly && !a.Required
 	a.Computed = !a.Required
-	a.Sensitive = d.Sensitive || d.WriteOnly || d.Masked != ""
+	// Masked says only that a read may return a placeholder (the merge keeps
+	// prior state then); whether plans hide the value is x-sensitive's call.
+	// Public certificates and config content are masked in list reads but are
+	// not secret, so they stay visible (#2646).
+	a.Sensitive = d.Sensitive || d.WriteOnly
 	if d.Parent {
 		// The URL parent: read-only in the body, but Terraform must be given it.
 		a.Required, a.Optional, a.Computed = true, false, false
