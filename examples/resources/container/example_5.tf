@@ -1,20 +1,37 @@
+resource "bahriya_project" "web" {
+  name    = "Web"
+  handle  = "web"
+  regions = ["falkenstein-1"]
+}
+
 resource "bahriya_container" "api" {
-  handle          = "rate-limited-api"
-  name            = "Rate Limited API"
-  image           = "nginx:alpine"
-  containerport   = "80"
-  healthcheckpath = "/"
-  mincpu          = "100"
-  minmemory       = "128"
+  name    = "Rate Limited API"
+  handle  = "rate-limited-api"
+  project = bahriya_project.web.id
+  regions = ["falkenstein-1"]
 
-  autoscalingminreplicas = "1"
-  activeregions          = ["falkenstein-1"]
-  project                = bahriya_project.web.id
+  workload = {
+    image       = "nginx:alpine"
+    port        = "80"
+    healthcheck = "/"
+    cpu         = "100"
+    memory      = "128"
+  }
 
-  ratelimitingenabled          = true
-  ratelimitingrequestspersecond = 10
-  ratelimitingrequestsperminute = 300
+  scaling = {
+    replicas = "1"
+  }
 
-  ipwhitelistenabled = true
-  ipwhitelist        = ["203.0.113.0/24", "198.51.100.0/24"]
+  security = {
+    rate_limiting = {
+      enabled    = true
+      per_second = 10
+      per_minute = 300
+    }
+
+    ip_allowlist = {
+      enabled = true
+      ips     = ["203.0.113.0/24", "198.51.100.0/24"]
+    }
+  }
 }

@@ -1,16 +1,25 @@
+resource "bahriya_project" "web" {
+  name    = "Web"
+  handle  = "web"
+  regions = ["falkenstein-1"]
+}
+
 resource "bahriya_container" "queue" {
-  handle = "queue-worker"
-  name   = "Queue Worker"
-  image  = "ghcr.io/myorg/app:1.0.0"
-  type   = "worker"
+  name    = "Queue Worker"
+  handle  = "queue-worker"
+  type    = "worker"
+  project = bahriya_project.web.id
+  regions = ["falkenstein-1"]
 
-  mincpu    = "200"
-  minmemory = "256"
+  workload = {
+    image   = "ghcr.io/myorg/app:1.0.0"
+    cpu     = "200"
+    memory  = "256"
+    command = ["/usr/bin/php"]
+    args    = ["artisan", "queue:work", "--tries=3"]
+  }
 
-  autoscalingminreplicas = "1"
-  activeregions          = ["falkenstein-1"]
-  project                = bahriya_project.web.id
-
-  command = ["/usr/bin/php"]
-  args    = ["artisan", "queue:work", "--tries=3"]
+  scaling = {
+    replicas = "1"
+  }
 }

@@ -49,52 +49,55 @@ resource "bahriya_secret" "db_url" {
 # ---------- Cache ----------
 
 resource "bahriya_memcached" "cache" {
-  handle        = "app-cache"
-  name          = "Application Cache"
-  memorymb      = 512
-  activeregions = [local.primary_region]
-  project       = bahriya_project.main.id
+  handle  = "app-cache"
+  name    = "Application Cache"
+  regions = [local.primary_region]
+  project = bahriya_project.main.id
+
+  tuning = {
+    memory = 512
+  }
 }
 
 # ---------- Container ----------
 
 resource "bahriya_container" "api" {
-  handle = "api-server"
-  name   = "API Server"
-  image  = "myorg/api:latest"
+  handle  = "api-server"
+  name    = "API Server"
+  project = bahriya_project.main.id
+  regions = [local.primary_region]
 
-  # Required for HTTP containers
-  containerport   = "3000"
-  healthcheckpath = "/healthz"
+  workload = {
+    image    = "myorg/api:latest"
+    registry = bahriya_registry.docker_hub.id
 
-  mincpu    = "500"
-  minmemory = "512"
+    # An HTTP container needs a port and a health check path.
+    port        = "3000"
+    healthcheck = "/healthz"
 
-  autoscalingminreplicas = "2"
-  autoscalingmaxreplicas = "5"
+    cpu    = "500"
+    memory = "512"
 
-  activeregions = [local.primary_region]
+    env = {
+      "NODE_ENV"   = "production"
+      "CACHE_HOST" = "app-cache.memcached.bahriya.internal"
+    }
 
-  registry = bahriya_registry.docker_hub.handle
-  project  = bahriya_project.main.id
-
-  newenvvar {
-    key   = "NODE_ENV"
-    value = "production"
+    # Environment variable name = secret handle.
+    secrets = {
+      "DATABASE_URL" = bahriya_secret.db_url.handle
+    }
   }
 
-  newenvvar {
-    key   = "CACHE_HOST"
-    value = "app-cache.memcached.bahriya.internal"
+  scaling = {
+    replicas     = "2"
+    max_replicas = "5"
   }
 
-  secretsenvvar {
-    secret = bahriya_secret.db_url.handle
-    name   = "DATABASE_URL"
-  }
-
-  hostnames {
-    hostname = "api.example.com"
+  networking = {
+    domains = [
+      { hostname = "api.example.com" },
+    ]
   }
 }
 

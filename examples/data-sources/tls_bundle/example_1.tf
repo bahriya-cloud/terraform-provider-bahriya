@@ -1,18 +1,30 @@
+resource "bahriya_project" "shop" {
+  handle  = "shop"
+  name    = "Shop"
+  regions = ["helsinki-1"]
+}
+
 resource "bahriya_mysql" "orders" {
-  name          = "Orders DB"
-  handle        = "orders-db"
-  tier          = "single"
-  cpumillicores = 500
-  memorymb      = 1024
-  storagegb     = 10
-  project       = bahriya_project.shop.id
-  activeregions = ["helsinki-1"]
-  databases     = [{ name = "orders", username = "orders-app" }]
-  tlsenabled    = true
+  name      = "Orders DB"
+  handle    = "orders-db"
+  tier      = "single"
+  cpu       = 500
+  memory    = 1024
+  project   = bahriya_project.shop.id
+  regions   = ["helsinki-1"]
+  databases = [{ name = "orders", username = "orders-app" }]
+
+  persistence = {
+    storage = 10
+  }
+
+  security = {
+    tls = true
+  }
 }
 
 data "bahriya_tls_bundle" "orders" {
-  handle = bahriya_mysql.orders.tlsbundle
+  handle = bahriya_mysql.orders.security.tls_bundle
 }
 
 # The CA certificate clients use to verify the server, for example:

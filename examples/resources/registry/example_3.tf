@@ -1,3 +1,8 @@
+variable "ecr_token" {
+  type      = string
+  sensitive = true
+}
+
 resource "bahriya_registry" "ecr" {
   handle   = "ecr"
   name     = "AWS ECR"

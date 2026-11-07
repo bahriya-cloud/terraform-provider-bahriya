@@ -1,3 +1,12 @@
+variable "docker_username" {
+  type = string
+}
+
+variable "docker_password" {
+  type      = string
+  sensitive = true
+}
+
 resource "bahriya_registry" "docker_hub" {
   handle   = "docker-hub"
   name     = "Docker Hub"

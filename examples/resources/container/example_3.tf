@@ -1,20 +1,31 @@
+resource "bahriya_project" "web" {
+  name    = "Web"
+  handle  = "web"
+  regions = ["falkenstein-1"]
+}
+
 resource "bahriya_container" "nightly" {
-  handle   = "nightly-reports"
-  name     = "Nightly Reports"
-  image    = "ghcr.io/myorg/reports:1.0.0"
-  type     = "cronjob"
-  schedule = "0 2 * * *"
-  timezone = "Europe/London"
+  name    = "Nightly Reports"
+  handle  = "nightly-reports"
+  type    = "cronjob"
+  project = bahriya_project.web.id
+  regions = ["falkenstein-1"]
 
-  concurrencypolicy = "Forbid"
+  workload = {
+    image   = "ghcr.io/myorg/reports:1.0.0"
+    cpu     = "100"
+    memory  = "256"
+    command = ["/usr/bin/php"]
+    args    = ["artisan", "reports:nightly"]
+  }
 
-  mincpu    = "100"
-  minmemory = "256"
+  scaling = {
+    replicas = "1"
+  }
 
-  autoscalingminreplicas = "1"
-  activeregions          = ["falkenstein-1"]
-  project                = bahriya_project.web.id
-
-  command = ["/usr/bin/php"]
-  args    = ["artisan", "reports:nightly"]
+  schedule = {
+    schedule    = "0 2 * * *"
+    tz          = "Europe/London"
+    concurrency = "Forbid"
+  }
 }

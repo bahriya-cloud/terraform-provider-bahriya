@@ -8,19 +8,19 @@ terraform {
 
 provider "bahriya" {}
 
-# Use a data source to dynamically select regions
+# A data source selects the regions dynamically.
 data "bahriya_regions" "active" {
   status_filter = "active"
 }
 
-# Project to hold all resources
+# The project that holds all resources.
 resource "bahriya_project" "app" {
   handle  = "my-app"
   name    = "My Application"
   regions = [data.bahriya_regions.active.regions[0].id]
 }
 
-# Private registry credentials
+# Credentials for a private registry.
 resource "bahriya_registry" "ghcr" {
   handle   = "ghcr-registry"
   name     = "GitHub Container Registry"
@@ -29,7 +29,7 @@ resource "bahriya_registry" "ghcr" {
   password = var.ghcr_token
 }
 
-# Application secrets
+# Application secrets.
 resource "bahriya_secret" "db_url" {
   handle = "database-url"
   name   = "Database URL"
@@ -42,44 +42,44 @@ resource "bahriya_secret" "api_key" {
   value  = var.api_key
 }
 
-# Container deployment
+# The container deployment.
 resource "bahriya_container" "web" {
-  handle = "web-app"
-  name   = "Web Application"
-  image  = "ghcr.io/myorg/web-app:latest"
+  handle  = "web-app"
+  name    = "Web Application"
+  project = bahriya_project.app.id
+  regions = [data.bahriya_regions.active.regions[0].id]
 
-  # Required for HTTP containers
-  containerport   = "8080"
-  healthcheckpath = "/healthz"
+  workload = {
+    image    = "ghcr.io/myorg/web-app:latest"
+    registry = bahriya_registry.ghcr.id
 
-  mincpu    = "250"
-  minmemory = "256"
+    # An HTTP container needs a port and a health check path.
+    port        = "8080"
+    healthcheck = "/healthz"
 
-  autoscalingminreplicas = "1"
-  autoscalingmaxreplicas = "3"
+    cpu    = "250"
+    memory = "256"
 
-  activeregions = [data.bahriya_regions.active.regions[0].id]
+    env = {
+      "NODE_ENV" = "production"
+    }
 
-  registry = bahriya_registry.ghcr.handle
-  project  = bahriya_project.app.id
-
-  newenvvar {
-    key   = "NODE_ENV"
-    value = "production"
+    # Environment variable name = secret handle.
+    secrets = {
+      "DATABASE_URL" = bahriya_secret.db_url.handle
+      "API_KEY"      = bahriya_secret.api_key.handle
+    }
   }
 
-  secretsenvvar {
-    secret = bahriya_secret.db_url.handle
-    name   = "DATABASE_URL"
+  scaling = {
+    replicas     = "1"
+    max_replicas = "3"
   }
 
-  secretsenvvar {
-    secret = bahriya_secret.api_key.handle
-    name   = "API_KEY"
-  }
-
-  hostnames {
-    hostname = "app.example.com"
+  networking = {
+    domains = [
+      { hostname = "app.example.com" },
+    ]
   }
 }
 

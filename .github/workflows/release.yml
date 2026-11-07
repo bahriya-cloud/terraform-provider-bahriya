@@ -9,7 +9,28 @@ permissions:
   contents: write
 
 jobs:
+  examples:
+    # A release whose examples do not validate does not ship (see ci.yml).
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+
+      - name: Validate every example
+        run: go test ./internal/provider -run 'TestDocsExamplesValidate' -count=1 -v
+
   goreleaser:
+    needs: examples
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

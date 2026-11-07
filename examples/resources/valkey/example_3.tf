@@ -1,18 +1,28 @@
+resource "bahriya_project" "web" {
+  handle  = "web"
+  name    = "Web"
+  regions = ["falkenstein-1"]
+}
+
 resource "bahriya_valkey" "shared" {
-  handle        = "shared-cache"
-  name          = "Shared Cache"
-  purpose       = "cache"
-  tier          = "single"
-  memorymb      = 512
-  activeregions = ["falkenstein-1"]
-  project       = bahriya_project.web.id
+  handle  = "shared-cache"
+  name    = "Shared Cache"
+  purpose = "cache"
+  tier    = "single"
+  memory  = 512
+  regions = ["falkenstein-1"]
+  project = bahriya_project.web.id
 
-  externalenabled = true
-  tlsenabled      = true
-  authenabled     = true
-  allowedips      = ["198.51.100.0/24"]
+  security = {
+    tls  = true
+    auth = true
+  }
 
-  hostnames = [
-    { hostname = "cache.example.com" },
-  ]
+  exposure = {
+    external    = true
+    allowed_ips = ["198.51.100.0/24"]
+    hostnames = [
+      { hostname = "cache.example.com" },
+    ]
+  }
 }

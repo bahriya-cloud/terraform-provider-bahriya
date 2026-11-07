@@ -19,11 +19,14 @@ resource "bahriya_project" "cache" {
 }
 
 resource "bahriya_memcached" "session" {
-  handle        = "session-cache"
-  name          = "Session Cache"
-  memorymb      = 512
-  activeregions = [data.bahriya_regions.active.regions[0].id]
-  project       = bahriya_project.cache.id
+  handle  = "session-cache"
+  name    = "Session Cache"
+  regions = [data.bahriya_regions.active.regions[0].id]
+  project = bahriya_project.cache.id
+
+  tuning = {
+    memory = 512
+  }
 }
 
 output "memcached_id" {

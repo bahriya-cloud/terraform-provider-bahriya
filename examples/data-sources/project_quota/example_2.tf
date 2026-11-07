@@ -1,3 +1,9 @@
+resource "bahriya_project" "app" {
+  handle  = "app"
+  name    = "App"
+  regions = ["falkenstein-1"]
+}
+
 data "bahriya_project_quota" "app" {
   project = bahriya_project.app.id
 }

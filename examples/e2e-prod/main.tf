@@ -19,29 +19,35 @@ resource "bahriya_project" "e2e" {
 # ---------- Memcached ----------
 
 resource "bahriya_memcached" "e2e" {
-  handle        = "tf-e2e-cache"
-  name          = "TF E2E Cache"
-  memorymb      = 512
-  activeregions = ["helsinki-1"]
-  project       = bahriya_project.e2e.id
+  handle  = "tf-e2e-cache"
+  name    = "TF E2E Cache"
+  regions = ["helsinki-1"]
+  project = bahriya_project.e2e.id
+
+  tuning = {
+    memory = 512
+  }
 }
 
 # ---------- Container ----------
 
 resource "bahriya_container" "e2e" {
-  handle    = "tf-e2e-web3"
-  name      = "TF E2E Web3"
-  image     = "nginx:alpine"
-  mincpu    = "100"
-  minmemory = "128"
+  handle  = "tf-e2e-web3"
+  name    = "TF E2E Web3"
+  regions = ["falkenstein-1"]
+  project = bahriya_project.e2e.id
 
-  containerport   = "80"
-  healthcheckpath = "/"
+  workload = {
+    image       = "nginx:alpine"
+    port        = "80"
+    healthcheck = "/"
+    cpu         = "100"
+    memory      = "128"
+  }
 
-  autoscalingminreplicas = "1"
-
-  activeregions = ["falkenstein-1"]
-  project       = bahriya_project.e2e.id
+  scaling = {
+    replicas = "1"
+  }
 }
 
 # ---------- Outputs ----------

@@ -1,3 +1,12 @@
+variable "ghcr_username" {
+  type = string
+}
+
+variable "ghcr_token" {
+  type      = string
+  sensitive = true
+}
+
 resource "bahriya_registry" "ghcr" {
   handle   = "ghcr"
   name     = "GitHub Container Registry"

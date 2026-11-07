@@ -1,5 +1,13 @@
+resource "bahriya_project" "web" {
+  handle  = "web"
+  name    = "Web"
+  regions = ["falkenstein-1"]
+}
+
 resource "bahriya_env_file" "app_env" {
-  # ... bahriya_env_file configuration ...
+  handle  = "app-env"
+  name    = "Application environment"
+  content = "LOG_LEVEL=info\nCACHE_TTL=300\n"
 }
 
 resource "bahriya_project_env_file_attachment" "web_env_file" {
