@@ -21,29 +21,45 @@ func secretSchema() schema.Schema {
 		MarkdownDescription: "Manages a Bahriya secret.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Unique identifier (UUID) of the secret, assigned by the platform.",
+				MarkdownDescription: "Unique identifier (UUID) of the secret, assigned by the platform.",
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Display name of the secret.",
+				MarkdownDescription: "Display name of the secret.",
 			},
 			"handle": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Short identifier of the secret, unique within the organisation, by which containers reference it. Letters, digits, hyphens and underscores only.",
+				MarkdownDescription: "Short identifier of the secret, unique within the organisation, by which containers reference it. Letters, digits, hyphens and underscores only.",
 			},
 			"value": schema.StringAttribute{
-				Required:  true,
-				Sensitive: true,
+				Required:            true,
+				Sensitive:           true,
+				Description:         "The secret value, at most 124 characters. It is never returned in plaintext: reads return a placeholder in its place, and sending that placeholder back leaves the stored value unchanged. A new value is kept as a new version.",
+				MarkdownDescription: "The secret value, at most 124 characters. It is never returned in plaintext: reads return a placeholder in its place, and sending that placeholder back leaves the stored value unchanged. A new value is kept as a new version.",
 			},
 			"managed_by": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Identifier (UUID) of the platform resource that manages this secret, such as a MySQL instance. Null when the organisation manages it.",
+				MarkdownDescription: "Identifier (UUID) of the platform resource that manages this secret, such as a MySQL instance. Null when the organisation manages it.",
 			},
 			"managedbyresourcetype": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Type of the platform resource that manages this secret, such as mysql. Null when the organisation manages it. A managed secret can be changed only by that resource.",
+				MarkdownDescription: "Type of the platform resource that manages this secret, such as mysql. Null when the organisation manages it. A managed secret can be changed only by that resource.",
 			},
 			"billable": schema.BoolAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Whether the secret is billed to the organisation.",
+				MarkdownDescription: "Whether the secret is billed to the organisation.",
 			},
 			"max_versions": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.",
+				MarkdownDescription: "Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.",
 			},
 			"created": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -57,7 +73,9 @@ func secretSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the secret was created (UTC).",
+				MarkdownDescription: "When the secret was created (UTC).",
 			},
 			"updated": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -71,13 +89,19 @@ func secretSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the secret was last changed (UTC).",
+				MarkdownDescription: "When the secret was last changed (UTC).",
 			},
 			"currentversion": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Number of the version in use.",
+				MarkdownDescription: "Number of the version in use.",
 			},
 			"version_count": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Number of stored versions, including the version in use.",
+				MarkdownDescription: "Number of stored versions, including the version in use.",
 			},
 			"rotated_at": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -91,7 +115,9 @@ func secretSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the version in use was written (UTC). Null until the secret has been rotated at least once. After a rollback, the date of the version rolled back to.",
+				MarkdownDescription: "When the version in use was written (UTC). Null until the secret has been rotated at least once. After a rollback, the date of the version rolled back to.",
 			},
 		},
 	}

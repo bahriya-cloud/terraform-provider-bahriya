@@ -21,38 +21,60 @@ func registrySchema() schema.Schema {
 		MarkdownDescription: "Manages a Bahriya registry.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Unique identifier (UUID) of the registry, assigned by the platform.",
+				MarkdownDescription: "Unique identifier (UUID) of the registry, assigned by the platform.",
 			},
 			"server": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Host name of the container registry that images are pulled from, such as ghcr.io.",
+				MarkdownDescription: "Host name of the container registry that images are pulled from, such as ghcr.io.",
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Display name of the registry, at most 100 characters.",
+				MarkdownDescription: "Display name of the registry, at most 100 characters.",
 			},
 			"handle": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Short identifier of the registry, unique within the organisation. Lowercase letters, digits and hyphens only.",
+				MarkdownDescription: "Short identifier of the registry, unique within the organisation. Lowercase letters, digits and hyphens only.",
 			},
 			"username": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "User name for signing in to the registry.",
+				MarkdownDescription: "User name for signing in to the registry.",
 			},
 			"password": schema.StringAttribute{
-				Required:  true,
-				Sensitive: true,
+				Required:            true,
+				Sensitive:           true,
+				Description:         "Password or access token for signing in to the registry. It is never returned in plaintext: reads return a placeholder in its place, and sending that placeholder back leaves the stored password unchanged. A change to the server, user name or password is kept as a new version.",
+				MarkdownDescription: "Password or access token for signing in to the registry. It is never returned in plaintext: reads return a placeholder in its place, and sending that placeholder back leaves the stored password unchanged. A change to the server, user name or password is kept as a new version.",
 			},
 			"managed_by": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Identifier (UUID) of the platform resource that manages this registry. Null when the organisation manages it.",
+				MarkdownDescription: "Identifier (UUID) of the platform resource that manages this registry. Null when the organisation manages it.",
 			},
 			"managedbyresourcetype": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Type of the platform resource that manages this registry. Null when the organisation manages it. A managed registry can be changed only by that resource.",
+				MarkdownDescription: "Type of the platform resource that manages this registry. Null when the organisation manages it. A managed registry can be changed only by that resource.",
 			},
 			"billable": schema.BoolAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Whether the registry is billed to the organisation.",
+				MarkdownDescription: "Whether the registry is billed to the organisation.",
 			},
 			"currentversionid": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Identifier (UUID) of the version in use.",
+				MarkdownDescription: "Identifier (UUID) of the version in use.",
 			},
 			"max_versions": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.",
+				MarkdownDescription: "Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.",
 			},
 			"created": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -66,7 +88,9 @@ func registrySchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the registry was created (UTC).",
+				MarkdownDescription: "When the registry was created (UTC).",
 			},
 			"updated": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -80,13 +104,19 @@ func registrySchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the registry was last changed (UTC).",
+				MarkdownDescription: "When the registry was last changed (UTC).",
 			},
 			"currentversion": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Number of the version in use.",
+				MarkdownDescription: "Number of the version in use.",
 			},
 			"version_count": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Number of stored versions, including the version in use.",
+				MarkdownDescription: "Number of stored versions, including the version in use.",
 			},
 			"rotated_at": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -100,7 +130,9 @@ func registrySchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the version in use was written (UTC). Null until the registry has been rotated at least once. After a rollback, the date of the version rolled back to.",
+				MarkdownDescription: "When the version in use was written (UTC). Null until the registry has been rotated at least once. After a rollback, the date of the version rolled back to.",
 			},
 		},
 	}

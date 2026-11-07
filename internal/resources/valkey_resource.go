@@ -25,13 +25,19 @@ func valkeySchema() schema.Schema {
 		MarkdownDescription: "Manages a Bahriya valkey.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Unique identifier (UUID) of the Valkey instance, assigned by the platform.",
+				MarkdownDescription: "Unique identifier (UUID) of the Valkey instance, assigned by the platform.",
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Display name of the Valkey instance, up to 100 characters.",
+				MarkdownDescription: "Display name of the Valkey instance, up to 100 characters.",
 			},
 			"handle": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Unique handle of the Valkey instance: lowercase letters, digits and hyphens.",
+				MarkdownDescription: "Unique handle of the Valkey instance: lowercase letters, digits and hyphens.",
 			},
 			"tier": schema.StringAttribute{
 				Required:            true,
@@ -63,11 +69,15 @@ func valkeySchema() schema.Schema {
 				MarkdownDescription: "Regions this instance deploys into. At least one is required. Each region runs an independent copy with the same configuration and its own data.",
 			},
 			"project": schema.StringAttribute{
-				Optional: true,
-				Computed: true,
+				Optional:            true,
+				Computed:            true,
+				Description:         "Identifier (UUID) of the project the Valkey instance belongs to. Set when the instance is created and cannot be changed.",
+				MarkdownDescription: "Identifier (UUID) of the project the Valkey instance belongs to. Set when the instance is created and cannot be changed.",
 			},
 			"projectname": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Name of the project the Valkey instance belongs to.",
+				MarkdownDescription: "Name of the project the Valkey instance belongs to.",
 			},
 			"auth_secret": schema.StringAttribute{
 				Computed:            true,
@@ -75,7 +85,9 @@ func valkeySchema() schema.Schema {
 				MarkdownDescription: "Handle of the platform-managed vault secret holding the auth password. Null while auth is off; turning auth off releases it.",
 			},
 			"organisation": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Identifier (UUID) of the organisation that owns the Valkey instance.",
+				MarkdownDescription: "Identifier (UUID) of the organisation that owns the Valkey instance.",
 			},
 			"nodes": schema.Int64Attribute{
 				Computed:            true,
@@ -94,7 +106,9 @@ func valkeySchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the Valkey instance was created (UTC).",
+				MarkdownDescription: "When the Valkey instance was created (UTC).",
 			},
 			"updated": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -108,10 +122,14 @@ func valkeySchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the Valkey instance was last changed (UTC).",
+				MarkdownDescription: "When the Valkey instance was last changed (UTC).",
 			},
 			"status": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Lifecycle state of the Valkey instance: provisioning, running, terminating, terminated, suspended or error.",
+				MarkdownDescription: "Lifecycle state of the Valkey instance: provisioning, running, terminating, terminated, suspended or error.",
 			},
 			"topology": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -137,8 +155,8 @@ func valkeySchema() schema.Schema {
 					"auth": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Defaults to `true`.",
-						MarkdownDescription: "Defaults to `true`.",
+						Description:         "Whether clients must authenticate with the password. Defaults to `true`.",
+						MarkdownDescription: "Whether clients must authenticate with the password. Defaults to `true`.",
 					},
 					"password": schema.StringAttribute{
 						Optional:            true,
@@ -150,8 +168,8 @@ func valkeySchema() schema.Schema {
 					"tls": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Defaults to `false`.",
-						MarkdownDescription: "Defaults to `false`.",
+						Description:         "Whether clients connect over TLS. Defaults to `false`.",
+						MarkdownDescription: "Whether clients connect over TLS. Defaults to `false`.",
 					},
 					"tls_bundle": schema.StringAttribute{
 						Optional:            true,
@@ -175,7 +193,9 @@ func valkeySchema() schema.Schema {
 					"hostnames": schema.ListNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{Attributes: map[string]schema.Attribute{
 							"hostname": schema.StringAttribute{
-								Required: true,
+								Required:            true,
+								Description:         "A custom hostname (fully qualified domain name) the instance answers to.",
+								MarkdownDescription: "A custom hostname (fully qualified domain name) the instance answers to.",
 							},
 						}},
 						Optional:            true,

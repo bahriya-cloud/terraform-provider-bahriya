@@ -21,10 +21,14 @@ func plainConfigSchema() schema.Schema {
 		MarkdownDescription: "Manages a Bahriya plain_config.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Unique identifier (UUID) of the plain config, assigned by the platform.",
+				MarkdownDescription: "Unique identifier (UUID) of the plain config, assigned by the platform.",
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Display name of the plain config, at most 100 characters.",
+				MarkdownDescription: "Display name of the plain config, at most 100 characters.",
 			},
 			"handle": schema.StringAttribute{
 				Required:            true,
@@ -37,25 +41,39 @@ func plainConfigSchema() schema.Schema {
 				MarkdownDescription: "Arbitrary text content.",
 			},
 			"organisation": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Identifier (UUID) of the organisation that owns the plain config.",
+				MarkdownDescription: "Identifier (UUID) of the organisation that owns the plain config.",
 			},
 			"managed_by": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Identifier (UUID) of the platform resource that manages this plain config, such as a MySQL instance. Null when the organisation manages it.",
+				MarkdownDescription: "Identifier (UUID) of the platform resource that manages this plain config, such as a MySQL instance. Null when the organisation manages it.",
 			},
 			"managedbyresourcetype": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Type of the platform resource that manages this plain config, such as mysql. Null when the organisation manages it. A managed plain config can be changed only by that resource.",
+				MarkdownDescription: "Type of the platform resource that manages this plain config, such as mysql. Null when the organisation manages it. A managed plain config can be changed only by that resource.",
 			},
 			"billable": schema.BoolAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Whether the plain config is billed to the organisation.",
+				MarkdownDescription: "Whether the plain config is billed to the organisation.",
 			},
 			"currentversion": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Number of the version in use.",
+				MarkdownDescription: "Number of the version in use.",
 			},
 			"max_versions": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.",
+				MarkdownDescription: "Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.",
 			},
 			"content_length": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Length of the content in the version in use, in bytes.",
+				MarkdownDescription: "Length of the content in the version in use, in bytes.",
 			},
 			"created": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -69,7 +87,9 @@ func plainConfigSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the plain config was created (UTC).",
+				MarkdownDescription: "When the plain config was created (UTC).",
 			},
 			"updated": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -83,10 +103,14 @@ func plainConfigSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the plain config was last changed (UTC).",
+				MarkdownDescription: "When the plain config was last changed (UTC).",
 			},
 			"version_count": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Number of stored versions, including the version in use.",
+				MarkdownDescription: "Number of stored versions, including the version in use.",
 			},
 			"rotated_at": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -100,7 +124,9 @@ func plainConfigSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the version in use was written (UTC). Null until the plain config has been rotated at least once. After a rollback, the date of the version rolled back to.",
+				MarkdownDescription: "When the version in use was written (UTC). Null until the plain config has been rotated at least once. After a rollback, the date of the version rolled back to.",
 			},
 		},
 	}

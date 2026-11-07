@@ -22,13 +22,19 @@ func memcachedSchema() schema.Schema {
 		MarkdownDescription: "Manages a Bahriya memcached.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Unique identifier (UUID) of the Memcached instance, assigned by the platform.",
+				MarkdownDescription: "Unique identifier (UUID) of the Memcached instance, assigned by the platform.",
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Display name of the Memcached instance, up to 100 characters.",
+				MarkdownDescription: "Display name of the Memcached instance, up to 100 characters.",
 			},
 			"handle": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Unique handle of the Memcached instance: lowercase letters, digits and hyphens.",
+				MarkdownDescription: "Unique handle of the Memcached instance: lowercase letters, digits and hyphens.",
 			},
 			"regions": schema.ListAttribute{
 				ElementType:         types.StringType,
@@ -44,14 +50,20 @@ func memcachedSchema() schema.Schema {
 				MarkdownDescription: "Network policies narrowed to this memcached instance, referenced by handle.",
 			},
 			"project": schema.StringAttribute{
-				Optional: true,
-				Computed: true,
+				Optional:            true,
+				Computed:            true,
+				Description:         "Identifier (UUID) of the project the Memcached instance belongs to. Set when the instance is created and cannot be changed.",
+				MarkdownDescription: "Identifier (UUID) of the project the Memcached instance belongs to. Set when the instance is created and cannot be changed.",
 			},
 			"projectname": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Name of the project the Memcached instance belongs to.",
+				MarkdownDescription: "Name of the project the Memcached instance belongs to.",
 			},
 			"organisation": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Identifier (UUID) of the organisation that owns the Memcached instance.",
+				MarkdownDescription: "Identifier (UUID) of the organisation that owns the Memcached instance.",
 			},
 			"created": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -65,7 +77,9 @@ func memcachedSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the Memcached instance was created (UTC).",
+				MarkdownDescription: "When the Memcached instance was created (UTC).",
 			},
 			"updated": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -79,10 +93,14 @@ func memcachedSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the Memcached instance was last changed (UTC).",
+				MarkdownDescription: "When the Memcached instance was last changed (UTC).",
 			},
 			"status": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Lifecycle state of the Memcached instance: provisioning, running, terminating, terminated, suspended or error.",
+				MarkdownDescription: "Lifecycle state of the Memcached instance: provisioning, running, terminating, terminated, suspended or error.",
 			},
 			"managedbycontainer": schema.StringAttribute{
 				Computed:            true,
@@ -97,19 +115,21 @@ func memcachedSchema() schema.Schema {
 			"tuning": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"memory": schema.Int64Attribute{
-						Required: true,
+						Required:            true,
+						Description:         "Memory of each node, in MB.",
+						MarkdownDescription: "Memory of each node, in MB.",
 					},
 					"max_connections": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Defaults to `1024`.",
-						MarkdownDescription: "Defaults to `1024`.",
+						Description:         "Maximum number of simultaneous client connections each node accepts. Defaults to `1024`.",
+						MarkdownDescription: "Maximum number of simultaneous client connections each node accepts. Defaults to `1024`.",
 					},
 					"threads": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Defaults to `4`.",
-						MarkdownDescription: "Defaults to `4`.",
+						Description:         "Number of worker threads on each node. Defaults to `4`.",
+						MarkdownDescription: "Number of worker threads on each node. Defaults to `4`.",
 					},
 					"max_item_size_mb": schema.Int64Attribute{
 						Optional:            true,
@@ -125,8 +145,8 @@ func memcachedSchema() schema.Schema {
 					"nodes": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Defaults to `1`.",
-						MarkdownDescription: "Defaults to `1`.",
+						Description:         "Number of nodes in each region, from 1 to 9. Defaults to `1`.",
+						MarkdownDescription: "Number of nodes in each region, from 1 to 9. Defaults to `1`.",
 					},
 				},
 				Optional: true,

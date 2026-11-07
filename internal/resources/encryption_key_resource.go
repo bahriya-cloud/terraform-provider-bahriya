@@ -21,10 +21,14 @@ func encryptionKeySchema() schema.Schema {
 		MarkdownDescription: "Manages a Bahriya encryption_key.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Unique identifier (UUID) of the encryption key, assigned by the platform.",
+				MarkdownDescription: "Unique identifier (UUID) of the encryption key, assigned by the platform.",
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Display name of the encryption key, at most 100 characters.",
+				MarkdownDescription: "Display name of the encryption key, at most 100 characters.",
 			},
 			"handle": schema.StringAttribute{
 				Required:            true,
@@ -43,25 +47,39 @@ func encryptionKeySchema() schema.Schema {
 				MarkdownDescription: "Key encoding format: base64, hex, or raw. Fixed when the key is created.",
 			},
 			"organisation": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Identifier (UUID) of the organisation that owns the encryption key.",
+				MarkdownDescription: "Identifier (UUID) of the organisation that owns the encryption key.",
 			},
 			"managed_by": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Identifier (UUID) of the platform resource that manages this encryption key, such as a MySQL instance. Null when the organisation manages it.",
+				MarkdownDescription: "Identifier (UUID) of the platform resource that manages this encryption key, such as a MySQL instance. Null when the organisation manages it.",
 			},
 			"managedbyresourcetype": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Type of the platform resource that manages this encryption key, such as mysql. Null when the organisation manages it. A managed encryption key can be changed only by that resource.",
+				MarkdownDescription: "Type of the platform resource that manages this encryption key, such as mysql. Null when the organisation manages it. A managed encryption key can be changed only by that resource.",
 			},
 			"billable": schema.BoolAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Whether the encryption key is billed to the organisation.",
+				MarkdownDescription: "Whether the encryption key is billed to the organisation.",
 			},
 			"currentversion": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Number of the version in use.",
+				MarkdownDescription: "Number of the version in use.",
 			},
 			"max_versions": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.",
+				MarkdownDescription: "Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.",
 			},
 			"key_bits": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Size of the decoded key, in bits.",
+				MarkdownDescription: "Size of the decoded key, in bits.",
 			},
 			"created": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -75,7 +93,9 @@ func encryptionKeySchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the encryption key was created (UTC).",
+				MarkdownDescription: "When the encryption key was created (UTC).",
 			},
 			"updated": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -89,10 +109,14 @@ func encryptionKeySchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the encryption key was last changed (UTC).",
+				MarkdownDescription: "When the encryption key was last changed (UTC).",
 			},
 			"version_count": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Number of stored versions, including the version in use.",
+				MarkdownDescription: "Number of stored versions, including the version in use.",
 			},
 			"rotated_at": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -106,7 +130,9 @@ func encryptionKeySchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the version in use was written (UTC). Null until the encryption key has been rotated at least once. After a rollback, the date of the version rolled back to.",
+				MarkdownDescription: "When the version in use was written (UTC). Null until the encryption key has been rotated at least once. After a rollback, the date of the version rolled back to.",
 			},
 		},
 	}

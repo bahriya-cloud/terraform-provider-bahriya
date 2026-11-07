@@ -21,10 +21,14 @@ func gpgKeypairSchema() schema.Schema {
 		MarkdownDescription: "Manages a Bahriya gpg_keypair.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Unique identifier (UUID) of the GPG keypair, assigned by the platform.",
+				MarkdownDescription: "Unique identifier (UUID) of the GPG keypair, assigned by the platform.",
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Display name of the GPG keypair, at most 100 characters.",
+				MarkdownDescription: "Display name of the GPG keypair, at most 100 characters.",
 			},
 			"handle": schema.StringAttribute{
 				Required:            true,
@@ -44,34 +48,54 @@ func gpgKeypairSchema() schema.Schema {
 				MarkdownDescription: "ASCII-armored PGP private key. Never returned on read.",
 			},
 			"organisation": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Identifier (UUID) of the organisation that owns the GPG keypair.",
+				MarkdownDescription: "Identifier (UUID) of the organisation that owns the GPG keypair.",
 			},
 			"managed_by": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Identifier (UUID) of the platform resource that manages this GPG keypair, such as a MySQL instance. Null when the organisation manages it.",
+				MarkdownDescription: "Identifier (UUID) of the platform resource that manages this GPG keypair, such as a MySQL instance. Null when the organisation manages it.",
 			},
 			"managedbyresourcetype": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Type of the platform resource that manages this GPG keypair, such as mysql. Null when the organisation manages it. A managed GPG keypair can be changed only by that resource.",
+				MarkdownDescription: "Type of the platform resource that manages this GPG keypair, such as mysql. Null when the organisation manages it. A managed GPG keypair can be changed only by that resource.",
 			},
 			"billable": schema.BoolAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Whether the GPG keypair is billed to the organisation.",
+				MarkdownDescription: "Whether the GPG keypair is billed to the organisation.",
 			},
 			"currentversion": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Number of the version in use.",
+				MarkdownDescription: "Number of the version in use.",
 			},
 			"max_versions": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.",
+				MarkdownDescription: "Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.",
 			},
 			"key_id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Key ID of the public key: the last 16 hexadecimal characters of its fingerprint.",
+				MarkdownDescription: "Key ID of the public key: the last 16 hexadecimal characters of its fingerprint.",
 			},
 			"uid": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "First user ID on the key, usually a name and an email address.",
+				MarkdownDescription: "First user ID on the key, usually a name and an email address.",
 			},
 			"algorithm": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Public-key algorithm of the key, such as RSA.",
+				MarkdownDescription: "Public-key algorithm of the key, such as RSA.",
 			},
 			"key_bits": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Size of the key, in bits.",
+				MarkdownDescription: "Size of the key, in bits.",
 			},
 			"key_created": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -85,7 +109,9 @@ func gpgKeypairSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the key was created, as recorded in the key itself (UTC).",
+				MarkdownDescription: "When the key was created, as recorded in the key itself (UTC).",
 			},
 			"expires": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -99,7 +125,9 @@ func gpgKeypairSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the key expires (UTC). Null when the key does not expire.",
+				MarkdownDescription: "When the key expires (UTC). Null when the key does not expire.",
 			},
 			"created": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -113,7 +141,9 @@ func gpgKeypairSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the GPG keypair was created (UTC).",
+				MarkdownDescription: "When the GPG keypair was created (UTC).",
 			},
 			"updated": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -127,10 +157,14 @@ func gpgKeypairSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the GPG keypair was last changed (UTC).",
+				MarkdownDescription: "When the GPG keypair was last changed (UTC).",
 			},
 			"version_count": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Number of stored versions, including the version in use.",
+				MarkdownDescription: "Number of stored versions, including the version in use.",
 			},
 			"rotated_at": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -144,7 +178,9 @@ func gpgKeypairSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the version in use was written (UTC). Null until the GPG keypair has been rotated at least once. After a rollback, the date of the version rolled back to.",
+				MarkdownDescription: "When the version in use was written (UTC). Null until the GPG keypair has been rotated at least once. After a rollback, the date of the version rolled back to.",
 			},
 		},
 	}

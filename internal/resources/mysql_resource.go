@@ -25,13 +25,19 @@ func mysqlSchema() schema.Schema {
 		MarkdownDescription: "Manages a Bahriya mysql.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Unique identifier (UUID) of the MySQL instance, assigned by the platform.",
+				MarkdownDescription: "Unique identifier (UUID) of the MySQL instance, assigned by the platform.",
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Display name of the MySQL instance, up to 100 characters.",
+				MarkdownDescription: "Display name of the MySQL instance, up to 100 characters.",
 			},
 			"handle": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Unique handle of the MySQL instance: lowercase letters, digits and hyphens.",
+				MarkdownDescription: "Unique handle of the MySQL instance: lowercase letters, digits and hyphens.",
 			},
 			"tier": schema.StringAttribute{
 				Required:            true,
@@ -79,14 +85,20 @@ func mysqlSchema() schema.Schema {
 				MarkdownDescription: "Regions this instance deploys into. At least one is required. Each region runs an independent copy with the same configuration and its own data.",
 			},
 			"project": schema.StringAttribute{
-				Optional: true,
-				Computed: true,
+				Optional:            true,
+				Computed:            true,
+				Description:         "Identifier (UUID) of the project the MySQL instance belongs to. Set when the instance is created and cannot be changed.",
+				MarkdownDescription: "Identifier (UUID) of the project the MySQL instance belongs to. Set when the instance is created and cannot be changed.",
 			},
 			"projectname": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Name of the project the MySQL instance belongs to.",
+				MarkdownDescription: "Name of the project the MySQL instance belongs to.",
 			},
 			"organisation": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Identifier (UUID) of the organisation that owns the MySQL instance.",
+				MarkdownDescription: "Identifier (UUID) of the organisation that owns the MySQL instance.",
 			},
 			"nodes": schema.Int64Attribute{
 				Computed:            true,
@@ -105,7 +117,9 @@ func mysqlSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the MySQL instance was created (UTC).",
+				MarkdownDescription: "When the MySQL instance was created (UTC).",
 			},
 			"updated": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -119,10 +133,14 @@ func mysqlSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the MySQL instance was last changed (UTC).",
+				MarkdownDescription: "When the MySQL instance was last changed (UTC).",
 			},
 			"status": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Lifecycle state of the MySQL instance: provisioning, running, terminating, terminated, suspended or error.",
+				MarkdownDescription: "Lifecycle state of the MySQL instance: provisioning, running, terminating, terminated, suspended or error.",
 			},
 			"restoreof": schema.StringAttribute{
 				Computed:            true,
@@ -167,22 +185,34 @@ func mysqlSchema() schema.Schema {
 			"restoretargets": schema.ListNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{Attributes: map[string]schema.Attribute{
 					"handle": schema.StringAttribute{
-						Computed: true,
+						Computed:            true,
+						Description:         "Handle of the restore target instance.",
+						MarkdownDescription: "Handle of the restore target instance.",
 					},
 					"id": schema.StringAttribute{
-						Computed: true,
+						Computed:            true,
+						Description:         "Identifier (UUID) of the restore target instance.",
+						MarkdownDescription: "Identifier (UUID) of the restore target instance.",
 					},
 					"instancestatus": schema.StringAttribute{
-						Computed: true,
+						Computed:            true,
+						Description:         "Lifecycle state of the restore target instance: provisioning, running, terminating, terminated, suspended or error.",
+						MarkdownDescription: "Lifecycle state of the restore target instance: provisioning, running, terminating, terminated, suspended or error.",
 					},
 					"kind": schema.StringAttribute{
-						Computed: true,
+						Computed:            true,
+						Description:         "Kind of restore target: staging (a disposable copy, without backups) or instance (kept, with backups).",
+						MarkdownDescription: "Kind of restore target: staging (a disposable copy, without backups) or instance (kept, with backups).",
 					},
 					"status": schema.StringAttribute{
-						Computed: true,
+						Computed:            true,
+						Description:         "Progress of the restore: pending, restoring, completed or failed.",
+						MarkdownDescription: "Progress of the restore: pending, restoring, completed or failed.",
 					},
 					"targetat": schema.StringAttribute{
-						Computed: true,
+						Computed:            true,
+						Description:         "The UTC instant the restore target's data was restored to.",
+						MarkdownDescription: "The UTC instant the restore target's data was restored to.",
 					},
 				}},
 				Computed:            true,
@@ -314,7 +344,9 @@ func mysqlSchema() schema.Schema {
 					"hostnames": schema.ListNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{Attributes: map[string]schema.Attribute{
 							"hostname": schema.StringAttribute{
-								Required: true,
+								Required:            true,
+								Description:         "A custom hostname (fully qualified domain name) for the instance.",
+								MarkdownDescription: "A custom hostname (fully qualified domain name) for the instance.",
 							},
 						}},
 						Optional:            true,

@@ -22,7 +22,9 @@ func pathRuleSchema() schema.Schema {
 		MarkdownDescription: "Manages a Bahriya path_rule.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Unique identifier (UUID) of the path rule, assigned by the platform.",
+				MarkdownDescription: "Unique identifier (UUID) of the path rule, assigned by the platform.",
 			},
 			"handle": schema.StringAttribute{
 				Required:            true,
@@ -46,10 +48,14 @@ func pathRuleSchema() schema.Schema {
 				MarkdownDescription: "Parent container id. Fixed for the life of the rule.",
 			},
 			"created_by": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Identifier (UUID) of the user who created the path rule. Null if that user no longer exists.",
+				MarkdownDescription: "Identifier (UUID) of the user who created the path rule. Null if that user no longer exists.",
 			},
 			"updated_by": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Identifier (UUID) of the user who last changed the path rule.",
+				MarkdownDescription: "Identifier (UUID) of the user who last changed the path rule.",
 			},
 			"created": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -63,7 +69,9 @@ func pathRuleSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the path rule was created (UTC).",
+				MarkdownDescription: "When the path rule was created (UTC).",
 			},
 			"updated": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -77,7 +85,9 @@ func pathRuleSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the path rule was last changed (UTC).",
+				MarkdownDescription: "When the path rule was last changed (UTC).",
 			},
 			"removed": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -91,7 +101,9 @@ func pathRuleSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the path rule was removed from its container (UTC). Null while it is in effect.",
+				MarkdownDescription: "When the path rule was removed from its container (UTC). Null while it is in effect.",
 			},
 			"security": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -134,9 +146,11 @@ func pathRuleSchema() schema.Schema {
 								MarkdownDescription: "Enable IP allow-list. Only IPs in the list can access this path. Defaults to `false`.",
 							},
 							"ips": schema.ListAttribute{
-								ElementType: types.StringType,
-								Optional:    true,
-								Computed:    true,
+								ElementType:         types.StringType,
+								Optional:            true,
+								Computed:            true,
+								Description:         "IP addresses and CIDR ranges allowed to reach this path when the allow-list is enabled.",
+								MarkdownDescription: "IP addresses and CIDR ranges allowed to reach this path when the allow-list is enabled.",
 							},
 						},
 						Optional: true,
@@ -151,9 +165,11 @@ func pathRuleSchema() schema.Schema {
 								MarkdownDescription: "Enable IP deny-list. IPs in the list are blocked on this path. Defaults to `false`.",
 							},
 							"ips": schema.ListAttribute{
-								ElementType: types.StringType,
-								Optional:    true,
-								Computed:    true,
+								ElementType:         types.StringType,
+								Optional:            true,
+								Computed:            true,
+								Description:         "IP addresses and CIDR ranges blocked from reaching this path when the deny-list is enabled.",
+								MarkdownDescription: "IP addresses and CIDR ranges blocked from reaching this path when the deny-list is enabled.",
 							},
 						},
 						Optional: true,
@@ -175,8 +191,8 @@ func pathRuleSchema() schema.Schema {
 							},
 							"username": schema.StringAttribute{
 								Required:            true,
-								Description:         "Basic auth username. 1-128 chars, alphanumeric plus . _ -. Globally unique across all containers — the console UI prefixes with the container handle (e.g. `mywebsite-alice`) to keep usernames container-scoped.",
-								MarkdownDescription: "Basic auth username. 1-128 chars, alphanumeric plus . _ -. Globally unique across all containers — the console UI prefixes with the container handle (e.g. `mywebsite-alice`) to keep usernames container-scoped.",
+								Description:         "User name for HTTP basic authentication: 1 to 128 characters, using letters, digits, full stops, underscores and hyphens. It must be unique across all containers; the console prefixes it with the container handle, such as mywebsite-alice, to keep it unique.",
+								MarkdownDescription: "User name for HTTP basic authentication: 1 to 128 characters, using letters, digits, full stops, underscores and hyphens. It must be unique across all containers; the console prefixes it with the container handle, such as mywebsite-alice, to keep it unique.",
 							},
 						}},
 						Optional:            true,

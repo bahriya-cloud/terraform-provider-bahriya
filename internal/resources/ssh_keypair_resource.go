@@ -21,10 +21,14 @@ func sshKeypairSchema() schema.Schema {
 		MarkdownDescription: "Manages a Bahriya ssh_keypair.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Unique identifier (UUID) of the SSH keypair, assigned by the platform.",
+				MarkdownDescription: "Unique identifier (UUID) of the SSH keypair, assigned by the platform.",
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Display name of the SSH keypair, at most 100 characters.",
+				MarkdownDescription: "Display name of the SSH keypair, at most 100 characters.",
 			},
 			"handle": schema.StringAttribute{
 				Required:            true,
@@ -44,34 +48,54 @@ func sshKeypairSchema() schema.Schema {
 				MarkdownDescription: "PEM-encoded private key. Never returned on read.",
 			},
 			"organisation": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Identifier (UUID) of the organisation that owns the SSH keypair.",
+				MarkdownDescription: "Identifier (UUID) of the organisation that owns the SSH keypair.",
 			},
 			"managed_by": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Identifier (UUID) of the platform resource that manages this SSH keypair, such as a MySQL instance. Null when the organisation manages it.",
+				MarkdownDescription: "Identifier (UUID) of the platform resource that manages this SSH keypair, such as a MySQL instance. Null when the organisation manages it.",
 			},
 			"managedbyresourcetype": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Type of the platform resource that manages this SSH keypair, such as mysql. Null when the organisation manages it. A managed SSH keypair can be changed only by that resource.",
+				MarkdownDescription: "Type of the platform resource that manages this SSH keypair, such as mysql. Null when the organisation manages it. A managed SSH keypair can be changed only by that resource.",
 			},
 			"billable": schema.BoolAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Whether the SSH keypair is billed to the organisation.",
+				MarkdownDescription: "Whether the SSH keypair is billed to the organisation.",
 			},
 			"currentversion": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Number of the version in use.",
+				MarkdownDescription: "Number of the version in use.",
 			},
 			"max_versions": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.",
+				MarkdownDescription: "Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.",
 			},
 			"key_id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "SHA-256 fingerprint of the public key, in the form ssh-keygen prints: SHA256: followed by unpadded base64.",
+				MarkdownDescription: "SHA-256 fingerprint of the public key, in the form ssh-keygen prints: SHA256: followed by unpadded base64.",
 			},
 			"algorithm": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Key type named in the public key line, such as ssh-rsa or ssh-ed25519.",
+				MarkdownDescription: "Key type named in the public key line, such as ssh-rsa or ssh-ed25519.",
 			},
 			"key_bits": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Size of the key, in bits.",
+				MarkdownDescription: "Size of the key, in bits.",
 			},
 			"comment": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Comment at the end of the public key line. Null when the line has none.",
+				MarkdownDescription: "Comment at the end of the public key line. Null when the line has none.",
 			},
 			"created": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -85,7 +109,9 @@ func sshKeypairSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the SSH keypair was created (UTC).",
+				MarkdownDescription: "When the SSH keypair was created (UTC).",
 			},
 			"updated": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -99,10 +125,14 @@ func sshKeypairSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the SSH keypair was last changed (UTC).",
+				MarkdownDescription: "When the SSH keypair was last changed (UTC).",
 			},
 			"version_count": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Number of stored versions, including the version in use.",
+				MarkdownDescription: "Number of stored versions, including the version in use.",
 			},
 			"rotated_at": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -116,7 +146,9 @@ func sshKeypairSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the version in use was written (UTC). Null until the SSH keypair has been rotated at least once. After a rollback, the date of the version rolled back to.",
+				MarkdownDescription: "When the version in use was written (UTC). Null until the SSH keypair has been rotated at least once. After a rollback, the date of the version rolled back to.",
 			},
 		},
 	}

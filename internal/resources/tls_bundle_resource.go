@@ -21,10 +21,14 @@ func tlsBundleSchema() schema.Schema {
 		MarkdownDescription: "Manages a Bahriya tls_bundle.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Unique identifier (UUID) of the TLS bundle, assigned by the platform.",
+				MarkdownDescription: "Unique identifier (UUID) of the TLS bundle, assigned by the platform.",
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Display name of the TLS bundle, at most 100 characters.",
+				MarkdownDescription: "Display name of the TLS bundle, at most 100 characters.",
 			},
 			"handle": schema.StringAttribute{
 				Required:            true,
@@ -48,31 +52,49 @@ func tlsBundleSchema() schema.Schema {
 				MarkdownDescription: "PEM-encoded private key. Never returned on read.",
 			},
 			"organisation": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Identifier (UUID) of the organisation that owns the TLS bundle.",
+				MarkdownDescription: "Identifier (UUID) of the organisation that owns the TLS bundle.",
 			},
 			"managed_by": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Identifier (UUID) of the platform resource that manages this TLS bundle, such as a MySQL instance. Null when the organisation manages it.",
+				MarkdownDescription: "Identifier (UUID) of the platform resource that manages this TLS bundle, such as a MySQL instance. Null when the organisation manages it.",
 			},
 			"managedbyresourcetype": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Type of the platform resource that manages this TLS bundle, such as mysql. Null when the organisation manages it. A managed TLS bundle can be changed only by that resource.",
+				MarkdownDescription: "Type of the platform resource that manages this TLS bundle, such as mysql. Null when the organisation manages it. A managed TLS bundle can be changed only by that resource.",
 			},
 			"billable": schema.BoolAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Whether the TLS bundle is billed to the organisation.",
+				MarkdownDescription: "Whether the TLS bundle is billed to the organisation.",
 			},
 			"currentversion": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Number of the version in use.",
+				MarkdownDescription: "Number of the version in use.",
 			},
 			"max_versions": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.",
+				MarkdownDescription: "Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.",
 			},
 			"fingerprint": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "SHA-256 fingerprint of the server certificate, as colon-separated uppercase hexadecimal prefixed with SHA256:.",
+				MarkdownDescription: "SHA-256 fingerprint of the server certificate, as colon-separated uppercase hexadecimal prefixed with SHA256:.",
 			},
 			"subject": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Distinguished name of the server certificate subject.",
+				MarkdownDescription: "Distinguished name of the server certificate subject.",
 			},
 			"issuer": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Distinguished name of the authority that issued the server certificate.",
+				MarkdownDescription: "Distinguished name of the authority that issued the server certificate.",
 			},
 			"not_before": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -86,7 +108,9 @@ func tlsBundleSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "Start of the server certificate validity period (UTC).",
+				MarkdownDescription: "Start of the server certificate validity period (UTC).",
 			},
 			"expires": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -100,13 +124,19 @@ func tlsBundleSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the server certificate expires (UTC).",
+				MarkdownDescription: "When the server certificate expires (UTC).",
 			},
 			"algorithm": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Algorithm of the private key, such as RSA.",
+				MarkdownDescription: "Algorithm of the private key, such as RSA.",
 			},
 			"key_bits": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Size of the private key, in bits.",
+				MarkdownDescription: "Size of the private key, in bits.",
 			},
 			"created": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -120,7 +150,9 @@ func tlsBundleSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the TLS bundle was created (UTC).",
+				MarkdownDescription: "When the TLS bundle was created (UTC).",
 			},
 			"updated": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -134,10 +166,14 @@ func tlsBundleSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the TLS bundle was last changed (UTC).",
+				MarkdownDescription: "When the TLS bundle was last changed (UTC).",
 			},
 			"version_count": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Number of stored versions, including the version in use.",
+				MarkdownDescription: "Number of stored versions, including the version in use.",
 			},
 			"rotated_at": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -151,7 +187,9 @@ func tlsBundleSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the version in use was written (UTC). Null until the TLS bundle has been rotated at least once. After a rollback, the date of the version rolled back to.",
+				MarkdownDescription: "When the version in use was written (UTC). Null until the TLS bundle has been rotated at least once. After a rollback, the date of the version rolled back to.",
 			},
 		},
 	}

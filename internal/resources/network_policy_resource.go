@@ -24,10 +24,14 @@ func networkPolicySchema() schema.Schema {
 		MarkdownDescription: "Manages a Bahriya network_policy.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Unique identifier (UUID) of the network policy, assigned by the platform.",
+				MarkdownDescription: "Unique identifier (UUID) of the network policy, assigned by the platform.",
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Display name of the network policy.",
+				MarkdownDescription: "Display name of the network policy.",
 			},
 			"handle": schema.StringAttribute{
 				Required:            true,
@@ -76,16 +80,24 @@ func networkPolicySchema() schema.Schema {
 				MarkdownDescription: "Optional port/protocol scoping applied to the rules above. Omit to allow all ports.",
 			},
 			"organisation": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Identifier (UUID) of the organisation that owns the network policy.",
+				MarkdownDescription: "Identifier (UUID) of the organisation that owns the network policy.",
 			},
 			"managed_by": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Identifier (UUID) of the platform resource that manages this network policy. Null when the organisation manages it.",
+				MarkdownDescription: "Identifier (UUID) of the platform resource that manages this network policy. Null when the organisation manages it.",
 			},
 			"managedbyresourcetype": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Type of the platform resource that manages this network policy. Null when the organisation manages it. A managed network policy can be changed only by that resource.",
+				MarkdownDescription: "Type of the platform resource that manages this network policy. Null when the organisation manages it. A managed network policy can be changed only by that resource.",
 			},
 			"billable": schema.BoolAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Whether the network policy is billed to the organisation.",
+				MarkdownDescription: "Whether the network policy is billed to the organisation.",
 			},
 			"created": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -99,7 +111,9 @@ func networkPolicySchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the network policy was created (UTC).",
+				MarkdownDescription: "When the network policy was created (UTC).",
 			},
 			"updated": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -113,7 +127,9 @@ func networkPolicySchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the network policy was last changed (UTC).",
+				MarkdownDescription: "When the network policy was last changed (UTC).",
 			},
 			"enable_l7": schema.BoolAttribute{
 				Optional:            true,

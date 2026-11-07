@@ -25,20 +25,30 @@ func containerSchema() schema.Schema {
 		MarkdownDescription: "Manages a Bahriya container.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Unique identifier (UUID) of the container, assigned by the platform.",
+				MarkdownDescription: "Unique identifier (UUID) of the container, assigned by the platform.",
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Display name of the container, up to 100 characters.",
+				MarkdownDescription: "Display name of the container, up to 100 characters.",
 			},
 			"handle": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Short name that identifies the container in hostnames and references. Lowercase letters, digits and hyphens only.",
+				MarkdownDescription: "Short name that identifies the container in hostnames and references. Lowercase letters, digits and hyphens only.",
 			},
 			"project": schema.StringAttribute{
-				Optional: true,
-				Computed: true,
+				Optional:            true,
+				Computed:            true,
+				Description:         "Identifier (UUID) of the project the container belongs to. It is set when the container is created and cannot be changed.",
+				MarkdownDescription: "Identifier (UUID) of the project the container belongs to. It is set when the container is created and cannot be changed.",
 			},
 			"projectname": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Name of the project the container belongs to.",
+				MarkdownDescription: "Name of the project the container belongs to.",
 			},
 			"regions": schema.ListAttribute{
 				ElementType:         types.StringType,
@@ -47,7 +57,9 @@ func containerSchema() schema.Schema {
 				MarkdownDescription: "Regions this container deploys into. At least one is required.",
 			},
 			"organisation": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Identifier (UUID) of the organisation that owns the container.",
+				MarkdownDescription: "Identifier (UUID) of the organisation that owns the container.",
 			},
 			"created": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -61,7 +73,9 @@ func containerSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the container was created (UTC).",
+				MarkdownDescription: "When the container was created (UTC).",
 			},
 			"updated": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -75,10 +89,14 @@ func containerSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the container was last changed (UTC).",
+				MarkdownDescription: "When the container was last changed (UTC).",
 			},
 			"status": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Lifecycle state of the container: provisioning, running, terminating, terminated or error.",
+				MarkdownDescription: "Lifecycle state of the container: provisioning, running, terminating, terminated or error.",
 			},
 			"type": schema.StringAttribute{
 				Optional:            true,
@@ -99,7 +117,9 @@ func containerSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the container was last restarted on request (UTC). Null if it has never been restarted.",
+				MarkdownDescription: "When the container was last restarted on request (UTC). Null if it has never been restarted.",
 			},
 			"init_jobs": schema.ListNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{Attributes: map[string]schema.Attribute{
@@ -191,8 +211,10 @@ func containerSchema() schema.Schema {
 						MarkdownDescription: "The container image to deploy, including the registry host when it is not Docker Hub. An explicit tag or digest is required — an untagged reference is rejected.",
 					},
 					"registry": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "Identifier (UUID) of the registry whose credentials are used to pull a private image. Leave it unset for a public image.",
+						MarkdownDescription: "Identifier (UUID) of the registry whose credentials are used to pull a private image. Leave it unset for a public image.",
 					},
 					"port": schema.StringAttribute{
 						Optional:            true,
@@ -213,17 +235,23 @@ func containerSchema() schema.Schema {
 						MarkdownDescription: "Expected application bootstrap time in seconds. Used to configure startup probe timing.",
 					},
 					"env": schema.MapAttribute{
-						ElementType: types.StringType,
-						Optional:    true,
-						Computed:    true,
+						ElementType:         types.StringType,
+						Optional:            true,
+						Computed:            true,
+						Description:         "Environment variables set in the container, as name and value pairs.",
+						MarkdownDescription: "Environment variables set in the container, as name and value pairs.",
 					},
 					"secrets": schema.MapAttribute{
-						ElementType: types.StringType,
-						Optional:    true,
-						Computed:    true,
+						ElementType:         types.StringType,
+						Optional:            true,
+						Computed:            true,
+						Description:         "Environment variables whose values come from secrets in the organisation vault. Each entry maps a variable name to a secret.",
+						MarkdownDescription: "Environment variables whose values come from secrets in the organisation vault. Each entry maps a variable name to a secret.",
 					},
 					"cpu": schema.StringAttribute{
-						Required: true,
+						Required:            true,
+						Description:         "CPU requested for each replica, in millicores (1000 millicores is one vCPU).",
+						MarkdownDescription: "CPU requested for each replica, in millicores (1000 millicores is one vCPU).",
 					},
 					"max_cpu": schema.StringAttribute{
 						Computed:            true,
@@ -231,7 +259,9 @@ func containerSchema() schema.Schema {
 						MarkdownDescription: "Server-computed: request x limit_multiplier (config). Not accepted from clients.",
 					},
 					"memory": schema.StringAttribute{
-						Required: true,
+						Required:            true,
+						Description:         "Memory requested for each replica, in MiB.",
+						MarkdownDescription: "Memory requested for each replica, in MiB.",
 					},
 					"max_memory": schema.StringAttribute{
 						Computed:            true,
@@ -267,26 +297,32 @@ func containerSchema() schema.Schema {
 					"autoscaling": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Defaults to `false`.",
-						MarkdownDescription: "Defaults to `false`.",
+						Description:         "Whether the number of replicas scales automatically between the minimum and maximum replicas. Autoscaling cannot be enabled while persistent volumes are attached. Defaults to `false`.",
+						MarkdownDescription: "Whether the number of replicas scales automatically between the minimum and maximum replicas. Autoscaling cannot be enabled while persistent volumes are attached. Defaults to `false`.",
 					},
 					"replicas": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Defaults to `\"1\"`.",
-						MarkdownDescription: "Defaults to `\"1\"`.",
+						Description:         "Number of replicas to run, and the minimum number when autoscaling is enabled. Defaults to `\"1\"`.",
+						MarkdownDescription: "Number of replicas to run, and the minimum number when autoscaling is enabled. Defaults to `\"1\"`.",
 					},
 					"max_replicas": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "Maximum number of replicas when autoscaling is enabled. Setting it enables autoscaling.",
+						MarkdownDescription: "Maximum number of replicas when autoscaling is enabled. Setting it enables autoscaling.",
 					},
 					"target_cpu": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "Average CPU utilisation that autoscaling aims to keep, as a percentage of the requested CPU.",
+						MarkdownDescription: "Average CPU utilisation that autoscaling aims to keep, as a percentage of the requested CPU.",
 					},
 					"target_memory": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "Average memory utilisation that autoscaling aims to keep, as a percentage of the requested memory.",
+						MarkdownDescription: "Average memory utilisation that autoscaling aims to keep, as a percentage of the requested memory.",
 					},
 				},
 				Optional: true,
@@ -332,12 +368,14 @@ func containerSchema() schema.Schema {
 					"default_hostname": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Host alias used to build per-region default hostnames (e.g. mamluk-123.helsinki-1.x.on.bahriya.app)",
-						MarkdownDescription: "Host alias used to build per-region default hostnames (e.g. mamluk-123.helsinki-1.x.on.bahriya.app)",
+						Description:         "Host alias from which the default hostname in each region is built, such as mamluk-123.helsinki-1.x.on.bahriya.app.",
+						MarkdownDescription: "Host alias from which the default hostname in each region is built, such as mamluk-123.helsinki-1.x.on.bahriya.app.",
 					},
 					"vanity_hostname": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "Platform-managed hostname that spreads traffic across the regions of the container according to the custom DNS mode. It requires two or more regions.",
+						MarkdownDescription: "Platform-managed hostname that spreads traffic across the regions of the container according to the custom DNS mode. It requires two or more regions.",
 					},
 					"domains": schema.ListNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{Attributes: map[string]schema.Attribute{
@@ -349,8 +387,8 @@ func containerSchema() schema.Schema {
 							"wwwredirect": schema.BoolAttribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "Redirect www.{hostname} to {hostname}. Only valid when the hostname is an apex (e.g. example.com, not www.example.com or sub.example.com). Defaults to `false`.",
-								MarkdownDescription: "Redirect www.{hostname} to {hostname}. Only valid when the hostname is an apex (e.g. example.com, not www.example.com or sub.example.com). Defaults to `false`.",
+								Description:         "Whether www.{hostname} redirects to {hostname}. Valid only when the hostname is an apex domain, such as example.com, and not www.example.com or sub.example.com. Defaults to `false`.",
+								MarkdownDescription: "Whether www.{hostname} redirects to {hostname}. Valid only when the hostname is an apex domain, such as example.com, and not www.example.com or sub.example.com. Defaults to `false`.",
 							},
 						}},
 						Optional:            true,
@@ -359,9 +397,11 @@ func containerSchema() schema.Schema {
 						MarkdownDescription: "Custom hostnames attached to this container. Up to a configurable maximum (default 5). The first hostname is included; each additional hostname is billed via the extra_custom_hostname SKU.",
 					},
 					"custom_dns_mode": schema.StringAttribute{
-						Optional:   true,
-						Computed:   true,
-						Validators: []validator.String{stringvalidator.OneOf("geo", "none", "round-robin")},
+						Optional:            true,
+						Computed:            true,
+						Description:         "How traffic is spread across regions on the vanity hostname: none, round-robin or geo. A mode other than none requires two or more regions.",
+						MarkdownDescription: "How traffic is spread across regions on the vanity hostname: none, round-robin or geo. A mode other than none requires two or more regions.",
+						Validators:          []validator.String{stringvalidator.OneOf("geo", "none", "round-robin")},
 					},
 					"dns_ttl": schema.Int64Attribute{
 						Optional:            true,
@@ -418,8 +458,8 @@ func containerSchema() schema.Schema {
 							"enabled": schema.BoolAttribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "Enable Kong rate limiting by IP for this container. Defaults to `false`.",
-								MarkdownDescription: "Enable Kong rate limiting by IP for this container. Defaults to `false`.",
+								Description:         "Whether requests to the container are rate limited per client IP address. Defaults to `false`.",
+								MarkdownDescription: "Whether requests to the container are rate limited per client IP address. Defaults to `false`.",
 							},
 							"per_minute": schema.Int64Attribute{
 								Optional:            true,
@@ -452,9 +492,11 @@ func containerSchema() schema.Schema {
 								MarkdownDescription: "Enable IP allow-list. Only IPs in the list can access the container. Defaults to `false`.",
 							},
 							"ips": schema.ListAttribute{
-								ElementType: types.StringType,
-								Optional:    true,
-								Computed:    true,
+								ElementType:         types.StringType,
+								Optional:            true,
+								Computed:            true,
+								Description:         "IP addresses and CIDR ranges allowed to reach the container when the allow-list is enabled.",
+								MarkdownDescription: "IP addresses and CIDR ranges allowed to reach the container when the allow-list is enabled.",
 							},
 						},
 						Optional: true,
@@ -469,9 +511,11 @@ func containerSchema() schema.Schema {
 								MarkdownDescription: "Enable IP deny-list. IPs in the list are blocked. Defaults to `false`.",
 							},
 							"ips": schema.ListAttribute{
-								ElementType: types.StringType,
-								Optional:    true,
-								Computed:    true,
+								ElementType:         types.StringType,
+								Optional:            true,
+								Computed:            true,
+								Description:         "IP addresses and CIDR ranges blocked from reaching the container when the deny-list is enabled.",
+								MarkdownDescription: "IP addresses and CIDR ranges blocked from reaching the container when the deny-list is enabled.",
 							},
 						},
 						Optional: true,
@@ -480,8 +524,8 @@ func containerSchema() schema.Schema {
 					"basic_auth_enabled": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Enable Kong HTTP basic authentication on the container ingress. HTTP containers only. Defaults to `false`.",
-						MarkdownDescription: "Enable Kong HTTP basic authentication on the container ingress. HTTP containers only. Defaults to `false`.",
+						Description:         "Whether requests to the container require HTTP basic authentication. Available on HTTP containers only. Defaults to `false`.",
+						MarkdownDescription: "Whether requests to the container require HTTP basic authentication. Available on HTTP containers only. Defaults to `false`.",
 					},
 					"basic_auth": schema.ListNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{Attributes: map[string]schema.Attribute{
@@ -493,8 +537,8 @@ func containerSchema() schema.Schema {
 							},
 							"username": schema.StringAttribute{
 								Required:            true,
-								Description:         "Basic auth username. 1-128 chars, alphanumeric plus . _ -. Globally unique across all containers — the console UI prefixes with the container handle (e.g. `mywebsite-alice`) to keep usernames container-scoped.",
-								MarkdownDescription: "Basic auth username. 1-128 chars, alphanumeric plus . _ -. Globally unique across all containers — the console UI prefixes with the container handle (e.g. `mywebsite-alice`) to keep usernames container-scoped.",
+								Description:         "User name for HTTP basic authentication: 1 to 128 characters, using letters, digits, full stops, underscores and hyphens. It must be unique across all containers; the console prefixes it with the container handle, such as mywebsite-alice, to keep it unique.",
+								MarkdownDescription: "User name for HTTP basic authentication: 1 to 128 characters, using letters, digits, full stops, underscores and hyphens. It must be unique across all containers; the console prefixes it with the container handle, such as mywebsite-alice, to keep it unique.",
 							},
 						}},
 						Optional:            true,
@@ -511,8 +555,8 @@ func containerSchema() schema.Schema {
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Enable Kong proxy cache backed by a managed memcached cluster. HTTP containers only. Defaults to `false`.",
-						MarkdownDescription: "Enable Kong proxy cache backed by a managed memcached cluster. HTTP containers only. Defaults to `false`.",
+						Description:         "Whether responses from the container are cached in front of it, in a managed Memcached cluster. Available on HTTP containers only. Defaults to `false`.",
+						MarkdownDescription: "Whether responses from the container are cached in front of it, in a managed Memcached cluster. Available on HTTP containers only. Defaults to `false`.",
 					},
 					"variant": schema.StringAttribute{
 						Optional:            true,
@@ -524,8 +568,8 @@ func containerSchema() schema.Schema {
 					"size_mb": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Total cache cluster size in MB. Must be a multiple of 256. Split evenly across 3 nodes at deploy time (floor(size/3) per node), so values not divisible by 3 are rounded down to the nearest multiple of 3 — e.g. 1024 provisions and bills as 1023 (3 × 341). Pick a multiple of 768 (768, 1536, 2304, 3072, …) for an exact round-trip.",
-						MarkdownDescription: "Total cache cluster size in MB. Must be a multiple of 256. Split evenly across 3 nodes at deploy time (floor(size/3) per node), so values not divisible by 3 are rounded down to the nearest multiple of 3 — e.g. 1024 provisions and bills as 1023 (3 × 341). Pick a multiple of 768 (768, 1536, 2304, 3072, …) for an exact round-trip.",
+						Description:         "Total size of the response cache, in MB. It must be a multiple of 256. The cache runs on 3 nodes, each with one third of the size rounded down to a whole MB, so a size that is not divisible by 3 is provisioned and billed as the nearest lower multiple of 3: 1024 becomes 1023 (3 × 341). A multiple of 768, such as 768, 1536, 2304 or 3072, is provisioned exactly as given.",
+						MarkdownDescription: "Total size of the response cache, in MB. It must be a multiple of 256. The cache runs on 3 nodes, each with one third of the size rounded down to a whole MB, so a size that is not divisible by 3 is provisioned and billed as the nearest lower multiple of 3: 1024 becomes 1023 (3 × 341). A multiple of 768, such as 768, 1536, 2304 or 3072, is provisioned exactly as given.",
 					},
 					"max_item_size_mb": schema.Int64Attribute{
 						Optional:            true,
@@ -619,8 +663,8 @@ func containerSchema() schema.Schema {
 					"tz": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "IANA timezone the schedule fires in. Defaults to UTC. Rendered into Kubernetes CronJob spec.timeZone so the schedule fires in this timezone regardless of which region the cron job runs in. Defaults to `\"UTC\"`.",
-						MarkdownDescription: "IANA timezone the schedule fires in. Defaults to UTC. Rendered into Kubernetes CronJob spec.timeZone so the schedule fires in this timezone regardless of which region the cron job runs in. Defaults to `\"UTC\"`.",
+						Description:         "IANA time zone in which the schedule is evaluated, such as Europe/London. Defaults to UTC. The schedule follows this time zone in every region the cron job runs in. Defaults to `\"UTC\"`.",
+						MarkdownDescription: "IANA time zone in which the schedule is evaluated, such as Europe/London. Defaults to UTC. The schedule follows this time zone in every region the cron job runs in. Defaults to `\"UTC\"`.",
 					},
 					"concurrency": schema.StringAttribute{
 						Optional:            true,
@@ -692,8 +736,8 @@ func containerSchema() schema.Schema {
 						}},
 						Optional:            true,
 						Computed:            true,
-						Description:         "TLS bundles attached to this container. Each entry references a project-attached tls_bundle by handle and specifies the mount path. Rendered as a Kubernetes Secret volume mount.",
-						MarkdownDescription: "TLS bundles attached to this container. Each entry references a project-attached tls_bundle by handle and specifies the mount path. Rendered as a Kubernetes Secret volume mount.",
+						Description:         "TLS bundles mounted into the container. Each entry names a TLS bundle attached to the project, by its handle, and the path at which its files are mounted.",
+						MarkdownDescription: "TLS bundles mounted into the container. Each entry names a TLS bundle attached to the project, by its handle, and the path at which its files are mounted.",
 					},
 					"x509_certs": schema.ListNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{Attributes: map[string]schema.Attribute{

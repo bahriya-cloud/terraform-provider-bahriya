@@ -21,10 +21,14 @@ func x509CertSchema() schema.Schema {
 		MarkdownDescription: "Manages a Bahriya x509_cert.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Unique identifier (UUID) of the X.509 certificate, assigned by the platform.",
+				MarkdownDescription: "Unique identifier (UUID) of the X.509 certificate, assigned by the platform.",
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Display name of the X.509 certificate, at most 100 characters.",
+				MarkdownDescription: "Display name of the X.509 certificate, at most 100 characters.",
 			},
 			"handle": schema.StringAttribute{
 				Required:            true,
@@ -37,31 +41,49 @@ func x509CertSchema() schema.Schema {
 				MarkdownDescription: "PEM-encoded x509 certificate.",
 			},
 			"organisation": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Identifier (UUID) of the organisation that owns the X.509 certificate.",
+				MarkdownDescription: "Identifier (UUID) of the organisation that owns the X.509 certificate.",
 			},
 			"managed_by": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Identifier (UUID) of the platform resource that manages this X.509 certificate, such as a MySQL instance. Null when the organisation manages it.",
+				MarkdownDescription: "Identifier (UUID) of the platform resource that manages this X.509 certificate, such as a MySQL instance. Null when the organisation manages it.",
 			},
 			"managedbyresourcetype": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Type of the platform resource that manages this X.509 certificate, such as mysql. Null when the organisation manages it. A managed X.509 certificate can be changed only by that resource.",
+				MarkdownDescription: "Type of the platform resource that manages this X.509 certificate, such as mysql. Null when the organisation manages it. A managed X.509 certificate can be changed only by that resource.",
 			},
 			"billable": schema.BoolAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Whether the X.509 certificate is billed to the organisation.",
+				MarkdownDescription: "Whether the X.509 certificate is billed to the organisation.",
 			},
 			"currentversion": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Number of the version in use.",
+				MarkdownDescription: "Number of the version in use.",
 			},
 			"max_versions": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.",
+				MarkdownDescription: "Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.",
 			},
 			"fingerprint": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "SHA-256 fingerprint of the certificate, as colon-separated uppercase hexadecimal prefixed with SHA256:.",
+				MarkdownDescription: "SHA-256 fingerprint of the certificate, as colon-separated uppercase hexadecimal prefixed with SHA256:.",
 			},
 			"subject": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Distinguished name of the certificate subject.",
+				MarkdownDescription: "Distinguished name of the certificate subject.",
 			},
 			"issuer": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Distinguished name of the authority that issued the certificate.",
+				MarkdownDescription: "Distinguished name of the authority that issued the certificate.",
 			},
 			"not_before": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -75,7 +97,9 @@ func x509CertSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "Start of the certificate validity period (UTC).",
+				MarkdownDescription: "Start of the certificate validity period (UTC).",
 			},
 			"expires": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -89,10 +113,14 @@ func x509CertSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the certificate expires (UTC).",
+				MarkdownDescription: "When the certificate expires (UTC).",
 			},
 			"algorithm": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Algorithm of the certificate public key, such as RSA.",
+				MarkdownDescription: "Algorithm of the certificate public key, such as RSA.",
 			},
 			"created": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -106,7 +134,9 @@ func x509CertSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the X.509 certificate was created (UTC).",
+				MarkdownDescription: "When the X.509 certificate was created (UTC).",
 			},
 			"updated": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -120,10 +150,14 @@ func x509CertSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the X.509 certificate was last changed (UTC).",
+				MarkdownDescription: "When the X.509 certificate was last changed (UTC).",
 			},
 			"version_count": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Number of stored versions, including the version in use.",
+				MarkdownDescription: "Number of stored versions, including the version in use.",
 			},
 			"rotated_at": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -137,7 +171,9 @@ func x509CertSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the version in use was written (UTC). Null until the X.509 certificate has been rotated at least once. After a rollback, the date of the version rolled back to.",
+				MarkdownDescription: "When the version in use was written (UTC). Null until the X.509 certificate has been rotated at least once. After a rollback, the date of the version rolled back to.",
 			},
 		},
 	}

@@ -659,17 +659,20 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Unique identifier (UUID) of the container, assigned by the platform.",
                 "readOnly": true
             },
             "name": {
                 "type": "string",
                 "nullable": false,
-                "required": true
+                "required": true,
+                "description": "Display name of the container, up to 100 characters."
             },
             "handle": {
                 "type": "string",
                 "nullable": false,
-                "required": true
+                "required": true,
+                "description": "Short name that identifies the container in hostnames and references. Lowercase letters, digits and hyphens only."
             },
             "image": {
                 "type": "string",
@@ -681,18 +684,20 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Identifier (UUID) of the registry whose credentials are used to pull a private image. Leave it unset for a public image.",
                 "reference": "registry"
             },
             "defaulthostname": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
-                "description": "Host alias used to build per-region default hostnames (e.g. mamluk-123.helsinki-1.x.on.bahriya.app)"
+                "description": "Host alias from which the default hostname in each region is built, such as mamluk-123.helsinki-1.x.on.bahriya.app."
             },
             "vanityhostname": {
                 "type": "string",
                 "nullable": true,
-                "required": false
+                "required": false,
+                "description": "Platform-managed hostname that spreads traffic across the regions of the container according to the custom DNS mode. It requires two or more regions."
             },
             "hostnames": {
                 "type": "array",
@@ -713,7 +718,7 @@
                             "type": "boolean",
                             "nullable": false,
                             "required": false,
-                            "description": "Redirect www.{hostname} to {hostname}. Only valid when the hostname is an apex (e.g. example.com, not www.example.com or sub.example.com).",
+                            "description": "Whether www.{hostname} redirects to {hostname}. Valid only when the hostname is an apex domain, such as example.com, and not www.example.com or sub.example.com.",
                             "default": false
                         }
                     }
@@ -724,6 +729,7 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "How traffic is spread across regions on the vanity hostname: none, round-robin or geo. A mode other than none requires two or more regions.",
                 "enum": [
                     "none",
                     "round-robin",
@@ -796,33 +802,39 @@
                 "type": "boolean",
                 "nullable": false,
                 "required": true,
+                "description": "Whether the number of replicas scales automatically between the minimum and maximum replicas. Autoscaling cannot be enabled while persistent volumes are attached.",
                 "default": false
             },
             "autoscalingminreplicas": {
                 "type": "string",
                 "nullable": true,
                 "required": true,
+                "description": "Number of replicas to run, and the minimum number when autoscaling is enabled.",
                 "default": "1"
             },
             "autoscalingmaxreplicas": {
                 "type": "string",
                 "nullable": true,
-                "required": false
+                "required": false,
+                "description": "Maximum number of replicas when autoscaling is enabled. Setting it enables autoscaling."
             },
             "autoscalingtargetcpu": {
                 "type": "string",
                 "nullable": true,
-                "required": false
+                "required": false,
+                "description": "Average CPU utilisation that autoscaling aims to keep, as a percentage of the requested CPU."
             },
             "autoscalingtargetmemory": {
                 "type": "string",
                 "nullable": true,
-                "required": false
+                "required": false,
+                "description": "Average memory utilisation that autoscaling aims to keep, as a percentage of the requested memory."
             },
             "newenvvar": {
                 "type": "array",
                 "nullable": false,
                 "required": true,
+                "description": "Environment variables set in the container, as name and value pairs.",
                 "default": [],
                 "items": {
                     "type": "object",
@@ -830,12 +842,14 @@
                         "key": {
                             "type": "string",
                             "nullable": false,
-                            "required": true
+                            "required": true,
+                            "description": "Name of the environment variable."
                         },
                         "value": {
                             "type": "string",
                             "nullable": false,
-                            "required": true
+                            "required": true,
+                            "description": "Value of the environment variable."
                         }
                     }
                 }
@@ -844,6 +858,7 @@
                 "type": "array",
                 "nullable": false,
                 "required": true,
+                "description": "Environment variables whose values come from secrets in the organisation vault. Each entry maps a variable name to a secret.",
                 "default": [],
                 "items": {
                     "type": "object",
@@ -866,7 +881,8 @@
             "mincpu": {
                 "type": "string",
                 "nullable": false,
-                "required": true
+                "required": true,
+                "description": "CPU requested for each replica, in millicores (1000 millicores is one vCPU)."
             },
             "maxcpu": {
                 "type": "string",
@@ -879,7 +895,8 @@
             "minmemory": {
                 "type": "string",
                 "nullable": false,
-                "required": true
+                "required": true,
+                "description": "Memory requested for each replica, in MiB."
             },
             "maxmemory": {
                 "type": "string",
@@ -893,6 +910,7 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Identifier (UUID) of the project the container belongs to. It is set when the container is created and cannot be changed.",
                 "createOnly": true,
                 "reference": "project"
             },
@@ -900,6 +918,7 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Name of the project the container belongs to.",
                 "readOnly": true
             },
             "activeregions": {
@@ -915,18 +934,21 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Identifier (UUID) of the organisation that owns the container.",
                 "readOnly": true
             },
             "created": {
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the container was created (UTC).",
                 "readOnly": true
             },
             "updated": {
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the container was last changed (UTC).",
                 "readOnly": true,
                 "volatile": true
             },
@@ -934,6 +956,7 @@
                 "type": "string",
                 "nullable": false,
                 "required": false,
+                "description": "Lifecycle state of the container: provisioning, running, terminating, terminated or error.",
                 "enum": [
                     "provisioning",
                     "running",
@@ -948,7 +971,7 @@
                 "type": "boolean",
                 "nullable": false,
                 "required": false,
-                "description": "Enable Kong rate limiting by IP for this container.",
+                "description": "Whether requests to the container are rate limited per client IP address.",
                 "default": false
             },
             "ratelimitingrequestsperminute": {
@@ -980,6 +1003,7 @@
                 "type": "array",
                 "nullable": true,
                 "required": false,
+                "description": "IP addresses and CIDR ranges allowed to reach the container when the allow-list is enabled.",
                 "items": {
                     "type": "string"
                 }
@@ -995,6 +1019,7 @@
                 "type": "array",
                 "nullable": true,
                 "required": false,
+                "description": "IP addresses and CIDR ranges blocked from reaching the container when the deny-list is enabled.",
                 "items": {
                     "type": "string"
                 }
@@ -1015,13 +1040,14 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the container was last restarted on request (UTC). Null if it has never been restarted.",
                 "readOnly": true
             },
             "basicauthenabled": {
                 "type": "boolean",
                 "nullable": false,
                 "required": false,
-                "description": "Enable Kong HTTP basic authentication on the container ingress. HTTP containers only.",
+                "description": "Whether requests to the container require HTTP basic authentication. Available on HTTP containers only.",
                 "default": false
             },
             "basicauthcredentials": {
@@ -1036,7 +1062,7 @@
                             "type": "string",
                             "nullable": false,
                             "required": true,
-                            "description": "Basic auth username. 1-128 chars, alphanumeric plus . _ -. Globally unique across all containers \u2014 the console UI prefixes with the container handle (e.g. `mywebsite-alice`) to keep usernames container-scoped."
+                            "description": "User name for HTTP basic authentication: 1 to 128 characters, using letters, digits, full stops, underscores and hyphens. It must be unique across all containers; the console prefixes it with the container handle, such as mywebsite-alice, to keep it unique."
                         },
                         "password": {
                             "type": "string",
@@ -1060,7 +1086,7 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
-                "description": "IANA timezone the schedule fires in. Defaults to UTC. Rendered into Kubernetes CronJob spec.timeZone so the schedule fires in this timezone regardless of which region the cron job runs in.",
+                "description": "IANA time zone in which the schedule is evaluated, such as Europe/London. Defaults to UTC. The schedule follows this time zone in every region the cron job runs in.",
                 "default": "UTC"
             },
             "concurrencypolicy": {
@@ -1144,7 +1170,7 @@
                 "type": "boolean",
                 "nullable": false,
                 "required": false,
-                "description": "Enable Kong proxy cache backed by a managed memcached cluster. HTTP containers only.",
+                "description": "Whether responses from the container are cached in front of it, in a managed Memcached cluster. Available on HTTP containers only.",
                 "default": false
             },
             "proxycachevariant": {
@@ -1162,7 +1188,7 @@
                 "type": "integer",
                 "nullable": true,
                 "required": false,
-                "description": "Total cache cluster size in MB. Must be a multiple of 256. Split evenly across 3 nodes at deploy time (floor(size/3) per node), so values not divisible by 3 are rounded down to the nearest multiple of 3 \u2014 e.g. 1024 provisions and bills as 1023 (3 \u00d7 341). Pick a multiple of 768 (768, 1536, 2304, 3072, \u2026) for an exact round-trip."
+                "description": "Total size of the response cache, in MB. It must be a multiple of 256. The cache runs on 3 nodes, each with one third of the size rounded down to a whole MB, so a size that is not divisible by 3 is provisioned and billed as the nearest lower multiple of 3: 1024 becomes 1023 (3 \u00d7 341). A multiple of 768, such as 768, 1536, 2304 or 3072, is provisioned exactly as given."
             },
             "proxycachemaxitemsizemb": {
                 "type": "integer",
@@ -1352,12 +1378,14 @@
                                     "key": {
                                         "type": "string",
                                         "nullable": false,
-                                        "required": true
+                                        "required": true,
+                                        "description": "Name of the environment variable."
                                     },
                                     "value": {
                                         "type": "string",
                                         "nullable": false,
-                                        "required": true
+                                        "required": true,
+                                        "description": "Value of the environment variable."
                                     }
                                 }
                             }
@@ -1438,7 +1466,7 @@
                 "type": "array",
                 "nullable": false,
                 "required": false,
-                "description": "TLS bundles attached to this container. Each entry references a project-attached tls_bundle by handle and specifies the mount path. Rendered as a Kubernetes Secret volume mount.",
+                "description": "TLS bundles mounted into the container. Each entry names a TLS bundle attached to the project, by its handle, and the path at which its files are mounted.",
                 "default": [],
                 "items": {
                     "type": "object",
@@ -1733,33 +1761,39 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Unique identifier (UUID) of the Memcached instance, assigned by the platform.",
                 "readOnly": true
             },
             "name": {
                 "type": "string",
                 "nullable": false,
-                "required": true
+                "required": true,
+                "description": "Display name of the Memcached instance, up to 100 characters."
             },
             "handle": {
                 "type": "string",
                 "nullable": false,
-                "required": true
+                "required": true,
+                "description": "Unique handle of the Memcached instance: lowercase letters, digits and hyphens."
             },
             "memorymb": {
                 "type": "integer",
                 "nullable": false,
-                "required": true
+                "required": true,
+                "description": "Memory of each node, in MB."
             },
             "maxconnections": {
                 "type": "integer",
                 "nullable": false,
                 "required": false,
+                "description": "Maximum number of simultaneous client connections each node accepts.",
                 "default": 1024
             },
             "threads": {
                 "type": "integer",
                 "nullable": false,
                 "required": false,
+                "description": "Number of worker threads on each node.",
                 "default": 4
             },
             "maxitemsizemb": {
@@ -1773,6 +1807,7 @@
                 "type": "integer",
                 "nullable": false,
                 "required": false,
+                "description": "Number of nodes in each region, from 1 to 9.",
                 "default": 1
             },
             "activeregions": {
@@ -1798,6 +1833,7 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Identifier (UUID) of the project the Memcached instance belongs to. Set when the instance is created and cannot be changed.",
                 "createOnly": true,
                 "reference": "project"
             },
@@ -1805,24 +1841,28 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Name of the project the Memcached instance belongs to.",
                 "readOnly": true
             },
             "organisation": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Identifier (UUID) of the organisation that owns the Memcached instance.",
                 "readOnly": true
             },
             "created": {
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the Memcached instance was created (UTC).",
                 "readOnly": true
             },
             "updated": {
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the Memcached instance was last changed (UTC).",
                 "readOnly": true,
                 "volatile": true
             },
@@ -1830,6 +1870,7 @@
                 "type": "string",
                 "nullable": false,
                 "required": false,
+                "description": "Lifecycle state of the Memcached instance: provisioning, running, terminating, terminated, suspended or error.",
                 "enum": [
                     "provisioning",
                     "running",
@@ -1983,17 +2024,20 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Unique identifier (UUID) of the Valkey instance, assigned by the platform.",
                 "readOnly": true
             },
             "name": {
                 "type": "string",
                 "nullable": false,
-                "required": true
+                "required": true,
+                "description": "Display name of the Valkey instance, up to 100 characters."
             },
             "handle": {
                 "type": "string",
                 "nullable": false,
-                "required": true
+                "required": true,
+                "description": "Unique handle of the Valkey instance: lowercase letters, digits and hyphens."
             },
             "tier": {
                 "type": "string",
@@ -2072,6 +2116,7 @@
                 "type": "boolean",
                 "nullable": false,
                 "required": false,
+                "description": "Whether clients must authenticate with the password.",
                 "default": true
             },
             "password": {
@@ -2086,6 +2131,7 @@
                 "type": "boolean",
                 "nullable": false,
                 "required": false,
+                "description": "Whether clients connect over TLS.",
                 "default": false
             },
             "tlsbundle": {
@@ -2125,7 +2171,8 @@
                         "hostname": {
                             "type": "string",
                             "nullable": false,
-                            "required": true
+                            "required": true,
+                            "description": "A custom hostname (fully qualified domain name) the instance answers to."
                         }
                     }
                 }
@@ -2182,6 +2229,7 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Identifier (UUID) of the project the Valkey instance belongs to. Set when the instance is created and cannot be changed.",
                 "createOnly": true,
                 "reference": "project"
             },
@@ -2189,6 +2237,7 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Name of the project the Valkey instance belongs to.",
                 "readOnly": true
             },
             "authsecret": {
@@ -2203,6 +2252,7 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Identifier (UUID) of the organisation that owns the Valkey instance.",
                 "readOnly": true
             },
             "nodes": {
@@ -2217,12 +2267,14 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the Valkey instance was created (UTC).",
                 "readOnly": true
             },
             "updated": {
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the Valkey instance was last changed (UTC).",
                 "readOnly": true,
                 "volatile": true
             },
@@ -2230,6 +2282,7 @@
                 "type": "string",
                 "nullable": false,
                 "required": false,
+                "description": "Lifecycle state of the Valkey instance: provisioning, running, terminating, terminated, suspended or error.",
                 "enum": [
                     "provisioning",
                     "running",
@@ -2460,17 +2513,20 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Unique identifier (UUID) of the MySQL instance, assigned by the platform.",
                 "readOnly": true
             },
             "name": {
                 "type": "string",
                 "nullable": false,
-                "required": true
+                "required": true,
+                "description": "Display name of the MySQL instance, up to 100 characters."
             },
             "handle": {
                 "type": "string",
                 "nullable": false,
-                "required": true
+                "required": true,
+                "description": "Unique handle of the MySQL instance: lowercase letters, digits and hyphens."
             },
             "tier": {
                 "type": "string",
@@ -2590,7 +2646,8 @@
                         "hostname": {
                             "type": "string",
                             "nullable": false,
-                            "required": true
+                            "required": true,
+                            "description": "A custom hostname (fully qualified domain name) for the instance."
                         }
                     }
                 }
@@ -2669,6 +2726,7 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Identifier (UUID) of the project the MySQL instance belongs to. Set when the instance is created and cannot be changed.",
                 "createOnly": true,
                 "reference": "project"
             },
@@ -2676,12 +2734,14 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Name of the project the MySQL instance belongs to.",
                 "readOnly": true
             },
             "organisation": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Identifier (UUID) of the organisation that owns the MySQL instance.",
                 "readOnly": true
             },
             "nodes": {
@@ -2696,12 +2756,14 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the MySQL instance was created (UTC).",
                 "readOnly": true
             },
             "updated": {
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the MySQL instance was last changed (UTC).",
                 "readOnly": true,
                 "volatile": true
             },
@@ -2709,6 +2771,7 @@
                 "type": "string",
                 "nullable": false,
                 "required": false,
+                "description": "Lifecycle state of the MySQL instance: provisioning, running, terminating, terminated, suspended or error.",
                 "enum": [
                     "provisioning",
                     "running",
@@ -2803,17 +2866,20 @@
                         "id": {
                             "type": "string",
                             "nullable": false,
-                            "required": true
+                            "required": true,
+                            "description": "Identifier (UUID) of the restore target instance."
                         },
                         "handle": {
                             "type": "string",
                             "nullable": false,
-                            "required": true
+                            "required": true,
+                            "description": "Handle of the restore target instance."
                         },
                         "kind": {
                             "type": "string",
                             "nullable": false,
                             "required": true,
+                            "description": "Kind of restore target: staging (a disposable copy, without backups) or instance (kept, with backups).",
                             "enum": [
                                 "staging",
                                 "instance"
@@ -2823,6 +2889,7 @@
                             "type": "string",
                             "nullable": true,
                             "required": true,
+                            "description": "Progress of the restore: pending, restoring, completed or failed.",
                             "enum": [
                                 "pending",
                                 "restoring",
@@ -2834,6 +2901,7 @@
                             "type": "string",
                             "nullable": false,
                             "required": true,
+                            "description": "Lifecycle state of the restore target instance: provisioning, running, terminating, terminated, suspended or error.",
                             "enum": [
                                 "provisioning",
                                 "running",
@@ -2846,7 +2914,8 @@
                         "targetat": {
                             "type": "string",
                             "nullable": true,
-                            "required": true
+                            "required": true,
+                            "description": "The UTC instant the restore target's data was restored to."
                         }
                     }
                 }
@@ -2979,22 +3048,26 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Unique identifier (UUID) of the project, assigned by the platform.",
                 "readOnly": true
             },
             "name": {
                 "type": "string",
                 "nullable": false,
-                "required": true
+                "required": true,
+                "description": "Display name of the project, up to 100 characters."
             },
             "handle": {
                 "type": "string",
                 "nullable": false,
-                "required": true
+                "required": true,
+                "description": "Unique handle of the project: lowercase letters, digits and hyphens."
             },
             "organisation": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Identifier (UUID) of the organisation that owns the project.",
                 "readOnly": true
             },
             "regions": {
@@ -3053,12 +3126,14 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the project was created (UTC).",
                 "readOnly": true
             },
             "updated": {
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the project was last changed (UTC).",
                 "readOnly": true,
                 "volatile": true
             },
@@ -3184,6 +3259,7 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Unique identifier (UUID) of the path rule, assigned by the platform.",
                 "readOnly": true
             },
             "handle": {
@@ -3241,6 +3317,7 @@
                 "type": "array",
                 "nullable": true,
                 "required": false,
+                "description": "IP addresses and CIDR ranges allowed to reach this path when the allow-list is enabled.",
                 "items": {
                     "type": "string"
                 }
@@ -3256,6 +3333,7 @@
                 "type": "array",
                 "nullable": true,
                 "required": false,
+                "description": "IP addresses and CIDR ranges blocked from reaching this path when the deny-list is enabled.",
                 "items": {
                     "type": "string"
                 }
@@ -3279,7 +3357,7 @@
                             "type": "string",
                             "nullable": false,
                             "required": true,
-                            "description": "Basic auth username. 1-128 chars, alphanumeric plus . _ -. Globally unique across all containers \u2014 the console UI prefixes with the container handle (e.g. `mywebsite-alice`) to keep usernames container-scoped."
+                            "description": "User name for HTTP basic authentication: 1 to 128 characters, using letters, digits, full stops, underscores and hyphens. It must be unique across all containers; the console prefixes it with the container handle, such as mywebsite-alice, to keep it unique."
                         },
                         "password": {
                             "type": "string",
@@ -3305,12 +3383,14 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Identifier (UUID) of the user who created the path rule. Null if that user no longer exists.",
                 "readOnly": true
             },
             "updatedby": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Identifier (UUID) of the user who last changed the path rule.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -3318,12 +3398,14 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the path rule was created (UTC).",
                 "readOnly": true
             },
             "updated": {
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the path rule was last changed (UTC).",
                 "readOnly": true,
                 "volatile": true
             },
@@ -3331,6 +3413,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the path rule was removed from its container (UTC). Null while it is in effect.",
                 "readOnly": true
             }
         },
@@ -3373,32 +3456,38 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Unique identifier (UUID) of the registry, assigned by the platform.",
                 "readOnly": true
             },
             "server": {
                 "type": "string",
                 "nullable": false,
-                "required": true
+                "required": true,
+                "description": "Host name of the container registry that images are pulled from, such as ghcr.io."
             },
             "name": {
                 "type": "string",
                 "nullable": false,
-                "required": true
+                "required": true,
+                "description": "Display name of the registry, at most 100 characters."
             },
             "handle": {
                 "type": "string",
                 "nullable": false,
-                "required": true
+                "required": true,
+                "description": "Short identifier of the registry, unique within the organisation. Lowercase letters, digits and hyphens only."
             },
             "username": {
                 "type": "string",
                 "nullable": false,
-                "required": true
+                "required": true,
+                "description": "User name for signing in to the registry."
             },
             "password": {
                 "type": "string",
                 "nullable": false,
                 "required": true,
+                "description": "Password or access token for signing in to the registry. It is never returned in plaintext: reads return a placeholder in its place, and sending that placeholder back leaves the stored password unchanged. A change to the server, user name or password is kept as a new version.",
                 "sensitive": true,
                 "masked": "password-hidden-for-your-own-good"
             },
@@ -3406,24 +3495,28 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Identifier (UUID) of the platform resource that manages this registry. Null when the organisation manages it.",
                 "readOnly": true
             },
             "managedbyresourcetype": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Type of the platform resource that manages this registry. Null when the organisation manages it. A managed registry can be changed only by that resource.",
                 "readOnly": true
             },
             "billable": {
                 "type": "boolean",
                 "nullable": true,
                 "required": false,
+                "description": "Whether the registry is billed to the organisation.",
                 "readOnly": true
             },
             "currentversionid": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Identifier (UUID) of the version in use.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -3431,6 +3524,7 @@
                 "type": "integer",
                 "nullable": true,
                 "required": false,
+                "description": "Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.",
                 "readOnly": true,
                 "inputDeprecated": true
             },
@@ -3438,12 +3532,14 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the registry was created (UTC).",
                 "readOnly": true
             },
             "updated": {
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the registry was last changed (UTC).",
                 "readOnly": true,
                 "volatile": true
             },
@@ -3451,6 +3547,7 @@
                 "type": "integer",
                 "nullable": true,
                 "required": false,
+                "description": "Number of the version in use.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -3458,6 +3555,7 @@
                 "type": "integer",
                 "nullable": true,
                 "required": false,
+                "description": "Number of stored versions, including the version in use.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -3465,6 +3563,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the version in use was written (UTC). Null until the registry has been rotated at least once. After a rollback, the date of the version rolled back to.",
                 "readOnly": true,
                 "volatile": true
             }
@@ -3506,22 +3605,26 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Unique identifier (UUID) of the secret, assigned by the platform.",
                 "readOnly": true
             },
             "name": {
                 "type": "string",
                 "nullable": false,
-                "required": true
+                "required": true,
+                "description": "Display name of the secret."
             },
             "handle": {
                 "type": "string",
                 "nullable": false,
-                "required": true
+                "required": true,
+                "description": "Short identifier of the secret, unique within the organisation, by which containers reference it. Letters, digits, hyphens and underscores only."
             },
             "value": {
                 "type": "string",
                 "nullable": false,
                 "required": true,
+                "description": "The secret value, at most 124 characters. It is never returned in plaintext: reads return a placeholder in its place, and sending that placeholder back leaves the stored value unchanged. A new value is kept as a new version.",
                 "sensitive": true,
                 "masked": "value-hidden-for-your-own-good"
             },
@@ -3529,24 +3632,28 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Identifier (UUID) of the platform resource that manages this secret, such as a MySQL instance. Null when the organisation manages it.",
                 "readOnly": true
             },
             "managedbyresourcetype": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Type of the platform resource that manages this secret, such as mysql. Null when the organisation manages it. A managed secret can be changed only by that resource.",
                 "readOnly": true
             },
             "billable": {
                 "type": "boolean",
                 "nullable": true,
                 "required": false,
+                "description": "Whether the secret is billed to the organisation.",
                 "readOnly": true
             },
             "maxversions": {
                 "type": "integer",
                 "nullable": true,
                 "required": false,
+                "description": "Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.",
                 "readOnly": true,
                 "inputDeprecated": true
             },
@@ -3554,12 +3661,14 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the secret was created (UTC).",
                 "readOnly": true
             },
             "updated": {
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the secret was last changed (UTC).",
                 "readOnly": true,
                 "volatile": true
             },
@@ -3567,6 +3676,7 @@
                 "type": "integer",
                 "nullable": true,
                 "required": false,
+                "description": "Number of the version in use.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -3574,6 +3684,7 @@
                 "type": "integer",
                 "nullable": true,
                 "required": false,
+                "description": "Number of stored versions, including the version in use.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -3581,6 +3692,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the version in use was written (UTC). Null until the secret has been rotated at least once. After a rollback, the date of the version rolled back to.",
                 "readOnly": true,
                 "volatile": true
             }
@@ -3639,12 +3751,14 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Unique identifier (UUID) of the TLS bundle, assigned by the platform.",
                 "readOnly": true
             },
             "name": {
                 "type": "string",
                 "nullable": false,
-                "required": true
+                "required": true,
+                "description": "Display name of the TLS bundle, at most 100 characters."
             },
             "handle": {
                 "type": "string",
@@ -3682,30 +3796,35 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Identifier (UUID) of the organisation that owns the TLS bundle.",
                 "readOnly": true
             },
             "managedbyresourceid": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Identifier (UUID) of the platform resource that manages this TLS bundle, such as a MySQL instance. Null when the organisation manages it.",
                 "readOnly": true
             },
             "managedbyresourcetype": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Type of the platform resource that manages this TLS bundle, such as mysql. Null when the organisation manages it. A managed TLS bundle can be changed only by that resource.",
                 "readOnly": true
             },
             "billable": {
                 "type": "boolean",
                 "nullable": false,
                 "required": false,
+                "description": "Whether the TLS bundle is billed to the organisation.",
                 "readOnly": true
             },
             "currentversion": {
                 "type": "integer",
                 "nullable": false,
                 "required": false,
+                "description": "Number of the version in use.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -3713,6 +3832,7 @@
                 "type": "integer",
                 "nullable": false,
                 "required": false,
+                "description": "Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.",
                 "readOnly": true,
                 "inputDeprecated": true
             },
@@ -3720,6 +3840,7 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "SHA-256 fingerprint of the server certificate, as colon-separated uppercase hexadecimal prefixed with SHA256:.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -3727,6 +3848,7 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Distinguished name of the server certificate subject.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -3734,6 +3856,7 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Distinguished name of the authority that issued the server certificate.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -3741,6 +3864,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "Start of the server certificate validity period (UTC).",
                 "readOnly": true,
                 "volatile": true
             },
@@ -3748,6 +3872,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the server certificate expires (UTC).",
                 "readOnly": true,
                 "volatile": true
             },
@@ -3755,6 +3880,7 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Algorithm of the private key, such as RSA.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -3762,6 +3888,7 @@
                 "type": "integer",
                 "nullable": true,
                 "required": false,
+                "description": "Size of the private key, in bits.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -3769,12 +3896,14 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the TLS bundle was created (UTC).",
                 "readOnly": true
             },
             "updated": {
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the TLS bundle was last changed (UTC).",
                 "readOnly": true,
                 "volatile": true
             },
@@ -3782,6 +3911,7 @@
                 "type": "integer",
                 "nullable": true,
                 "required": false,
+                "description": "Number of stored versions, including the version in use.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -3789,6 +3919,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the version in use was written (UTC). Null until the TLS bundle has been rotated at least once. After a rollback, the date of the version rolled back to.",
                 "readOnly": true,
                 "volatile": true
             }
@@ -3843,12 +3974,14 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Unique identifier (UUID) of the X.509 certificate, assigned by the platform.",
                 "readOnly": true
             },
             "name": {
                 "type": "string",
                 "nullable": false,
-                "required": true
+                "required": true,
+                "description": "Display name of the X.509 certificate, at most 100 characters."
             },
             "handle": {
                 "type": "string",
@@ -3868,30 +4001,35 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Identifier (UUID) of the organisation that owns the X.509 certificate.",
                 "readOnly": true
             },
             "managedbyresourceid": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Identifier (UUID) of the platform resource that manages this X.509 certificate, such as a MySQL instance. Null when the organisation manages it.",
                 "readOnly": true
             },
             "managedbyresourcetype": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Type of the platform resource that manages this X.509 certificate, such as mysql. Null when the organisation manages it. A managed X.509 certificate can be changed only by that resource.",
                 "readOnly": true
             },
             "billable": {
                 "type": "boolean",
                 "nullable": false,
                 "required": false,
+                "description": "Whether the X.509 certificate is billed to the organisation.",
                 "readOnly": true
             },
             "currentversion": {
                 "type": "integer",
                 "nullable": false,
                 "required": false,
+                "description": "Number of the version in use.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -3899,6 +4037,7 @@
                 "type": "integer",
                 "nullable": false,
                 "required": false,
+                "description": "Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.",
                 "readOnly": true,
                 "inputDeprecated": true
             },
@@ -3906,6 +4045,7 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "SHA-256 fingerprint of the certificate, as colon-separated uppercase hexadecimal prefixed with SHA256:.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -3913,6 +4053,7 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Distinguished name of the certificate subject.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -3920,6 +4061,7 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Distinguished name of the authority that issued the certificate.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -3927,6 +4069,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "Start of the certificate validity period (UTC).",
                 "readOnly": true,
                 "volatile": true
             },
@@ -3934,6 +4077,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the certificate expires (UTC).",
                 "readOnly": true,
                 "volatile": true
             },
@@ -3941,6 +4085,7 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Algorithm of the certificate public key, such as RSA.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -3948,12 +4093,14 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the X.509 certificate was created (UTC).",
                 "readOnly": true
             },
             "updated": {
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the X.509 certificate was last changed (UTC).",
                 "readOnly": true,
                 "volatile": true
             },
@@ -3961,6 +4108,7 @@
                 "type": "integer",
                 "nullable": true,
                 "required": false,
+                "description": "Number of stored versions, including the version in use.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -3968,6 +4116,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the version in use was written (UTC). Null until the X.509 certificate has been rotated at least once. After a rollback, the date of the version rolled back to.",
                 "readOnly": true,
                 "volatile": true
             }
@@ -4037,12 +4186,14 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Unique identifier (UUID) of the GPG keypair, assigned by the platform.",
                 "readOnly": true
             },
             "name": {
                 "type": "string",
                 "nullable": false,
-                "required": true
+                "required": true,
+                "description": "Display name of the GPG keypair, at most 100 characters."
             },
             "handle": {
                 "type": "string",
@@ -4073,30 +4224,35 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Identifier (UUID) of the organisation that owns the GPG keypair.",
                 "readOnly": true
             },
             "managedbyresourceid": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Identifier (UUID) of the platform resource that manages this GPG keypair, such as a MySQL instance. Null when the organisation manages it.",
                 "readOnly": true
             },
             "managedbyresourcetype": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Type of the platform resource that manages this GPG keypair, such as mysql. Null when the organisation manages it. A managed GPG keypair can be changed only by that resource.",
                 "readOnly": true
             },
             "billable": {
                 "type": "boolean",
                 "nullable": false,
                 "required": false,
+                "description": "Whether the GPG keypair is billed to the organisation.",
                 "readOnly": true
             },
             "currentversion": {
                 "type": "integer",
                 "nullable": false,
                 "required": false,
+                "description": "Number of the version in use.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -4104,6 +4260,7 @@
                 "type": "integer",
                 "nullable": false,
                 "required": false,
+                "description": "Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.",
                 "readOnly": true,
                 "inputDeprecated": true
             },
@@ -4111,6 +4268,7 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Key ID of the public key: the last 16 hexadecimal characters of its fingerprint.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -4118,6 +4276,7 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "First user ID on the key, usually a name and an email address.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -4125,6 +4284,7 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Public-key algorithm of the key, such as RSA.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -4132,6 +4292,7 @@
                 "type": "integer",
                 "nullable": true,
                 "required": false,
+                "description": "Size of the key, in bits.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -4139,6 +4300,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the key was created, as recorded in the key itself (UTC).",
                 "readOnly": true,
                 "volatile": true
             },
@@ -4146,6 +4308,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the key expires (UTC). Null when the key does not expire.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -4153,12 +4316,14 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the GPG keypair was created (UTC).",
                 "readOnly": true
             },
             "updated": {
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the GPG keypair was last changed (UTC).",
                 "readOnly": true,
                 "volatile": true
             },
@@ -4166,6 +4331,7 @@
                 "type": "integer",
                 "nullable": true,
                 "required": false,
+                "description": "Number of stored versions, including the version in use.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -4173,6 +4339,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the version in use was written (UTC). Null until the GPG keypair has been rotated at least once. After a rollback, the date of the version rolled back to.",
                 "readOnly": true,
                 "volatile": true
             }
@@ -4234,12 +4401,14 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Unique identifier (UUID) of the SSH keypair, assigned by the platform.",
                 "readOnly": true
             },
             "name": {
                 "type": "string",
                 "nullable": false,
-                "required": true
+                "required": true,
+                "description": "Display name of the SSH keypair, at most 100 characters."
             },
             "handle": {
                 "type": "string",
@@ -4270,30 +4439,35 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Identifier (UUID) of the organisation that owns the SSH keypair.",
                 "readOnly": true
             },
             "managedbyresourceid": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Identifier (UUID) of the platform resource that manages this SSH keypair, such as a MySQL instance. Null when the organisation manages it.",
                 "readOnly": true
             },
             "managedbyresourcetype": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Type of the platform resource that manages this SSH keypair, such as mysql. Null when the organisation manages it. A managed SSH keypair can be changed only by that resource.",
                 "readOnly": true
             },
             "billable": {
                 "type": "boolean",
                 "nullable": false,
                 "required": false,
+                "description": "Whether the SSH keypair is billed to the organisation.",
                 "readOnly": true
             },
             "currentversion": {
                 "type": "integer",
                 "nullable": false,
                 "required": false,
+                "description": "Number of the version in use.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -4301,6 +4475,7 @@
                 "type": "integer",
                 "nullable": false,
                 "required": false,
+                "description": "Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.",
                 "readOnly": true,
                 "inputDeprecated": true
             },
@@ -4308,6 +4483,7 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "SHA-256 fingerprint of the public key, in the form ssh-keygen prints: SHA256: followed by unpadded base64.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -4315,6 +4491,7 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Key type named in the public key line, such as ssh-rsa or ssh-ed25519.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -4322,6 +4499,7 @@
                 "type": "integer",
                 "nullable": true,
                 "required": false,
+                "description": "Size of the key, in bits.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -4329,6 +4507,7 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Comment at the end of the public key line. Null when the line has none.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -4336,12 +4515,14 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the SSH keypair was created (UTC).",
                 "readOnly": true
             },
             "updated": {
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the SSH keypair was last changed (UTC).",
                 "readOnly": true,
                 "volatile": true
             },
@@ -4349,6 +4530,7 @@
                 "type": "integer",
                 "nullable": true,
                 "required": false,
+                "description": "Number of stored versions, including the version in use.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -4356,6 +4538,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the version in use was written (UTC). Null until the SSH keypair has been rotated at least once. After a rollback, the date of the version rolled back to.",
                 "readOnly": true,
                 "volatile": true
             }
@@ -4406,12 +4589,14 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Unique identifier (UUID) of the encryption key, assigned by the platform.",
                 "readOnly": true
             },
             "name": {
                 "type": "string",
                 "nullable": false,
-                "required": true
+                "required": true,
+                "description": "Display name of the encryption key, at most 100 characters."
             },
             "handle": {
                 "type": "string",
@@ -4440,30 +4625,35 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Identifier (UUID) of the organisation that owns the encryption key.",
                 "readOnly": true
             },
             "managedbyresourceid": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Identifier (UUID) of the platform resource that manages this encryption key, such as a MySQL instance. Null when the organisation manages it.",
                 "readOnly": true
             },
             "managedbyresourcetype": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Type of the platform resource that manages this encryption key, such as mysql. Null when the organisation manages it. A managed encryption key can be changed only by that resource.",
                 "readOnly": true
             },
             "billable": {
                 "type": "boolean",
                 "nullable": false,
                 "required": false,
+                "description": "Whether the encryption key is billed to the organisation.",
                 "readOnly": true
             },
             "currentversion": {
                 "type": "integer",
                 "nullable": false,
                 "required": false,
+                "description": "Number of the version in use.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -4471,6 +4661,7 @@
                 "type": "integer",
                 "nullable": false,
                 "required": false,
+                "description": "Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.",
                 "readOnly": true,
                 "inputDeprecated": true
             },
@@ -4478,6 +4669,7 @@
                 "type": "integer",
                 "nullable": true,
                 "required": false,
+                "description": "Size of the decoded key, in bits.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -4485,12 +4677,14 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the encryption key was created (UTC).",
                 "readOnly": true
             },
             "updated": {
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the encryption key was last changed (UTC).",
                 "readOnly": true,
                 "volatile": true
             },
@@ -4498,6 +4692,7 @@
                 "type": "integer",
                 "nullable": true,
                 "required": false,
+                "description": "Number of stored versions, including the version in use.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -4505,6 +4700,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the version in use was written (UTC). Null until the encryption key has been rotated at least once. After a rollback, the date of the version rolled back to.",
                 "readOnly": true,
                 "volatile": true
             }
@@ -4555,12 +4751,14 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Unique identifier (UUID) of the env file, assigned by the platform.",
                 "readOnly": true
             },
             "name": {
                 "type": "string",
                 "nullable": false,
-                "required": true
+                "required": true,
+                "description": "Display name of the env file, at most 100 characters."
             },
             "handle": {
                 "type": "string",
@@ -4581,30 +4779,35 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Identifier (UUID) of the organisation that owns the env file.",
                 "readOnly": true
             },
             "managedbyresourceid": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Identifier (UUID) of the platform resource that manages this env file, such as a MySQL instance. Null when the organisation manages it.",
                 "readOnly": true
             },
             "managedbyresourcetype": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Type of the platform resource that manages this env file, such as mysql. Null when the organisation manages it. A managed env file can be changed only by that resource.",
                 "readOnly": true
             },
             "billable": {
                 "type": "boolean",
                 "nullable": false,
                 "required": false,
+                "description": "Whether the env file is billed to the organisation.",
                 "readOnly": true
             },
             "currentversion": {
                 "type": "integer",
                 "nullable": false,
                 "required": false,
+                "description": "Number of the version in use.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -4612,6 +4815,7 @@
                 "type": "integer",
                 "nullable": false,
                 "required": false,
+                "description": "Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.",
                 "readOnly": true,
                 "inputDeprecated": true
             },
@@ -4619,6 +4823,7 @@
                 "type": "integer",
                 "nullable": true,
                 "required": false,
+                "description": "Number of KEY=VALUE entries in the version in use, not counting comment and blank lines.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -4626,12 +4831,14 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the env file was created (UTC).",
                 "readOnly": true
             },
             "updated": {
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the env file was last changed (UTC).",
                 "readOnly": true,
                 "volatile": true
             },
@@ -4639,6 +4846,7 @@
                 "type": "integer",
                 "nullable": true,
                 "required": false,
+                "description": "Number of stored versions, including the version in use.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -4646,6 +4854,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the version in use was written (UTC). Null until the env file has been rotated at least once. After a rollback, the date of the version rolled back to.",
                 "readOnly": true,
                 "volatile": true
             }
@@ -4692,12 +4901,14 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Unique identifier (UUID) of the YAML config, assigned by the platform.",
                 "readOnly": true
             },
             "name": {
                 "type": "string",
                 "nullable": false,
-                "required": true
+                "required": true,
+                "description": "Display name of the YAML config, at most 100 characters."
             },
             "handle": {
                 "type": "string",
@@ -4717,30 +4928,35 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Identifier (UUID) of the organisation that owns the YAML config.",
                 "readOnly": true
             },
             "managedbyresourceid": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Identifier (UUID) of the platform resource that manages this YAML config, such as a MySQL instance. Null when the organisation manages it.",
                 "readOnly": true
             },
             "managedbyresourcetype": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Type of the platform resource that manages this YAML config, such as mysql. Null when the organisation manages it. A managed YAML config can be changed only by that resource.",
                 "readOnly": true
             },
             "billable": {
                 "type": "boolean",
                 "nullable": false,
                 "required": false,
+                "description": "Whether the YAML config is billed to the organisation.",
                 "readOnly": true
             },
             "currentversion": {
                 "type": "integer",
                 "nullable": false,
                 "required": false,
+                "description": "Number of the version in use.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -4748,6 +4964,7 @@
                 "type": "integer",
                 "nullable": false,
                 "required": false,
+                "description": "Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.",
                 "readOnly": true,
                 "inputDeprecated": true
             },
@@ -4755,12 +4972,14 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the YAML config was created (UTC).",
                 "readOnly": true
             },
             "updated": {
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the YAML config was last changed (UTC).",
                 "readOnly": true,
                 "volatile": true
             },
@@ -4768,6 +4987,7 @@
                 "type": "integer",
                 "nullable": true,
                 "required": false,
+                "description": "Number of stored versions, including the version in use.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -4775,6 +4995,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the version in use was written (UTC). Null until the YAML config has been rotated at least once. After a rollback, the date of the version rolled back to.",
                 "readOnly": true,
                 "volatile": true
             }
@@ -4821,12 +5042,14 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Unique identifier (UUID) of the JSON config, assigned by the platform.",
                 "readOnly": true
             },
             "name": {
                 "type": "string",
                 "nullable": false,
-                "required": true
+                "required": true,
+                "description": "Display name of the JSON config, at most 100 characters."
             },
             "handle": {
                 "type": "string",
@@ -4846,30 +5069,35 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Identifier (UUID) of the organisation that owns the JSON config.",
                 "readOnly": true
             },
             "managedbyresourceid": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Identifier (UUID) of the platform resource that manages this JSON config, such as a MySQL instance. Null when the organisation manages it.",
                 "readOnly": true
             },
             "managedbyresourcetype": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Type of the platform resource that manages this JSON config, such as mysql. Null when the organisation manages it. A managed JSON config can be changed only by that resource.",
                 "readOnly": true
             },
             "billable": {
                 "type": "boolean",
                 "nullable": false,
                 "required": false,
+                "description": "Whether the JSON config is billed to the organisation.",
                 "readOnly": true
             },
             "currentversion": {
                 "type": "integer",
                 "nullable": false,
                 "required": false,
+                "description": "Number of the version in use.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -4877,6 +5105,7 @@
                 "type": "integer",
                 "nullable": false,
                 "required": false,
+                "description": "Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.",
                 "readOnly": true,
                 "inputDeprecated": true
             },
@@ -4884,12 +5113,14 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the JSON config was created (UTC).",
                 "readOnly": true
             },
             "updated": {
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the JSON config was last changed (UTC).",
                 "readOnly": true,
                 "volatile": true
             },
@@ -4897,6 +5128,7 @@
                 "type": "integer",
                 "nullable": true,
                 "required": false,
+                "description": "Number of stored versions, including the version in use.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -4904,6 +5136,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the version in use was written (UTC). Null until the JSON config has been rotated at least once. After a rollback, the date of the version rolled back to.",
                 "readOnly": true,
                 "volatile": true
             }
@@ -4950,12 +5183,14 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Unique identifier (UUID) of the plain config, assigned by the platform.",
                 "readOnly": true
             },
             "name": {
                 "type": "string",
                 "nullable": false,
-                "required": true
+                "required": true,
+                "description": "Display name of the plain config, at most 100 characters."
             },
             "handle": {
                 "type": "string",
@@ -4975,30 +5210,35 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Identifier (UUID) of the organisation that owns the plain config.",
                 "readOnly": true
             },
             "managedbyresourceid": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Identifier (UUID) of the platform resource that manages this plain config, such as a MySQL instance. Null when the organisation manages it.",
                 "readOnly": true
             },
             "managedbyresourcetype": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Type of the platform resource that manages this plain config, such as mysql. Null when the organisation manages it. A managed plain config can be changed only by that resource.",
                 "readOnly": true
             },
             "billable": {
                 "type": "boolean",
                 "nullable": false,
                 "required": false,
+                "description": "Whether the plain config is billed to the organisation.",
                 "readOnly": true
             },
             "currentversion": {
                 "type": "integer",
                 "nullable": false,
                 "required": false,
+                "description": "Number of the version in use.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -5006,6 +5246,7 @@
                 "type": "integer",
                 "nullable": false,
                 "required": false,
+                "description": "Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.",
                 "readOnly": true,
                 "inputDeprecated": true
             },
@@ -5013,6 +5254,7 @@
                 "type": "integer",
                 "nullable": true,
                 "required": false,
+                "description": "Length of the content in the version in use, in bytes.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -5020,12 +5262,14 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the plain config was created (UTC).",
                 "readOnly": true
             },
             "updated": {
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the plain config was last changed (UTC).",
                 "readOnly": true,
                 "volatile": true
             },
@@ -5033,6 +5277,7 @@
                 "type": "integer",
                 "nullable": true,
                 "required": false,
+                "description": "Number of stored versions, including the version in use.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -5040,6 +5285,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the version in use was written (UTC). Null until the plain config has been rotated at least once. After a rollback, the date of the version rolled back to.",
                 "readOnly": true,
                 "volatile": true
             }
@@ -5093,12 +5339,14 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Unique identifier (UUID) of the network policy, assigned by the platform.",
                 "readOnly": true
             },
             "name": {
                 "type": "string",
                 "nullable": false,
-                "required": true
+                "required": true,
+                "description": "Display name of the network policy."
             },
             "handle": {
                 "type": "string",
@@ -5165,36 +5413,42 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Identifier (UUID) of the organisation that owns the network policy.",
                 "readOnly": true
             },
             "managedbyresourceid": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Identifier (UUID) of the platform resource that manages this network policy. Null when the organisation manages it.",
                 "readOnly": true
             },
             "managedbyresourcetype": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Type of the platform resource that manages this network policy. Null when the organisation manages it. A managed network policy can be changed only by that resource.",
                 "readOnly": true
             },
             "billable": {
                 "type": "boolean",
                 "nullable": false,
                 "required": false,
+                "description": "Whether the network policy is billed to the organisation.",
                 "readOnly": true
             },
             "created": {
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the network policy was created (UTC).",
                 "readOnly": true
             },
             "updated": {
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "description": "When the network policy was last changed (UTC).",
                 "readOnly": true,
                 "volatile": true
             },
@@ -5270,6 +5524,7 @@
                 "type": "string",
                 "nullable": false,
                 "required": false,
+                "description": "Identifier (UUID) of the organisation these billing details belong to.",
                 "readOnly": true
             },
             "name": {
@@ -5295,6 +5550,7 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
+                "description": "Whether the organisation is billed as an individual or as a company.",
                 "enum": [
                     "individual",
                     "company"
@@ -5303,17 +5559,20 @@
             "addressline1": {
                 "type": "string",
                 "nullable": true,
-                "required": false
+                "required": false,
+                "description": "First line of the billing address, printed on invoices."
             },
             "addressline2": {
                 "type": "string",
                 "nullable": true,
-                "required": false
+                "required": false,
+                "description": "Second line of the billing address, printed on invoices."
             },
             "addresscity": {
                 "type": "string",
                 "nullable": true,
-                "required": false
+                "required": false,
+                "description": "City of the billing address."
             },
             "addressstate": {
                 "type": "string",
@@ -5324,7 +5583,8 @@
             "addresspostcode": {
                 "type": "string",
                 "nullable": true,
-                "required": false
+                "required": false,
+                "description": "Postal code of the billing address."
             },
             "addresscountry": {
                 "type": "string",
@@ -5335,7 +5595,8 @@
             "taxid": {
                 "type": "string",
                 "nullable": true,
-                "required": false
+                "required": false,
+                "description": "Tax registration number, printed on invoices. Its label follows tax_id_type."
             },
             "taxidtype": {
                 "type": "string",

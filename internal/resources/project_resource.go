@@ -22,16 +22,24 @@ func projectSchema() schema.Schema {
 		MarkdownDescription: "Manages a Bahriya project.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Unique identifier (UUID) of the project, assigned by the platform.",
+				MarkdownDescription: "Unique identifier (UUID) of the project, assigned by the platform.",
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Display name of the project, up to 100 characters.",
+				MarkdownDescription: "Display name of the project, up to 100 characters.",
 			},
 			"handle": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Unique handle of the project: lowercase letters, digits and hyphens.",
+				MarkdownDescription: "Unique handle of the project: lowercase letters, digits and hyphens.",
 			},
 			"organisation": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Identifier (UUID) of the organisation that owns the project.",
+				MarkdownDescription: "Identifier (UUID) of the organisation that owns the project.",
 			},
 			"regions": schema.ListAttribute{
 				ElementType:         types.StringType,
@@ -57,7 +65,9 @@ func projectSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the project was created (UTC).",
+				MarkdownDescription: "When the project was created (UTC).",
 			},
 			"updated": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -71,7 +81,9 @@ func projectSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the project was last changed (UTC).",
+				MarkdownDescription: "When the project was last changed (UTC).",
 			},
 			"effectivequotarequestcpu": schema.StringAttribute{
 				Computed:            true,

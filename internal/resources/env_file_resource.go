@@ -21,10 +21,14 @@ func envFileSchema() schema.Schema {
 		MarkdownDescription: "Manages a Bahriya env_file.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Unique identifier (UUID) of the env file, assigned by the platform.",
+				MarkdownDescription: "Unique identifier (UUID) of the env file, assigned by the platform.",
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Display name of the env file, at most 100 characters.",
+				MarkdownDescription: "Display name of the env file, at most 100 characters.",
 			},
 			"handle": schema.StringAttribute{
 				Required:            true,
@@ -38,25 +42,39 @@ func envFileSchema() schema.Schema {
 				MarkdownDescription: "KEY=VALUE pairs, one per line. Comment lines (#) and blank lines are allowed.",
 			},
 			"organisation": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Identifier (UUID) of the organisation that owns the env file.",
+				MarkdownDescription: "Identifier (UUID) of the organisation that owns the env file.",
 			},
 			"managed_by": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Identifier (UUID) of the platform resource that manages this env file, such as a MySQL instance. Null when the organisation manages it.",
+				MarkdownDescription: "Identifier (UUID) of the platform resource that manages this env file, such as a MySQL instance. Null when the organisation manages it.",
 			},
 			"managedbyresourcetype": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Type of the platform resource that manages this env file, such as mysql. Null when the organisation manages it. A managed env file can be changed only by that resource.",
+				MarkdownDescription: "Type of the platform resource that manages this env file, such as mysql. Null when the organisation manages it. A managed env file can be changed only by that resource.",
 			},
 			"billable": schema.BoolAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Whether the env file is billed to the organisation.",
+				MarkdownDescription: "Whether the env file is billed to the organisation.",
 			},
 			"currentversion": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Number of the version in use.",
+				MarkdownDescription: "Number of the version in use.",
 			},
 			"max_versions": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.",
+				MarkdownDescription: "Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.",
 			},
 			"entries": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Number of KEY=VALUE entries in the version in use, not counting comment and blank lines.",
+				MarkdownDescription: "Number of KEY=VALUE entries in the version in use, not counting comment and blank lines.",
 			},
 			"created": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -70,7 +88,9 @@ func envFileSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the env file was created (UTC).",
+				MarkdownDescription: "When the env file was created (UTC).",
 			},
 			"updated": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -84,10 +104,14 @@ func envFileSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the env file was last changed (UTC).",
+				MarkdownDescription: "When the env file was last changed (UTC).",
 			},
 			"version_count": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Number of stored versions, including the version in use.",
+				MarkdownDescription: "Number of stored versions, including the version in use.",
 			},
 			"rotated_at": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -101,7 +125,9 @@ func envFileSchema() schema.Schema {
 						Computed: true,
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "When the version in use was written (UTC). Null until the env file has been rotated at least once. After a rollback, the date of the version rolled back to.",
+				MarkdownDescription: "When the version in use was written (UTC). Null until the env file has been rotated at least once. After a rollback, the date of the version rolled back to.",
 			},
 		},
 	}
