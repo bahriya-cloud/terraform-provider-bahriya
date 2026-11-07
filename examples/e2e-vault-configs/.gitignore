@@ -1,6 +1,0 @@
-fixtures/
-.terraform/
-.terraform.lock.hcl
-terraform.tfstate*
-crash.log
-*.log

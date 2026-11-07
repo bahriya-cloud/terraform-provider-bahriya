@@ -200,12 +200,9 @@ The `bahriya_organisation` and `bahriya_regions` data sources are also E2E verif
 
 ### End-to-end coverage
 
-`examples/e2e-vault-configs/` is the comprehensive E2E: in a single `apply`/`destroy` it
-exercises every resource above plus both data sources — registry + secret and all
-vault/config items with their project attachments, a network policy, memcached, a
-single-tier valkey, and HTTP + worker + cronjob containers wired to the full set of
-mounts, env vars, secret env vars, persistent storage and path rules. Run `./gen-fixtures.sh` (once) to mint crypto fixtures and
-a fresh handle suffix, then `terraform apply`.
+The end-to-end configurations that apply every resource above against a live
+organisation are maintained in a private repository, not in this one. Every example
+under `examples/` is validated against the provider's schema in CI (`make docs-validate`).
 
 > **Secret-sync timing.** A container that consumes a secret (via `secretsenvvar`) or an env
 > file (via `envfiles`/`envFrom`) will only reach `running` once the project's `bahriya-secrets`
