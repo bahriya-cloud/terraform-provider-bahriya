@@ -47,70 +47,21 @@ resource "bahriya_gpg_keypair" "signing" {
 
 - `algorithm` (String) Public-key algorithm of the key, such as RSA.
 - `billable` (Boolean) Whether the GPG keypair is billed to the organisation.
-- `created` (Attributes) When the GPG keypair was created (UTC). (see [below for nested schema](#nestedatt--created))
-- `currentversion` (Number) Number of the version in use.
-- `expires` (Attributes) When the key expires (UTC). Null when the key does not expire. (see [below for nested schema](#nestedatt--expires))
+- `created` (String) When the GPG keypair was created (UTC).
+- `current_version` (Number) Number of the version in use.
+- `expires` (String) When the key expires (UTC). Null when the key does not expire.
 - `id` (String) Unique identifier (UUID) of the GPG keypair, assigned by the platform.
 - `key_bits` (Number) Size of the key, in bits.
-- `key_created` (Attributes) When the key was created, as recorded in the key itself (UTC). (see [below for nested schema](#nestedatt--key_created))
+- `key_created` (String) When the key was created, as recorded in the key itself (UTC).
 - `key_id` (String) Key ID of the public key: the last 16 hexadecimal characters of its fingerprint.
 - `managed_by` (String) Identifier (UUID) of the platform resource that manages this GPG keypair, such as a MySQL instance. Null when the organisation manages it.
-- `managedbyresourcetype` (String) Type of the platform resource that manages this GPG keypair, such as mysql. Null when the organisation manages it. A managed GPG keypair can be changed only by that resource.
+- `managed_by_type` (String) Type of the platform resource that manages this GPG keypair, such as mysql. Null when the organisation manages it. A managed GPG keypair can be changed only by that resource.
 - `max_versions` (Number) Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.
 - `organisation` (String) Identifier (UUID) of the organisation that owns the GPG keypair.
-- `rotated_at` (Attributes) When the version in use was written (UTC). Null until the GPG keypair has been rotated at least once. After a rollback, the date of the version rolled back to. (see [below for nested schema](#nestedatt--rotated_at))
+- `rotated_at` (String) When the version in use was written (UTC). Null until the GPG keypair has been rotated at least once. After a rollback, the date of the version rolled back to.
 - `uid` (String) First user ID on the key, usually a name and an email address.
-- `updated` (Attributes) When the GPG keypair was last changed (UTC). (see [below for nested schema](#nestedatt--updated))
+- `updated` (String) When the GPG keypair was last changed (UTC).
 - `version_count` (Number) Number of stored versions, including the version in use.
-
-<a id="nestedatt--created"></a>
-### Nested Schema for `created`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
-
-
-<a id="nestedatt--expires"></a>
-### Nested Schema for `expires`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
-
-
-<a id="nestedatt--key_created"></a>
-### Nested Schema for `key_created`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
-
-
-<a id="nestedatt--rotated_at"></a>
-### Nested Schema for `rotated_at`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
-
-
-<a id="nestedatt--updated"></a>
-### Nested Schema for `updated`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
 
 ## Import
 

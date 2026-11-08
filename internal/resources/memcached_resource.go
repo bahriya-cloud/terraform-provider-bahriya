@@ -55,7 +55,7 @@ func memcachedSchema() schema.Schema {
 				Description:         "Identifier (UUID) of the project the Memcached instance belongs to. Set when the instance is created and cannot be changed.",
 				MarkdownDescription: "Identifier (UUID) of the project the Memcached instance belongs to. Set when the instance is created and cannot be changed.",
 			},
-			"projectname": schema.StringAttribute{
+			"project_name": schema.StringAttribute{
 				Computed:            true,
 				Description:         "Name of the project the Memcached instance belongs to.",
 				MarkdownDescription: "Name of the project the Memcached instance belongs to.",
@@ -65,34 +65,12 @@ func memcachedSchema() schema.Schema {
 				Description:         "Identifier (UUID) of the organisation that owns the Memcached instance.",
 				MarkdownDescription: "Identifier (UUID) of the organisation that owns the Memcached instance.",
 			},
-			"created": schema.SingleNestedAttribute{
-				Attributes: map[string]schema.Attribute{
-					"date": schema.StringAttribute{
-						Computed: true,
-					},
-					"timezonetype": schema.Int64Attribute{
-						Computed: true,
-					},
-					"timezone": schema.StringAttribute{
-						Computed: true,
-					},
-				},
+			"created": schema.StringAttribute{
 				Computed:            true,
 				Description:         "When the Memcached instance was created (UTC).",
 				MarkdownDescription: "When the Memcached instance was created (UTC).",
 			},
-			"updated": schema.SingleNestedAttribute{
-				Attributes: map[string]schema.Attribute{
-					"date": schema.StringAttribute{
-						Computed: true,
-					},
-					"timezonetype": schema.Int64Attribute{
-						Computed: true,
-					},
-					"timezone": schema.StringAttribute{
-						Computed: true,
-					},
-				},
+			"updated": schema.StringAttribute{
 				Computed:            true,
 				Description:         "When the Memcached instance was last changed (UTC).",
 				MarkdownDescription: "When the Memcached instance was last changed (UTC).",
@@ -102,15 +80,15 @@ func memcachedSchema() schema.Schema {
 				Description:         "Lifecycle state of the Memcached instance: provisioning, running, terminating, terminated, suspended or error.",
 				MarkdownDescription: "Lifecycle state of the Memcached instance: provisioning, running, terminating, terminated, suspended or error.",
 			},
-			"managedbycontainer": schema.StringAttribute{
+			"managed_by_container": schema.StringAttribute{
 				Computed:            true,
-				Description:         "When set, this memcached instance is managed by the named container (proxy cache feature) and cannot be modified directly.",
-				MarkdownDescription: "When set, this memcached instance is managed by the named container (proxy cache feature) and cannot be modified directly.",
+				Description:         "Identifier (UUID) of the container whose response cache this Memcached instance is. Such an instance is managed by that container and cannot be changed directly.",
+				MarkdownDescription: "Identifier (UUID) of the container whose response cache this Memcached instance is. Such an instance is managed by that container and cannot be changed directly.",
 			},
-			"managedbycontainername": schema.StringAttribute{
+			"managed_by_container_name": schema.StringAttribute{
 				Computed:            true,
-				Description:         "The name of the container in managedbycontainer, so a client can show it without a second lookup.",
-				MarkdownDescription: "The name of the container in managedbycontainer, so a client can show it without a second lookup.",
+				Description:         "Name of the container in managed_by_container.",
+				MarkdownDescription: "Name of the container in managed_by_container.",
 			},
 			"tuning": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{

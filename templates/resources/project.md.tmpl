@@ -23,7 +23,7 @@ Project handles are not released when a project is deleted, so a handle cannot b
 
 ### Reading the project's allowance
 
-Each project has a resource allowance in every region it runs in. The `effectivequota*` attributes report it; the `bahriya_project_quota` data source reports how much of it is in use.
+Each project has a resource allowance in every region it runs in. The `effective_quotas` attributes report it; the `bahriya_project_quota` data source reports how much of it is in use.
 
 {{ tffile "examples/resources/project/example_3.tf" }}
 

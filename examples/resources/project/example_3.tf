@@ -5,5 +5,5 @@ resource "bahriya_project" "web" {
 }
 
 output "cpu_headroom" {
-  value = bahriya_project.web.effectivequotarequestcpu
+  value = bahriya_project.web.effective_quotas.request.cpu
 }

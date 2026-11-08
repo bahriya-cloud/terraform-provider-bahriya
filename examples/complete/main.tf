@@ -72,11 +72,11 @@ resource "bahriya_container" "api" {
     registry = bahriya_registry.docker_hub.id
 
     # An HTTP container needs a port and a health check path.
-    port        = "3000"
+    port        = 3000
     healthcheck = "/healthz"
 
-    cpu    = "500"
-    memory = "512"
+    cpu    = 500
+    memory = 512
 
     env = {
       "NODE_ENV"   = "production"
@@ -90,11 +90,13 @@ resource "bahriya_container" "api" {
   }
 
   scaling = {
-    replicas     = "2"
-    max_replicas = "5"
+    replicas     = 2
+    max_replicas = 5
   }
 
   networking = {
+    # Required for an HTTP container: true serves it at its hostnames.
+    external = true
     domains = [
       { hostname = "api.example.com" },
     ]

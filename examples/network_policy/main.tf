@@ -48,6 +48,7 @@ resource "bahriya_project_network_policy_attachment" "web_tier" {
 # resource "bahriya_container" "api" {
 #   # ... other fields ...
 #   networking = {
+#     external         = true
 #     network_policies = [bahriya_network_policy.web_tier.handle]
 #   }
 # }

@@ -181,13 +181,14 @@ With `security.tls = true` and no `security.tls_bundle`, Bahriya issues and mana
 - `exposure` (Attributes) (see [below for nested schema](#nestedatt--exposure))
 - `networking` (Attributes) (see [below for nested schema](#nestedatt--networking))
 - `project` (String) Identifier (UUID) of the project the MySQL instance belongs to. Set when the instance is created and cannot be changed.
+- `restore` (Attributes) (see [below for nested schema](#nestedatt--restore))
 - `security` (Attributes) (see [below for nested schema](#nestedatt--security))
 - `topology` (Attributes) (see [below for nested schema](#nestedatt--topology))
 - `tuning` (Attributes) (see [below for nested schema](#nestedatt--tuning))
 
 ### Read-Only
 
-- `created` (Attributes) When the MySQL instance was created (UTC). (see [below for nested schema](#nestedatt--created))
+- `created` (String) When the MySQL instance was created (UTC).
 - `database_secrets` (List of String) Handles of the platform-managed vault secrets holding each database user's password (<handle>-mysql-<database>).
 - `id` (String) Unique identifier (UUID) of the MySQL instance, assigned by the platform.
 - `key_rotation_finished_at` (String) When the latest master-key rotation finished.
@@ -197,19 +198,10 @@ With `security.tls = true` and no `security.tls_bundle`, Bahriya issues and mana
 - `luks_key` (String) Handle of the platform-managed vault encryption key holding the volume encryption passphrase. Null without volume encryption.
 - `nodes` (Number) Derived node count per region for the current tier and replicas.
 - `organisation` (String) Identifier (UUID) of the organisation that owns the MySQL instance.
-- `projectname` (String) Name of the project the MySQL instance belongs to.
-- `restoredatabase` (String) Set on a restore target that restored one database only.
-- `restoreerror` (String) Set on a failed restore target: why it failed.
-- `restorefinishedat` (String) Set on a restore target: when the restore completed or failed.
-- `restorekind` (String) Set on a restore target: staging (a disposable copy, no backups) or instance (kept, with backups).
-- `restoreof` (String) Set on a restore target: the id of the instance it was restored from.
-- `restoreofhandle` (String) Set on a restore target: the handle of the instance it was restored from.
-- `restorestatus` (String) Set on a restore target: whether its data is ready. Use the instance only once this is completed.
-- `restoretargetat` (String) Set on a restore target: the UTC instant its data was restored to.
-- `restoretargets` (Attributes List) On a source instance: its restore targets that are not terminated. (see [below for nested schema](#nestedatt--restoretargets))
+- `project_name` (String) Name of the project the MySQL instance belongs to.
 - `root_secret` (String) Handle of the platform-managed vault secret holding the root password.
 - `status` (String) Lifecycle state of the MySQL instance: provisioning, running, terminating, terminated, suspended or error.
-- `updated` (Attributes) When the MySQL instance was last changed (UTC). (see [below for nested schema](#nestedatt--updated))
+- `updated` (String) When the MySQL instance was last changed (UTC).
 
 <a id="nestedatt--databases"></a>
 ### Nested Schema for `databases`
@@ -279,6 +271,35 @@ Optional:
 - `network_policies` (List of String) Network policies narrowed to this MySQL instance, referenced by handle.
 
 
+<a id="nestedatt--restore"></a>
+### Nested Schema for `restore`
+
+Read-Only:
+
+- `database` (String) Set on a restore target that restored one database only.
+- `error` (String) Set on a failed restore target: why it failed.
+- `finished_at` (String) Set on a restore target: when the restore completed or failed.
+- `kind` (String) Set on a restore target: staging (a disposable copy, no backups) or instance (kept, with backups).
+- `source` (String) Set on a restore target: the id of the instance it was restored from.
+- `source_handle` (String) Set on a restore target: the handle of the instance it was restored from.
+- `status` (String) Set on a restore target: whether its data is ready. Use the instance only once this is completed.
+- `target_at` (String) Set on a restore target: the UTC instant its data was restored to.
+- `targets` (Attributes List) On a source instance: its restore targets that are not terminated. (see [below for nested schema](#nestedatt--restore--targets))
+
+<a id="nestedatt--restore--targets"></a>
+### Nested Schema for `restore.targets`
+
+Read-Only:
+
+- `handle` (String) Handle of the restore target instance.
+- `id` (String) Identifier (UUID) of the restore target instance.
+- `instance_status` (String) Lifecycle state of the restore target instance: provisioning, running, terminating, terminated, suspended or error.
+- `kind` (String) Kind of restore target: staging (a disposable copy, without backups) or instance (kept, with backups).
+- `status` (String) Progress of the restore: pending, restoring, completed or failed.
+- `target_at` (String) The UTC instant the restore target's data was restored to.
+
+
+
 <a id="nestedatt--security"></a>
 ### Nested Schema for `security`
 
@@ -305,39 +326,6 @@ Optional:
 Optional:
 
 - `config` (Map of String) Allowlisted mysqld configuration keys. Unknown keys are rejected naming the key.
-
-
-<a id="nestedatt--created"></a>
-### Nested Schema for `created`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
-
-
-<a id="nestedatt--restoretargets"></a>
-### Nested Schema for `restoretargets`
-
-Read-Only:
-
-- `handle` (String) Handle of the restore target instance.
-- `id` (String) Identifier (UUID) of the restore target instance.
-- `instancestatus` (String) Lifecycle state of the restore target instance: provisioning, running, terminating, terminated, suspended or error.
-- `kind` (String) Kind of restore target: staging (a disposable copy, without backups) or instance (kept, with backups).
-- `status` (String) Progress of the restore: pending, restoring, completed or failed.
-- `targetat` (String) The UTC instant the restore target's data was restored to.
-
-
-<a id="nestedatt--updated"></a>
-### Nested Schema for `updated`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
 
 ## Import
 

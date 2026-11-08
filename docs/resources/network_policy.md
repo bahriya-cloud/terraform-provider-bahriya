@@ -62,12 +62,12 @@ resource "bahriya_network_policy" "notifications" {
 ### Read-Only
 
 - `billable` (Boolean) Whether the network policy is billed to the organisation.
-- `created` (Attributes) When the network policy was created (UTC). (see [below for nested schema](#nestedatt--created))
+- `created` (String) When the network policy was created (UTC).
 - `id` (String) Unique identifier (UUID) of the network policy, assigned by the platform.
 - `managed_by` (String) Identifier (UUID) of the platform resource that manages this network policy. Null when the organisation manages it.
-- `managedbyresourcetype` (String) Type of the platform resource that manages this network policy. Null when the organisation manages it. A managed network policy can be changed only by that resource.
+- `managed_by_type` (String) Type of the platform resource that manages this network policy. Null when the organisation manages it. A managed network policy can be changed only by that resource.
 - `organisation` (String) Identifier (UUID) of the organisation that owns the network policy.
-- `updated` (Attributes) When the network policy was last changed (UTC). (see [below for nested schema](#nestedatt--updated))
+- `updated` (String) When the network policy was last changed (UTC).
 
 <a id="nestedatt--ports"></a>
 ### Nested Schema for `ports`
@@ -79,26 +79,6 @@ Required:
 Optional:
 
 - `protocol` (String) Transport protocol. Defaults to `"TCP"`.
-
-
-<a id="nestedatt--created"></a>
-### Nested Schema for `created`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
-
-
-<a id="nestedatt--updated"></a>
-### Nested Schema for `updated`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
 
 ## Import
 

@@ -6,7 +6,6 @@ import (
 	"sort"
 
 	"github.com/bahriya-cloud/terraform-provider-bahriya/internal/bmap"
-	"github.com/bahriya-cloud/terraform-provider-bahriya/internal/tfval"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 )
 
@@ -57,7 +56,7 @@ func (r *Resource) upgradeFromV0(ctx context.Context, req resource.UpgradeStateR
 		resp.Diagnostics.AddError("State upgrade failed", err.Error())
 		return
 	}
-	raw, err := tfval.FromGo(r.toState(record), r.objectType(ctx))
+	raw, err := r.stateRaw(ctx, record)
 	if err != nil {
 		resp.Diagnostics.AddError("State upgrade failed",
 			fmt.Sprintf("bahriya_%s %v: a value in the state written by provider v0 does not fit v1 (%v). "+v0UpgradePath, r.kind.TypeName(), mustGet(record, "id"), err))

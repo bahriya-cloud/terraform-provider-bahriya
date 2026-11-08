@@ -12,14 +12,18 @@ resource "bahriya_container" "api" {
 
   workload = {
     image       = "nginx:alpine"
-    port        = "80"
+    port        = 80
     healthcheck = "/"
-    cpu         = "100"
-    memory      = "128"
+    cpu         = 100
+    memory      = 128
   }
 
   scaling = {
-    replicas = "1"
+    replicas = 1
+  }
+
+  networking = {
+    external = true
   }
 
   security = {

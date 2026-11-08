@@ -13,14 +13,14 @@ resource "bahriya_container" "nightly" {
 
   workload = {
     image   = "ghcr.io/myorg/reports:1.0.0"
-    cpu     = "100"
-    memory  = "256"
+    cpu     = 100
+    memory  = 256
     command = ["/usr/bin/php"]
     args    = ["artisan", "reports:nightly"]
   }
 
   scaling = {
-    replicas = "1"
+    replicas = 1
   }
 
   schedule = {

@@ -17,7 +17,9 @@ The 18 resources that manage platform items change: `bahriya_project`, `bahriya_
 
 `bahriya_resource_grant` changes three names: `touser` is now `to_user`, `resourcetype` is now `resource_type` and `resourceid` is now `resource_id`. Its state upgrades without replacing the grant.
 
-The project attachment resources, `bahriya_billing_details`, `bahriya_role` and the data sources keep their attributes.
+`bahriya_role` renames `issystem` to `is_system`. Its state also upgrades without replacing the role.
+
+The project attachment resources, `bahriya_billing_details` and the data sources keep their attributes.
 
 ## What changes
 
@@ -27,7 +29,12 @@ The project attachment resources, `bahriya_billing_details`, `bahriya_role` and 
 - **Regions.** `activeregions` is now `regions`.
 - **Registry references.** `workload.registry` takes the registry's ID (`bahriya_registry.ghcr.id`), not its handle.
 - **Path rules.** `bahriya_path_rule` names its container in `container`, not `container_id`.
-- **Defaults.** An attribute you leave out takes its documented default, exactly as in a Reis file. In 0.x an omitted attribute kept whatever value the platform last had.
+- **Numbers are numbers.** A container's `cpu`, `memory`, `port`, `replicas`, `max_replicas`, `target_cpu`, `target_memory` and `prometheus_port`, and an init job's `cpu` and `memory`, are numbers: write `cpu = 250`, not `cpu = "250"`. (Terraform still accepts the quoted form and converts it.) `cpu` is in millicores, where 1000 is one vCPU, and `memory` in MiB.
+- **Timestamps are strings.** `created`, `updated`, `rotated_at` and the other timestamps are RFC 3339 strings in UTC, such as `"2026-11-04T10:00:00Z"`, not objects.
+- **Read-only names.** Read-only attributes follow the same naming: `project_name`, `restarted_at`, `managed_by_type`, `current_version`, `effective_quotas.request.cpu`, and the MySQL restore details under `restore`. See the tables below.
+- **Defaults.** An attribute you leave out takes its documented default, exactly as in a Reis file. Some defaults depend on the container's `type`: an HTTP container's `port` defaults to 8080 and its `healthcheck` to `/healthz`. In 0.x an omitted attribute kept whatever value the platform last had.
+- **`networking.external` is required for HTTP containers.** It has no default: state `true` to serve the container at its hostnames, or `false` to keep it reachable only by the project's other workloads. A plan that leaves it out fails and names the container.
+- **Attributes a container's type does not use are refused.** Workers and cron jobs cannot set hostnames, `networking.external`, rate limiting, IP lists, basic authentication or init jobs; cron jobs also cannot set `port`, `healthcheck`, the Prometheus settings, `scaling.autoscaling` or `scaling.max_replicas`. A plan that sets one fails and names the attribute and the type.
 - **Errors instead of silent drops.** Setting a read-only or unknown attribute is an error.
 
 Each resource page lists every attribute with its version 1 name.
@@ -85,10 +92,10 @@ resource "bahriya_container" "api" {
   workload = {
     image       = "ghcr.io/myorg/api:1.2.3"
     registry    = bahriya_registry.ghcr.id
-    port        = "3000"
+    port        = 3000
     healthcheck = "/healthz"
-    cpu         = "250"
-    memory      = "256"
+    cpu         = 250
+    memory      = 256
 
     env = {
       "NODE_ENV" = "production"
@@ -100,11 +107,13 @@ resource "bahriya_container" "api" {
   }
 
   scaling = {
-    replicas     = "2"
-    max_replicas = "5"
+    replicas     = 2
+    max_replicas = 5
   }
 
   networking = {
+    # Required for an HTTP container. The 0.x container was public, so keep it public.
+    external = true
     domains = [
       { hostname = "api.example.com" },
     ]
@@ -182,15 +191,32 @@ resource "bahriya_container" "api" {
 | `publickey`, `privatekey` | `public_key`, `private_key` |
 | `maxversions`, `versioncount`, `rotatedat` | `max_versions`, `version_count`, `rotated_at` |
 | `keybits`, `keyid`, `notbefore`, `notafter` | `key_bits`, `key_id`, `not_before`, `expires` |
-| `managedbyresourceid` | `managed_by` |
+| `managedbyresourceid`, `managedbyresourcetype` | `managed_by`, `managed_by_type` |
+| `currentversion`, `currentversionid` | `current_version`, `current_version_id` |
+
+### Read-only attributes elsewhere
+
+| Resource | 0.x | 1.0 |
+|----------|-----|-----|
+| `bahriya_container`, `bahriya_memcached`, `bahriya_valkey`, `bahriya_mysql` | `projectname` | `project_name` |
+| `bahriya_container` | `restartedat` | `restarted_at` |
+| `bahriya_memcached` | `managedbycontainer`, `managedbycontainername` | `managed_by_container`, `managed_by_container_name` |
+| `bahriya_project` | `effectivequotarequestcpu`, `effectivequotarequestmemory` | `effective_quotas.request.cpu`, `effective_quotas.request.memory` |
+| `bahriya_project` | `effectivequotalimitcpu`, `effectivequotalimitmemory` | `effective_quotas.limit.cpu`, `effective_quotas.limit.memory` |
+| `bahriya_mysql` | `restoreof`, `restoreofhandle`, `restorekind`, `restoretargetat`, `restoredatabase`, `restorestatus`, `restorefinishedat`, `restoreerror`, `restoretargets` | `restore.source`, `restore.source_handle`, `restore.kind`, `restore.target_at`, `restore.database`, `restore.status`, `restore.finished_at`, `restore.error`, `restore.targets` |
+| `bahriya_role` | `issystem` | `is_system` |
+
+Update any output or reference that reads one of these attributes.
 
 ## Upgrade steps
 
 1. Commit your configuration and back up your state (`terraform state pull > backup.tfstate`).
 2. Change the version constraint to `~> 1.0` and run `terraform init -upgrade`.
 3. Rewrite each changed resource in the version 1 shape, using the tables above and each resource's page.
-4. Run `terraform plan`. The state upgrades on this first plan. If the rewrite matches your running resources, the plan shows **no changes**. A change it does show comes from the configuration: usually an attribute that was left out and now takes its default, or a rename that was missed.
-5. Apply once the plan shows only the changes you intend.
+4. State `networking.external` on every HTTP container: `true` to keep its hostnames, `false` to remove them. A container that was public under 0.x is public now, so `true` keeps it as it is.
+5. Remove any attribute a container's type does not use, such as rate limiting on a worker. The plan names each one.
+6. Run `terraform plan`. The state upgrades on this first plan. If the rewrite matches your running resources, the plan shows **no changes**. A change it does show comes from the configuration: usually an attribute that was left out and now takes its default, or a rename that was missed.
+7. Apply once the plan shows only the changes you intend.
 
 ## State from older releases
 

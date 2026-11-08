@@ -54,71 +54,22 @@ resource "bahriya_tls_bundle" "edge" {
 
 - `algorithm` (String) Algorithm of the private key, such as RSA.
 - `billable` (Boolean) Whether the TLS bundle is billed to the organisation.
-- `created` (Attributes) When the TLS bundle was created (UTC). (see [below for nested schema](#nestedatt--created))
-- `currentversion` (Number) Number of the version in use.
-- `expires` (Attributes) When the server certificate expires (UTC). (see [below for nested schema](#nestedatt--expires))
+- `created` (String) When the TLS bundle was created (UTC).
+- `current_version` (Number) Number of the version in use.
+- `expires` (String) When the server certificate expires (UTC).
 - `fingerprint` (String) SHA-256 fingerprint of the server certificate, as colon-separated uppercase hexadecimal prefixed with SHA256:.
 - `id` (String) Unique identifier (UUID) of the TLS bundle, assigned by the platform.
 - `issuer` (String) Distinguished name of the authority that issued the server certificate.
 - `key_bits` (Number) Size of the private key, in bits.
 - `managed_by` (String) Identifier (UUID) of the platform resource that manages this TLS bundle, such as a MySQL instance. Null when the organisation manages it.
-- `managedbyresourcetype` (String) Type of the platform resource that manages this TLS bundle, such as mysql. Null when the organisation manages it. A managed TLS bundle can be changed only by that resource.
+- `managed_by_type` (String) Type of the platform resource that manages this TLS bundle, such as mysql. Null when the organisation manages it. A managed TLS bundle can be changed only by that resource.
 - `max_versions` (Number) Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.
-- `not_before` (Attributes) Start of the server certificate validity period (UTC). (see [below for nested schema](#nestedatt--not_before))
+- `not_before` (String) Start of the server certificate validity period (UTC).
 - `organisation` (String) Identifier (UUID) of the organisation that owns the TLS bundle.
-- `rotated_at` (Attributes) When the version in use was written (UTC). Null until the TLS bundle has been rotated at least once. After a rollback, the date of the version rolled back to. (see [below for nested schema](#nestedatt--rotated_at))
+- `rotated_at` (String) When the version in use was written (UTC). Null until the TLS bundle has been rotated at least once. After a rollback, the date of the version rolled back to.
 - `subject` (String) Distinguished name of the server certificate subject.
-- `updated` (Attributes) When the TLS bundle was last changed (UTC). (see [below for nested schema](#nestedatt--updated))
+- `updated` (String) When the TLS bundle was last changed (UTC).
 - `version_count` (Number) Number of stored versions, including the version in use.
-
-<a id="nestedatt--created"></a>
-### Nested Schema for `created`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
-
-
-<a id="nestedatt--expires"></a>
-### Nested Schema for `expires`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
-
-
-<a id="nestedatt--not_before"></a>
-### Nested Schema for `not_before`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
-
-
-<a id="nestedatt--rotated_at"></a>
-### Nested Schema for `rotated_at`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
-
-
-<a id="nestedatt--updated"></a>
-### Nested Schema for `updated`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
 
 ## Import
 

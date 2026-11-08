@@ -45,7 +45,7 @@ func containerSchema() schema.Schema {
 				Description:         "Identifier (UUID) of the project the container belongs to. It is set when the container is created and cannot be changed.",
 				MarkdownDescription: "Identifier (UUID) of the project the container belongs to. It is set when the container is created and cannot be changed.",
 			},
-			"projectname": schema.StringAttribute{
+			"project_name": schema.StringAttribute{
 				Computed:            true,
 				Description:         "Name of the project the container belongs to.",
 				MarkdownDescription: "Name of the project the container belongs to.",
@@ -61,34 +61,12 @@ func containerSchema() schema.Schema {
 				Description:         "Identifier (UUID) of the organisation that owns the container.",
 				MarkdownDescription: "Identifier (UUID) of the organisation that owns the container.",
 			},
-			"created": schema.SingleNestedAttribute{
-				Attributes: map[string]schema.Attribute{
-					"date": schema.StringAttribute{
-						Computed: true,
-					},
-					"timezonetype": schema.Int64Attribute{
-						Computed: true,
-					},
-					"timezone": schema.StringAttribute{
-						Computed: true,
-					},
-				},
+			"created": schema.StringAttribute{
 				Computed:            true,
 				Description:         "When the container was created (UTC).",
 				MarkdownDescription: "When the container was created (UTC).",
 			},
-			"updated": schema.SingleNestedAttribute{
-				Attributes: map[string]schema.Attribute{
-					"date": schema.StringAttribute{
-						Computed: true,
-					},
-					"timezonetype": schema.Int64Attribute{
-						Computed: true,
-					},
-					"timezone": schema.StringAttribute{
-						Computed: true,
-					},
-				},
+			"updated": schema.StringAttribute{
 				Computed:            true,
 				Description:         "When the container was last changed (UTC).",
 				MarkdownDescription: "When the container was last changed (UTC).",
@@ -105,18 +83,7 @@ func containerSchema() schema.Schema {
 				MarkdownDescription: "Container type. HTTP containers answer requests at their hostnames; workers run continuously without access from the internet; cron jobs run on a schedule. Defaults to `\"http\"`.",
 				Validators:          []validator.String{stringvalidator.OneOf("cronjob", "http", "worker")},
 			},
-			"restartedat": schema.SingleNestedAttribute{
-				Attributes: map[string]schema.Attribute{
-					"date": schema.StringAttribute{
-						Computed: true,
-					},
-					"timezonetype": schema.Int64Attribute{
-						Computed: true,
-					},
-					"timezone": schema.StringAttribute{
-						Computed: true,
-					},
-				},
+			"restarted_at": schema.StringAttribute{
 				Computed:            true,
 				Description:         "When the container was last restarted on request (UTC). Null if it has never been restarted.",
 				MarkdownDescription: "When the container was last restarted on request (UTC). Null if it has never been restarted.",
@@ -137,11 +104,11 @@ func containerSchema() schema.Schema {
 						Description:         "Override the image ENTRYPOINT — one token per array entry. Use the same conventions as cron/worker: `[/bin/sh, -c]` for shell-style commands, or a direct exec form like `[./migrate]`. Null leaves the image entrypoint untouched.",
 						MarkdownDescription: "Override the image ENTRYPOINT — one token per array entry. Use the same conventions as cron/worker: `[/bin/sh, -c]` for shell-style commands, or a direct exec form like `[./migrate]`. Null leaves the image entrypoint untouched.",
 					},
-					"cpu": schema.StringAttribute{
+					"cpu": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Optional CPU request override (millicores). Cannot exceed the parent container's `mincpu` — init jobs share the main container's reserved capacity and are not billed separately. Leave blank to inherit. The UI no longer exposes this knob; kept for Terraform / Reis CLI users who already wire it.",
-						MarkdownDescription: "Optional CPU request override (millicores). Cannot exceed the parent container's `mincpu` — init jobs share the main container's reserved capacity and are not billed separately. Leave blank to inherit. The UI no longer exposes this knob; kept for Terraform / Reis CLI users who already wire it.",
+						Description:         "CPU for the init job, in millicores (1000 millicores is one vCPU). It cannot exceed the container's requested CPU; init jobs use the container's reserved capacity and are not billed separately. When not set, the init job uses the container's CPU.",
+						MarkdownDescription: "CPU for the init job, in millicores (1000 millicores is one vCPU). It cannot exceed the container's requested CPU; init jobs use the container's reserved capacity and are not billed separately. When not set, the init job uses the container's CPU.",
 					},
 					"env": schema.MapAttribute{
 						ElementType:         types.StringType,
@@ -160,11 +127,11 @@ func containerSchema() schema.Schema {
 						Description:         "Container image for the init job. An explicit tag or digest is required — an untagged reference is rejected.",
 						MarkdownDescription: "Container image for the init job. An explicit tag or digest is required — an untagged reference is rejected.",
 					},
-					"memory": schema.StringAttribute{
+					"memory": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Optional memory request override (MB). Cannot exceed the parent container's `minmemory` — init jobs share the main container's reserved capacity and are not billed separately. Leave blank to inherit. The UI no longer exposes this knob; kept for Terraform / Reis CLI users who already wire it.",
-						MarkdownDescription: "Optional memory request override (MB). Cannot exceed the parent container's `minmemory` — init jobs share the main container's reserved capacity and are not billed separately. Leave blank to inherit. The UI no longer exposes this knob; kept for Terraform / Reis CLI users who already wire it.",
+						Description:         "Memory for the init job, in MiB. It cannot exceed the container's requested memory; init jobs use the container's reserved capacity and are not billed separately. When not set, the init job uses the container's memory.",
+						MarkdownDescription: "Memory for the init job, in MiB. It cannot exceed the container's requested memory; init jobs use the container's reserved capacity and are not billed separately. When not set, the init job uses the container's memory.",
 					},
 					"registry": schema.StringAttribute{
 						Optional:            true,
@@ -200,8 +167,8 @@ func containerSchema() schema.Schema {
 				}},
 				Optional:            true,
 				Computed:            true,
-				Description:         "Init jobs that run to completion before the main container starts. HTTP containers only. Up to a configurable maximum (default 3). Init jobs run within the main container's reserved CPU and memory and are not billed separately.",
-				MarkdownDescription: "Init jobs that run to completion before the main container starts. HTTP containers only. Up to a configurable maximum (default 3). Init jobs run within the main container's reserved CPU and memory and are not billed separately.",
+				Description:         "Init jobs that run to completion before the main container starts. HTTP containers only. Up to a configurable maximum (default 3). Init jobs run within the main container's reserved CPU and memory and are not billed separately. Not allowed on cronjob or worker containers.",
+				MarkdownDescription: "Init jobs that run to completion before the main container starts. HTTP containers only. Up to a configurable maximum (default 3). Init jobs run within the main container's reserved CPU and memory and are not billed separately. Not allowed on cronjob or worker containers.",
 			},
 			"workload": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -216,23 +183,23 @@ func containerSchema() schema.Schema {
 						Description:         "Identifier (UUID) of the registry whose credentials are used to pull a private image. Leave it unset for a public image.",
 						MarkdownDescription: "Identifier (UUID) of the registry whose credentials are used to pull a private image. Leave it unset for a public image.",
 					},
-					"port": schema.StringAttribute{
+					"port": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Port the container listens on. Required for HTTP containers, optional for workers.",
-						MarkdownDescription: "Port the container listens on. Required for HTTP containers, optional for workers.",
+						Description:         "Port number the container listens on. Defaults to `8080` for http containers. Not allowed on cronjob containers.",
+						MarkdownDescription: "Port number the container listens on. Defaults to `8080` for http containers. Not allowed on cronjob containers.",
 					},
 					"healthcheck": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Health check endpoint path. Required for HTTP containers, optional for workers.",
-						MarkdownDescription: "Health check endpoint path. Required for HTTP containers, optional for workers.",
+						Description:         "Path of the health check endpoint. Defaults to `\"/healthz\"` for http containers. Not allowed on cronjob containers.",
+						MarkdownDescription: "Path of the health check endpoint. Defaults to `\"/healthz\"` for http containers. Not allowed on cronjob containers.",
 					},
 					"bootstrap_time": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Expected application bootstrap time in seconds. Used to configure startup probe timing.",
-						MarkdownDescription: "Expected application bootstrap time in seconds. Used to configure startup probe timing.",
+						Description:         "Expected application start-up time in seconds, used to time the start-up health checks. It is 30 when not set. Defaults to `30`.",
+						MarkdownDescription: "Expected application start-up time in seconds, used to time the start-up health checks. It is 30 when not set. Defaults to `30`.",
 					},
 					"env": schema.MapAttribute{
 						ElementType:         types.StringType,
@@ -248,25 +215,25 @@ func containerSchema() schema.Schema {
 						Description:         "Environment variables whose values come from secrets in the organisation vault. Each entry maps a variable name to a secret.",
 						MarkdownDescription: "Environment variables whose values come from secrets in the organisation vault. Each entry maps a variable name to a secret.",
 					},
-					"cpu": schema.StringAttribute{
+					"cpu": schema.Int64Attribute{
 						Required:            true,
 						Description:         "CPU requested for each replica, in millicores (1000 millicores is one vCPU).",
 						MarkdownDescription: "CPU requested for each replica, in millicores (1000 millicores is one vCPU).",
 					},
-					"max_cpu": schema.StringAttribute{
+					"max_cpu": schema.Int64Attribute{
 						Computed:            true,
-						Description:         "Server-computed: request x limit_multiplier (config). Not accepted from clients.",
-						MarkdownDescription: "Server-computed: request x limit_multiplier (config). Not accepted from clients.",
+						Description:         "The most CPU each replica may use, in millicores, set by Bahriya from the requested CPU. It cannot be set.",
+						MarkdownDescription: "The most CPU each replica may use, in millicores, set by Bahriya from the requested CPU. It cannot be set.",
 					},
-					"memory": schema.StringAttribute{
+					"memory": schema.Int64Attribute{
 						Required:            true,
 						Description:         "Memory requested for each replica, in MiB.",
 						MarkdownDescription: "Memory requested for each replica, in MiB.",
 					},
-					"max_memory": schema.StringAttribute{
+					"max_memory": schema.Int64Attribute{
 						Computed:            true,
-						Description:         "Server-computed: request x limit_multiplier (config). Not accepted from clients.",
-						MarkdownDescription: "Server-computed: request x limit_multiplier (config). Not accepted from clients.",
+						Description:         "The most memory each replica may use, in MiB, set by Bahriya from the requested memory. It cannot be set.",
+						MarkdownDescription: "The most memory each replica may use, in MiB, set by Bahriya from the requested memory. It cannot be set.",
 					},
 					"command": schema.ListAttribute{
 						ElementType:         types.StringType,
@@ -297,32 +264,32 @@ func containerSchema() schema.Schema {
 					"autoscaling": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Whether the number of replicas scales automatically between the minimum and maximum replicas. Autoscaling cannot be enabled while persistent volumes are attached. Defaults to `false`.",
-						MarkdownDescription: "Whether the number of replicas scales automatically between the minimum and maximum replicas. Autoscaling cannot be enabled while persistent volumes are attached. Defaults to `false`.",
+						Description:         "Whether the number of replicas scales automatically between the minimum and maximum replicas. Autoscaling cannot be enabled while persistent volumes are attached. Defaults to `false`. Not allowed on cronjob containers.",
+						MarkdownDescription: "Whether the number of replicas scales automatically between the minimum and maximum replicas. Autoscaling cannot be enabled while persistent volumes are attached. Defaults to `false`. Not allowed on cronjob containers.",
 					},
-					"replicas": schema.StringAttribute{
+					"replicas": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Number of replicas to run, and the minimum number when autoscaling is enabled. Defaults to `\"1\"`.",
-						MarkdownDescription: "Number of replicas to run, and the minimum number when autoscaling is enabled. Defaults to `\"1\"`.",
+						Description:         "Number of replicas to run, and the minimum number when autoscaling is enabled. Defaults to `1`.",
+						MarkdownDescription: "Number of replicas to run, and the minimum number when autoscaling is enabled. Defaults to `1`.",
 					},
-					"max_replicas": schema.StringAttribute{
+					"max_replicas": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Maximum number of replicas when autoscaling is enabled. Setting it enables autoscaling.",
-						MarkdownDescription: "Maximum number of replicas when autoscaling is enabled. Setting it enables autoscaling.",
+						Description:         "Maximum number of replicas when autoscaling is enabled. Setting it enables autoscaling. Not allowed on cronjob containers.",
+						MarkdownDescription: "Maximum number of replicas when autoscaling is enabled. Setting it enables autoscaling. Not allowed on cronjob containers.",
 					},
-					"target_cpu": schema.StringAttribute{
+					"target_cpu": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Average CPU utilisation that autoscaling aims to keep, as a percentage of the requested CPU.",
-						MarkdownDescription: "Average CPU utilisation that autoscaling aims to keep, as a percentage of the requested CPU.",
+						Description:         "Average CPU utilisation that autoscaling aims to keep, as a percentage of the requested CPU. It is 100 when not set. Defaults to `100`.",
+						MarkdownDescription: "Average CPU utilisation that autoscaling aims to keep, as a percentage of the requested CPU. It is 100 when not set. Defaults to `100`.",
 					},
-					"target_memory": schema.StringAttribute{
+					"target_memory": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Average memory utilisation that autoscaling aims to keep, as a percentage of the requested memory.",
-						MarkdownDescription: "Average memory utilisation that autoscaling aims to keep, as a percentage of the requested memory.",
+						Description:         "Average memory utilisation that autoscaling aims to keep, as a percentage of the requested memory. It is 100 when not set. Defaults to `100`.",
+						MarkdownDescription: "Average memory utilisation that autoscaling aims to keep, as a percentage of the requested memory. It is 100 when not set. Defaults to `100`.",
 					},
 				},
 				Optional: true,
@@ -368,14 +335,14 @@ func containerSchema() schema.Schema {
 					"default_hostname": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Host alias from which the default hostname in each region is built, such as mamluk-123.helsinki-1.x.on.bahriya.app.",
-						MarkdownDescription: "Host alias from which the default hostname in each region is built, such as mamluk-123.helsinki-1.x.on.bahriya.app.",
+						Description:         "Host alias from which the default hostname in each region is built, such as mamluk-123.helsinki-1.x.on.bahriya.app. Not allowed on cronjob or worker containers.",
+						MarkdownDescription: "Host alias from which the default hostname in each region is built, such as mamluk-123.helsinki-1.x.on.bahriya.app. Not allowed on cronjob or worker containers.",
 					},
 					"vanity_hostname": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Platform-managed hostname that spreads traffic across the regions of the container according to the custom DNS mode. It requires two or more regions.",
-						MarkdownDescription: "Platform-managed hostname that spreads traffic across the regions of the container according to the custom DNS mode. It requires two or more regions.",
+						Description:         "Platform-managed hostname that spreads traffic across the regions of the container according to the custom DNS mode. It requires two or more regions. Not allowed on cronjob or worker containers.",
+						MarkdownDescription: "Platform-managed hostname that spreads traffic across the regions of the container according to the custom DNS mode. It requires two or more regions. Not allowed on cronjob or worker containers.",
 					},
 					"domains": schema.ListNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{Attributes: map[string]schema.Attribute{
@@ -393,34 +360,34 @@ func containerSchema() schema.Schema {
 						}},
 						Optional:            true,
 						Computed:            true,
-						Description:         "Custom hostnames attached to this container. Up to a configurable maximum (default 5). The first hostname is included; each additional hostname is billed via the extra_custom_hostname SKU.",
-						MarkdownDescription: "Custom hostnames attached to this container. Up to a configurable maximum (default 5). The first hostname is included; each additional hostname is billed via the extra_custom_hostname SKU.",
+						Description:         "Custom hostnames attached to this container. Up to a configurable maximum (default 5). The first hostname is included; each additional hostname is billed via the extra_custom_hostname SKU. Not allowed on cronjob or worker containers.",
+						MarkdownDescription: "Custom hostnames attached to this container. Up to a configurable maximum (default 5). The first hostname is included; each additional hostname is billed via the extra_custom_hostname SKU. Not allowed on cronjob or worker containers.",
 					},
 					"custom_dns_mode": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "How traffic is spread across regions on the vanity hostname: none, round-robin or geo. A mode other than none requires two or more regions.",
-						MarkdownDescription: "How traffic is spread across regions on the vanity hostname: none, round-robin or geo. A mode other than none requires two or more regions.",
+						Description:         "How traffic is spread across regions on the vanity hostname: none, round-robin or geo. A mode other than none requires two or more regions. Not allowed on cronjob or worker containers.",
+						MarkdownDescription: "How traffic is spread across regions on the vanity hostname: none, round-robin or geo. A mode other than none requires two or more regions. Not allowed on cronjob or worker containers.",
 						Validators:          []validator.String{stringvalidator.OneOf("geo", "none", "round-robin")},
 					},
 					"dns_ttl": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "DNS TTL in seconds for vanity (rr/geo) records. Null uses provider default (300s). Region-specific CNAMEs in the containers zone use a separate platform-wide TTL.",
-						MarkdownDescription: "DNS TTL in seconds for vanity (rr/geo) records. Null uses provider default (300s). Region-specific CNAMEs in the containers zone use a separate platform-wide TTL.",
+						Description:         "DNS TTL in seconds for vanity (rr/geo) records. Null uses provider default (300s). Region-specific CNAMEs in the containers zone use a separate platform-wide TTL. Not allowed on cronjob or worker containers.",
+						MarkdownDescription: "DNS TTL in seconds for vanity (rr/geo) records. Null uses provider default (300s). Region-specific CNAMEs in the containers zone use a separate platform-wide TTL. Not allowed on cronjob or worker containers.",
 						Validators:          []validator.Int64{int64validator.OneOf(60, 300, 600, 1800, 3600, 10800, 21600, 43200, 86400, 604800)},
 					},
 					"dns_failover": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Enable DNS failover for this container. Defaults to `false`.",
-						MarkdownDescription: "Enable DNS failover for this container. Defaults to `false`.",
+						Description:         "Enable DNS failover for this container. Defaults to `false`. Not allowed on cronjob or worker containers.",
+						MarkdownDescription: "Enable DNS failover for this container. Defaults to `false`. Not allowed on cronjob or worker containers.",
 					},
 					"external": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Make this container reachable from the internet at its hostnames. When false, only workloads in the same project can reach it. The console turns this on for new HTTP containers; Reis and Terraform default to false, so leaving it out of a file never publishes a hostname. Defaults to `false`.",
-						MarkdownDescription: "Make this container reachable from the internet at its hostnames. When false, only workloads in the same project can reach it. The console turns this on for new HTTP containers; Reis and Terraform default to false, so leaving it out of a file never publishes a hostname. Defaults to `false`.",
+						Description:         "Make this container reachable from the internet at its hostnames. When false, only workloads in the same project can reach it. It has no default for HTTP containers, so a hostname is published only when a document says so. Required for http containers. Not allowed on cronjob or worker containers.",
+						MarkdownDescription: "Make this container reachable from the internet at its hostnames. When false, only workloads in the same project can reach it. It has no default for HTTP containers, so a hostname is published only when a document says so. Required for http containers. Not allowed on cronjob or worker containers.",
 					},
 					"network_policies": schema.ListAttribute{
 						ElementType:         types.StringType,
@@ -435,17 +402,17 @@ func containerSchema() schema.Schema {
 			},
 			"observability": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
-					"prometheus_port": schema.StringAttribute{
+					"prometheus_port": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Port exposing Prometheus metrics. Enables automatic scraping when set. Not applicable to cron jobs.",
-						MarkdownDescription: "Port exposing Prometheus metrics. Enables automatic scraping when set. Not applicable to cron jobs.",
+						Description:         "Port number exposing Prometheus metrics. Enables automatic scraping when set. Not allowed on cronjob containers.",
+						MarkdownDescription: "Port number exposing Prometheus metrics. Enables automatic scraping when set. Not allowed on cronjob containers.",
 					},
 					"prometheus_path": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Path to Prometheus metrics endpoint. Defaults to /metrics if not specified. Requires prometheus port to be set.",
-						MarkdownDescription: "Path to Prometheus metrics endpoint. Defaults to /metrics if not specified. Requires prometheus port to be set.",
+						Description:         "Path to Prometheus metrics endpoint. Defaults to /metrics if not specified. Requires prometheus port to be set. Not allowed on cronjob containers.",
+						MarkdownDescription: "Path to Prometheus metrics endpoint. Defaults to /metrics if not specified. Requires prometheus port to be set. Not allowed on cronjob containers.",
 					},
 				},
 				Optional: true,
@@ -458,20 +425,20 @@ func containerSchema() schema.Schema {
 							"enabled": schema.BoolAttribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "Whether requests to the container are rate limited per client IP address. Defaults to `false`.",
-								MarkdownDescription: "Whether requests to the container are rate limited per client IP address. Defaults to `false`.",
+								Description:         "Whether requests to the container are rate limited per client IP address. Defaults to `false`. Not allowed on cronjob or worker containers.",
+								MarkdownDescription: "Whether requests to the container are rate limited per client IP address. Defaults to `false`. Not allowed on cronjob or worker containers.",
 							},
 							"per_minute": schema.Int64Attribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "Max requests per minute per IP (requires ratelimitingenabled).",
-								MarkdownDescription: "Max requests per minute per IP (requires ratelimitingenabled).",
+								Description:         "Max requests per minute per IP (requires ratelimitingenabled). Not allowed on cronjob or worker containers.",
+								MarkdownDescription: "Max requests per minute per IP (requires ratelimitingenabled). Not allowed on cronjob or worker containers.",
 							},
 							"per_hour": schema.Int64Attribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "Max requests per hour per IP (requires ratelimitingenabled).",
-								MarkdownDescription: "Max requests per hour per IP (requires ratelimitingenabled).",
+								Description:         "Max requests per hour per IP (requires ratelimitingenabled). Not allowed on cronjob or worker containers.",
+								MarkdownDescription: "Max requests per hour per IP (requires ratelimitingenabled). Not allowed on cronjob or worker containers.",
 							},
 							"per_second": schema.Int64Attribute{
 								Optional:            true,
@@ -488,15 +455,15 @@ func containerSchema() schema.Schema {
 							"enabled": schema.BoolAttribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "Enable IP allow-list. Only IPs in the list can access the container. Defaults to `false`.",
-								MarkdownDescription: "Enable IP allow-list. Only IPs in the list can access the container. Defaults to `false`.",
+								Description:         "Enable IP allow-list. Only IPs in the list can access the container. Defaults to `false`. Not allowed on cronjob or worker containers.",
+								MarkdownDescription: "Enable IP allow-list. Only IPs in the list can access the container. Defaults to `false`. Not allowed on cronjob or worker containers.",
 							},
 							"ips": schema.ListAttribute{
 								ElementType:         types.StringType,
 								Optional:            true,
 								Computed:            true,
-								Description:         "IP addresses and CIDR ranges allowed to reach the container when the allow-list is enabled.",
-								MarkdownDescription: "IP addresses and CIDR ranges allowed to reach the container when the allow-list is enabled.",
+								Description:         "IP addresses and CIDR ranges allowed to reach the container when the allow-list is enabled. Not allowed on cronjob or worker containers.",
+								MarkdownDescription: "IP addresses and CIDR ranges allowed to reach the container when the allow-list is enabled. Not allowed on cronjob or worker containers.",
 							},
 						},
 						Optional: true,
@@ -507,15 +474,15 @@ func containerSchema() schema.Schema {
 							"enabled": schema.BoolAttribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "Enable IP deny-list. IPs in the list are blocked. Defaults to `false`.",
-								MarkdownDescription: "Enable IP deny-list. IPs in the list are blocked. Defaults to `false`.",
+								Description:         "Enable IP deny-list. IPs in the list are blocked. Defaults to `false`. Not allowed on cronjob or worker containers.",
+								MarkdownDescription: "Enable IP deny-list. IPs in the list are blocked. Defaults to `false`. Not allowed on cronjob or worker containers.",
 							},
 							"ips": schema.ListAttribute{
 								ElementType:         types.StringType,
 								Optional:            true,
 								Computed:            true,
-								Description:         "IP addresses and CIDR ranges blocked from reaching the container when the deny-list is enabled.",
-								MarkdownDescription: "IP addresses and CIDR ranges blocked from reaching the container when the deny-list is enabled.",
+								Description:         "IP addresses and CIDR ranges blocked from reaching the container when the deny-list is enabled. Not allowed on cronjob or worker containers.",
+								MarkdownDescription: "IP addresses and CIDR ranges blocked from reaching the container when the deny-list is enabled. Not allowed on cronjob or worker containers.",
 							},
 						},
 						Optional: true,
@@ -524,8 +491,8 @@ func containerSchema() schema.Schema {
 					"basic_auth_enabled": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Whether requests to the container require HTTP basic authentication. Available on HTTP containers only. Defaults to `false`.",
-						MarkdownDescription: "Whether requests to the container require HTTP basic authentication. Available on HTTP containers only. Defaults to `false`.",
+						Description:         "Whether requests to the container require HTTP basic authentication. Available on HTTP containers only. Defaults to `false`. Not allowed on cronjob or worker containers.",
+						MarkdownDescription: "Whether requests to the container require HTTP basic authentication. Available on HTTP containers only. Defaults to `false`. Not allowed on cronjob or worker containers.",
 					},
 					"basic_auth": schema.ListNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{Attributes: map[string]schema.Attribute{
@@ -543,8 +510,8 @@ func containerSchema() schema.Schema {
 						}},
 						Optional:            true,
 						Computed:            true,
-						Description:         "Up to 10 basic auth credentials (username/password). Passwords are AES-encrypted at rest and never returned in plaintext; send the masked sentinel to preserve an existing password.",
-						MarkdownDescription: "Up to 10 basic auth credentials (username/password). Passwords are AES-encrypted at rest and never returned in plaintext; send the masked sentinel to preserve an existing password.",
+						Description:         "Up to 10 basic auth credentials (username/password). Passwords are AES-encrypted at rest and never returned in plaintext; send the masked sentinel to preserve an existing password. Not allowed on cronjob or worker containers.",
+						MarkdownDescription: "Up to 10 basic auth credentials (username/password). Passwords are AES-encrypted at rest and never returned in plaintext; send the masked sentinel to preserve an existing password. Not allowed on cronjob or worker containers.",
 					},
 				},
 				Optional: true,

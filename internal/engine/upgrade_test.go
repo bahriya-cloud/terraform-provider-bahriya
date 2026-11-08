@@ -147,7 +147,7 @@ func upgradeShape(t *testing.T, attrs map[string][]string) {
 			t.Errorf("%s: upgrade failed: %v", c.id, resp.Diagnostics)
 			continue
 		}
-		wantRaw, err := tfval.FromGo(r.toState(record), r.objectType(context.Background()))
+		wantRaw, err := r.stateRaw(context.Background(), record)
 		if err != nil {
 			t.Fatalf("%s: %v", c.id, err)
 		}

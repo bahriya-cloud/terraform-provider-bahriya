@@ -175,13 +175,13 @@ resource "bahriya_valkey" "catalog" {
 ### Read-Only
 
 - `auth_secret` (String) Handle of the platform-managed vault secret holding the auth password. Null while auth is off; turning auth off releases it.
-- `created` (Attributes) When the Valkey instance was created (UTC). (see [below for nested schema](#nestedatt--created))
+- `created` (String) When the Valkey instance was created (UTC).
 - `id` (String) Unique identifier (UUID) of the Valkey instance, assigned by the platform.
 - `nodes` (Number) Derived node count per region for the current tier, size and shards.
 - `organisation` (String) Identifier (UUID) of the organisation that owns the Valkey instance.
-- `projectname` (String) Name of the project the Valkey instance belongs to.
+- `project_name` (String) Name of the project the Valkey instance belongs to.
 - `status` (String) Lifecycle state of the Valkey instance: provisioning, running, terminating, terminated, suspended or error.
-- `updated` (Attributes) When the Valkey instance was last changed (UTC). (see [below for nested schema](#nestedatt--updated))
+- `updated` (String) When the Valkey instance was last changed (UTC).
 
 <a id="nestedatt--backup"></a>
 ### Nested Schema for `backup`
@@ -254,26 +254,6 @@ Optional:
 
 - `config` (Map of String) Allowlisted Valkey configuration keys. Unknown keys are rejected naming the key.
 - `maxmemory_policy` (String) Eviction policy. Defaults from purpose (cache = allkeys-lru, store = noeviction) and remains freely settable.
-
-
-<a id="nestedatt--created"></a>
-### Nested Schema for `created`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
-
-
-<a id="nestedatt--updated"></a>
-### Nested Schema for `updated`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
 
 ## Import
 

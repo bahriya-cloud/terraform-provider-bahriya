@@ -114,6 +114,10 @@ resource "bahriya_container" "api" {
     cpu      = 250
     memory   = 256
   }
+
+  networking = {
+    external = true
+  }
 }
 ```
 
@@ -131,45 +135,16 @@ resource "bahriya_container" "api" {
 ### Read-Only
 
 - `billable` (Boolean) Whether the registry is billed to the organisation.
-- `created` (Attributes) When the registry was created (UTC). (see [below for nested schema](#nestedatt--created))
-- `currentversion` (Number) Number of the version in use.
-- `currentversionid` (String) Identifier (UUID) of the version in use.
+- `created` (String) When the registry was created (UTC).
+- `current_version` (Number) Number of the version in use.
+- `current_version_id` (String) Identifier (UUID) of the version in use.
 - `id` (String) Unique identifier (UUID) of the registry, assigned by the platform.
 - `managed_by` (String) Identifier (UUID) of the platform resource that manages this registry. Null when the organisation manages it.
-- `managedbyresourcetype` (String) Type of the platform resource that manages this registry. Null when the organisation manages it. A managed registry can be changed only by that resource.
+- `managed_by_type` (String) Type of the platform resource that manages this registry. Null when the organisation manages it. A managed registry can be changed only by that resource.
 - `max_versions` (Number) Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.
-- `rotated_at` (Attributes) When the version in use was written (UTC). Null until the registry has been rotated at least once. After a rollback, the date of the version rolled back to. (see [below for nested schema](#nestedatt--rotated_at))
-- `updated` (Attributes) When the registry was last changed (UTC). (see [below for nested schema](#nestedatt--updated))
+- `rotated_at` (String) When the version in use was written (UTC). Null until the registry has been rotated at least once. After a rollback, the date of the version rolled back to.
+- `updated` (String) When the registry was last changed (UTC).
 - `version_count` (Number) Number of stored versions, including the version in use.
-
-<a id="nestedatt--created"></a>
-### Nested Schema for `created`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
-
-
-<a id="nestedatt--rotated_at"></a>
-### Nested Schema for `rotated_at`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
-
-
-<a id="nestedatt--updated"></a>
-### Nested Schema for `updated`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
 
 ## Import
 

@@ -89,7 +89,7 @@ func networkPolicySchema() schema.Schema {
 				Description:         "Identifier (UUID) of the platform resource that manages this network policy. Null when the organisation manages it.",
 				MarkdownDescription: "Identifier (UUID) of the platform resource that manages this network policy. Null when the organisation manages it.",
 			},
-			"managedbyresourcetype": schema.StringAttribute{
+			"managed_by_type": schema.StringAttribute{
 				Computed:            true,
 				Description:         "Type of the platform resource that manages this network policy. Null when the organisation manages it. A managed network policy can be changed only by that resource.",
 				MarkdownDescription: "Type of the platform resource that manages this network policy. Null when the organisation manages it. A managed network policy can be changed only by that resource.",
@@ -99,34 +99,12 @@ func networkPolicySchema() schema.Schema {
 				Description:         "Whether the network policy is billed to the organisation.",
 				MarkdownDescription: "Whether the network policy is billed to the organisation.",
 			},
-			"created": schema.SingleNestedAttribute{
-				Attributes: map[string]schema.Attribute{
-					"date": schema.StringAttribute{
-						Computed: true,
-					},
-					"timezonetype": schema.Int64Attribute{
-						Computed: true,
-					},
-					"timezone": schema.StringAttribute{
-						Computed: true,
-					},
-				},
+			"created": schema.StringAttribute{
 				Computed:            true,
 				Description:         "When the network policy was created (UTC).",
 				MarkdownDescription: "When the network policy was created (UTC).",
 			},
-			"updated": schema.SingleNestedAttribute{
-				Attributes: map[string]schema.Attribute{
-					"date": schema.StringAttribute{
-						Computed: true,
-					},
-					"timezonetype": schema.Int64Attribute{
-						Computed: true,
-					},
-					"timezone": schema.StringAttribute{
-						Computed: true,
-					},
-				},
+			"updated": schema.StringAttribute{
 				Computed:            true,
 				Description:         "When the network policy was last changed (UTC).",
 				MarkdownDescription: "When the network policy was last changed (UTC).",

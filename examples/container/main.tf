@@ -54,11 +54,11 @@ resource "bahriya_container" "web" {
     registry = bahriya_registry.ghcr.id
 
     # An HTTP container needs a port and a health check path.
-    port        = "8080"
+    port        = 8080
     healthcheck = "/healthz"
 
-    cpu    = "250"
-    memory = "256"
+    cpu    = 250
+    memory = 256
 
     env = {
       "NODE_ENV" = "production"
@@ -72,11 +72,13 @@ resource "bahriya_container" "web" {
   }
 
   scaling = {
-    replicas     = "1"
-    max_replicas = "3"
+    replicas     = 1
+    max_replicas = 3
   }
 
   networking = {
+    # Required for an HTTP container: true serves it at its hostnames.
+    external = true
     domains = [
       { hostname = "app.example.com" },
     ]

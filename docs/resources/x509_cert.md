@@ -39,70 +39,21 @@ resource "bahriya_x509_cert" "client_ca" {
 
 - `algorithm` (String) Algorithm of the certificate public key, such as RSA.
 - `billable` (Boolean) Whether the X.509 certificate is billed to the organisation.
-- `created` (Attributes) When the X.509 certificate was created (UTC). (see [below for nested schema](#nestedatt--created))
-- `currentversion` (Number) Number of the version in use.
-- `expires` (Attributes) When the certificate expires (UTC). (see [below for nested schema](#nestedatt--expires))
+- `created` (String) When the X.509 certificate was created (UTC).
+- `current_version` (Number) Number of the version in use.
+- `expires` (String) When the certificate expires (UTC).
 - `fingerprint` (String) SHA-256 fingerprint of the certificate, as colon-separated uppercase hexadecimal prefixed with SHA256:.
 - `id` (String) Unique identifier (UUID) of the X.509 certificate, assigned by the platform.
 - `issuer` (String) Distinguished name of the authority that issued the certificate.
 - `managed_by` (String) Identifier (UUID) of the platform resource that manages this X.509 certificate, such as a MySQL instance. Null when the organisation manages it.
-- `managedbyresourcetype` (String) Type of the platform resource that manages this X.509 certificate, such as mysql. Null when the organisation manages it. A managed X.509 certificate can be changed only by that resource.
+- `managed_by_type` (String) Type of the platform resource that manages this X.509 certificate, such as mysql. Null when the organisation manages it. A managed X.509 certificate can be changed only by that resource.
 - `max_versions` (Number) Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.
-- `not_before` (Attributes) Start of the certificate validity period (UTC). (see [below for nested schema](#nestedatt--not_before))
+- `not_before` (String) Start of the certificate validity period (UTC).
 - `organisation` (String) Identifier (UUID) of the organisation that owns the X.509 certificate.
-- `rotated_at` (Attributes) When the version in use was written (UTC). Null until the X.509 certificate has been rotated at least once. After a rollback, the date of the version rolled back to. (see [below for nested schema](#nestedatt--rotated_at))
+- `rotated_at` (String) When the version in use was written (UTC). Null until the X.509 certificate has been rotated at least once. After a rollback, the date of the version rolled back to.
 - `subject` (String) Distinguished name of the certificate subject.
-- `updated` (Attributes) When the X.509 certificate was last changed (UTC). (see [below for nested schema](#nestedatt--updated))
+- `updated` (String) When the X.509 certificate was last changed (UTC).
 - `version_count` (Number) Number of stored versions, including the version in use.
-
-<a id="nestedatt--created"></a>
-### Nested Schema for `created`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
-
-
-<a id="nestedatt--expires"></a>
-### Nested Schema for `expires`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
-
-
-<a id="nestedatt--not_before"></a>
-### Nested Schema for `not_before`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
-
-
-<a id="nestedatt--rotated_at"></a>
-### Nested Schema for `rotated_at`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
-
-
-<a id="nestedatt--updated"></a>
-### Nested Schema for `updated`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
 
 ## Import
 

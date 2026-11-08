@@ -46,7 +46,7 @@ func secretSchema() schema.Schema {
 				Description:         "Identifier (UUID) of the platform resource that manages this secret, such as a MySQL instance. Null when the organisation manages it.",
 				MarkdownDescription: "Identifier (UUID) of the platform resource that manages this secret, such as a MySQL instance. Null when the organisation manages it.",
 			},
-			"managedbyresourcetype": schema.StringAttribute{
+			"managed_by_type": schema.StringAttribute{
 				Computed:            true,
 				Description:         "Type of the platform resource that manages this secret, such as mysql. Null when the organisation manages it. A managed secret can be changed only by that resource.",
 				MarkdownDescription: "Type of the platform resource that manages this secret, such as mysql. Null when the organisation manages it. A managed secret can be changed only by that resource.",
@@ -61,39 +61,17 @@ func secretSchema() schema.Schema {
 				Description:         "Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.",
 				MarkdownDescription: "Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.",
 			},
-			"created": schema.SingleNestedAttribute{
-				Attributes: map[string]schema.Attribute{
-					"date": schema.StringAttribute{
-						Computed: true,
-					},
-					"timezonetype": schema.Int64Attribute{
-						Computed: true,
-					},
-					"timezone": schema.StringAttribute{
-						Computed: true,
-					},
-				},
+			"created": schema.StringAttribute{
 				Computed:            true,
 				Description:         "When the secret was created (UTC).",
 				MarkdownDescription: "When the secret was created (UTC).",
 			},
-			"updated": schema.SingleNestedAttribute{
-				Attributes: map[string]schema.Attribute{
-					"date": schema.StringAttribute{
-						Computed: true,
-					},
-					"timezonetype": schema.Int64Attribute{
-						Computed: true,
-					},
-					"timezone": schema.StringAttribute{
-						Computed: true,
-					},
-				},
+			"updated": schema.StringAttribute{
 				Computed:            true,
 				Description:         "When the secret was last changed (UTC).",
 				MarkdownDescription: "When the secret was last changed (UTC).",
 			},
-			"currentversion": schema.Int64Attribute{
+			"current_version": schema.Int64Attribute{
 				Computed:            true,
 				Description:         "Number of the version in use.",
 				MarkdownDescription: "Number of the version in use.",
@@ -103,18 +81,7 @@ func secretSchema() schema.Schema {
 				Description:         "Number of stored versions, including the version in use.",
 				MarkdownDescription: "Number of stored versions, including the version in use.",
 			},
-			"rotated_at": schema.SingleNestedAttribute{
-				Attributes: map[string]schema.Attribute{
-					"date": schema.StringAttribute{
-						Computed: true,
-					},
-					"timezonetype": schema.Int64Attribute{
-						Computed: true,
-					},
-					"timezone": schema.StringAttribute{
-						Computed: true,
-					},
-				},
+			"rotated_at": schema.StringAttribute{
 				Computed:            true,
 				Description:         "When the version in use was written (UTC). Null until the secret has been rotated at least once. After a rollback, the date of the version rolled back to.",
 				MarkdownDescription: "When the version in use was written (UTC). Null until the secret has been rotated at least once. After a rollback, the date of the version rolled back to.",

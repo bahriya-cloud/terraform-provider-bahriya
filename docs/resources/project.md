@@ -39,7 +39,7 @@ resource "bahriya_project" "global" {
 
 ### Reading the project's allowance
 
-Each project has a resource allowance in every region it runs in. The `effectivequota*` attributes report it; the `bahriya_project_quota` data source reports how much of it is in use.
+Each project has a resource allowance in every region it runs in. The `effective_quotas` attributes report it; the `bahriya_project_quota` data source reports how much of it is in use.
 
 ```terraform
 resource "bahriya_project" "web" {
@@ -49,7 +49,7 @@ resource "bahriya_project" "web" {
 }
 
 output "cpu_headroom" {
-  value = bahriya_project.web.effectivequotarequestcpu
+  value = bahriya_project.web.effective_quotas.request.cpu
 }
 ```
 
@@ -64,19 +64,43 @@ output "cpu_headroom" {
 
 ### Optional
 
+- `effective_quotas` (Attributes) (see [below for nested schema](#nestedatt--effective_quotas))
 - `quotas` (Attributes) (see [below for nested schema](#nestedatt--quotas))
 
 ### Read-Only
 
-- `created` (Attributes) When the project was created (UTC). (see [below for nested schema](#nestedatt--created))
-- `effectivequotalimitcpu` (String) CPU ceiling for the project in each region it runs in, as in force now: its own setting, or else the standard allowance.
-- `effectivequotalimitmemory` (String) Memory ceiling for the project in each region it runs in, as in force now: its own setting, or else the standard allowance.
-- `effectivequotarequestcpu` (String) CPU the project may reserve in each region it runs in, as in force now: its own setting, or else the standard allowance.
-- `effectivequotarequestmemory` (String) Memory the project may reserve in each region it runs in, as in force now: its own setting, or else the standard allowance.
+- `created` (String) When the project was created (UTC).
 - `id` (String) Unique identifier (UUID) of the project, assigned by the platform.
 - `organisation` (String) Identifier (UUID) of the organisation that owns the project.
-- `updated` (Attributes) When the project was last changed (UTC). (see [below for nested schema](#nestedatt--updated))
+- `updated` (String) When the project was last changed (UTC).
 - `users` (List of String) Members of the project. Managed through the project users endpoints; ignored on create and update.
+
+<a id="nestedatt--effective_quotas"></a>
+### Nested Schema for `effective_quotas`
+
+Optional:
+
+- `limit` (Attributes) (see [below for nested schema](#nestedatt--effective_quotas--limit))
+- `request` (Attributes) (see [below for nested schema](#nestedatt--effective_quotas--request))
+
+<a id="nestedatt--effective_quotas--limit"></a>
+### Nested Schema for `effective_quotas.limit`
+
+Read-Only:
+
+- `cpu` (String) CPU ceiling for the project in each region it runs in, as in force now: its own setting, or else the standard allowance.
+- `memory` (String) Memory ceiling for the project in each region it runs in, as in force now: its own setting, or else the standard allowance.
+
+
+<a id="nestedatt--effective_quotas--request"></a>
+### Nested Schema for `effective_quotas.request`
+
+Read-Only:
+
+- `cpu` (String) CPU the project may reserve in each region it runs in, as in force now: its own setting, or else the standard allowance.
+- `memory` (String) Memory the project may reserve in each region it runs in, as in force now: its own setting, or else the standard allowance.
+
+
 
 <a id="nestedatt--quotas"></a>
 ### Nested Schema for `quotas`
@@ -102,27 +126,6 @@ Read-Only:
 
 - `cpu` (String) CPU the project may reserve in each region it runs in, if set for this project. Null when the project uses the standard allowance.
 - `memory` (String) Memory the project may reserve in each region it runs in, if set for this project. Null when the project uses the standard allowance.
-
-
-
-<a id="nestedatt--created"></a>
-### Nested Schema for `created`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
-
-
-<a id="nestedatt--updated"></a>
-### Nested Schema for `updated`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
 
 ## Import
 

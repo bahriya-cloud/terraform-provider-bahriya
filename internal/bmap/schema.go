@@ -27,11 +27,14 @@ type Kind struct {
 	Defaults   *Map
 	// TerraformType is the Terraform type suffix when it is not the kind name
 	// (pathrule → path_rule); empty otherwise.
-	TerraformType   string
-	byName          map[string]*Field
-	topGroups       map[string]bool
-	readOnly        map[string]bool
-	displayReadOnly map[string]bool
+	TerraformType string
+	// TypeDiscriminator is the API field holding the resource's type, when
+	// some fields depend on it (container: type); empty otherwise.
+	TypeDiscriminator string
+	byName            map[string]*Field
+	topGroups         map[string]bool
+	readOnly          map[string]bool
+	displayReadOnly   map[string]bool
 }
 
 // Field is one property with its alias entry, at the top level or inside a
@@ -84,6 +87,17 @@ type Descriptor struct {
 	Parent      bool
 	Description string
 	ItemsType   string
+	// Wire is "string" for a canonical integer the API carries as a string of
+	// digits (R5, R12).
+	Wire string
+	// Format is "date-time" on a timestamp emitted as RFC 3339 (R20).
+	Format string
+	// TypeDefaults maps a type to the field's default for it; TypeForbidden and
+	// TypeRequired name the types the field is not allowed on or must be set
+	// for (R9, R11, R19).
+	TypeDefaults  *Map
+	TypeForbidden map[string]bool
+	TypeRequired  map[string]bool
 }
 
 var embedded *Schema
@@ -151,6 +165,7 @@ func parseKind(name string, meta *Map) (*Kind, error) {
 		Defaults:        asMap(mapGet(meta, "defaults")),
 	}
 	k.TerraformType, _ = mapGet(meta, "terraformType").(string)
+	k.TypeDiscriminator, _ = mapGet(meta, "typeDiscriminator").(string)
 	for _, g := range asList(mapGet(meta, "groupOrder")) {
 		group, _ := g.(string)
 		k.GroupOrder = append(k.GroupOrder, group)
@@ -240,6 +255,11 @@ func parseDescriptor(m *Map) *Descriptor {
 	d.Parent, _ = mapGet(m, "parent").(bool)
 	d.Description, _ = mapGet(m, "description").(string)
 	d.ItemsType, _ = mapGet(asMap(mapGet(m, "items")), "type").(string)
+	d.Wire, _ = mapGet(m, "wire").(string)
+	d.Format, _ = mapGet(m, "format").(string)
+	d.TypeDefaults = asMap(mapGet(m, "typeDefaults"))
+	d.TypeForbidden = stringSet(mapGet(m, "typeForbidden"))
+	d.TypeRequired = stringSet(mapGet(m, "typeRequired"))
 	return d
 }
 

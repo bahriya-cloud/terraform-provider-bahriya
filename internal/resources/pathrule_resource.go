@@ -57,50 +57,17 @@ func pathRuleSchema() schema.Schema {
 				Description:         "Identifier (UUID) of the user who last changed the path rule.",
 				MarkdownDescription: "Identifier (UUID) of the user who last changed the path rule.",
 			},
-			"created": schema.SingleNestedAttribute{
-				Attributes: map[string]schema.Attribute{
-					"date": schema.StringAttribute{
-						Computed: true,
-					},
-					"timezonetype": schema.Int64Attribute{
-						Computed: true,
-					},
-					"timezone": schema.StringAttribute{
-						Computed: true,
-					},
-				},
+			"created": schema.StringAttribute{
 				Computed:            true,
 				Description:         "When the path rule was created (UTC).",
 				MarkdownDescription: "When the path rule was created (UTC).",
 			},
-			"updated": schema.SingleNestedAttribute{
-				Attributes: map[string]schema.Attribute{
-					"date": schema.StringAttribute{
-						Computed: true,
-					},
-					"timezonetype": schema.Int64Attribute{
-						Computed: true,
-					},
-					"timezone": schema.StringAttribute{
-						Computed: true,
-					},
-				},
+			"updated": schema.StringAttribute{
 				Computed:            true,
 				Description:         "When the path rule was last changed (UTC).",
 				MarkdownDescription: "When the path rule was last changed (UTC).",
 			},
-			"removed": schema.SingleNestedAttribute{
-				Attributes: map[string]schema.Attribute{
-					"date": schema.StringAttribute{
-						Computed: true,
-					},
-					"timezonetype": schema.Int64Attribute{
-						Computed: true,
-					},
-					"timezone": schema.StringAttribute{
-						Computed: true,
-					},
-				},
+			"removed": schema.StringAttribute{
 				Computed:            true,
 				Description:         "When the path rule was removed from its container (UTC). Null while it is in effect.",
 				MarkdownDescription: "When the path rule was removed from its container (UTC). Null while it is in effect.",

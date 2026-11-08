@@ -90,7 +90,7 @@ func mysqlSchema() schema.Schema {
 				Description:         "Identifier (UUID) of the project the MySQL instance belongs to. Set when the instance is created and cannot be changed.",
 				MarkdownDescription: "Identifier (UUID) of the project the MySQL instance belongs to. Set when the instance is created and cannot be changed.",
 			},
-			"projectname": schema.StringAttribute{
+			"project_name": schema.StringAttribute{
 				Computed:            true,
 				Description:         "Name of the project the MySQL instance belongs to.",
 				MarkdownDescription: "Name of the project the MySQL instance belongs to.",
@@ -105,34 +105,12 @@ func mysqlSchema() schema.Schema {
 				Description:         "Derived node count per region for the current tier and replicas.",
 				MarkdownDescription: "Derived node count per region for the current tier and replicas.",
 			},
-			"created": schema.SingleNestedAttribute{
-				Attributes: map[string]schema.Attribute{
-					"date": schema.StringAttribute{
-						Computed: true,
-					},
-					"timezonetype": schema.Int64Attribute{
-						Computed: true,
-					},
-					"timezone": schema.StringAttribute{
-						Computed: true,
-					},
-				},
+			"created": schema.StringAttribute{
 				Computed:            true,
 				Description:         "When the MySQL instance was created (UTC).",
 				MarkdownDescription: "When the MySQL instance was created (UTC).",
 			},
-			"updated": schema.SingleNestedAttribute{
-				Attributes: map[string]schema.Attribute{
-					"date": schema.StringAttribute{
-						Computed: true,
-					},
-					"timezonetype": schema.Int64Attribute{
-						Computed: true,
-					},
-					"timezone": schema.StringAttribute{
-						Computed: true,
-					},
-				},
+			"updated": schema.StringAttribute{
 				Computed:            true,
 				Description:         "When the MySQL instance was last changed (UTC).",
 				MarkdownDescription: "When the MySQL instance was last changed (UTC).",
@@ -141,83 +119,6 @@ func mysqlSchema() schema.Schema {
 				Computed:            true,
 				Description:         "Lifecycle state of the MySQL instance: provisioning, running, terminating, terminated, suspended or error.",
 				MarkdownDescription: "Lifecycle state of the MySQL instance: provisioning, running, terminating, terminated, suspended or error.",
-			},
-			"restoreof": schema.StringAttribute{
-				Computed:            true,
-				Description:         "Set on a restore target: the id of the instance it was restored from.",
-				MarkdownDescription: "Set on a restore target: the id of the instance it was restored from.",
-			},
-			"restoreofhandle": schema.StringAttribute{
-				Computed:            true,
-				Description:         "Set on a restore target: the handle of the instance it was restored from.",
-				MarkdownDescription: "Set on a restore target: the handle of the instance it was restored from.",
-			},
-			"restorekind": schema.StringAttribute{
-				Computed:            true,
-				Description:         "Set on a restore target: staging (a disposable copy, no backups) or instance (kept, with backups).",
-				MarkdownDescription: "Set on a restore target: staging (a disposable copy, no backups) or instance (kept, with backups).",
-			},
-			"restoretargetat": schema.StringAttribute{
-				Computed:            true,
-				Description:         "Set on a restore target: the UTC instant its data was restored to.",
-				MarkdownDescription: "Set on a restore target: the UTC instant its data was restored to.",
-			},
-			"restoredatabase": schema.StringAttribute{
-				Computed:            true,
-				Description:         "Set on a restore target that restored one database only.",
-				MarkdownDescription: "Set on a restore target that restored one database only.",
-			},
-			"restorestatus": schema.StringAttribute{
-				Computed:            true,
-				Description:         "Set on a restore target: whether its data is ready. Use the instance only once this is completed.",
-				MarkdownDescription: "Set on a restore target: whether its data is ready. Use the instance only once this is completed.",
-			},
-			"restorefinishedat": schema.StringAttribute{
-				Computed:            true,
-				Description:         "Set on a restore target: when the restore completed or failed.",
-				MarkdownDescription: "Set on a restore target: when the restore completed or failed.",
-			},
-			"restoreerror": schema.StringAttribute{
-				Computed:            true,
-				Description:         "Set on a failed restore target: why it failed.",
-				MarkdownDescription: "Set on a failed restore target: why it failed.",
-			},
-			"restoretargets": schema.ListNestedAttribute{
-				NestedObject: schema.NestedAttributeObject{Attributes: map[string]schema.Attribute{
-					"handle": schema.StringAttribute{
-						Computed:            true,
-						Description:         "Handle of the restore target instance.",
-						MarkdownDescription: "Handle of the restore target instance.",
-					},
-					"id": schema.StringAttribute{
-						Computed:            true,
-						Description:         "Identifier (UUID) of the restore target instance.",
-						MarkdownDescription: "Identifier (UUID) of the restore target instance.",
-					},
-					"instancestatus": schema.StringAttribute{
-						Computed:            true,
-						Description:         "Lifecycle state of the restore target instance: provisioning, running, terminating, terminated, suspended or error.",
-						MarkdownDescription: "Lifecycle state of the restore target instance: provisioning, running, terminating, terminated, suspended or error.",
-					},
-					"kind": schema.StringAttribute{
-						Computed:            true,
-						Description:         "Kind of restore target: staging (a disposable copy, without backups) or instance (kept, with backups).",
-						MarkdownDescription: "Kind of restore target: staging (a disposable copy, without backups) or instance (kept, with backups).",
-					},
-					"status": schema.StringAttribute{
-						Computed:            true,
-						Description:         "Progress of the restore: pending, restoring, completed or failed.",
-						MarkdownDescription: "Progress of the restore: pending, restoring, completed or failed.",
-					},
-					"targetat": schema.StringAttribute{
-						Computed:            true,
-						Description:         "The UTC instant the restore target's data was restored to.",
-						MarkdownDescription: "The UTC instant the restore target's data was restored to.",
-					},
-				}},
-				Computed:            true,
-				Description:         "On a source instance: its restore targets that are not terminated.",
-				MarkdownDescription: "On a source instance: its restore targets that are not terminated.",
 			},
 			"root_secret": schema.StringAttribute{
 				Computed:            true,
@@ -407,6 +308,89 @@ func mysqlSchema() schema.Schema {
 						Computed:            true,
 						Description:         "Network policies narrowed to this MySQL instance, referenced by handle.",
 						MarkdownDescription: "Network policies narrowed to this MySQL instance, referenced by handle.",
+					},
+				},
+				Optional: true,
+				Computed: true,
+			},
+			"restore": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"source": schema.StringAttribute{
+						Computed:            true,
+						Description:         "Set on a restore target: the id of the instance it was restored from.",
+						MarkdownDescription: "Set on a restore target: the id of the instance it was restored from.",
+					},
+					"source_handle": schema.StringAttribute{
+						Computed:            true,
+						Description:         "Set on a restore target: the handle of the instance it was restored from.",
+						MarkdownDescription: "Set on a restore target: the handle of the instance it was restored from.",
+					},
+					"kind": schema.StringAttribute{
+						Computed:            true,
+						Description:         "Set on a restore target: staging (a disposable copy, no backups) or instance (kept, with backups).",
+						MarkdownDescription: "Set on a restore target: staging (a disposable copy, no backups) or instance (kept, with backups).",
+					},
+					"target_at": schema.StringAttribute{
+						Computed:            true,
+						Description:         "Set on a restore target: the UTC instant its data was restored to.",
+						MarkdownDescription: "Set on a restore target: the UTC instant its data was restored to.",
+					},
+					"database": schema.StringAttribute{
+						Computed:            true,
+						Description:         "Set on a restore target that restored one database only.",
+						MarkdownDescription: "Set on a restore target that restored one database only.",
+					},
+					"status": schema.StringAttribute{
+						Computed:            true,
+						Description:         "Set on a restore target: whether its data is ready. Use the instance only once this is completed.",
+						MarkdownDescription: "Set on a restore target: whether its data is ready. Use the instance only once this is completed.",
+					},
+					"finished_at": schema.StringAttribute{
+						Computed:            true,
+						Description:         "Set on a restore target: when the restore completed or failed.",
+						MarkdownDescription: "Set on a restore target: when the restore completed or failed.",
+					},
+					"error": schema.StringAttribute{
+						Computed:            true,
+						Description:         "Set on a failed restore target: why it failed.",
+						MarkdownDescription: "Set on a failed restore target: why it failed.",
+					},
+					"targets": schema.ListNestedAttribute{
+						NestedObject: schema.NestedAttributeObject{Attributes: map[string]schema.Attribute{
+							"handle": schema.StringAttribute{
+								Computed:            true,
+								Description:         "Handle of the restore target instance.",
+								MarkdownDescription: "Handle of the restore target instance.",
+							},
+							"id": schema.StringAttribute{
+								Computed:            true,
+								Description:         "Identifier (UUID) of the restore target instance.",
+								MarkdownDescription: "Identifier (UUID) of the restore target instance.",
+							},
+							"instance_status": schema.StringAttribute{
+								Computed:            true,
+								Description:         "Lifecycle state of the restore target instance: provisioning, running, terminating, terminated, suspended or error.",
+								MarkdownDescription: "Lifecycle state of the restore target instance: provisioning, running, terminating, terminated, suspended or error.",
+							},
+							"kind": schema.StringAttribute{
+								Computed:            true,
+								Description:         "Kind of restore target: staging (a disposable copy, without backups) or instance (kept, with backups).",
+								MarkdownDescription: "Kind of restore target: staging (a disposable copy, without backups) or instance (kept, with backups).",
+							},
+							"status": schema.StringAttribute{
+								Computed:            true,
+								Description:         "Progress of the restore: pending, restoring, completed or failed.",
+								MarkdownDescription: "Progress of the restore: pending, restoring, completed or failed.",
+							},
+							"target_at": schema.StringAttribute{
+								Computed:            true,
+								Description:         "The UTC instant the restore target's data was restored to.",
+								MarkdownDescription: "The UTC instant the restore target's data was restored to.",
+							},
+						}},
+						Computed:            true,
+						Description:         "On a source instance: its restore targets that are not terminated.",
+						MarkdownDescription: "On a source instance: its restore targets that are not terminated.",
 					},
 				},
 				Optional: true,

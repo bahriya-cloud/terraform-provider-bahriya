@@ -208,9 +208,24 @@ func (r *Resource) ModifyPlan(ctx context.Context, req resource.ModifyPlanReques
 	if containsUnknown(cfg) {
 		return // a value depends on another resource: plan again at apply
 	}
-	explicit, err := r.kind.ToAPI(cfg, false)
+	explicit, _, violations, err := r.kind.ToAPIReport(cfg, false)
 	if err != nil {
 		resp.Diagnostics.AddError("Invalid configuration", err.Error())
+		return
+	}
+	// R19: the provider refuses a field the resource's type does not allow, and a
+	// field it requires that the configuration leaves out.
+	if len(violations) > 0 {
+		handle, _ := cfg.Get("handle")
+		for _, v := range violations {
+			if v.Rule == "required" {
+				resp.Diagnostics.AddAttributeError(attrPath(v.Path), "Required for "+v.Type+" containers",
+					fmt.Sprintf("%s is not set on %s %q. State it for %s containers: true or false.", v.Path, r.desc.noun(), handle, v.Type))
+				continue
+			}
+			resp.Diagnostics.AddAttributeError(attrPath(v.Path), "Not allowed on "+v.Type+" containers",
+				fmt.Sprintf("%s is set on %s %q, but %s containers do not use it. Remove it.", v.Path, r.desc.noun(), handle, v.Type))
+		}
 		return
 	}
 	resolved, err := r.kind.ToAPI(cfg, true)
@@ -275,7 +290,7 @@ func (r *Resource) ModifyPlan(ctx context.Context, req resource.ModifyPlanReques
 		}
 	}
 
-	raw, err := tfval.FromGo(r.toState(planned), r.objectType(ctx))
+	raw, err := r.stateRaw(ctx, planned)
 	if err != nil {
 		resp.Diagnostics.AddError("Plan", err.Error())
 		return
@@ -700,7 +715,7 @@ func (r *Resource) setState(ctx context.Context, out *tftypes.Value, record, kno
 			merged.Set(f.Name, mergeItems(f, value, knownValue))
 		}
 	}
-	raw, err := tfval.FromGo(r.toState(merged), r.objectType(ctx))
+	raw, err := r.stateRaw(ctx, merged)
 	if err != nil {
 		diags.AddError("State", err.Error())
 		return diags
@@ -713,7 +728,7 @@ func (r *Resource) setState(ctx context.Context, out *tftypes.Value, record, kno
 // with free-form map values as strings: Terraform holds them as Map(String)
 // (an accepted deviation), while the API returns them typed (max_connections
 // 300). JSON semantics, as v0.x did; the API accepts the strings back.
-func (r *Resource) toState(record *bmap.Map) *bmap.Map {
+func (r *Resource) toState(record *bmap.Map) (*bmap.Map, error) {
 	out := bmap.Clone(record).(*bmap.Map)
 	for _, f := range r.kind.Fields {
 		if !f.Desc.Freeform {
@@ -731,6 +746,17 @@ func (r *Resource) toState(record *bmap.Map) *bmap.Map {
 		out.Set(f.Name, strs)
 	}
 	return r.kind.ToYAML(out, true)
+}
+
+// stateRaw is a record in the v1 state shape as a Terraform value. It fails
+// when the record holds a value R12 or R20 cannot read, or one that does not
+// fit the schema.
+func (r *Resource) stateRaw(ctx context.Context, record *bmap.Map) (tftypes.Value, error) {
+	state, err := r.toState(record)
+	if err != nil {
+		return tftypes.Value{}, err
+	}
+	return tfval.FromGo(state, r.objectType(ctx))
 }
 
 // mergeItems restores secrets in list items (basic auth passwords, say) from

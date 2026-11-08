@@ -29,4 +29,8 @@ resource "bahriya_container" "api" {
       DATABASE_PASSWORD = bahriya_secret.db_password.handle
     }
   }
+
+  networking = {
+    external = true
+  }
 }

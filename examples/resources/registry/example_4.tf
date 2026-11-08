@@ -35,4 +35,8 @@ resource "bahriya_container" "api" {
     cpu      = 250
     memory   = 256
   }
+
+  networking = {
+    external = true
+  }
 }

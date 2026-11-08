@@ -86,14 +86,18 @@ resource "bahriya_container" "api" {
 
   workload = {
     image       = "ghcr.io/myorg/api:1.2.3"
-    port        = "3000"
+    port        = 3000
     healthcheck = "/healthz"
-    cpu         = "250"
-    memory      = "256"
+    cpu         = 250
+    memory      = 256
   }
 
   scaling = {
-    replicas = "2"
+    replicas = 2
+  }
+
+  networking = {
+    external = true
   }
 }
 ```

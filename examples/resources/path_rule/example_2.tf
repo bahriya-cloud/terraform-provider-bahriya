@@ -12,13 +12,17 @@ resource "bahriya_container" "api" {
 
   workload = {
     image  = "ghcr.io/myorg/api:1.2.3"
-    port   = "3000"
-    cpu    = "250"
-    memory = "256"
+    port   = 3000
+    cpu    = 250
+    memory = 256
   }
 
   scaling = {
-    replicas = "1"
+    replicas = 1
+  }
+
+  networking = {
+    external = true
   }
 }
 

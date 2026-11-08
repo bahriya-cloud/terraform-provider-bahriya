@@ -12,6 +12,8 @@ import (
 	"math"
 	"strconv"
 	"strings"
+	"time"
+	_ "time/tzdata" // R20 reads IANA zone names wherever the provider runs
 )
 
 // MappingError is a toApi failure, citing the rule that failed.
@@ -38,19 +40,43 @@ type Deprecation struct {
 	Use  string // the current path; "" (null) means remove it
 }
 
+// Violation records a field the resolved type does not allow, or requires and
+// the document leaves out (R19).
+type Violation struct {
+	Path string
+	Type string
+	Rule string // "forbidden" or "required"
+}
+
 // ToAPI maps a YAML-shaped document to an API payload: R1-R8, then R9 when
 // defaults is true.
 func (k *Kind) ToAPI(doc *Map, defaults bool) (*Map, error) {
-	out, _, err := k.ToAPIReport(doc, defaults)
+	out, _, _, err := k.ToAPIReport(doc, defaults)
 	return out, err
 }
 
-// ToAPIReport is ToAPI, also returning the deprecations recorded by R1, in
-// field declaration order.
-func (k *Kind) ToAPIReport(doc *Map, defaults bool) (*Map, []Deprecation, error) {
+// ToAPIReport is ToAPI, also returning the deprecations recorded by R1 and R3
+// and the violations recorded by R19, each in field declaration order. The
+// provider refuses a plan with violations.
+func (k *Kind) ToAPIReport(doc *Map, defaults bool) (*Map, []Deprecation, []Violation, error) {
 	out := NewMap()
 	userSet := NewMap()
 	deprecations := []Deprecation{}
+	violations := []Violation{}
+	typ := k.resolvedType(doc)
+
+	// R19: type rules, checked on the document before defaults.
+	if typ != "" {
+		for _, f := range k.Fields {
+			value, _ := k.read(doc, f)
+			if f.Desc.TypeForbidden[typ] && value != absent && !isEmptyValue(value) {
+				violations = append(violations, Violation{Path: f.Path, Type: typ, Rule: "forbidden"})
+			}
+			if f.Desc.TypeRequired[typ] && (value == absent || value == nil) {
+				violations = append(violations, Violation{Path: f.Path, Type: typ, Rule: "required"})
+			}
+		}
+	}
 
 	for _, f := range k.Fields {
 		value, legacy := k.read(doc, f)
@@ -65,7 +91,7 @@ func (k *Kind) ToAPIReport(doc *Map, defaults bool) (*Map, []Deprecation, error)
 		}
 		mapped, err := mapValue(value, f, defaults)
 		if err != nil {
-			return nil, nil, err
+			return nil, nil, nil, err
 		}
 		out.Set(f.Name, mapped)
 		userSet.Set(f.Name, value)
@@ -85,7 +111,7 @@ func (k *Kind) ToAPIReport(doc *Map, defaults bool) (*Map, []Deprecation, error)
 				continue
 			}
 			if previous, ok := implied.Get(target); ok && !JSONEquals(previous, impliedValue) {
-				return nil, nil, &MappingError{"R8", fmt.Sprintf("conflicting implications for '%s'", target)}
+				return nil, nil, nil, &MappingError{"R8", fmt.Sprintf("conflicting implications for '%s'", target)}
 			}
 			implied.Set(target, impliedValue)
 		}
@@ -95,18 +121,170 @@ func (k *Kind) ToAPIReport(doc *Map, defaults bool) (*Map, []Deprecation, error)
 		out.Set(target, Clone(v))
 	}
 
-	// R9: defaults fill absent writable fields.
+	// R9: absent writable fields take their effective default (a type default,
+	// else the kind default). A field required for the type takes none; a field
+	// forbidden for it takes only its kind default, an empty value, as the API
+	// stores it.
 	if defaults {
-		for _, name := range k.Defaults.Keys() {
-			f := k.byName[name]
-			if f == nil || out.Has(name) || !k.IsWritable(f) {
+		for _, f := range k.Fields {
+			if out.Has(f.Name) || !k.IsWritable(f) || f.Desc.TypeRequired[typ] {
 				continue
 			}
-			v, _ := k.Defaults.Get(name)
-			out.Set(name, Clone(v))
+			var v any
+			var ok bool
+			if f.Desc.TypeForbidden[typ] {
+				v, ok = k.Defaults.Get(f.Name)
+			} else {
+				v, ok = k.effectiveDefault(f, typ)
+			}
+			if ok {
+				out.Set(f.Name, wire(Clone(v), f.Desc))
+			}
 		}
 	}
-	return out, deprecations, nil
+	return out, deprecations, violations, nil
+}
+
+// resolvedType is the resolved type (RULES section 1) of a YAML document: the
+// discriminator's value when set, else its default; "" on a kind without one.
+func (k *Kind) resolvedType(doc *Map) string {
+	f := k.byName[k.TypeDiscriminator]
+	if f == nil {
+		return ""
+	}
+	if v, _ := k.read(doc, f); v != absent {
+		if s, ok := v.(string); ok && s != "" {
+			return s
+		}
+	}
+	s, _ := f.Desc.Default.(string)
+	return s
+}
+
+// payloadType is the resolved type of an API payload.
+func (k *Kind) payloadType(api *Map) string {
+	f := k.byName[k.TypeDiscriminator]
+	if f == nil {
+		return ""
+	}
+	if v, ok := api.Get(f.Name); ok {
+		if s, isString := v.(string); isString && s != "" {
+			return s
+		}
+	}
+	s, _ := f.Desc.Default.(string)
+	return s
+}
+
+// effectiveDefault is the type default for typ, else the kind default.
+func (k *Kind) effectiveDefault(f *Field, typ string) (any, bool) {
+	if typ != "" {
+		if v, ok := f.Desc.TypeDefaults.Get(typ); ok {
+			return v, true
+		}
+	}
+	return k.Defaults.Get(f.Name)
+}
+
+// isJSONValue reports whether v is one of the values this package handles.
+func isJSONValue(v any) bool {
+	switch v.(type) {
+	case nil, bool, string, int64, int, float64, []any, *Map:
+		return true
+	}
+	return false
+}
+
+// isEmptyValue is R19: the values that count as not setting a forbidden field.
+func isEmptyValue(value any) bool {
+	switch v := value.(type) {
+	case nil:
+		return true
+	case bool:
+		return !v
+	case int64:
+		return v == 0
+	case int:
+		return v == 0
+	case float64:
+		return v == 0
+	case string:
+		return v == ""
+	case []any:
+		return len(v) == 0
+	case *Map:
+		return v.Len() == 0
+	}
+	return false
+}
+
+// wire is R5 for a `wire: string` field: a whole number goes out as its
+// base-10 text; a string passes unchanged.
+func wire(value any, d *Descriptor) any {
+	if d.Wire != "string" {
+		return value
+	}
+	switch v := value.(type) {
+	case int64:
+		return strconv.FormatInt(v, 10)
+	case int:
+		return strconv.Itoa(v)
+	case float64:
+		if v == math.Trunc(v) {
+			return strconv.FormatInt(int64(v), 10)
+		}
+	}
+	return value
+}
+
+// timestamp is R20: RFC 3339 in UTC with whole seconds, from the API's
+// TimeResponse object or an RFC 3339 / ISO 8601 string.
+func timestamp(value any) (any, error) {
+	var t time.Time
+	switch v := value.(type) {
+	case *Map:
+		date, _ := mapGet(v, "date").(string)
+		zone, _ := mapGet(v, "timezone").(string)
+		if zone == "" {
+			zone = "UTC"
+		}
+		loc, err := zoneLocation(zone)
+		if err != nil {
+			return nil, &MappingError{"R20", fmt.Sprintf("unknown time zone '%s'", zone)}
+		}
+		if len(date) < 19 {
+			return nil, &MappingError{"R20", fmt.Sprintf("unreadable timestamp %q", date)}
+		}
+		t, err = time.ParseInLocation("2006-01-02 15:04:05", strings.Replace(date[:19], "T", " ", 1), loc)
+		if err != nil {
+			return nil, &MappingError{"R20", fmt.Sprintf("unreadable timestamp %q", date)}
+		}
+	case string:
+		var err error
+		if t, err = time.Parse(time.RFC3339Nano, v); err != nil {
+			return nil, &MappingError{"R20", fmt.Sprintf("unreadable timestamp %q", v)}
+		}
+	default:
+		return nil, &MappingError{"R20", fmt.Sprintf("expected a timestamp, got %v", value)}
+	}
+	return t.UTC().Truncate(time.Second).Format("2006-01-02T15:04:05Z"), nil
+}
+
+// zoneLocation reads an IANA zone name or a fixed offset such as +04:00.
+func zoneLocation(zone string) (*time.Location, error) {
+	if len(zone) == 6 && (zone[0] == '+' || zone[0] == '-') && zone[3] == ':' {
+		hours, errH := strconv.Atoi(zone[1:3])
+		minutes, errM := strconv.Atoi(zone[4:6])
+		if errH != nil || errM != nil {
+			return nil, fmt.Errorf("bad offset %s", zone)
+		}
+		seconds := hours*3600 + minutes*60
+		if zone[0] == '-' {
+			seconds = -seconds
+		}
+		return time.FixedZone(zone, seconds), nil
+	}
+	return time.LoadLocation(zone)
 }
 
 // read is R1: the field's path, then its API-name path, then (grouped fields)
@@ -169,6 +347,9 @@ func mapValue(value any, f *Field, defaults bool) (any, error) {
 		return mapItems(list, f.Item, defaults)
 	}
 
+	if f.Desc.Wire == "string" && !isCollection(value) {
+		return wire(value, f.Desc), nil // R5, a canonical integer carried as a string
+	}
 	if f.Desc.Type == "string" && !isCollection(value) {
 		return Cast(value), nil
 	}
@@ -208,7 +389,7 @@ func mapItems(list []any, itemFields []*Field, defaults bool) ([]any, error) {
 		if defaults {
 			for _, f := range itemFields {
 				if !out.Has(f.Name) && f.Desc.HasDefault && !f.Desc.ReadOnly {
-					out.Set(f.Name, Clone(f.Desc.Default))
+					out.Set(f.Name, wire(Clone(f.Desc.Default), f.Desc))
 				}
 			}
 		}
@@ -220,8 +401,10 @@ func mapItems(list []any, itemFields []*Field, defaults bool) ([]any, error) {
 // ------------------------------------------------------------------ API -> YAML
 
 // ToYAML maps an API payload to a YAML-shaped document: R11-R15. With state
-// on (Terraform state, R15), every field is emitted and `kind` is omitted.
-func (k *Kind) ToYAML(api *Map, state bool) *Map {
+// on (Terraform state, R15), every field is emitted and `kind` is omitted. It
+// fails only on a value R12 or R20 cannot read.
+func (k *Kind) ToYAML(api *Map, state bool) (*Map, error) {
+	typ := k.payloadType(api)
 	emitted := NewMap()
 	for _, f := range k.Fields {
 		value, present := api.Get(f.Name)
@@ -235,18 +418,27 @@ func (k *Kind) ToYAML(api *Map, state bool) *Map {
 			if k.isStrippedReadOnly(f) || value == nil {
 				continue // R11, R12
 			}
-			if def, ok := k.Defaults.Get(f.Name); ok && JSONEquals(value, def) {
-				continue // R11
-			}
 			if s, ok := value.(string); ok && f.Desc.Masked != "" && s == f.Desc.Masked {
 				continue // R11: the read placeholder is not a value; R16 keeps the material
+			}
+			if f.Desc.TypeForbidden[typ] && isEmptyValue(value) {
+				continue // R11: what the API stores for a field the type does not allow
 			}
 		}
 		if value == nil {
 			emitted.Set(f.Name, nil)
 			continue
 		}
-		emitted.Set(f.Name, reverse(value, f, state))
+		reversed, err := reverse(value, f, state)
+		if err != nil {
+			return nil, err
+		}
+		if !state && !f.Desc.TypeRequired[typ] {
+			if def, ok := k.effectiveDefault(f, typ); ok && JSONEquals(reversed, def) {
+				continue // R11, compared after R12
+			}
+		}
+		emitted.Set(f.Name, reversed)
 	}
 
 	// R13: emit an implied field when the API value would not survive a re-apply.
@@ -284,10 +476,10 @@ func (k *Kind) ToYAML(api *Map, state bool) *Map {
 			setPath(out, f.Path, v)
 		}
 	}
-	return out
+	return out, nil
 }
 
-func reverse(value any, f *Field, state bool) any {
+func reverse(value any, f *Field, state bool) (any, error) {
 	list, isList := value.([]any)
 	if isList && (f.Transform == "envVarMap" || f.Transform == "secretMap") {
 		m := NewMap()
@@ -304,7 +496,7 @@ func reverse(value any, f *Field, state bool) any {
 				m.Set(name, Clone(mapGet(item, "secret")))
 			}
 		}
-		return m
+		return m, nil
 	}
 	if isList && f.HasItem {
 		out := make([]any, 0, len(list))
@@ -328,13 +520,38 @@ func reverse(value any, f *Field, state bool) any {
 					mapped.Set(itemField.Path, nil)
 					continue
 				}
-				mapped.Set(itemField.Path, reverse(itemValue, itemField, state))
+				v, err := reverse(itemValue, itemField, state)
+				if err != nil {
+					return nil, err
+				}
+				mapped.Set(itemField.Path, v)
 			}
 			out = append(out, mapped)
 		}
-		return out
+		return out, nil
 	}
-	return Clone(value)
+	// A value that is not JSON (a caller's marker, such as Terraform's unknown)
+	// passes through: R12 and R20 read only what the API returns.
+	if !isJSONValue(value) {
+		return value, nil
+	}
+	if f.Desc.Wire == "string" {
+		switch v := value.(type) {
+		case int64:
+			return v, nil
+		case string:
+			if n, err := strconv.ParseInt(v, 10, 64); err == nil {
+				return n, nil // R12
+			}
+		}
+		return nil, &MappingError{"R12", fmt.Sprintf("%s: expected a whole number, got %v", f.Path, value)}
+	}
+	// R20. A descriptor without a format comes from a package older than the
+	// rule (RULES 8.2): its timestamps are emitted unchanged.
+	if f.Desc.Type == "timestamp" && f.Desc.Format == "date-time" {
+		return timestamp(value)
+	}
+	return Clone(value), nil
 }
 
 // ------------------------------------------------------------------ apply

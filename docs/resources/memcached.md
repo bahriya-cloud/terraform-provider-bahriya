@@ -80,14 +80,14 @@ resource "bahriya_memcached" "api_cache" {
 
 ### Read-Only
 
-- `created` (Attributes) When the Memcached instance was created (UTC). (see [below for nested schema](#nestedatt--created))
+- `created` (String) When the Memcached instance was created (UTC).
 - `id` (String) Unique identifier (UUID) of the Memcached instance, assigned by the platform.
-- `managedbycontainer` (String) When set, this memcached instance is managed by the named container (proxy cache feature) and cannot be modified directly.
-- `managedbycontainername` (String) The name of the container in managedbycontainer, so a client can show it without a second lookup.
+- `managed_by_container` (String) Identifier (UUID) of the container whose response cache this Memcached instance is. Such an instance is managed by that container and cannot be changed directly.
+- `managed_by_container_name` (String) Name of the container in managed_by_container.
 - `organisation` (String) Identifier (UUID) of the organisation that owns the Memcached instance.
-- `projectname` (String) Name of the project the Memcached instance belongs to.
+- `project_name` (String) Name of the project the Memcached instance belongs to.
 - `status` (String) Lifecycle state of the Memcached instance: provisioning, running, terminating, terminated, suspended or error.
-- `updated` (Attributes) When the Memcached instance was last changed (UTC). (see [below for nested schema](#nestedatt--updated))
+- `updated` (String) When the Memcached instance was last changed (UTC).
 
 <a id="nestedatt--tuning"></a>
 ### Nested Schema for `tuning`
@@ -109,26 +109,6 @@ Optional:
 Optional:
 
 - `nodes` (Number) Number of nodes in each region, from 1 to 9. Defaults to `1`.
-
-
-<a id="nestedatt--created"></a>
-### Nested Schema for `created`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
-
-
-<a id="nestedatt--updated"></a>
-### Nested Schema for `updated`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
 
 ## Import
 

@@ -53,57 +53,15 @@ func projectSchema() schema.Schema {
 				Description:         "Members of the project. Managed through the project users endpoints; ignored on create and update.",
 				MarkdownDescription: "Members of the project. Managed through the project users endpoints; ignored on create and update.",
 			},
-			"created": schema.SingleNestedAttribute{
-				Attributes: map[string]schema.Attribute{
-					"date": schema.StringAttribute{
-						Computed: true,
-					},
-					"timezonetype": schema.Int64Attribute{
-						Computed: true,
-					},
-					"timezone": schema.StringAttribute{
-						Computed: true,
-					},
-				},
+			"created": schema.StringAttribute{
 				Computed:            true,
 				Description:         "When the project was created (UTC).",
 				MarkdownDescription: "When the project was created (UTC).",
 			},
-			"updated": schema.SingleNestedAttribute{
-				Attributes: map[string]schema.Attribute{
-					"date": schema.StringAttribute{
-						Computed: true,
-					},
-					"timezonetype": schema.Int64Attribute{
-						Computed: true,
-					},
-					"timezone": schema.StringAttribute{
-						Computed: true,
-					},
-				},
+			"updated": schema.StringAttribute{
 				Computed:            true,
 				Description:         "When the project was last changed (UTC).",
 				MarkdownDescription: "When the project was last changed (UTC).",
-			},
-			"effectivequotarequestcpu": schema.StringAttribute{
-				Computed:            true,
-				Description:         "CPU the project may reserve in each region it runs in, as in force now: its own setting, or else the standard allowance.",
-				MarkdownDescription: "CPU the project may reserve in each region it runs in, as in force now: its own setting, or else the standard allowance.",
-			},
-			"effectivequotarequestmemory": schema.StringAttribute{
-				Computed:            true,
-				Description:         "Memory the project may reserve in each region it runs in, as in force now: its own setting, or else the standard allowance.",
-				MarkdownDescription: "Memory the project may reserve in each region it runs in, as in force now: its own setting, or else the standard allowance.",
-			},
-			"effectivequotalimitcpu": schema.StringAttribute{
-				Computed:            true,
-				Description:         "CPU ceiling for the project in each region it runs in, as in force now: its own setting, or else the standard allowance.",
-				MarkdownDescription: "CPU ceiling for the project in each region it runs in, as in force now: its own setting, or else the standard allowance.",
-			},
-			"effectivequotalimitmemory": schema.StringAttribute{
-				Computed:            true,
-				Description:         "Memory ceiling for the project in each region it runs in, as in force now: its own setting, or else the standard allowance.",
-				MarkdownDescription: "Memory ceiling for the project in each region it runs in, as in force now: its own setting, or else the standard allowance.",
 			},
 			"quotas": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -134,6 +92,44 @@ func projectSchema() schema.Schema {
 								Computed:            true,
 								Description:         "Memory ceiling for the project in each region it runs in, if set for this project. Null when the project uses the standard allowance.",
 								MarkdownDescription: "Memory ceiling for the project in each region it runs in, if set for this project. Null when the project uses the standard allowance.",
+							},
+						},
+						Optional: true,
+						Computed: true,
+					},
+				},
+				Optional: true,
+				Computed: true,
+			},
+			"effective_quotas": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"request": schema.SingleNestedAttribute{
+						Attributes: map[string]schema.Attribute{
+							"cpu": schema.StringAttribute{
+								Computed:            true,
+								Description:         "CPU the project may reserve in each region it runs in, as in force now: its own setting, or else the standard allowance.",
+								MarkdownDescription: "CPU the project may reserve in each region it runs in, as in force now: its own setting, or else the standard allowance.",
+							},
+							"memory": schema.StringAttribute{
+								Computed:            true,
+								Description:         "Memory the project may reserve in each region it runs in, as in force now: its own setting, or else the standard allowance.",
+								MarkdownDescription: "Memory the project may reserve in each region it runs in, as in force now: its own setting, or else the standard allowance.",
+							},
+						},
+						Optional: true,
+						Computed: true,
+					},
+					"limit": schema.SingleNestedAttribute{
+						Attributes: map[string]schema.Attribute{
+							"cpu": schema.StringAttribute{
+								Computed:            true,
+								Description:         "CPU ceiling for the project in each region it runs in, as in force now: its own setting, or else the standard allowance.",
+								MarkdownDescription: "CPU ceiling for the project in each region it runs in, as in force now: its own setting, or else the standard allowance.",
+							},
+							"memory": schema.StringAttribute{
+								Computed:            true,
+								Description:         "Memory ceiling for the project in each region it runs in, as in force now: its own setting, or else the standard allowance.",
+								MarkdownDescription: "Memory ceiling for the project in each region it runs in, as in force now: its own setting, or else the standard allowance.",
 							},
 						},
 						Optional: true,

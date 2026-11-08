@@ -152,6 +152,10 @@
                 "group": "workload",
                 "cast": "string"
             },
+            "project_name": {
+                "field": "projectname",
+                "cast": "string"
+            },
             "regions": {
                 "field": "activeregions"
             },
@@ -186,6 +190,9 @@
             "security.ip_denylist.ips": {
                 "field": "ipblacklist",
                 "group": "security.ip_denylist"
+            },
+            "restarted_at": {
+                "field": "restartedat"
             },
             "security.basic_auth_enabled": {
                 "field": "basicauthenabled",
@@ -619,8 +626,11 @@
             "hostnames": [],
             "dnsfailoverenabled": false,
             "externalnetworkingenabled": false,
+            "bootstraptime": 30,
             "autoscalingenabled": false,
-            "autoscalingminreplicas": "1",
+            "autoscalingminreplicas": 1,
+            "autoscalingtargetcpu": 100,
+            "autoscalingtargetmemory": 100,
             "newenvvar": [],
             "secretsenvvar": [],
             "ratelimitingenabled": false,
@@ -691,13 +701,21 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
-                "description": "Host alias from which the default hostname in each region is built, such as mamluk-123.helsinki-1.x.on.bahriya.app."
+                "description": "Host alias from which the default hostname in each region is built, such as mamluk-123.helsinki-1.x.on.bahriya.app.",
+                "typeForbidden": [
+                    "worker",
+                    "cronjob"
+                ]
             },
             "vanityhostname": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
-                "description": "Platform-managed hostname that spreads traffic across the regions of the container according to the custom DNS mode. It requires two or more regions."
+                "description": "Platform-managed hostname that spreads traffic across the regions of the container according to the custom DNS mode. It requires two or more regions.",
+                "typeForbidden": [
+                    "worker",
+                    "cronjob"
+                ]
             },
             "hostnames": {
                 "type": "array",
@@ -705,6 +723,10 @@
                 "required": true,
                 "description": "Custom hostnames attached to this container. Up to a configurable maximum (default 5). The first hostname is included; each additional hostname is billed via the extra_custom_hostname SKU.",
                 "default": [],
+                "typeForbidden": [
+                    "worker",
+                    "cronjob"
+                ],
                 "items": {
                     "type": "object",
                     "properties": {
@@ -734,6 +756,10 @@
                     "none",
                     "round-robin",
                     "geo"
+                ],
+                "typeForbidden": [
+                    "worker",
+                    "cronjob"
                 ]
             },
             "dnsttl": {
@@ -752,6 +778,10 @@
                     43200,
                     86400,
                     604800
+                ],
+                "typeForbidden": [
+                    "worker",
+                    "cronjob"
                 ]
             },
             "dnsfailoverenabled": {
@@ -759,76 +789,120 @@
                 "nullable": false,
                 "required": false,
                 "description": "Enable DNS failover for this container.",
-                "default": false
+                "default": false,
+                "typeForbidden": [
+                    "worker",
+                    "cronjob"
+                ]
             },
             "externalnetworkingenabled": {
                 "type": "boolean",
                 "nullable": false,
                 "required": false,
-                "description": "Make this container reachable from the internet at its hostnames. When false, only workloads in the same project can reach it. The console turns this on for new HTTP containers; Reis and Terraform default to false, so leaving it out of a file never publishes a hostname.",
-                "default": false
+                "description": "Make this container reachable from the internet at its hostnames. When false, only workloads in the same project can reach it. It has no default for HTTP containers, so a hostname is published only when a document says so.",
+                "default": false,
+                "typeForbidden": [
+                    "worker",
+                    "cronjob"
+                ],
+                "typeRequired": [
+                    "http"
+                ]
             },
             "containerport": {
-                "type": "string",
+                "type": "integer",
                 "nullable": true,
                 "required": false,
-                "description": "Port the container listens on. Required for HTTP containers, optional for workers."
+                "wire": "string",
+                "description": "Port number the container listens on.",
+                "typeDefaults": {
+                    "http": 8080
+                },
+                "typeForbidden": [
+                    "cronjob"
+                ]
             },
             "healthcheckpath": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
-                "description": "Health check endpoint path. Required for HTTP containers, optional for workers."
+                "description": "Path of the health check endpoint.",
+                "typeDefaults": {
+                    "http": "/healthz"
+                },
+                "typeForbidden": [
+                    "cronjob"
+                ]
             },
             "prometheusport": {
-                "type": "string",
+                "type": "integer",
                 "nullable": true,
                 "required": false,
-                "description": "Port exposing Prometheus metrics. Enables automatic scraping when set. Not applicable to cron jobs."
+                "wire": "string",
+                "description": "Port number exposing Prometheus metrics. Enables automatic scraping when set.",
+                "typeForbidden": [
+                    "cronjob"
+                ]
             },
             "prometheuspath": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
-                "description": "Path to Prometheus metrics endpoint. Defaults to /metrics if not specified. Requires prometheus port to be set."
+                "description": "Path to Prometheus metrics endpoint. Defaults to /metrics if not specified. Requires prometheus port to be set.",
+                "typeForbidden": [
+                    "cronjob"
+                ]
             },
             "bootstraptime": {
                 "type": "integer",
                 "nullable": false,
                 "required": false,
-                "description": "Expected application bootstrap time in seconds. Used to configure startup probe timing."
+                "description": "Expected application start-up time in seconds, used to time the start-up health checks. It is 30 when not set.",
+                "default": 30
             },
             "autoscalingenabled": {
                 "type": "boolean",
                 "nullable": false,
                 "required": true,
                 "description": "Whether the number of replicas scales automatically between the minimum and maximum replicas. Autoscaling cannot be enabled while persistent volumes are attached.",
-                "default": false
+                "default": false,
+                "typeForbidden": [
+                    "cronjob"
+                ]
             },
             "autoscalingminreplicas": {
-                "type": "string",
+                "type": "integer",
                 "nullable": true,
                 "required": true,
+                "wire": "string",
                 "description": "Number of replicas to run, and the minimum number when autoscaling is enabled.",
-                "default": "1"
+                "default": 1
             },
             "autoscalingmaxreplicas": {
-                "type": "string",
+                "type": "integer",
                 "nullable": true,
                 "required": false,
-                "description": "Maximum number of replicas when autoscaling is enabled. Setting it enables autoscaling."
+                "wire": "string",
+                "description": "Maximum number of replicas when autoscaling is enabled. Setting it enables autoscaling.",
+                "typeForbidden": [
+                    "cronjob"
+                ]
             },
             "autoscalingtargetcpu": {
-                "type": "string",
+                "type": "integer",
                 "nullable": true,
                 "required": false,
-                "description": "Average CPU utilisation that autoscaling aims to keep, as a percentage of the requested CPU."
+                "wire": "string",
+                "description": "Average CPU utilisation that autoscaling aims to keep, as a percentage of the requested CPU. It is 100 when not set.",
+                "default": 100
             },
             "autoscalingtargetmemory": {
-                "type": "string",
+                "type": "integer",
                 "nullable": true,
                 "required": false,
-                "description": "Average memory utilisation that autoscaling aims to keep, as a percentage of the requested memory."
+                "wire": "string",
+                "description": "Average memory utilisation that autoscaling aims to keep, as a percentage of the requested memory. It is 100 when not set.",
+                "default": 100
             },
             "newenvvar": {
                 "type": "array",
@@ -879,30 +953,34 @@
                 }
             },
             "mincpu": {
-                "type": "string",
+                "type": "integer",
                 "nullable": false,
                 "required": true,
+                "wire": "string",
                 "description": "CPU requested for each replica, in millicores (1000 millicores is one vCPU)."
             },
             "maxcpu": {
-                "type": "string",
+                "type": "integer",
                 "nullable": false,
                 "required": false,
-                "description": "Server-computed: request x limit_multiplier (config). Not accepted from clients.",
+                "wire": "string",
+                "description": "The most CPU each replica may use, in millicores, set by Bahriya from the requested CPU. It cannot be set.",
                 "readOnly": true,
                 "volatile": true
             },
             "minmemory": {
-                "type": "string",
+                "type": "integer",
                 "nullable": false,
                 "required": true,
+                "wire": "string",
                 "description": "Memory requested for each replica, in MiB."
             },
             "maxmemory": {
-                "type": "string",
+                "type": "integer",
                 "nullable": false,
                 "required": false,
-                "description": "Server-computed: request x limit_multiplier (config). Not accepted from clients.",
+                "wire": "string",
+                "description": "The most memory each replica may use, in MiB, set by Bahriya from the requested memory. It cannot be set.",
                 "readOnly": true,
                 "volatile": true
             },
@@ -941,6 +1019,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the container was created (UTC).",
                 "readOnly": true
             },
@@ -948,6 +1027,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the container was last changed (UTC).",
                 "readOnly": true,
                 "volatile": true
@@ -972,19 +1052,31 @@
                 "nullable": false,
                 "required": false,
                 "description": "Whether requests to the container are rate limited per client IP address.",
-                "default": false
+                "default": false,
+                "typeForbidden": [
+                    "worker",
+                    "cronjob"
+                ]
             },
             "ratelimitingrequestsperminute": {
                 "type": "integer",
                 "nullable": true,
                 "required": false,
-                "description": "Max requests per minute per IP (requires ratelimitingenabled)."
+                "description": "Max requests per minute per IP (requires ratelimitingenabled).",
+                "typeForbidden": [
+                    "worker",
+                    "cronjob"
+                ]
             },
             "ratelimitingrequestsperhour": {
                 "type": "integer",
                 "nullable": true,
                 "required": false,
-                "description": "Max requests per hour per IP (requires ratelimitingenabled)."
+                "description": "Max requests per hour per IP (requires ratelimitingenabled).",
+                "typeForbidden": [
+                    "worker",
+                    "cronjob"
+                ]
             },
             "ratelimitingrequestspersecond": {
                 "type": "integer",
@@ -997,13 +1089,21 @@
                 "nullable": false,
                 "required": false,
                 "description": "Enable IP allow-list. Only IPs in the list can access the container.",
-                "default": false
+                "default": false,
+                "typeForbidden": [
+                    "worker",
+                    "cronjob"
+                ]
             },
             "ipwhitelist": {
                 "type": "array",
                 "nullable": true,
                 "required": false,
                 "description": "IP addresses and CIDR ranges allowed to reach the container when the allow-list is enabled.",
+                "typeForbidden": [
+                    "worker",
+                    "cronjob"
+                ],
                 "items": {
                     "type": "string"
                 }
@@ -1013,13 +1113,21 @@
                 "nullable": false,
                 "required": false,
                 "description": "Enable IP deny-list. IPs in the list are blocked.",
-                "default": false
+                "default": false,
+                "typeForbidden": [
+                    "worker",
+                    "cronjob"
+                ]
             },
             "ipblacklist": {
                 "type": "array",
                 "nullable": true,
                 "required": false,
                 "description": "IP addresses and CIDR ranges blocked from reaching the container when the deny-list is enabled.",
+                "typeForbidden": [
+                    "worker",
+                    "cronjob"
+                ],
                 "items": {
                     "type": "string"
                 }
@@ -1040,6 +1148,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the container was last restarted on request (UTC). Null if it has never been restarted.",
                 "readOnly": true
             },
@@ -1048,13 +1157,21 @@
                 "nullable": false,
                 "required": false,
                 "description": "Whether requests to the container require HTTP basic authentication. Available on HTTP containers only.",
-                "default": false
+                "default": false,
+                "typeForbidden": [
+                    "worker",
+                    "cronjob"
+                ]
             },
             "basicauthcredentials": {
                 "type": "array",
                 "nullable": true,
                 "required": false,
                 "description": "Up to 10 basic auth credentials (username/password). Passwords are AES-encrypted at rest and never returned in plaintext; send the masked sentinel to preserve an existing password.",
+                "typeForbidden": [
+                    "worker",
+                    "cronjob"
+                ],
                 "items": {
                     "type": "object",
                     "properties": {
@@ -1328,6 +1445,10 @@
                 "required": false,
                 "description": "Init jobs that run to completion before the main container starts. HTTP containers only. Up to a configurable maximum (default 3). Init jobs run within the main container's reserved CPU and memory and are not billed separately.",
                 "default": [],
+                "typeForbidden": [
+                    "worker",
+                    "cronjob"
+                ],
                 "items": {
                     "type": "object",
                     "properties": {
@@ -1437,16 +1558,18 @@
                             }
                         },
                         "mincpu": {
-                            "type": "string",
+                            "type": "integer",
                             "nullable": true,
                             "required": false,
-                            "description": "Optional CPU request override (millicores). Cannot exceed the parent container's `mincpu` \u2014 init jobs share the main container's reserved capacity and are not billed separately. Leave blank to inherit. The UI no longer exposes this knob; kept for Terraform / Reis CLI users who already wire it."
+                            "wire": "string",
+                            "description": "CPU for the init job, in millicores (1000 millicores is one vCPU). It cannot exceed the container's requested CPU; init jobs use the container's reserved capacity and are not billed separately. When not set, the init job uses the container's CPU."
                         },
                         "minmemory": {
-                            "type": "string",
+                            "type": "integer",
                             "nullable": true,
                             "required": false,
-                            "description": "Optional memory request override (MB). Cannot exceed the parent container's `minmemory` \u2014 init jobs share the main container's reserved capacity and are not billed separately. Leave blank to inherit. The UI no longer exposes this knob; kept for Terraform / Reis CLI users who already wire it."
+                            "wire": "string",
+                            "description": "Memory for the init job, in MiB. It cannot exceed the container's requested memory; init jobs use the container's reserved capacity and are not billed separately. When not set, the init job uses the container's memory."
                         }
                     }
                 },
@@ -1703,7 +1826,8 @@
                 ],
                 "default": "http"
             }
-        }
+        },
+        "typeDiscriminator": "type"
     },
     "memcached": {
         "aliases": {
@@ -1732,6 +1856,18 @@
             },
             "network_policies": {
                 "field": "networkpolicies"
+            },
+            "project_name": {
+                "field": "projectname",
+                "cast": "string"
+            },
+            "managed_by_container": {
+                "field": "managedbycontainer",
+                "cast": "string"
+            },
+            "managed_by_container_name": {
+                "field": "managedbycontainername",
+                "cast": "string"
             }
         },
         "readOnly": [
@@ -1855,6 +1991,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the Memcached instance was created (UTC).",
                 "readOnly": true
             },
@@ -1862,6 +1999,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the Memcached instance was last changed (UTC).",
                 "readOnly": true,
                 "volatile": true
@@ -1886,14 +2024,14 @@
                 "type": "string",
                 "nullable": true,
                 "required": false,
-                "description": "When set, this memcached instance is managed by the named container (proxy cache feature) and cannot be modified directly.",
+                "description": "Identifier (UUID) of the container whose response cache this Memcached instance is. Such an instance is managed by that container and cannot be changed directly.",
                 "readOnly": true
             },
             "managedbycontainername": {
                 "type": "string",
                 "nullable": true,
                 "required": false,
-                "description": "The name of the container in managedbycontainer, so a client can show it without a second lookup.",
+                "description": "Name of the container in managed_by_container.",
                 "readOnly": true
             }
         }
@@ -1984,6 +2122,10 @@
             "networking.network_policies": {
                 "field": "networkpolicies",
                 "group": "networking"
+            },
+            "project_name": {
+                "field": "projectname",
+                "cast": "string"
             },
             "auth_secret": {
                 "field": "authsecret",
@@ -2267,6 +2409,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the Valkey instance was created (UTC).",
                 "readOnly": true
             },
@@ -2274,6 +2417,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the Valkey instance was last changed (UTC).",
                 "readOnly": true,
                 "volatile": true
@@ -2397,8 +2541,53 @@
                 "field": "networkpolicies",
                 "group": "networking"
             },
-            "restoretargets": {
+            "project_name": {
+                "field": "projectname",
+                "cast": "string"
+            },
+            "restore.source": {
+                "field": "restoreof",
+                "group": "restore",
+                "cast": "string"
+            },
+            "restore.source_handle": {
+                "field": "restoreofhandle",
+                "group": "restore",
+                "cast": "string"
+            },
+            "restore.kind": {
+                "field": "restorekind",
+                "group": "restore",
+                "cast": "string"
+            },
+            "restore.target_at": {
+                "field": "restoretargetat",
+                "group": "restore",
+                "cast": "string"
+            },
+            "restore.database": {
+                "field": "restoredatabase",
+                "group": "restore",
+                "cast": "string"
+            },
+            "restore.status": {
+                "field": "restorestatus",
+                "group": "restore",
+                "cast": "string"
+            },
+            "restore.finished_at": {
+                "field": "restorefinishedat",
+                "group": "restore",
+                "cast": "string"
+            },
+            "restore.error": {
+                "field": "restoreerror",
+                "group": "restore",
+                "cast": "string"
+            },
+            "restore.targets": {
                 "field": "restoretargets",
+                "group": "restore",
                 "item": {
                     "id": {
                         "field": "id",
@@ -2416,11 +2605,11 @@
                         "field": "status",
                         "cast": "string"
                     },
-                    "instancestatus": {
+                    "instance_status": {
                         "field": "instancestatus",
                         "cast": "string"
                     },
-                    "targetat": {
+                    "target_at": {
                         "field": "targetat",
                         "cast": "string"
                     }
@@ -2494,7 +2683,8 @@
             "security",
             "exposure",
             "client",
-            "networking"
+            "networking",
+            "restore"
         ],
         "defaults": {
             "tlsenabled": false,
@@ -2690,9 +2880,10 @@
                 "description": "The phpMyAdmin client's time limit in hours. The client is switched off automatically when it is reached. Defaults to 24 when the client is enabled without one."
             },
             "clientexpiresat": {
-                "type": "string",
+                "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the phpMyAdmin client's time limit runs out (UTC). Null while the client is off. Set again each time the client is switched on or its time limit changes.",
                 "readOnly": true,
                 "volatile": true
@@ -2756,6 +2947,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the MySQL instance was created (UTC).",
                 "readOnly": true
             },
@@ -2763,6 +2955,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the MySQL instance was last changed (UTC).",
                 "readOnly": true,
                 "volatile": true
@@ -2809,9 +3002,10 @@
                 "readOnly": true
             },
             "restoretargetat": {
-                "type": "string",
+                "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "Set on a restore target: the UTC instant its data was restored to.",
                 "readOnly": true
             },
@@ -2837,9 +3031,10 @@
                 "volatile": true
             },
             "restorefinishedat": {
-                "type": "string",
+                "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "Set on a restore target: when the restore completed or failed.",
                 "readOnly": true,
                 "volatile": true
@@ -2977,16 +3172,18 @@
                 "volatile": true
             },
             "keyrotationrequestedat": {
-                "type": "string",
+                "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the latest master-key rotation was requested.",
                 "readOnly": true
             },
             "keyrotationfinishedat": {
-                "type": "string",
+                "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the latest master-key rotation finished.",
                 "readOnly": true,
                 "volatile": true
@@ -3018,6 +3215,26 @@
                 "group": "quotas.limit",
                 "displayReadonly": true,
                 "cast": "string"
+            },
+            "effective_quotas.request.cpu": {
+                "field": "effectivequotarequestcpu",
+                "group": "effective_quotas.request",
+                "cast": "string"
+            },
+            "effective_quotas.request.memory": {
+                "field": "effectivequotarequestmemory",
+                "group": "effective_quotas.request",
+                "cast": "string"
+            },
+            "effective_quotas.limit.cpu": {
+                "field": "effectivequotalimitcpu",
+                "group": "effective_quotas.limit",
+                "cast": "string"
+            },
+            "effective_quotas.limit.memory": {
+                "field": "effectivequotalimitmemory",
+                "group": "effective_quotas.limit",
+                "cast": "string"
             }
         },
         "readOnly": [
@@ -3038,7 +3255,8 @@
             "quotalimitmemory"
         ],
         "groupOrder": [
-            "quotas"
+            "quotas",
+            "effective_quotas"
         ],
         "defaults": {
             "users": []
@@ -3126,6 +3344,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the project was created (UTC).",
                 "readOnly": true
             },
@@ -3133,6 +3352,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the project was last changed (UTC).",
                 "readOnly": true,
                 "volatile": true
@@ -3398,6 +3618,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the path rule was created (UTC).",
                 "readOnly": true
             },
@@ -3405,6 +3626,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the path rule was last changed (UTC).",
                 "readOnly": true,
                 "volatile": true
@@ -3413,6 +3635,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the path rule was removed from its container (UTC). Null while it is in effect.",
                 "readOnly": true
             }
@@ -3425,8 +3648,19 @@
                 "field": "managedbyresourceid",
                 "cast": "string"
             },
+            "managed_by_type": {
+                "field": "managedbyresourcetype",
+                "cast": "string"
+            },
+            "current_version_id": {
+                "field": "currentversionid",
+                "cast": "string"
+            },
             "max_versions": {
                 "field": "maxversions"
+            },
+            "current_version": {
+                "field": "currentversion"
             },
             "version_count": {
                 "field": "versioncount"
@@ -3532,6 +3766,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the registry was created (UTC).",
                 "readOnly": true
             },
@@ -3539,6 +3774,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the registry was last changed (UTC).",
                 "readOnly": true,
                 "volatile": true
@@ -3563,6 +3799,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the version in use was written (UTC). Null until the registry has been rotated at least once. After a rollback, the date of the version rolled back to.",
                 "readOnly": true,
                 "volatile": true
@@ -3575,8 +3812,15 @@
                 "field": "managedbyresourceid",
                 "cast": "string"
             },
+            "managed_by_type": {
+                "field": "managedbyresourcetype",
+                "cast": "string"
+            },
             "max_versions": {
                 "field": "maxversions"
+            },
+            "current_version": {
+                "field": "currentversion"
             },
             "version_count": {
                 "field": "versioncount"
@@ -3661,6 +3905,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the secret was created (UTC).",
                 "readOnly": true
             },
@@ -3668,6 +3913,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the secret was last changed (UTC).",
                 "readOnly": true,
                 "volatile": true
@@ -3692,6 +3938,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the version in use was written (UTC). Null until the secret has been rotated at least once. After a rollback, the date of the version rolled back to.",
                 "readOnly": true,
                 "volatile": true
@@ -3703,6 +3950,13 @@
             "managed_by": {
                 "field": "managedbyresourceid",
                 "cast": "string"
+            },
+            "managed_by_type": {
+                "field": "managedbyresourcetype",
+                "cast": "string"
+            },
+            "current_version": {
+                "field": "currentversion"
             },
             "max_versions": {
                 "field": "maxversions"
@@ -3864,6 +4118,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "Start of the server certificate validity period (UTC).",
                 "readOnly": true,
                 "volatile": true
@@ -3872,6 +4127,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the server certificate expires (UTC).",
                 "readOnly": true,
                 "volatile": true
@@ -3896,6 +4152,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the TLS bundle was created (UTC).",
                 "readOnly": true
             },
@@ -3903,6 +4160,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the TLS bundle was last changed (UTC).",
                 "readOnly": true,
                 "volatile": true
@@ -3919,6 +4177,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the version in use was written (UTC). Null until the TLS bundle has been rotated at least once. After a rollback, the date of the version rolled back to.",
                 "readOnly": true,
                 "volatile": true
@@ -3930,6 +4189,13 @@
             "managed_by": {
                 "field": "managedbyresourceid",
                 "cast": "string"
+            },
+            "managed_by_type": {
+                "field": "managedbyresourcetype",
+                "cast": "string"
+            },
+            "current_version": {
+                "field": "currentversion"
             },
             "max_versions": {
                 "field": "maxversions"
@@ -4069,6 +4335,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "Start of the certificate validity period (UTC).",
                 "readOnly": true,
                 "volatile": true
@@ -4077,6 +4344,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the certificate expires (UTC).",
                 "readOnly": true,
                 "volatile": true
@@ -4093,6 +4361,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the X.509 certificate was created (UTC).",
                 "readOnly": true
             },
@@ -4100,6 +4369,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the X.509 certificate was last changed (UTC).",
                 "readOnly": true,
                 "volatile": true
@@ -4116,6 +4386,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the version in use was written (UTC). Null until the X.509 certificate has been rotated at least once. After a rollback, the date of the version rolled back to.",
                 "readOnly": true,
                 "volatile": true
@@ -4135,6 +4406,13 @@
             "managed_by": {
                 "field": "managedbyresourceid",
                 "cast": "string"
+            },
+            "managed_by_type": {
+                "field": "managedbyresourcetype",
+                "cast": "string"
+            },
+            "current_version": {
+                "field": "currentversion"
             },
             "max_versions": {
                 "field": "maxversions"
@@ -4300,6 +4578,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the key was created, as recorded in the key itself (UTC).",
                 "readOnly": true,
                 "volatile": true
@@ -4308,6 +4587,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the key expires (UTC). Null when the key does not expire.",
                 "readOnly": true,
                 "volatile": true
@@ -4316,6 +4596,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the GPG keypair was created (UTC).",
                 "readOnly": true
             },
@@ -4323,6 +4604,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the GPG keypair was last changed (UTC).",
                 "readOnly": true,
                 "volatile": true
@@ -4339,6 +4621,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the version in use was written (UTC). Null until the GPG keypair has been rotated at least once. After a rollback, the date of the version rolled back to.",
                 "readOnly": true,
                 "volatile": true
@@ -4358,6 +4641,13 @@
             "managed_by": {
                 "field": "managedbyresourceid",
                 "cast": "string"
+            },
+            "managed_by_type": {
+                "field": "managedbyresourcetype",
+                "cast": "string"
+            },
+            "current_version": {
+                "field": "currentversion"
             },
             "max_versions": {
                 "field": "maxversions"
@@ -4515,6 +4805,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the SSH keypair was created (UTC).",
                 "readOnly": true
             },
@@ -4522,6 +4813,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the SSH keypair was last changed (UTC).",
                 "readOnly": true,
                 "volatile": true
@@ -4538,6 +4830,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the version in use was written (UTC). Null until the SSH keypair has been rotated at least once. After a rollback, the date of the version rolled back to.",
                 "readOnly": true,
                 "volatile": true
@@ -4553,6 +4846,13 @@
             "managed_by": {
                 "field": "managedbyresourceid",
                 "cast": "string"
+            },
+            "managed_by_type": {
+                "field": "managedbyresourcetype",
+                "cast": "string"
+            },
+            "current_version": {
+                "field": "currentversion"
             },
             "max_versions": {
                 "field": "maxversions"
@@ -4677,6 +4977,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the encryption key was created (UTC).",
                 "readOnly": true
             },
@@ -4684,6 +4985,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the encryption key was last changed (UTC).",
                 "readOnly": true,
                 "volatile": true
@@ -4700,6 +5002,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the version in use was written (UTC). Null until the encryption key has been rotated at least once. After a rollback, the date of the version rolled back to.",
                 "readOnly": true,
                 "volatile": true
@@ -4715,6 +5018,13 @@
             "managed_by": {
                 "field": "managedbyresourceid",
                 "cast": "string"
+            },
+            "managed_by_type": {
+                "field": "managedbyresourcetype",
+                "cast": "string"
+            },
+            "current_version": {
+                "field": "currentversion"
             },
             "max_versions": {
                 "field": "maxversions"
@@ -4831,6 +5141,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the env file was created (UTC).",
                 "readOnly": true
             },
@@ -4838,6 +5149,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the env file was last changed (UTC).",
                 "readOnly": true,
                 "volatile": true
@@ -4854,6 +5166,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the version in use was written (UTC). Null until the env file has been rotated at least once. After a rollback, the date of the version rolled back to.",
                 "readOnly": true,
                 "volatile": true
@@ -4869,6 +5182,13 @@
             "managed_by": {
                 "field": "managedbyresourceid",
                 "cast": "string"
+            },
+            "managed_by_type": {
+                "field": "managedbyresourcetype",
+                "cast": "string"
+            },
+            "current_version": {
+                "field": "currentversion"
             },
             "max_versions": {
                 "field": "maxversions"
@@ -4972,6 +5292,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the YAML config was created (UTC).",
                 "readOnly": true
             },
@@ -4979,6 +5300,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the YAML config was last changed (UTC).",
                 "readOnly": true,
                 "volatile": true
@@ -4995,6 +5317,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the version in use was written (UTC). Null until the YAML config has been rotated at least once. After a rollback, the date of the version rolled back to.",
                 "readOnly": true,
                 "volatile": true
@@ -5010,6 +5333,13 @@
             "managed_by": {
                 "field": "managedbyresourceid",
                 "cast": "string"
+            },
+            "managed_by_type": {
+                "field": "managedbyresourcetype",
+                "cast": "string"
+            },
+            "current_version": {
+                "field": "currentversion"
             },
             "max_versions": {
                 "field": "maxversions"
@@ -5113,6 +5443,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the JSON config was created (UTC).",
                 "readOnly": true
             },
@@ -5120,6 +5451,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the JSON config was last changed (UTC).",
                 "readOnly": true,
                 "volatile": true
@@ -5136,6 +5468,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the version in use was written (UTC). Null until the JSON config has been rotated at least once. After a rollback, the date of the version rolled back to.",
                 "readOnly": true,
                 "volatile": true
@@ -5147,6 +5480,13 @@
             "managed_by": {
                 "field": "managedbyresourceid",
                 "cast": "string"
+            },
+            "managed_by_type": {
+                "field": "managedbyresourcetype",
+                "cast": "string"
+            },
+            "current_version": {
+                "field": "currentversion"
             },
             "max_versions": {
                 "field": "maxversions"
@@ -5262,6 +5602,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the plain config was created (UTC).",
                 "readOnly": true
             },
@@ -5269,6 +5610,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the plain config was last changed (UTC).",
                 "readOnly": true,
                 "volatile": true
@@ -5285,6 +5627,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the version in use was written (UTC). Null until the plain config has been rotated at least once. After a rollback, the date of the version rolled back to.",
                 "readOnly": true,
                 "volatile": true
@@ -5316,6 +5659,10 @@
             },
             "managed_by": {
                 "field": "managedbyresourceid",
+                "cast": "string"
+            },
+            "managed_by_type": {
+                "field": "managedbyresourcetype",
                 "cast": "string"
             },
             "enable_l7": {
@@ -5441,6 +5788,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the network policy was created (UTC).",
                 "readOnly": true
             },
@@ -5448,6 +5796,7 @@
                 "type": "timestamp",
                 "nullable": true,
                 "required": false,
+                "format": "date-time",
                 "description": "When the network policy was last changed (UTC).",
                 "readOnly": true,
                 "volatile": true
@@ -5462,6 +5811,10 @@
     },
     "billing_details": {
         "aliases": {
+            "organisation_id": {
+                "field": "organisationid",
+                "cast": "string"
+            },
             "legal_name": {
                 "field": "legalname",
                 "cast": "string"

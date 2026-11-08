@@ -38,46 +38,17 @@ resource "bahriya_encryption_key" "tokens" {
 ### Read-Only
 
 - `billable` (Boolean) Whether the encryption key is billed to the organisation.
-- `created` (Attributes) When the encryption key was created (UTC). (see [below for nested schema](#nestedatt--created))
-- `currentversion` (Number) Number of the version in use.
+- `created` (String) When the encryption key was created (UTC).
+- `current_version` (Number) Number of the version in use.
 - `id` (String) Unique identifier (UUID) of the encryption key, assigned by the platform.
 - `key_bits` (Number) Size of the decoded key, in bits.
 - `managed_by` (String) Identifier (UUID) of the platform resource that manages this encryption key, such as a MySQL instance. Null when the organisation manages it.
-- `managedbyresourcetype` (String) Type of the platform resource that manages this encryption key, such as mysql. Null when the organisation manages it. A managed encryption key can be changed only by that resource.
+- `managed_by_type` (String) Type of the platform resource that manages this encryption key, such as mysql. Null when the organisation manages it. A managed encryption key can be changed only by that resource.
 - `max_versions` (Number) Number of versions kept. When there are more, the oldest are deleted; the version in use is never deleted. It is 5 by default and cannot be set through this API.
 - `organisation` (String) Identifier (UUID) of the organisation that owns the encryption key.
-- `rotated_at` (Attributes) When the version in use was written (UTC). Null until the encryption key has been rotated at least once. After a rollback, the date of the version rolled back to. (see [below for nested schema](#nestedatt--rotated_at))
-- `updated` (Attributes) When the encryption key was last changed (UTC). (see [below for nested schema](#nestedatt--updated))
+- `rotated_at` (String) When the version in use was written (UTC). Null until the encryption key has been rotated at least once. After a rollback, the date of the version rolled back to.
+- `updated` (String) When the encryption key was last changed (UTC).
 - `version_count` (Number) Number of stored versions, including the version in use.
-
-<a id="nestedatt--created"></a>
-### Nested Schema for `created`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
-
-
-<a id="nestedatt--rotated_at"></a>
-### Nested Schema for `rotated_at`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
-
-
-<a id="nestedatt--updated"></a>
-### Nested Schema for `updated`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
 
 ## Import
 

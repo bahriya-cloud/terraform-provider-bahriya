@@ -61,7 +61,7 @@ func tlsBundleSchema() schema.Schema {
 				Description:         "Identifier (UUID) of the platform resource that manages this TLS bundle, such as a MySQL instance. Null when the organisation manages it.",
 				MarkdownDescription: "Identifier (UUID) of the platform resource that manages this TLS bundle, such as a MySQL instance. Null when the organisation manages it.",
 			},
-			"managedbyresourcetype": schema.StringAttribute{
+			"managed_by_type": schema.StringAttribute{
 				Computed:            true,
 				Description:         "Type of the platform resource that manages this TLS bundle, such as mysql. Null when the organisation manages it. A managed TLS bundle can be changed only by that resource.",
 				MarkdownDescription: "Type of the platform resource that manages this TLS bundle, such as mysql. Null when the organisation manages it. A managed TLS bundle can be changed only by that resource.",
@@ -71,7 +71,7 @@ func tlsBundleSchema() schema.Schema {
 				Description:         "Whether the TLS bundle is billed to the organisation.",
 				MarkdownDescription: "Whether the TLS bundle is billed to the organisation.",
 			},
-			"currentversion": schema.Int64Attribute{
+			"current_version": schema.Int64Attribute{
 				Computed:            true,
 				Description:         "Number of the version in use.",
 				MarkdownDescription: "Number of the version in use.",
@@ -96,34 +96,12 @@ func tlsBundleSchema() schema.Schema {
 				Description:         "Distinguished name of the authority that issued the server certificate.",
 				MarkdownDescription: "Distinguished name of the authority that issued the server certificate.",
 			},
-			"not_before": schema.SingleNestedAttribute{
-				Attributes: map[string]schema.Attribute{
-					"date": schema.StringAttribute{
-						Computed: true,
-					},
-					"timezonetype": schema.Int64Attribute{
-						Computed: true,
-					},
-					"timezone": schema.StringAttribute{
-						Computed: true,
-					},
-				},
+			"not_before": schema.StringAttribute{
 				Computed:            true,
 				Description:         "Start of the server certificate validity period (UTC).",
 				MarkdownDescription: "Start of the server certificate validity period (UTC).",
 			},
-			"expires": schema.SingleNestedAttribute{
-				Attributes: map[string]schema.Attribute{
-					"date": schema.StringAttribute{
-						Computed: true,
-					},
-					"timezonetype": schema.Int64Attribute{
-						Computed: true,
-					},
-					"timezone": schema.StringAttribute{
-						Computed: true,
-					},
-				},
+			"expires": schema.StringAttribute{
 				Computed:            true,
 				Description:         "When the server certificate expires (UTC).",
 				MarkdownDescription: "When the server certificate expires (UTC).",
@@ -138,34 +116,12 @@ func tlsBundleSchema() schema.Schema {
 				Description:         "Size of the private key, in bits.",
 				MarkdownDescription: "Size of the private key, in bits.",
 			},
-			"created": schema.SingleNestedAttribute{
-				Attributes: map[string]schema.Attribute{
-					"date": schema.StringAttribute{
-						Computed: true,
-					},
-					"timezonetype": schema.Int64Attribute{
-						Computed: true,
-					},
-					"timezone": schema.StringAttribute{
-						Computed: true,
-					},
-				},
+			"created": schema.StringAttribute{
 				Computed:            true,
 				Description:         "When the TLS bundle was created (UTC).",
 				MarkdownDescription: "When the TLS bundle was created (UTC).",
 			},
-			"updated": schema.SingleNestedAttribute{
-				Attributes: map[string]schema.Attribute{
-					"date": schema.StringAttribute{
-						Computed: true,
-					},
-					"timezonetype": schema.Int64Attribute{
-						Computed: true,
-					},
-					"timezone": schema.StringAttribute{
-						Computed: true,
-					},
-				},
+			"updated": schema.StringAttribute{
 				Computed:            true,
 				Description:         "When the TLS bundle was last changed (UTC).",
 				MarkdownDescription: "When the TLS bundle was last changed (UTC).",
@@ -175,18 +131,7 @@ func tlsBundleSchema() schema.Schema {
 				Description:         "Number of stored versions, including the version in use.",
 				MarkdownDescription: "Number of stored versions, including the version in use.",
 			},
-			"rotated_at": schema.SingleNestedAttribute{
-				Attributes: map[string]schema.Attribute{
-					"date": schema.StringAttribute{
-						Computed: true,
-					},
-					"timezonetype": schema.Int64Attribute{
-						Computed: true,
-					},
-					"timezone": schema.StringAttribute{
-						Computed: true,
-					},
-				},
+			"rotated_at": schema.StringAttribute{
 				Computed:            true,
 				Description:         "When the version in use was written (UTC). Null until the TLS bundle has been rotated at least once. After a rollback, the date of the version rolled back to.",
 				MarkdownDescription: "When the version in use was written (UTC). Null until the TLS bundle has been rotated at least once. After a rollback, the date of the version rolled back to.",

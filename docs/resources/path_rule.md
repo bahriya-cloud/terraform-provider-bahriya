@@ -35,13 +35,17 @@ resource "bahriya_container" "api" {
 
   workload = {
     image  = "ghcr.io/myorg/api:1.2.3"
-    port   = "3000"
-    cpu    = "250"
-    memory = "256"
+    port   = 3000
+    cpu    = 250
+    memory = 256
   }
 
   scaling = {
-    replicas = "1"
+    replicas = 1
+  }
+
+  networking = {
+    external = true
   }
 }
 
@@ -79,13 +83,17 @@ resource "bahriya_container" "api" {
 
   workload = {
     image  = "ghcr.io/myorg/api:1.2.3"
-    port   = "3000"
-    cpu    = "250"
-    memory = "256"
+    port   = 3000
+    cpu    = 250
+    memory = 256
   }
 
   scaling = {
-    replicas = "1"
+    replicas = 1
+  }
+
+  networking = {
+    external = true
   }
 }
 
@@ -126,13 +134,17 @@ resource "bahriya_container" "api" {
 
   workload = {
     image  = "ghcr.io/myorg/api:1.2.3"
-    port   = "3000"
-    cpu    = "250"
-    memory = "256"
+    port   = 3000
+    cpu    = 250
+    memory = 256
   }
 
   scaling = {
-    replicas = "1"
+    replicas = 1
+  }
+
+  networking = {
+    external = true
   }
 }
 
@@ -175,11 +187,11 @@ resource "bahriya_path_rule" "internal" {
 
 ### Read-Only
 
-- `created` (Attributes) When the path rule was created (UTC). (see [below for nested schema](#nestedatt--created))
+- `created` (String) When the path rule was created (UTC).
 - `created_by` (String) Identifier (UUID) of the user who created the path rule. Null if that user no longer exists.
 - `id` (String) Unique identifier (UUID) of the path rule, assigned by the platform.
-- `removed` (Attributes) When the path rule was removed from its container (UTC). Null while it is in effect. (see [below for nested schema](#nestedatt--removed))
-- `updated` (Attributes) When the path rule was last changed (UTC). (see [below for nested schema](#nestedatt--updated))
+- `removed` (String) When the path rule was removed from its container (UTC). Null while it is in effect.
+- `updated` (String) When the path rule was last changed (UTC).
 - `updated_by` (String) Identifier (UUID) of the user who last changed the path rule.
 
 <a id="nestedatt--security"></a>
@@ -229,37 +241,6 @@ Optional:
 - `per_hour` (Number) Max requests per hour per IP (requires ratelimitingenabled).
 - `per_minute` (Number) Max requests per minute per IP (requires ratelimitingenabled).
 - `per_second` (Number) Max requests per second per IP (requires ratelimitingenabled).
-
-
-
-<a id="nestedatt--created"></a>
-### Nested Schema for `created`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
-
-
-<a id="nestedatt--removed"></a>
-### Nested Schema for `removed`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
-
-
-<a id="nestedatt--updated"></a>
-### Nested Schema for `updated`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
 
 ## Import
 

@@ -134,16 +134,42 @@ func fieldDefault(k *bmap.Kind, f *bmap.Field) (any, bool) {
 	return nil, false
 }
 
-// describe is the attribute description: the spec's, plus the default.
+// describe is the attribute description: the spec's, plus its defaults and
+// the type rules (R9, R19), so the docs say what a plan will check.
 func describe(k *bmap.Kind, f *bmap.Field) string {
 	text := strings.TrimSpace(f.Desc.Description)
-	if def, ok := fieldDefault(k, f); ok && def != nil && !isEmptyCollection(def) {
+	add := func(s string) {
 		if text != "" && !strings.HasSuffix(text, ".") {
 			text += "."
 		}
-		text = strings.TrimSpace(text + " Defaults to `" + bmap.Encode(def) + "`.")
+		text = strings.TrimSpace(text + " " + s)
+	}
+	required := sortedTypes(f.Desc.TypeRequired)
+	if len(required) > 0 {
+		add("Required for " + strings.Join(required, " and ") + " containers.")
+	}
+	if f.Desc.TypeDefaults.Len() > 0 {
+		for _, typ := range f.Desc.TypeDefaults.Keys() {
+			v, _ := f.Desc.TypeDefaults.Get(typ)
+			add("Defaults to `" + bmap.Encode(v) + "` for " + typ + " containers.")
+		}
+	} else if def, ok := fieldDefault(k, f); ok && def != nil && !isEmptyCollection(def) && len(required) == 0 {
+		add("Defaults to `" + bmap.Encode(def) + "`.")
+	}
+	if forbidden := sortedTypes(f.Desc.TypeForbidden); len(forbidden) > 0 {
+		add("Not allowed on " + strings.Join(forbidden, " or ") + " containers.")
 	}
 	return text
+}
+
+// sortedTypes lists a type set in a stable order.
+func sortedTypes(set map[string]bool) []string {
+	out := make([]string, 0, len(set))
+	for t := range set {
+		out = append(out, t)
+	}
+	sort.Strings(out)
+	return out
 }
 
 func isEmptyCollection(v any) bool {
@@ -180,9 +206,15 @@ func leaf(k *bmap.Kind, name string, f *bmap.Field, readOnly bool) (*Attr, error
 	}
 	switch d.Type {
 	case "timestamp":
-		// The API's TimeResponse, kept as-is in state mode (the state-mode
-		// fixtures hold this object). Timestamps are always read-only.
-		a.Type, a.Required, a.Optional, a.Computed, a.Sensitive = "object", false, false, true, false
+		// Timestamps are always read-only. With `format: date-time` they are
+		// RFC 3339 strings in UTC (R20); a schema from before the rule keeps the
+		// API's TimeResponse object, as its state-mode fixtures hold it.
+		a.Required, a.Optional, a.Computed, a.Sensitive = false, false, true, false
+		if d.Format == "date-time" {
+			a.Type = "string"
+			break
+		}
+		a.Type = "object"
 		a.Children = []*Attr{
 			{Name: "date", Type: "string", Computed: true},
 			{Name: "timezonetype", Type: "int64", Computed: true},

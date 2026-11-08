@@ -74,7 +74,7 @@ func valkeySchema() schema.Schema {
 				Description:         "Identifier (UUID) of the project the Valkey instance belongs to. Set when the instance is created and cannot be changed.",
 				MarkdownDescription: "Identifier (UUID) of the project the Valkey instance belongs to. Set when the instance is created and cannot be changed.",
 			},
-			"projectname": schema.StringAttribute{
+			"project_name": schema.StringAttribute{
 				Computed:            true,
 				Description:         "Name of the project the Valkey instance belongs to.",
 				MarkdownDescription: "Name of the project the Valkey instance belongs to.",
@@ -94,34 +94,12 @@ func valkeySchema() schema.Schema {
 				Description:         "Derived node count per region for the current tier, size and shards.",
 				MarkdownDescription: "Derived node count per region for the current tier, size and shards.",
 			},
-			"created": schema.SingleNestedAttribute{
-				Attributes: map[string]schema.Attribute{
-					"date": schema.StringAttribute{
-						Computed: true,
-					},
-					"timezonetype": schema.Int64Attribute{
-						Computed: true,
-					},
-					"timezone": schema.StringAttribute{
-						Computed: true,
-					},
-				},
+			"created": schema.StringAttribute{
 				Computed:            true,
 				Description:         "When the Valkey instance was created (UTC).",
 				MarkdownDescription: "When the Valkey instance was created (UTC).",
 			},
-			"updated": schema.SingleNestedAttribute{
-				Attributes: map[string]schema.Attribute{
-					"date": schema.StringAttribute{
-						Computed: true,
-					},
-					"timezonetype": schema.Int64Attribute{
-						Computed: true,
-					},
-					"timezone": schema.StringAttribute{
-						Computed: true,
-					},
-				},
+			"updated": schema.StringAttribute{
 				Computed:            true,
 				Description:         "When the Valkey instance was last changed (UTC).",
 				MarkdownDescription: "When the Valkey instance was last changed (UTC).",

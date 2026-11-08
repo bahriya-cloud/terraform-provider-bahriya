@@ -27,6 +27,8 @@ type conformanceCase struct {
 	Expect  any
 	// Deprecations a toApi case must report (R1, fourth form); [] when absent.
 	Deprecations []any
+	// Violations a toApi case must report (R19); [] when absent.
+	Violations []any
 }
 
 type reportEntry struct {
@@ -105,6 +107,10 @@ func loadCases(t *testing.T, dir string) []conformanceCase {
 			if cc.Deprecations == nil {
 				cc.Deprecations = []any{}
 			}
+			cc.Violations, _ = mapGet(c, "violations").([]any)
+			if cc.Violations == nil {
+				cc.Violations = []any{}
+			}
 			cases = append(cases, cc)
 		}
 	}
@@ -151,7 +157,7 @@ func TestConformance(t *testing.T) {
 
 			switch c.Type {
 			case "toApi":
-				got, deprecations, err := kind.ToAPIReport(input, defaults)
+				got, deprecations, violations, err := kind.ToAPIReport(input, defaults)
 				if err != nil {
 					t.Fatalf("toApi: %v", err)
 				}
@@ -169,11 +175,22 @@ func TestConformance(t *testing.T) {
 				if !OrderedEquals(c.Deprecations, gotDeprecations) && !(len(c.Deprecations) == 0 && len(gotDeprecations) == 0) {
 					t.Fatalf("deprecations\nexpected: %s\nactual:   %s", Encode(c.Deprecations), Encode(gotDeprecations))
 				}
+				gotViolations := make([]any, len(violations))
+				for i, v := range violations {
+					gotViolations[i] = MapOf("path", v.Path, "type", v.Type, "rule", v.Rule)
+				}
+				if !OrderedEquals(c.Violations, gotViolations) && !(len(c.Violations) == 0 && len(gotViolations) == 0) {
+					t.Fatalf("violations\nexpected: %s\nactual:   %s", Encode(c.Violations), Encode(gotViolations))
+				}
 				once, err := kind.ToAPI(input, true)
 				if err != nil {
 					t.Fatal(err)
 				}
-				twice, err := kind.ToAPI(kind.ToYAML(once, false), true)
+				doc, err := kind.ToYAML(once, false)
+				if err != nil {
+					t.Fatal(err)
+				}
+				twice, err := kind.ToAPI(doc, true)
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -183,7 +200,10 @@ func TestConformance(t *testing.T) {
 				roundTrip := true
 				entry.RoundTrip = &roundTrip
 			case "toYaml", "toYamlState":
-				got := kind.ToYAML(input, c.Type == "toYamlState")
+				got, err := kind.ToYAML(input, c.Type == "toYamlState")
+				if err != nil {
+					t.Fatal(err)
+				}
 				if !OrderedEquals(c.Expect, got) {
 					t.Fatalf("\nexpected: %s\nactual:   %s", Encode(c.Expect), Encode(got))
 				}

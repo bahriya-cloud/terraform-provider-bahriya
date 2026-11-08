@@ -15,6 +15,14 @@ A container runs your image in every region of `regions`, inside a project. `typ
 | `worker`         | A long-running background process that is not reachable from the internet.                                                        |
 | `cronjob`        | A job that runs to completion on the schedule in `schedule`.                                                                       |
 
+Some settings depend on the type:
+
+- An `http` container must state `networking.external`: `true` serves it at its hostnames, `false` keeps it reachable only by the project's other workloads. There is no default, so a hostname is published only when the configuration says so. Its `workload.port` defaults to 8080 and its `workload.healthcheck` to `/healthz`.
+- A `worker` or `cronjob` container is never reachable from the internet, so it cannot set hostnames, `networking.external`, rate limiting, IP lists, basic authentication or init jobs.
+- A `cronjob` also cannot set `workload.port`, `workload.healthcheck`, the Prometheus settings, `scaling.autoscaling` or `scaling.max_replicas`.
+
+A plan that breaks one of these rules fails and names the attribute. Each attribute's description below says which types it applies to.
+
 The settings are grouped the same way as in a Reis YAML file: `workload` (image, size, command and environment), `scaling`, `networking`, `security`, `storage`, `configs`, `vault`, `schedule` and the rest.
 
 Creating, changing and terminating a container is asynchronous. The provider waits up to 20 minutes for the container to reach `running`, or `terminated` on delete. If a create does not settle in time, the container is saved to state with its current status and a warning; run `terraform apply` again to check it.

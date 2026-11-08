@@ -86,7 +86,7 @@ resource "bahriya_secret" "s" {
 					tfresource.TestCheckResourceAttr("bahriya_secret.s", "value", "v1"),
 					tfresource.TestCheckResourceAttr("bahriya_secret.s", "max_versions", "5"),
 					tfresource.TestCheckResourceAttrSet("bahriya_secret.s", "id"),
-					tfresource.TestCheckResourceAttrSet("bahriya_secret.s", "created.date"),
+					tfresource.TestCheckResourceAttrSet("bahriya_secret.s", "created"),
 				),
 			},
 			{
@@ -131,7 +131,7 @@ resource "bahriya_env_file" "e" {
 				}},
 				Check: tfresource.ComposeAggregateTestCheckFunc(
 					tfresource.TestCheckResourceAttr("bahriya_env_file.e", "content", "A=2\n"),
-					tfresource.TestCheckResourceAttr("bahriya_env_file.e", "currentversion", "2"),
+					tfresource.TestCheckResourceAttr("bahriya_env_file.e", "current_version", "2"),
 				),
 			},
 		},
@@ -381,6 +381,9 @@ resource "bahriya_container" "c" {
     image  = "nginx:1.27"
     cpu    = 250
     memory = 256
+  }
+  networking = {
+    external = true
   }
   security = {
     basic_auth = [{ username = "shop-alice", password = %q }]

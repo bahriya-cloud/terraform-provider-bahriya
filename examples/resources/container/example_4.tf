@@ -14,15 +14,19 @@ resource "bahriya_container" "secure_api" {
 
   workload = {
     image       = "ghcr.io/org/secure-api:2.0.0"
-    port        = "8443"
+    port        = 8443
     healthcheck = "/healthz"
     protocol    = "https"
-    cpu         = "100"
-    memory      = "128"
+    cpu         = 100
+    memory      = 128
   }
 
   scaling = {
-    replicas = "1"
+    replicas = 1
+  }
+
+  networking = {
+    external = true
   }
 }
 
@@ -35,13 +39,18 @@ resource "bahriya_container" "queue_bridge" {
 
   workload = {
     image    = "registry.example.com/team/bridge:1.4.2"
-    port     = "9000"
+    port     = 9000
     protocol = "tcp"
-    cpu      = "50"
-    memory   = "128"
+    cpu      = 50
+    memory   = 128
   }
 
   scaling = {
-    replicas = "1"
+    replicas = 1
+  }
+
+  # Reached only by the project's other workloads, not from the internet.
+  networking = {
+    external = false
   }
 }

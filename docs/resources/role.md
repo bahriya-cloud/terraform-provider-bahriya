@@ -62,7 +62,7 @@ resource "bahriya_role" "deployer" {
 - `created` (String) Creation timestamp (ISO 8601).
 - `handle` (String) Machine handle (slug), derived from the name by the server and immutable.
 - `id` (String) UUID of the role.
-- `issystem` (Boolean) True for the built-in system roles (read-only).
+- `is_system` (Boolean) True for the built-in system roles (read-only).
 - `updated` (String) Last-update timestamp (ISO 8601).
 
 <a id="nestedatt--permissions"></a>

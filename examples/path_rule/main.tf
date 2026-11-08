@@ -34,10 +34,14 @@ resource "bahriya_container" "api" {
 
   workload = {
     image       = "ghcr.io/myorg/api:1.0.0"
-    port        = "8080"
+    port        = 8080
     healthcheck = "/health"
-    cpu         = "500"
-    memory      = "512"
+    cpu         = 500
+    memory      = 512
+  }
+
+  networking = {
+    external = true
   }
 }
 

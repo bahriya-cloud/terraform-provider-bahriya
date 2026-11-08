@@ -67,10 +67,10 @@ resource "bahriya_container" "api" {
   workload = {
     image       = "ghcr.io/myorg/api:1.2.3"
     registry    = bahriya_registry.ghcr.id
-    port        = "3000"
+    port        = 3000
     healthcheck = "/healthz"
-    cpu         = "250"
-    memory      = "256"
+    cpu         = 250
+    memory      = 256
 
     env = {
       "NODE_ENV" = "production"
@@ -83,11 +83,13 @@ resource "bahriya_container" "api" {
   }
 
   scaling = {
-    replicas     = "2"
-    max_replicas = "5"
+    replicas     = 2
+    max_replicas = 5
   }
 
   networking = {
+    # Required for an HTTP container: true serves it at its hostnames.
+    external = true
     domains = [
       { hostname = "api.example.com" },
     ]

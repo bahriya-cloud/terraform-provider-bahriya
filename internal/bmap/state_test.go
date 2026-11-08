@@ -9,7 +9,8 @@ import (
 // FromState must invert ToYAML in state mode for every payload the fixtures
 // hold: every toApi expectation, and every toYamlState input. Nil fields are
 // compared as absent, because state mode emits nil for a field the payload
-// lacks.
+// lacks. Timestamps are read-only and kept in their RFC 3339 form (R20), so
+// the payload's are compared in that form.
 func TestFromStateInvertsStateMode(t *testing.T) {
 	dir := packageDir(t)
 	data, err := os.ReadFile(filepath.Join(dir, "specs", "resource-schema.json"))
@@ -32,13 +33,28 @@ func TestFromStateInvertsStateMode(t *testing.T) {
 			continue
 		}
 		kind := schema.Kind(c.Kind)
-		got, err := kind.FromState(kind.ToYAML(payload, true))
+		state, err := kind.ToYAML(payload, true)
 		if err != nil {
 			t.Errorf("%s: %v", c.ID, err)
 			continue
 		}
-		if !JSONEquals(withoutNil(payload), withoutNil(got)) {
-			t.Errorf("%s:\nwant: %s\ngot:  %s", c.ID, Encode(withoutNil(payload)), Encode(withoutNil(got)))
+		got, err := kind.FromState(state)
+		if err != nil {
+			t.Errorf("%s: %v", c.ID, err)
+			continue
+		}
+		want := withoutNil(payload)
+		for _, f := range kind.Fields {
+			if v, ok := want.Get(f.Name); ok && f.Desc.Type == "timestamp" && f.Desc.Format == "date-time" {
+				ts, err := timestamp(v)
+				if err != nil {
+					t.Fatalf("%s: %v", c.ID, err)
+				}
+				want.Set(f.Name, ts)
+			}
+		}
+		if !JSONEquals(want, withoutNil(got)) {
+			t.Errorf("%s:\nwant: %s\ngot:  %s", c.ID, Encode(want), Encode(withoutNil(got)))
 		}
 		checked++
 	}

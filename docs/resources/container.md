@@ -15,6 +15,14 @@ A container runs your image in every region of `regions`, inside a project. `typ
 | `worker`         | A long-running background process that is not reachable from the internet.                                                        |
 | `cronjob`        | A job that runs to completion on the schedule in `schedule`.                                                                       |
 
+Some settings depend on the type:
+
+- An `http` container must state `networking.external`: `true` serves it at its hostnames, `false` keeps it reachable only by the project's other workloads. There is no default, so a hostname is published only when the configuration says so. Its `workload.port` defaults to 8080 and its `workload.healthcheck` to `/healthz`.
+- A `worker` or `cronjob` container is never reachable from the internet, so it cannot set hostnames, `networking.external`, rate limiting, IP lists, basic authentication or init jobs.
+- A `cronjob` also cannot set `workload.port`, `workload.healthcheck`, the Prometheus settings, `scaling.autoscaling` or `scaling.max_replicas`.
+
+A plan that breaks one of these rules fails and names the attribute. Each attribute's description below says which types it applies to.
+
 The settings are grouped the same way as in a Reis YAML file: `workload` (image, size, command and environment), `scaling`, `networking`, `security`, `storage`, `configs`, `vault`, `schedule` and the rest.
 
 Creating, changing and terminating a container is asynchronous. The provider waits up to 20 minutes for the container to reach `running`, or `terminated` on delete. If a create does not settle in time, the container is saved to state with its current status and a warning; run `terraform apply` again to check it.
@@ -95,10 +103,10 @@ resource "bahriya_container" "api" {
   workload = {
     image       = "ghcr.io/myorg/api:1.2.3"
     registry    = bahriya_registry.ghcr.id
-    port        = "3000"
+    port        = 3000
     healthcheck = "/healthz"
-    cpu         = "250"
-    memory      = "256"
+    cpu         = 250
+    memory      = 256
 
     env = {
       "NODE_ENV" = "production"
@@ -111,11 +119,13 @@ resource "bahriya_container" "api" {
   }
 
   scaling = {
-    replicas     = "2"
-    max_replicas = "5"
+    replicas     = 2
+    max_replicas = 5
   }
 
   networking = {
+    # Required for an HTTP container: true serves it at its hostnames.
+    external = true
     domains = [
       { hostname = "api.example.com" },
     ]
@@ -151,14 +161,14 @@ resource "bahriya_container" "queue" {
 
   workload = {
     image   = "ghcr.io/myorg/app:1.0.0"
-    cpu     = "200"
-    memory  = "256"
+    cpu     = 200
+    memory  = 256
     command = ["/usr/bin/php"]
     args    = ["artisan", "queue:work", "--tries=3"]
   }
 
   scaling = {
-    replicas = "1"
+    replicas = 1
   }
 }
 ```
@@ -181,14 +191,14 @@ resource "bahriya_container" "nightly" {
 
   workload = {
     image   = "ghcr.io/myorg/reports:1.0.0"
-    cpu     = "100"
-    memory  = "256"
+    cpu     = 100
+    memory  = 256
     command = ["/usr/bin/php"]
     args    = ["artisan", "reports:nightly"]
   }
 
   scaling = {
-    replicas = "1"
+    replicas = 1
   }
 
   schedule = {
@@ -222,15 +232,19 @@ resource "bahriya_container" "secure_api" {
 
   workload = {
     image       = "ghcr.io/org/secure-api:2.0.0"
-    port        = "8443"
+    port        = 8443
     healthcheck = "/healthz"
     protocol    = "https"
-    cpu         = "100"
-    memory      = "128"
+    cpu         = 100
+    memory      = 128
   }
 
   scaling = {
-    replicas = "1"
+    replicas = 1
+  }
+
+  networking = {
+    external = true
   }
 }
 
@@ -243,14 +257,19 @@ resource "bahriya_container" "queue_bridge" {
 
   workload = {
     image    = "registry.example.com/team/bridge:1.4.2"
-    port     = "9000"
+    port     = 9000
     protocol = "tcp"
-    cpu      = "50"
-    memory   = "128"
+    cpu      = 50
+    memory   = 128
   }
 
   scaling = {
-    replicas = "1"
+    replicas = 1
+  }
+
+  # Reached only by the project's other workloads, not from the internet.
+  networking = {
+    external = false
   }
 }
 ```
@@ -272,14 +291,18 @@ resource "bahriya_container" "api" {
 
   workload = {
     image       = "nginx:alpine"
-    port        = "80"
+    port        = 80
     healthcheck = "/"
-    cpu         = "100"
-    memory      = "128"
+    cpu         = 100
+    memory      = 128
   }
 
   scaling = {
-    replicas = "1"
+    replicas = 1
+  }
+
+  networking = {
+    external = true
   }
 
   security = {
@@ -312,7 +335,7 @@ To apply these controls to one URL prefix only, use `bahriya_path_rule`.
 ### Optional
 
 - `configs` (Attributes) (see [below for nested schema](#nestedatt--configs))
-- `init_jobs` (Attributes List) Init jobs that run to completion before the main container starts. HTTP containers only. Up to a configurable maximum (default 3). Init jobs run within the main container's reserved CPU and memory and are not billed separately. (see [below for nested schema](#nestedatt--init_jobs))
+- `init_jobs` (Attributes List) Init jobs that run to completion before the main container starts. HTTP containers only. Up to a configurable maximum (default 3). Init jobs run within the main container's reserved CPU and memory and are not billed separately. Not allowed on cronjob or worker containers. (see [below for nested schema](#nestedatt--init_jobs))
 - `networking` (Attributes) (see [below for nested schema](#nestedatt--networking))
 - `observability` (Attributes) (see [below for nested schema](#nestedatt--observability))
 - `project` (String) Identifier (UUID) of the project the container belongs to. It is set when the container is created and cannot be changed.
@@ -326,39 +349,39 @@ To apply these controls to one URL prefix only, use `bahriya_path_rule`.
 
 ### Read-Only
 
-- `created` (Attributes) When the container was created (UTC). (see [below for nested schema](#nestedatt--created))
+- `created` (String) When the container was created (UTC).
 - `id` (String) Unique identifier (UUID) of the container, assigned by the platform.
 - `organisation` (String) Identifier (UUID) of the organisation that owns the container.
-- `projectname` (String) Name of the project the container belongs to.
-- `restartedat` (Attributes) When the container was last restarted on request (UTC). Null if it has never been restarted. (see [below for nested schema](#nestedatt--restartedat))
+- `project_name` (String) Name of the project the container belongs to.
+- `restarted_at` (String) When the container was last restarted on request (UTC). Null if it has never been restarted.
 - `status` (String) Lifecycle state of the container: provisioning, running, terminating, terminated or error.
-- `updated` (Attributes) When the container was last changed (UTC). (see [below for nested schema](#nestedatt--updated))
+- `updated` (String) When the container was last changed (UTC).
 
 <a id="nestedatt--workload"></a>
 ### Nested Schema for `workload`
 
 Required:
 
-- `cpu` (String) CPU requested for each replica, in millicores (1000 millicores is one vCPU).
+- `cpu` (Number) CPU requested for each replica, in millicores (1000 millicores is one vCPU).
 - `image` (String) The container image to deploy, including the registry host when it is not Docker Hub. An explicit tag or digest is required — an untagged reference is rejected.
-- `memory` (String) Memory requested for each replica, in MiB.
+- `memory` (Number) Memory requested for each replica, in MiB.
 
 Optional:
 
 - `args` (List of String) Override the container image CMD arguments.
-- `bootstrap_time` (Number) Expected application bootstrap time in seconds. Used to configure startup probe timing.
+- `bootstrap_time` (Number) Expected application start-up time in seconds, used to time the start-up health checks. It is 30 when not set. Defaults to `30`.
 - `command` (List of String) Override the container image CMD entrypoint.
 - `env` (Map of String) Environment variables set in the container, as name and value pairs.
-- `healthcheck` (String) Health check endpoint path. Required for HTTP containers, optional for workers.
-- `port` (String) Port the container listens on. Required for HTTP containers, optional for workers.
+- `healthcheck` (String) Path of the health check endpoint. Defaults to `"/healthz"` for http containers. Not allowed on cronjob containers.
+- `port` (Number) Port number the container listens on. Defaults to `8080` for http containers. Not allowed on cronjob containers.
 - `protocol` (String) The protocol this container speaks on its port. It decides both how the container's health is checked and how requests reach it. `http` is the default. `https` is for a container that serves TLS on its own port: health checks and requests reach it over TLS, and its certificate is not verified. `tcp` only checks that the port accepts a connection and ignores the health check path; it suits a workload that does not speak HTTP. Defaults to `"http"`.
 - `registry` (String) Identifier (UUID) of the registry whose credentials are used to pull a private image. Leave it unset for a public image.
 - `secrets` (Map of String) Environment variables whose values come from secrets in the organisation vault. Each entry maps a variable name to a secret.
 
 Read-Only:
 
-- `max_cpu` (String) Server-computed: request x limit_multiplier (config). Not accepted from clients.
-- `max_memory` (String) Server-computed: request x limit_multiplier (config). Not accepted from clients.
+- `max_cpu` (Number) The most CPU each replica may use, in millicores, set by Bahriya from the requested CPU. It cannot be set.
+- `max_memory` (Number) The most memory each replica may use, in MiB, set by Bahriya from the requested memory. It cannot be set.
 
 
 <a id="nestedatt--configs"></a>
@@ -423,9 +446,9 @@ Optional:
 
 - `args` (List of String) Override the image CMD arguments. Trimmed per-element; empty entries dropped.
 - `command` (List of String) Override the image ENTRYPOINT — one token per array entry. Use the same conventions as cron/worker: `[/bin/sh, -c]` for shell-style commands, or a direct exec form like `[./migrate]`. Null leaves the image entrypoint untouched.
-- `cpu` (String) Optional CPU request override (millicores). Cannot exceed the parent container's `mincpu` — init jobs share the main container's reserved capacity and are not billed separately. Leave blank to inherit. The UI no longer exposes this knob; kept for Terraform / Reis CLI users who already wire it.
+- `cpu` (Number) CPU for the init job, in millicores (1000 millicores is one vCPU). It cannot exceed the container's requested CPU; init jobs use the container's reserved capacity and are not billed separately. When not set, the init job uses the container's CPU.
 - `env` (Map of String) Environment variables for the init job (same shape as the main container).
-- `memory` (String) Optional memory request override (MB). Cannot exceed the parent container's `minmemory` — init jobs share the main container's reserved capacity and are not billed separately. Leave blank to inherit. The UI no longer exposes this knob; kept for Terraform / Reis CLI users who already wire it.
+- `memory` (Number) Memory for the init job, in MiB. It cannot exceed the container's requested memory; init jobs use the container's reserved capacity and are not billed separately. When not set, the init job uses the container's memory.
 - `registry` (String) Optional private registry id. Must belong to the same project as the parent container.
 - `secrets` (Map of String) Project secrets exposed as env vars for the init job.
 - `volumes` (Attributes List) Volumes from the parent container to mount in this init job. Defaults to none — opt-in per volume. (see [below for nested schema](#nestedatt--init_jobs--volumes))
@@ -445,14 +468,14 @@ Required:
 
 Optional:
 
-- `custom_dns_mode` (String) How traffic is spread across regions on the vanity hostname: none, round-robin or geo. A mode other than none requires two or more regions.
-- `default_hostname` (String) Host alias from which the default hostname in each region is built, such as mamluk-123.helsinki-1.x.on.bahriya.app.
-- `dns_failover` (Boolean) Enable DNS failover for this container. Defaults to `false`.
-- `dns_ttl` (Number) DNS TTL in seconds for vanity (rr/geo) records. Null uses provider default (300s). Region-specific CNAMEs in the containers zone use a separate platform-wide TTL.
-- `domains` (Attributes List) Custom hostnames attached to this container. Up to a configurable maximum (default 5). The first hostname is included; each additional hostname is billed via the extra_custom_hostname SKU. (see [below for nested schema](#nestedatt--networking--domains))
-- `external` (Boolean) Make this container reachable from the internet at its hostnames. When false, only workloads in the same project can reach it. The console turns this on for new HTTP containers; Reis and Terraform default to false, so leaving it out of a file never publishes a hostname. Defaults to `false`.
+- `custom_dns_mode` (String) How traffic is spread across regions on the vanity hostname: none, round-robin or geo. A mode other than none requires two or more regions. Not allowed on cronjob or worker containers.
+- `default_hostname` (String) Host alias from which the default hostname in each region is built, such as mamluk-123.helsinki-1.x.on.bahriya.app. Not allowed on cronjob or worker containers.
+- `dns_failover` (Boolean) Enable DNS failover for this container. Defaults to `false`. Not allowed on cronjob or worker containers.
+- `dns_ttl` (Number) DNS TTL in seconds for vanity (rr/geo) records. Null uses provider default (300s). Region-specific CNAMEs in the containers zone use a separate platform-wide TTL. Not allowed on cronjob or worker containers.
+- `domains` (Attributes List) Custom hostnames attached to this container. Up to a configurable maximum (default 5). The first hostname is included; each additional hostname is billed via the extra_custom_hostname SKU. Not allowed on cronjob or worker containers. (see [below for nested schema](#nestedatt--networking--domains))
+- `external` (Boolean) Make this container reachable from the internet at its hostnames. When false, only workloads in the same project can reach it. It has no default for HTTP containers, so a hostname is published only when a document says so. Required for http containers. Not allowed on cronjob or worker containers.
 - `network_policies` (List of String) Network policies narrowed to this container, referenced by handle. When a policy is listed here it applies to only this container instead of the whole project.
-- `vanity_hostname` (String) Platform-managed hostname that spreads traffic across the regions of the container according to the custom DNS mode. It requires two or more regions.
+- `vanity_hostname` (String) Platform-managed hostname that spreads traffic across the regions of the container according to the custom DNS mode. It requires two or more regions. Not allowed on cronjob or worker containers.
 
 <a id="nestedatt--networking--domains"></a>
 ### Nested Schema for `networking.domains`
@@ -472,8 +495,8 @@ Optional:
 
 Optional:
 
-- `prometheus_path` (String) Path to Prometheus metrics endpoint. Defaults to /metrics if not specified. Requires prometheus port to be set.
-- `prometheus_port` (String) Port exposing Prometheus metrics. Enables automatic scraping when set. Not applicable to cron jobs.
+- `prometheus_path` (String) Path to Prometheus metrics endpoint. Defaults to /metrics if not specified. Requires prometheus port to be set. Not allowed on cronjob containers.
+- `prometheus_port` (Number) Port number exposing Prometheus metrics. Enables automatic scraping when set. Not allowed on cronjob containers.
 
 
 <a id="nestedatt--proxy_cache"></a>
@@ -506,11 +529,11 @@ Read-Only:
 
 Optional:
 
-- `autoscaling` (Boolean) Whether the number of replicas scales automatically between the minimum and maximum replicas. Autoscaling cannot be enabled while persistent volumes are attached. Defaults to `false`.
-- `max_replicas` (String) Maximum number of replicas when autoscaling is enabled. Setting it enables autoscaling.
-- `replicas` (String) Number of replicas to run, and the minimum number when autoscaling is enabled. Defaults to `"1"`.
-- `target_cpu` (String) Average CPU utilisation that autoscaling aims to keep, as a percentage of the requested CPU.
-- `target_memory` (String) Average memory utilisation that autoscaling aims to keep, as a percentage of the requested memory.
+- `autoscaling` (Boolean) Whether the number of replicas scales automatically between the minimum and maximum replicas. Autoscaling cannot be enabled while persistent volumes are attached. Defaults to `false`. Not allowed on cronjob containers.
+- `max_replicas` (Number) Maximum number of replicas when autoscaling is enabled. Setting it enables autoscaling. Not allowed on cronjob containers.
+- `replicas` (Number) Number of replicas to run, and the minimum number when autoscaling is enabled. Defaults to `1`.
+- `target_cpu` (Number) Average CPU utilisation that autoscaling aims to keep, as a percentage of the requested CPU. It is 100 when not set. Defaults to `100`.
+- `target_memory` (Number) Average memory utilisation that autoscaling aims to keep, as a percentage of the requested memory. It is 100 when not set. Defaults to `100`.
 
 
 <a id="nestedatt--schedule"></a>
@@ -535,8 +558,8 @@ Optional:
 
 Optional:
 
-- `basic_auth` (Attributes List) Up to 10 basic auth credentials (username/password). Passwords are AES-encrypted at rest and never returned in plaintext; send the masked sentinel to preserve an existing password. (see [below for nested schema](#nestedatt--security--basic_auth))
-- `basic_auth_enabled` (Boolean) Whether requests to the container require HTTP basic authentication. Available on HTTP containers only. Defaults to `false`.
+- `basic_auth` (Attributes List) Up to 10 basic auth credentials (username/password). Passwords are AES-encrypted at rest and never returned in plaintext; send the masked sentinel to preserve an existing password. Not allowed on cronjob or worker containers. (see [below for nested schema](#nestedatt--security--basic_auth))
+- `basic_auth_enabled` (Boolean) Whether requests to the container require HTTP basic authentication. Available on HTTP containers only. Defaults to `false`. Not allowed on cronjob or worker containers.
 - `ip_allowlist` (Attributes) (see [below for nested schema](#nestedatt--security--ip_allowlist))
 - `ip_denylist` (Attributes) (see [below for nested schema](#nestedatt--security--ip_denylist))
 - `rate_limiting` (Attributes) (see [below for nested schema](#nestedatt--security--rate_limiting))
@@ -555,8 +578,8 @@ Required:
 
 Optional:
 
-- `enabled` (Boolean) Enable IP allow-list. Only IPs in the list can access the container. Defaults to `false`.
-- `ips` (List of String) IP addresses and CIDR ranges allowed to reach the container when the allow-list is enabled.
+- `enabled` (Boolean) Enable IP allow-list. Only IPs in the list can access the container. Defaults to `false`. Not allowed on cronjob or worker containers.
+- `ips` (List of String) IP addresses and CIDR ranges allowed to reach the container when the allow-list is enabled. Not allowed on cronjob or worker containers.
 
 
 <a id="nestedatt--security--ip_denylist"></a>
@@ -564,8 +587,8 @@ Optional:
 
 Optional:
 
-- `enabled` (Boolean) Enable IP deny-list. IPs in the list are blocked. Defaults to `false`.
-- `ips` (List of String) IP addresses and CIDR ranges blocked from reaching the container when the deny-list is enabled.
+- `enabled` (Boolean) Enable IP deny-list. IPs in the list are blocked. Defaults to `false`. Not allowed on cronjob or worker containers.
+- `ips` (List of String) IP addresses and CIDR ranges blocked from reaching the container when the deny-list is enabled. Not allowed on cronjob or worker containers.
 
 
 <a id="nestedatt--security--rate_limiting"></a>
@@ -573,9 +596,9 @@ Optional:
 
 Optional:
 
-- `enabled` (Boolean) Whether requests to the container are rate limited per client IP address. Defaults to `false`.
-- `per_hour` (Number) Max requests per hour per IP (requires ratelimitingenabled).
-- `per_minute` (Number) Max requests per minute per IP (requires ratelimitingenabled).
+- `enabled` (Boolean) Whether requests to the container are rate limited per client IP address. Defaults to `false`. Not allowed on cronjob or worker containers.
+- `per_hour` (Number) Max requests per hour per IP (requires ratelimitingenabled). Not allowed on cronjob or worker containers.
+- `per_minute` (Number) Max requests per minute per IP (requires ratelimitingenabled). Not allowed on cronjob or worker containers.
 - `per_second` (Number) Max requests per second per IP (requires ratelimitingenabled).
 
 
@@ -653,37 +676,6 @@ Required:
 
 - `handle` (String) Handle of the vault/config item attached to the project.
 - `mount_path` (String) Absolute mount path inside the container where the item is rendered.
-
-
-
-<a id="nestedatt--created"></a>
-### Nested Schema for `created`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
-
-
-<a id="nestedatt--restartedat"></a>
-### Nested Schema for `restartedat`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
-
-
-<a id="nestedatt--updated"></a>
-### Nested Schema for `updated`
-
-Read-Only:
-
-- `date` (String)
-- `timezone` (String)
-- `timezonetype` (Number)
 
 ## Import
 
