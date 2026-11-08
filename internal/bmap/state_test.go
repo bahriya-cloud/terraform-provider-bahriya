@@ -45,7 +45,7 @@ func TestFromStateInvertsStateMode(t *testing.T) {
 		}
 		want := withoutNil(payload)
 		for _, f := range kind.Fields {
-			if v, ok := want.Get(f.Name); ok && f.Desc.Type == "timestamp" && f.Desc.Format == "date-time" {
+			if v, ok := want.Get(f.Name); ok && f.Desc.Type == "timestamp" {
 				ts, err := timestamp(v)
 				if err != nil {
 					t.Fatalf("%s: %v", c.ID, err)

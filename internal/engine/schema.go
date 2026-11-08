@@ -206,20 +206,9 @@ func leaf(k *bmap.Kind, name string, f *bmap.Field, readOnly bool) (*Attr, error
 	}
 	switch d.Type {
 	case "timestamp":
-		// Timestamps are always read-only. With `format: date-time` they are
-		// RFC 3339 strings in UTC (R20); a schema from before the rule keeps the
-		// API's TimeResponse object, as its state-mode fixtures hold it.
+		// Timestamps are always read-only RFC 3339 strings in UTC (R20).
 		a.Required, a.Optional, a.Computed, a.Sensitive = false, false, true, false
-		if d.Format == "date-time" {
-			a.Type = "string"
-			break
-		}
-		a.Type = "object"
-		a.Children = []*Attr{
-			{Name: "date", Type: "string", Computed: true},
-			{Name: "timezonetype", Type: "int64", Computed: true},
-			{Name: "timezone", Type: "string", Computed: true},
-		}
+		a.Type = "string"
 	case "string":
 		a.Type = "string"
 		if !readOnly {

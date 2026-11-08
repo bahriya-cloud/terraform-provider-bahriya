@@ -546,9 +546,7 @@ func reverse(value any, f *Field, state bool) (any, error) {
 		}
 		return nil, &MappingError{"R12", fmt.Sprintf("%s: expected a whole number, got %v", f.Path, value)}
 	}
-	// R20. A descriptor without a format comes from a package older than the
-	// rule (RULES 8.2): its timestamps are emitted unchanged.
-	if f.Desc.Type == "timestamp" && f.Desc.Format == "date-time" {
+	if f.Desc.Type == "timestamp" { // R20
 		return timestamp(value)
 	}
 	return Clone(value), nil
