@@ -160,12 +160,13 @@ func (r *roleResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
+			// No UseStateForUnknown: an update moves this timestamp, so carrying
+			// the prior value into the plan ends the apply in "Provider produced
+			// inconsistent result" (found by the acceptance matrix, card 2262).
+			// Left unknown, it is "known after apply" only when a change is planned.
 			"updated": schema.StringAttribute{
 				Computed:    true,
 				Description: "Last-update timestamp (ISO 8601).",
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 	}

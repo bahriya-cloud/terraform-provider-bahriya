@@ -54,7 +54,7 @@ resource "bahriya_project_registry_attachment" "web_registry" {
 ### Read-Only
 
 - `id` (String) Identifier of the attachment, in the form {project_id}:{handle}.
-- `join_id` (String) Identifier the API gives this attachment.
+- `join_id` (String) Identifier the API gives this attachment. Empty after an import: the API does not return it for an existing attachment.
 
 ## Import
 

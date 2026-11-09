@@ -43,7 +43,7 @@ resource "bahriya_project_env_file_attachment" "web_env_file" {
 ### Read-Only
 
 - `id` (String) Identifier of the attachment, in the form {project_id}:{handle}.
-- `join_id` (String) Identifier the API gives this attachment.
+- `join_id` (String) Identifier the API gives this attachment. Empty after an import: the API does not return it for an existing attachment.
 
 ## Import
 
