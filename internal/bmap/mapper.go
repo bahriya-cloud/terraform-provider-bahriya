@@ -590,6 +590,160 @@ func (k *Kind) ApplyDiff(current, doc *Map) (*Map, []string, error) {
 	return payload, cleared, nil
 }
 
+// Reset is a field an update would move from its current value to a default
+// because the document does not state it (RULES.md R17).
+type Reset struct {
+	Path string
+	From any
+	To   any
+}
+
+// Resets lists, in R14 order, the writable fields the document does not state
+// (ToAPI with defaults off leaves them out) whose current value the payload
+// changes, other than those cleared already lists (RULES.md R17). Terraform
+// shows these changes in its plan; the conformance suite checks the rule.
+func (k *Kind) Resets(current, doc, payload *Map, cleared []string) ([]Reset, error) {
+	stated, err := k.ToAPI(doc, false)
+	if err != nil {
+		return nil, err
+	}
+	isCleared := map[string]bool{}
+	for _, p := range cleared {
+		isCleared[p] = true
+	}
+	resets := []Reset{}
+	for _, f := range k.YAMLOrder() {
+		if !k.IsWritable(f) || isCleared[f.Path] || stated.Has(f.Name) {
+			continue
+		}
+		was, ok := current.Get(f.Name)
+		if !ok || was == nil {
+			continue
+		}
+		now, ok := payload.Get(f.Name)
+		if !ok {
+			continue
+		}
+		if scalarText(was) != scalarText(now) {
+			resets = append(resets, Reset{Path: f.Path, From: was, To: now})
+		}
+	}
+	return resets, nil
+}
+
+// scalarText is a value as comparable text (R17), so the API's "3000" and a
+// default of 3000 compare equal.
+func scalarText(value any) string {
+	switch v := value.(type) {
+	case bool:
+		return strconv.FormatBool(v)
+	case string:
+		return v
+	case float64:
+		return strconv.FormatFloat(v, 'f', -1, 64)
+	case int, int64, json.Number:
+		return fmt.Sprint(v)
+	}
+	b, _ := json.Marshal(value)
+	return string(b)
+}
+
+// Unknown returns every key of doc that no R1 form reads (RULES.md R2), as
+// paths in document order, list items included (init_jobs[0].mount_pth). A
+// key naming a group (or a legacy path's prefix) holding an object is the
+// group, so its keys are checked; the user keys of an R6 map are never
+// unknown; `kind` is skipped at the top.
+func (k *Kind) Unknown(doc *Map) []string {
+	known := map[string]*Field{}
+	groups := map[string]bool{}
+	addPrefixes := func(path string, whole bool) {
+		segments := strings.Split(path, ".")
+		last := len(segments)
+		if !whole {
+			last--
+		}
+		for i := 1; i <= last; i++ {
+			groups[strings.Join(segments[:i], ".")] = true
+		}
+	}
+	for _, f := range k.Fields {
+		forms := []string{f.Path}
+		if f.Group != "" {
+			forms = append(forms, f.Group+"."+f.Name, f.Name)
+			addPrefixes(f.Group, true)
+		} else {
+			forms = append(forms, f.Name)
+		}
+		if f.LegacyPath != "" {
+			forms = append(forms, f.LegacyPath)
+			addPrefixes(f.LegacyPath, false) // `lifecycle` in lifecycle.init_jobs
+		}
+		for _, form := range forms {
+			if _, ok := known[form]; !ok {
+				known[form] = f
+			}
+		}
+	}
+
+	unknown := []string{}
+	var walk func(node *Map, prefix string)
+	walk = func(node *Map, prefix string) {
+		for _, key := range node.Keys() {
+			if prefix == "" && key == "kind" {
+				continue
+			}
+			value, _ := node.Get(key)
+			path := key
+			if prefix != "" {
+				path = prefix + "." + key
+			}
+			if f, isField := known[path]; groups[path] && isMap(value) {
+				if m, ok := value.(*Map); ok {
+					walk(m, path)
+				}
+			} else if isField {
+				unknownInValue(value, f, path, &unknown)
+			} else {
+				unknown = append(unknown, path)
+			}
+		}
+	}
+	walk(doc, "")
+	return unknown
+}
+
+// unknownInValue is R2 inside a field's value: the items of a list mapped by
+// R7, recursively. An R6 map holds user keys, and any other value is the
+// field's own.
+func unknownInValue(value any, f *Field, path string, unknown *[]string) {
+	list, ok := value.([]any)
+	if !f.HasItem || !ok {
+		return
+	}
+	for i, element := range list {
+		m, ok := element.(*Map)
+		if !ok {
+			continue
+		}
+		for _, key := range m.Keys() {
+			inner, _ := m.Get(key)
+			innerPath := fmt.Sprintf("%s[%d].%s", path, i, key)
+			var match *Field
+			for _, item := range f.Item {
+				if item.Path == key || item.Name == key {
+					match = item
+					break
+				}
+			}
+			if match == nil {
+				*unknown = append(*unknown, innerPath)
+				continue
+			}
+			unknownInValue(inner, match, innerPath, unknown)
+		}
+	}
+}
+
 // ------------------------------------------------------------------ HCL
 
 // ToHCL renders a YAML-shaped document as canonical HCL (RULES.md section 6).

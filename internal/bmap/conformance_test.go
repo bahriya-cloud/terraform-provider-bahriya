@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 	"testing"
 )
 
@@ -29,6 +30,8 @@ type conformanceCase struct {
 	Deprecations []any
 	// Violations a toApi case must report (R19); [] when absent.
 	Violations []any
+	// Unknown paths a toApi case must report (R2); nil when absent.
+	Unknown []any
 }
 
 type reportEntry struct {
@@ -111,6 +114,7 @@ func loadCases(t *testing.T, dir string) []conformanceCase {
 			if cc.Violations == nil {
 				cc.Violations = []any{}
 			}
+			cc.Unknown, _ = mapGet(c, "unknown").([]any)
 			cases = append(cases, cc)
 		}
 	}
@@ -138,8 +142,20 @@ func TestConformance(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	// A package that states `unknown` (toApi) or `reset` (applyDiff expect) on any
+	// case reports it everywhere, so absent means none; an older package predates
+	// it (RULES 8.2 step 1).
+	cases := loadCases(t, dir)
+	statesUnknown, statesReset := false, false
+	for _, c := range cases {
+		statesUnknown = statesUnknown || c.Unknown != nil
+		if e, ok := c.Expect.(*Map); ok && c.Type == "applyDiff" && e.Has("reset") {
+			statesReset = true
+		}
+	}
+
 	report := map[string]reportEntry{}
-	for _, c := range loadCases(t, dir) {
+	for _, c := range cases {
 		c := c
 		t.Run(c.ID, func(t *testing.T) {
 			entry := reportEntry{}
@@ -181,6 +197,19 @@ func TestConformance(t *testing.T) {
 				}
 				if !OrderedEquals(c.Violations, gotViolations) && !(len(c.Violations) == 0 && len(gotViolations) == 0) {
 					t.Fatalf("violations\nexpected: %s\nactual:   %s", Encode(c.Violations), Encode(gotViolations))
+				}
+				if statesUnknown {
+					want := c.Unknown
+					if want == nil {
+						want = []any{}
+					}
+					gotUnknown := []any{}
+					for _, p := range kind.Unknown(input) {
+						gotUnknown = append(gotUnknown, p)
+					}
+					if !OrderedEquals(want, gotUnknown) && !(len(want) == 0 && len(gotUnknown) == 0) {
+						t.Fatalf("unknown\nexpected: %s\nactual:   %s", Encode(want), Encode(gotUnknown))
+					}
 				}
 				once, err := kind.ToAPI(input, true)
 				if err != nil {
@@ -224,6 +253,26 @@ func TestConformance(t *testing.T) {
 				}
 				if !OrderedEquals(mapGet(expect, "cleared"), gotCleared) {
 					t.Fatalf("cleared\nexpected: %s\nactual:   %s", Encode(mapGet(expect, "cleared")), Encode(gotCleared))
+				}
+				if statesReset {
+					resets, err := kind.Resets(current, doc, payload, cleared)
+					if err != nil {
+						t.Fatal(err)
+					}
+					// R17: from and to compare as text, so the API's "3000" equals 3000.
+					got := []string{}
+					for _, r := range resets {
+						got = append(got, r.Path+"|"+scalarText(r.From)+"|"+scalarText(r.To))
+					}
+					want := []string{}
+					expected, _ := mapGet(expect, "reset").([]any)
+					for _, item := range expected {
+						r := item.(*Map)
+						want = append(want, mapGet(r, "path").(string)+"|"+scalarText(mapGet(r, "from"))+"|"+scalarText(mapGet(r, "to")))
+					}
+					if strings.Join(want, "\n") != strings.Join(got, "\n") {
+						t.Fatalf("reset\nexpected: %v\nactual:   %v", want, got)
+					}
 				}
 			case "hcl":
 				got := kind.ToHCL(input)
