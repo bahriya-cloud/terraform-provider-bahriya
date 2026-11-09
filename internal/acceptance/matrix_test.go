@@ -474,17 +474,10 @@ func TestAccMatrix(t *testing.T) {
 	}
 }
 
-// v0Config is the same estate written for provider 0.x: a project, a secret,
-// an HTTP container that reads it, a Memcached instance, a network policy and an
-// env file.
-func v0Config(sfx string) string {
+// secretAndAttachment is the same in 0.x and version 1 (neither resource
+// changed shape).
+func secretAndAttachment(sfx string) string {
 	return fmt.Sprintf(`
-resource "bahriya_project" "p" {
-  name    = "Acc Upgrade %[1]s"
-  handle  = "acc-up-%[1]s"
-  regions = [%[2]q]
-}
-
 resource "bahriya_secret" "s" {
   name   = "Acc Upgrade Secret"
   handle = "acc-up-secret-%[1]s"
@@ -494,6 +487,27 @@ resource "bahriya_secret" "s" {
 resource "bahriya_project_secret_attachment" "a" {
   project_id = bahriya_project.p.id
   handle     = bahriya_secret.s.handle
+}
+`, sfx)
+}
+
+// v0Config is the estate written for provider 0.x: a project, an HTTP
+// container, a Memcached instance, a network policy and an env file; with
+// secret, also a secret attached to the project that the container reads.
+func v0Config(sfx string, secret bool) string {
+	extra, env := "", ""
+	if secret {
+		extra = secretAndAttachment(sfx)
+		env = `
+  secretsenvvar = [
+    { name = "ACC_SECRET", secret = bahriya_project_secret_attachment.a.handle },
+  ]`
+	}
+	return extra + fmt.Sprintf(`
+resource "bahriya_project" "p" {
+  name    = "Acc Upgrade %[1]s"
+  handle  = "acc-up-%[1]s"
+  regions = [%[2]q]
 }
 
 resource "bahriya_container" "web" {
@@ -509,13 +523,14 @@ resource "bahriya_container" "web" {
 
   autoscalingminreplicas = "1"
 
+  # Today's API refuses an HTTP container create that leaves this out (it maps
+  # the missing field to null; reported 2026-11-09), so a 0.x user must state it.
+  dnsfailoverenabled = false
+
   newenvvar = [
     { key = "MODE", value = "acc" },
   ]
-
-  secretsenvvar = [
-    { name = "ACC_SECRET", secret = bahriya_project_secret_attachment.a.handle },
-  ]
+%[3]s
 }
 
 resource "bahriya_memcached" "m" {
@@ -537,27 +552,24 @@ resource "bahriya_env_file" "e" {
   handle  = "acc-up-env-%[1]s"
   content = "MODE=acc\n"
 }
-`, sfx, region)
+`, sfx, region, env)
 }
 
 // v1Config is v0Config rewritten for version 1, following the upgrade guide.
-func v1Config(sfx string) string {
-	return fmt.Sprintf(`
+func v1Config(sfx string, secret bool) string {
+	extra, env := "", ""
+	if secret {
+		extra = secretAndAttachment(sfx)
+		env = `
+    secrets = {
+      "ACC_SECRET" = bahriya_project_secret_attachment.a.handle
+    }`
+	}
+	return extra + fmt.Sprintf(`
 resource "bahriya_project" "p" {
   name    = "Acc Upgrade %[1]s"
   handle  = "acc-up-%[1]s"
   regions = [%[2]q]
-}
-
-resource "bahriya_secret" "s" {
-  name   = "Acc Upgrade Secret"
-  handle = "acc-up-secret-%[1]s"
-  value  = "acc-value"
-}
-
-resource "bahriya_project_secret_attachment" "a" {
-  project_id = bahriya_project.p.id
-  handle     = bahriya_secret.s.handle
 }
 
 resource "bahriya_container" "web" {
@@ -576,10 +588,7 @@ resource "bahriya_container" "web" {
     env = {
       "MODE" = "acc"
     }
-
-    secrets = {
-      "ACC_SECRET" = bahriya_project_secret_attachment.a.handle
-    }
+%[3]s
   }
 
   networking = {
@@ -610,16 +619,24 @@ resource "bahriya_env_file" "e" {
   handle  = "acc-up-env-%[1]s"
   content = "MODE=acc\n"
 }
-`, sfx, region)
+`, sfx, region, env)
 }
 
 // TestAccUpgradeFromV0 applies the estate with a released 0.x provider from
 // the Terraform Registry, then plans the rewritten configuration with version
 // 1: the state upgrades on that plan and the plan must be empty.
+//
+// 0.4.0 and 0.3.8 cannot create a project attachment against today's API (the
+// {id, quota} write result, fixed in 0.4.3), so their estate leaves the secret
+// and its attachment out; 0.4.3 applies the whole estate.
 func TestAccUpgradeFromV0(t *testing.T) {
 	preCheck(t)
 	deployer := startDeployer(t)
-	for _, version := range []string{"0.4.0", "0.3.8"} {
+	for _, v := range []struct {
+		version string
+		secret  bool
+	}{{"0.4.3", true}, {"0.4.0", false}, {"0.3.8", false}} {
+		version, secret := v.version, v.secret
 		t.Run(version, func(t *testing.T) {
 			t.Parallel()
 			sfx := suffix(t)
@@ -631,11 +648,11 @@ func TestAccUpgradeFromV0(t *testing.T) {
 						ExternalProviders: map[string]tfresource.ExternalProvider{
 							"bahriya": {Source: "bahriya-cloud/bahriya", VersionConstraint: version},
 						},
-						Config: v0Config(sfx),
+						Config: v0Config(sfx, secret),
 					},
 					{
 						ProtoV6ProviderFactories: v1(),
-						Config:                   v1Config(sfx),
+						Config:                   v1Config(sfx, secret),
 						ConfigPlanChecks: tfresource.ConfigPlanChecks{
 							PreApply: []plancheck.PlanCheck{plancheck.ExpectEmptyPlan()},
 						},
@@ -644,7 +661,7 @@ func TestAccUpgradeFromV0(t *testing.T) {
 						// Wait out the project delete lock before the destroy.
 						PreConfig:                func() { time.Sleep(time.Until(started.Add(deleteLock(t)))) },
 						ProtoV6ProviderFactories: v1(),
-						Config:                   v1Config(sfx),
+						Config:                   v1Config(sfx, secret),
 					},
 				},
 			})
