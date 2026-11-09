@@ -140,6 +140,80 @@ func TestAnUpgradedHTTPContainerMustStateExternal(t *testing.T) {
 	}
 }
 
+// Every field the schema forbids on worker or cron job containers fails the plan
+// there. Released v0.4.2 let such a field through, the API cleared it, and the
+// apply ended in "Provider produced inconsistent result after apply" (a create
+// left tainted; an update repeating). Driven by the embedded schema, so a field
+// newly forbidden (card 2985: security.rate_limiting.per_second) is covered as
+// soon as its metadata lands. List-of-object fields need hand-built items and
+// are listed in the log rather than set here.
+func TestEveryForbiddenFieldFailsThePlanOnWorkersAndCronJobs(t *testing.T) {
+	kind := bmap.Embedded().Kind("container")
+	base := func(typ string) *bmap.Map {
+		config := bmap.MapOf(
+			"name", "Jobs", "handle", "jobs", "type", typ, "regions", []any{"helsinki-1"},
+			"workload", bmap.MapOf("image", "busybox:1.37", "cpu", int64(100), "memory", int64(64)),
+		)
+		if typ == "cronjob" {
+			config.Set("schedule", bmap.MapOf("schedule", "*/5 * * * *"))
+		}
+		return config
+	}
+	checked, skipped := 0, []string{}
+	for _, typ := range []string{"worker", "cronjob"} {
+		for _, f := range kind.Fields {
+			if !f.Desc.TypeForbidden[typ] || f.Desc.ReadOnly || f.Desc.DisplayReadOnly {
+				continue
+			}
+			var value any
+			switch {
+			case len(f.Desc.Enum) > 0:
+				value = f.Desc.Enum[len(f.Desc.Enum)-1]
+			case f.Desc.Type == "boolean":
+				value = true
+			case f.Desc.Type == "integer":
+				value = int64(60)
+			case f.Desc.Type == "string":
+				value = "x"
+			case f.Desc.Type == "array" && !f.HasItem:
+				value = []any{"x"}
+			default:
+				skipped = append(skipped, typ+":"+f.Path)
+				continue
+			}
+			config := base(typ)
+			setPath(config, f.Path, value)
+			r := engineResource(t, "container")
+			resp := plan(t, r, config, tftypes.NewValue(r.objectType(context.Background()), nil))
+			if !resp.Diagnostics.HasError() {
+				t.Errorf("%s on a %s must fail the plan", f.Path, typ)
+				continue
+			}
+			checked++
+		}
+	}
+	if checked == 0 {
+		t.Fatal("no forbidden field was checked")
+	}
+	t.Logf("%d forbidden fields fail the plan; list-of-object fields not set here: %v", checked, skipped)
+}
+
+// setPath sets a dotted path in a nested config map, creating groups as needed.
+func setPath(config *bmap.Map, path string, value any) {
+	parts := strings.Split(path, ".")
+	node := config
+	for _, part := range parts[:len(parts)-1] {
+		child, ok := node.Get(part)
+		next, isMap := child.(*bmap.Map)
+		if !ok || !isMap {
+			next = bmap.NewMap()
+			node.Set(part, next)
+		}
+		node = next
+	}
+	node.Set(parts[len(parts)-1], value)
+}
+
 // A worker that sets a field only http containers allow fails the plan.
 func TestAForbiddenFieldFailsThePlan(t *testing.T) {
 	r := engineResource(t, "container")
