@@ -119,10 +119,14 @@ func (r *projectRegistryAttachmentResource) Create(ctx context.Context, req reso
 		return
 	}
 
-	var joinID string
-	if err := json.Unmarshal(data, &joinID); err != nil {
+	// Attach consumes capacity, so it answers {id, quota}, not a bare id.
+	joinID, verdict, err := client.DecodeWrite(data)
+	if err != nil {
 		resp.Diagnostics.AddError("Decode join id failed", err.Error())
 		return
+	}
+	if warning := client.QuotaWarning(verdict); warning != "" {
+		resp.Diagnostics.AddWarning("Project resource limits", warning)
 	}
 
 	plan.JoinID = types.StringValue(joinID)
