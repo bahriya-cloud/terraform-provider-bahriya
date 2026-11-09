@@ -390,7 +390,6 @@
             },
             "init_jobs": {
                 "field": "initjobs",
-                "legacyPath": "lifecycle.init_jobs",
                 "item": {
                     "handle": {
                         "field": "handle",
