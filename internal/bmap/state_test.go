@@ -43,7 +43,7 @@ func TestFromStateInvertsStateMode(t *testing.T) {
 			t.Errorf("%s: %v", c.ID, err)
 			continue
 		}
-		want := withoutNil(payload)
+		want := withoutNil(nullsAsDefaults(kind, payload))
 		for _, f := range kind.Fields {
 			if v, ok := want.Get(f.Name); ok && f.Desc.Type == "timestamp" {
 				ts, err := timestamp(v)
@@ -61,6 +61,42 @@ func TestFromStateInvertsStateMode(t *testing.T) {
 	if checked == 0 {
 		t.Fatal("no payloads checked")
 	}
+}
+
+// nullsAsDefaults is the payload as R21 reads it: a null in a field marked
+// nullIsDefault (a list item's field included) is its default, so state round
+// trips to that default rather than to null.
+func nullsAsDefaults(kind *Kind, payload *Map) *Map {
+	out := Clone(payload).(*Map)
+	typ := kind.payloadType(payload)
+	for _, f := range kind.Fields {
+		v, ok := out.Get(f.Name)
+		if !ok {
+			continue
+		}
+		if v == nil && f.Desc.NullIsDefault {
+			if def, has := kind.effectiveDefault(f, typ); has {
+				out.Set(f.Name, Clone(def))
+			}
+			continue
+		}
+		list, isList := v.([]any)
+		if !isList || len(f.Item) == 0 {
+			continue
+		}
+		for _, element := range list {
+			item, isMap := element.(*Map)
+			if !isMap {
+				continue
+			}
+			for _, itemField := range f.Item {
+				if iv, present := item.Get(itemField.Name); present && iv == nil && itemField.Desc.NullIsDefault && itemField.Desc.HasDefault {
+					item.Set(itemField.Name, Clone(itemField.Desc.Default))
+				}
+			}
+		}
+	}
+	return out
 }
 
 func withoutNil(m *Map) *Map {

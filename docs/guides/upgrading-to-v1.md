@@ -218,8 +218,14 @@ Update any output or reference that reads one of these attributes.
 6. Run `terraform plan`. The state upgrades on this first plan. If the rewrite matches your running resources, the plan shows **no changes**. A change it does show comes from the configuration: usually an attribute that was left out and now takes its default, or a rename that was missed.
 7. Apply once the plan shows only the changes you intend.
 
+## Settings a container holds no value for
+
+A container created with 0.x may hold no value for some settings that have a default: the cron job settings in `schedule` (`tz`, `concurrency`, `successful_history`, `failed_history`, `backoff_limit`, `ttl_seconds`) and the response cache settings in `proxy_cache` (`variant`, `cache_ttl`, `honor_cache_control`, `allow_force_cache_header`). Version 1 reads them as their defaults, so they cause no change in the first plan. The first time you later change such a container, these settings are saved with their default values and the container is redeployed once. How it runs and what it costs do not change.
+
+On an older container, the plan may show `scaling.replicas` or `scaling.target_cpu` changing to its default. That container has no value stored for it, and it already runs as if it had the default; applying stores the value.
+
 ## State from older releases
 
-State written by provider 0.3.0 or later upgrades directly. For older state, apply once with provider 0.4.2, run `terraform apply -refresh-only`, and then switch to version 1. A state that cannot be upgraded is refused with an error that names the resource; nothing in it is dropped.
+State written by provider 0.3.0 or later upgrades directly. For older state, apply once with provider 0.4.3, run `terraform apply -refresh-only`, and then switch to version 1. A state that cannot be upgraded is refused with an error that names the resource; nothing in it is dropped.
 
 Values the API never returns, such as secret values, keys and passwords, are carried over from your state, so the upgrade does not rotate them.

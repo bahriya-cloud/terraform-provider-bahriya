@@ -54,7 +54,7 @@ resource "bahriya_network_policy" "notifications" {
 ### Optional
 
 - `egress_cidrs` (List of String) CIDR ranges this policy's targets are allowed to send outbound traffic to.
-- `egress_fqdns` (List of String) Domain names allowed for outbound traffic. Coming soon — stored and validated now, enforced in a future release.
+- `egress_fqdns` (List of String) Domain names the containers this policy applies to may reach. Only outbound TLS (such as HTTPS) is allowed to them, on the first TCP port the policy lists, or 443 when it lists none; plain HTTP is not. Domain rules apply to containers, not datastores. A workload cannot yet have both domain rules and egress CIDR rules.
 - `enable_l7` (Boolean) Enable L7 controls for this policy. Opts the policy into the application-layer engine and its per-replica charge for every container it is applied to. Automatically enabled when egress domains are set.
 - `ingress_peers` (List of String) Same-organisation project handles allowed to reach this policy's targets.
 - `ports` (Attributes List) Optional port/protocol scoping applied to the rules above. Omit to allow all ports. (see [below for nested schema](#nestedatt--ports))

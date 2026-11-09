@@ -84,9 +84,12 @@ type Descriptor struct {
 	Immutable bool
 	// Parent marks the item's URL parent (x-parent): read-only in the body,
 	// but kept in YAML and rendered in HCL, since clients supply it.
-	Parent      bool
-	Description string
-	ItemsType   string
+	Parent bool
+	// NullIsDefault marks a field whose API null means its default (R21): in
+	// state mode a null is emitted as the default.
+	NullIsDefault bool
+	Description   string
+	ItemsType     string
 	// Wire is "string" for a canonical integer the API carries as a string of
 	// digits (R5, R12).
 	Wire string
@@ -253,6 +256,7 @@ func parseDescriptor(m *Map) *Descriptor {
 	d.RotateOnly, _ = mapGet(m, "rotateOnly").(bool)
 	d.Immutable, _ = mapGet(m, "immutable").(bool)
 	d.Parent, _ = mapGet(m, "parent").(bool)
+	d.NullIsDefault, _ = mapGet(m, "nullIsDefault").(bool)
 	d.Description, _ = mapGet(m, "description").(string)
 	d.ItemsType, _ = mapGet(asMap(mapGet(m, "items")), "type").(string)
 	d.Wire, _ = mapGet(m, "wire").(string)

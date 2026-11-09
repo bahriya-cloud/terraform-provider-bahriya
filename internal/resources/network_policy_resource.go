@@ -56,8 +56,8 @@ func networkPolicySchema() schema.Schema {
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
-				Description:         "Domain names allowed for outbound traffic. Coming soon — stored and validated now, enforced in a future release.",
-				MarkdownDescription: "Domain names allowed for outbound traffic. Coming soon — stored and validated now, enforced in a future release.",
+				Description:         "Domain names the containers this policy applies to may reach. Only outbound TLS (such as HTTPS) is allowed to them, on the first TCP port the policy lists, or 443 when it lists none; plain HTTP is not. Domain rules apply to containers, not datastores. A workload cannot yet have both domain rules and egress CIDR rules.",
+				MarkdownDescription: "Domain names the containers this policy applies to may reach. Only outbound TLS (such as HTTPS) is allowed to them, on the first TCP port the policy lists, or 443 when it lists none; plain HTTP is not. Domain rules apply to containers, not datastores. A workload cannot yet have both domain rules and egress CIDR rules.",
 			},
 			"ports": schema.ListNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{Attributes: map[string]schema.Attribute{

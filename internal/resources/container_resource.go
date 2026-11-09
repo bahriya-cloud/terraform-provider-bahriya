@@ -386,8 +386,8 @@ func containerSchema() schema.Schema {
 					"external": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Make this container reachable from the internet at its hostnames. When false, only workloads in the same project can reach it. It has no default for HTTP containers, so a hostname is published only when a document says so. Required for http containers. Not allowed on cronjob or worker containers.",
-						MarkdownDescription: "Make this container reachable from the internet at its hostnames. When false, only workloads in the same project can reach it. It has no default for HTTP containers, so a hostname is published only when a document says so. Required for http containers. Not allowed on cronjob or worker containers.",
+						Description:         "Make this container reachable from the internet at its hostnames. When false, only workloads in the same project can reach it. Required for HTTP containers: state true or false. If it is omitted when an HTTP container is created through the API directly, the API makes the container reachable from the internet. Workers and cron jobs are never reachable from the internet. Required for http containers. Not allowed on cronjob or worker containers.",
+						MarkdownDescription: "Make this container reachable from the internet at its hostnames. When false, only workloads in the same project can reach it. Required for HTTP containers: state true or false. If it is omitted when an HTTP container is created through the API directly, the API makes the container reachable from the internet. Workers and cron jobs are never reachable from the internet. Required for http containers. Not allowed on cronjob or worker containers.",
 					},
 					"network_policies": schema.ListAttribute{
 						ElementType:         types.StringType,

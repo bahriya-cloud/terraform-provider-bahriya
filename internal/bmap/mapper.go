@@ -414,6 +414,12 @@ func (k *Kind) ToYAML(api *Map, state bool) (*Map, error) {
 			}
 			continue
 		}
+		if state && value == nil && f.Desc.NullIsDefault {
+			if def, ok := k.effectiveDefault(f, typ); ok {
+				emitted.Set(f.Name, Clone(def)) // R21
+				continue
+			}
+		}
 		if !state {
 			if k.isStrippedReadOnly(f) || value == nil {
 				continue // R11, R12
@@ -517,6 +523,10 @@ func reverse(value any, f *Field, state bool) (any, error) {
 					continue
 				}
 				if itemValue == nil {
+					if state && itemField.Desc.NullIsDefault && itemField.Desc.HasDefault {
+						mapped.Set(itemField.Path, Clone(itemField.Desc.Default)) // R21
+						continue
+					}
 					mapped.Set(itemField.Path, nil)
 					continue
 				}

@@ -624,7 +624,6 @@
         "defaults": {
             "hostnames": [],
             "dnsfailoverenabled": false,
-            "externalnetworkingenabled": false,
             "bootstraptime": 30,
             "autoscalingenabled": false,
             "autoscalingminreplicas": 1,
@@ -798,8 +797,7 @@
                 "type": "boolean",
                 "nullable": false,
                 "required": false,
-                "description": "Make this container reachable from the internet at its hostnames. When false, only workloads in the same project can reach it. It has no default for HTTP containers, so a hostname is published only when a document says so.",
-                "default": false,
+                "description": "Make this container reachable from the internet at its hostnames. When false, only workloads in the same project can reach it. Required for HTTP containers: state true or false. If it is omitted when an HTTP container is created through the API directly, the API makes the container reachable from the internet. Workers and cron jobs are never reachable from the internet.",
                 "typeForbidden": [
                     "worker",
                     "cronjob"
@@ -1203,7 +1201,8 @@
                 "nullable": true,
                 "required": false,
                 "description": "IANA time zone in which the schedule is evaluated, such as Europe/London. Defaults to UTC. The schedule follows this time zone in every region the cron job runs in.",
-                "default": "UTC"
+                "default": "UTC",
+                "nullIsDefault": true
             },
             "concurrencypolicy": {
                 "type": "string",
@@ -1215,21 +1214,24 @@
                     "Forbid",
                     "Replace"
                 ],
-                "default": "Forbid"
+                "default": "Forbid",
+                "nullIsDefault": true
             },
             "successfuljobshistorylimit": {
                 "type": "integer",
                 "nullable": true,
                 "required": false,
                 "description": "How many successful runs are kept in the run history. Older runs are removed automatically.",
-                "default": 3
+                "default": 3,
+                "nullIsDefault": true
             },
             "failedjobshistorylimit": {
                 "type": "integer",
                 "nullable": true,
                 "required": false,
                 "description": "How many failed runs are kept in the run history. Older runs are removed automatically.",
-                "default": 3
+                "default": 3,
+                "nullIsDefault": true
             },
             "startingdeadlineseconds": {
                 "type": "integer",
@@ -1242,7 +1244,8 @@
                 "nullable": true,
                 "required": false,
                 "description": "Number of retries before a run is considered failed.",
-                "default": 3
+                "default": 3,
+                "nullIsDefault": true
             },
             "activedeadlineseconds": {
                 "type": "integer",
@@ -1255,7 +1258,8 @@
                 "nullable": true,
                 "required": false,
                 "description": "Seconds a finished run is kept, so its logs can be read, before it is removed.",
-                "default": 3600
+                "default": 3600,
+                "nullIsDefault": true
             },
             "suspended": {
                 "type": "boolean",
@@ -1298,7 +1302,8 @@
                     "pre_ratelimit",
                     "post_ratelimit"
                 ],
-                "default": "post_ratelimit"
+                "default": "post_ratelimit",
+                "nullIsDefault": true
             },
             "proxycachesizemb": {
                 "type": "integer",
@@ -1317,7 +1322,8 @@
                 "nullable": true,
                 "required": false,
                 "description": "Seconds the plugin serves the cached entry.",
-                "default": 300
+                "default": 300,
+                "nullIsDefault": true
             },
             "proxycachestoragettl": {
                 "type": "integer",
@@ -1330,14 +1336,16 @@
                 "nullable": true,
                 "required": false,
                 "description": "Honour RFC 7234 Cache-Control directives from upstream.",
-                "default": true
+                "default": true,
+                "nullIsDefault": true
             },
             "proxycacheallowforcecacheheader": {
                 "type": "boolean",
                 "nullable": true,
                 "required": false,
                 "description": "Allow clients to send X-Proxy-Cache-Memcached-Force: true to bypass request-method/Cache-Control checks.",
-                "default": false
+                "default": false,
+                "nullIsDefault": true
             },
             "proxycacherequestmethods": {
                 "type": "array",
@@ -5722,7 +5730,7 @@
                 "type": "array",
                 "nullable": true,
                 "required": false,
-                "description": "Domain names allowed for outbound traffic. Coming soon \u2014 stored and validated now, enforced in a future release.",
+                "description": "Domain names the containers this policy applies to may reach. Only outbound TLS (such as HTTPS) is allowed to them, on the first TCP port the policy lists, or 443 when it lists none; plain HTTP is not. Domain rules apply to containers, not datastores. A workload cannot yet have both domain rules and egress CIDR rules.",
                 "items": {
                     "type": "string"
                 }
@@ -5750,7 +5758,8 @@
                                 "TCP",
                                 "UDP"
                             ],
-                            "default": "TCP"
+                            "default": "TCP",
+                            "nullIsDefault": true
                         }
                     }
                 }
