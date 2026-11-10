@@ -599,7 +599,7 @@ Optional:
 - `enabled` (Boolean) Whether requests to the container are rate limited per client IP address. Defaults to `false`. Not allowed on cronjob or worker containers.
 - `per_hour` (Number) Max requests per hour per IP (requires ratelimitingenabled). Not allowed on cronjob or worker containers.
 - `per_minute` (Number) Max requests per minute per IP (requires ratelimitingenabled). Not allowed on cronjob or worker containers.
-- `per_second` (Number) Max requests per second per IP (requires ratelimitingenabled).
+- `per_second` (Number) Max requests per second per IP (requires ratelimitingenabled). Not allowed on cronjob or worker containers.
 
 
 

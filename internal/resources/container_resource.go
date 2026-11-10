@@ -443,8 +443,8 @@ func containerSchema() schema.Schema {
 							"per_second": schema.Int64Attribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "Max requests per second per IP (requires ratelimitingenabled).",
-								MarkdownDescription: "Max requests per second per IP (requires ratelimitingenabled).",
+								Description:         "Max requests per second per IP (requires ratelimitingenabled). Not allowed on cronjob or worker containers.",
+								MarkdownDescription: "Max requests per second per IP (requires ratelimitingenabled). Not allowed on cronjob or worker containers.",
 							},
 						},
 						Optional: true,

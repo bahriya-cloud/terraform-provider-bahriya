@@ -1079,7 +1079,11 @@
                 "type": "integer",
                 "nullable": true,
                 "required": false,
-                "description": "Max requests per second per IP (requires ratelimitingenabled)."
+                "description": "Max requests per second per IP (requires ratelimitingenabled).",
+                "typeForbidden": [
+                    "worker",
+                    "cronjob"
+                ]
             },
             "ipwhitelistenabled": {
                 "type": "boolean",
