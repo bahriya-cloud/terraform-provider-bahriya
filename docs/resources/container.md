@@ -36,7 +36,7 @@ resource "bahriya_container" "api" {
 
   activeregions = ["falkenstein-1", "virginia-1"]
   project       = bahriya_project.web.id
-  registry      = bahriya_registry.ghcr.handle
+  registry      = bahriya_registry.ghcr.id
 
   newenvvar = [
     { key = "NODE_ENV", value = "production" },
@@ -192,7 +192,7 @@ resource "bahriya_container" "api" {
 - `healthcheckpath` (String) - Health check endpoint path. **Required for HTTP containers** — the platform probes this path to decide if the container is healthy.
 - `protocol` (String) - The protocol the container speaks on its port: `http` (default), `https` or `tcp`. Governs **both** how the platform health-probes the container and how external traffic is delivered to it. `https` sends the probe over TLS (the certificate is not verified) and annotates the Service with `konghq.com/protocol: https` so the gateway speaks HTTPS upstream. `tcp` only checks the port accepts a connection and ignores `healthcheckpath`.
 - `project` (String) - Project UUID. Changing this forces recreation.
-- `registry` (String) - Registry handle for private images.
+- `registry` (String) - ID (UUID) of the registry whose credentials pull a private image, for example `bahriya_registry.ghcr.id`. The registry must be attached to the container's project. A handle is refused.
 - `autoscalingminreplicas` (String) - Minimum replicas.
 - `autoscalingmaxreplicas` (String) - Maximum replicas (enables autoscaling).
 - `autoscalingtargetcpu` (String) - CPU utilisation target for autoscaling.
@@ -317,7 +317,7 @@ Init jobs that run to completion before the main container starts. HTTP containe
 - `args` (List of String, Optional) - Override CMD arguments.
 - `mincpu` (String, Optional) - CPU in millicores.
 - `minmemory` (String, Optional) - Memory in megabytes.
-- `registry` (String, Optional) - Registry handle for private images.
+- `registry` (String, Optional) - ID (UUID) of the registry whose credentials pull this init job's private image, for example `bahriya_registry.mirror.id`. It must be attached to the container's project, and may differ from the container's own registry. A handle is refused.
 
 <a id="nestedatt--persistentvolumes"></a>
 #### Nested Schema for `persistentvolumes` (Attributes List)
